@@ -4,77 +4,39 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - QvistaX</title>
-
-
-    <script src="~/lib/highcharts2/dashboards.js"></script>
-    <script src="~/lib/highcharts2/highcharts.js"></script>
-    <script src="~/lib/highcharts2/dashboards-plugin.js"></script>
-
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/PortalPOC.styles.css" asp-append-version="true" />
-
-
-    <link rel="stylesheet" href="~/css/dashboards.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/datagrid.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/highcharts.css" asp-append-version="true" />
-     @* BOOTSTRAP *@
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-
-    @* FONTAWESOME *@
-    <link href="~/lib/fontawesome/css/all.css" rel="stylesheet" />
-    <link href="~/lib/fontawesome/css/all.min.css" rel="stylesheet" />
-
-    @* DATATABLES *@
-    <link href="~/lib/DataTables-1.13.6/css/dataTables.bootstrap5.css" rel="stylesheet">
-    <link href="~/lib/DataTables-1.13.6/buttons/buttons.dataTables.min.css" rel="stylesheet">
-    <link href="~/lib/DataTables-1.13.6/select/select.dataTables.min.css" rel="stylesheet">
-    
-    @* JQUERY *@
-	<script await src="~/lib/jquery/dist/jquery.min.js"></script>
-
-    @* BOOTSTRAP *@
-	<script src="~/lib/popper.min.js"></script>
-
-
-    @* SWEETALERT 2 *@
-    <link href="~/lib/swal/sweetalert2.css" rel="stylesheet">
-
-	@* CKEDITOR 4.22.1 *@
-	<script src="~/ckeditor/ckeditor.js"></script>
-
-
-	<!--begin::Fonts(mandatory for all pages)-->
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
-	<!--end::Fonts-->
-	<!--begin::Vendor Stylesheets(used for this page only)-->
-	<link href="~/assets/plugins/custom/fullcalendar/fullcalendar.bundle.css" rel="stylesheet" type="text/css" />
-	<link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
-	<!--end::Vendor Stylesheets-->
-	<!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
-	<link href="~/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
-	<link href="~/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="~/QorchProtalPoc.styles.css" asp-append-version="true" />
+    <link href="~/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
 </head>
 
-<body id="kt_body" 
-    data-kt-app-page-loading-enabled="true"
+<body id="kt_body"
+    data-kt-app-page-loading-enabled="true" 
     data-kt-app-page-loading="on"
-    class="header-fixed header-tablet-and-mobile-fixed toolbar-enabled toolbar-fixed toolbar-tablet-and-mobile-fixed aside-enabled aside-fixed"
+    class="header-fixed header-tablet-and-mobile-fixed toolbar-enabled toolbar-fixed toolbar-tablet-and-mobile-fixed aside-enabled aside-fixed" 
     style="--kt-toolbar-height:55px;--kt-toolbar-height-tablet-and-mobile:55px">
-    <!--layout-partial:partials/theme-mode/_init.html-->
-    <!--layout-partial:partials/_loader.html-->
+    @await Html.PartialAsync("partials/theme-mode/_init")
+
+    @await Html.PartialAsync("partials/_loader")
+
     <!--begin::Main-->
     <!--begin::Root-->
     <div class="d-flex flex-column flex-root">
         <!--begin::Page-->
         <div class="page d-flex flex-row flex-column-fluid">
-            <!--layout-partial:layout/aside/_base.html-->
+          
+            @await Html.PartialAsync("layout/aside/_base")
+
             <!--begin::Wrapper-->
             <div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
-                <!--layout-partial:layout/header/_base.html-->
+               
+                @await Html.PartialAsync("layout/header/_base")
+
                 <!--begin::Content-->
                 <div class="content d-flex flex-column flex-column-fluid " id="kt_content">
-                    <!--layout-partial:layout/_toolbar.html-->
+                    
+                    @await Html.PartialAsync("layout/_toolbar")
+
                     <!--begin::Post-->
                     <div class="post d-flex flex-column-fluid" id="kt_post">
                         @RenderBody()
@@ -82,45 +44,73 @@
                     <!--end::Post-->
                 </div>
                 <!--end::Content-->
-                <!--layout-partial:layout/_footer.html-->
+               
+                @await Html.PartialAsync("layout/_footer")
             </div>
             <!--end::Wrapper-->
         </div>
         <!--end::Page-->
     </div>
+
     <!--end::Root-->
-    <!--layout-partial:partials/_drawers.html-->
-    <!--end::Main-->
-    <!--layout-partial:partials/_scrolltop.html-->
+    @await Html.PartialAsync("partials/_drawers")
 
-
-    <!--begin::Javascript-->
     
+    <!--end::Main-->
+    <!--begin::Scrolltop-->
+    <div id="kt_scrolltop" class="scrolltop" data-kt-scrolltop="true">
+        <i class="ki-outline ki-arrow-up"></i>
+    </div>
+    <!--end::Scrolltop-->
+   
+
+
+    <script>var hostUrl = "assets/";</script>
     <!--begin::Global Javascript Bundle(mandatory for all pages)-->
+    <script src="~/assets/plugins/global/plugins.bundle.js"></script>
+    <script src="~/assets/js/scripts.bundle.js"></script>   
+    <!--end::Global Javascript Bundle-->
+    <!--begin::Vendors Javascript(used for this page only)-->
+    <script src="~/assets/plugins/custom/fullcalendar/fullcalendar.bundle.js"></script>
+
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <!--end::Vendors Javascript-->
+    <!--begin::Custom Javascript(used for this page only)-->
+    <script src="~/assets/js/widgets.bundle.js"></script>
+    <script src="~/assets/js/custom/widgets.js"></script>
+    <script src="~/assets/js/custom/apps/chat/chat.js"></script>
+    <script src="~/assets/js/custom/utilities/modals/upgrade-plan.js"></script>
+    <script src="~/assets/js/custom/utilities/modals/users-search.js"></script>
+
     @* GENERAL *@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/quavis.js" asp-append-version="true"></script>
     <script src="~/js/baseConfig.js" asp-append-version="true"></script>
     <script src="~/js/bootstrap-tab.js"></script>
-   
-   
+
+
+
+    @* DATATABLES - BUTTONS *@
+    <script src="~/lib/DataTables-1.13.6/buttons/dataTables.buttons.min.js"></script>
+    <script src="~/lib/DataTables-1.13.6/buttons/buttons.print.min.js"></script>
+    <script src="~/lib/DataTables-1.13.6/buttons/buttons.colVis.min.js"></script>
+    <script src="~/lib/DataTables-1.13.6/buttons/pdfmake.min.js"></script>
+    <script src="~/lib/DataTables-1.13.6/buttons/vfs_fonts.js"></script>
+
+    @* DATABLES - SELECT *@
+    <script src="~/lib/DataTables-1.13.6/select/dataTables.select.min.js"></script>
+
     @* SWEETALERT 2 *@
     <script src="~/lib/swal/sweetalert2.all.js"></script>
 
 
 
-    <!--end::Global Javascript Bundle-->
-    <!--begin::Vendors Javascript(used for this page only)-->
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
-
-    <!--end::Vendors Javascript-->
-    <!--begin::Custom Javascript(used for this page only)-->
-    
     <!--end::Custom Javascript-->
     <!--end::Javascript-->
 </body>
+<!--end::Body-->
+
 </html>

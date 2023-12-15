@@ -1,18 +1,15 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<div class="flex-column">
 
-<!-- Views/Home/Index.cshtml -->
-<h2>Table Selection</h2>
+    <div class="card mb-3" style="width:70%;">
+        <div class="card-body">
+            <h5 class="card-title">Welcome to Quavis Kiosk Admin</h5>
+            <p class="card-text">
+                Here you can manage kiosk applications.
+            </p>
+            @* <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p> *@
+        </div>
+    </div>
 
+    <img src="~/img/homepage.jpg" class="logo" style="display:inline; width:30rem; margin:0 0 4rem 0;">
 
-<a asp-controller="Generic" asp-action="Index" asp-route-tableName="Products">
-    <span>Products</span>
-</a>
-<a asp-controller="Generic" asp-action="Index" asp-route-tableName="Employees">
-    <span>Employees </span>
-</a>
-<a asp-controller="Generic" asp-action="Index" asp-route-tableName="Customers ">
-    <span>Customers  </span>
-</a>
-
+</div>

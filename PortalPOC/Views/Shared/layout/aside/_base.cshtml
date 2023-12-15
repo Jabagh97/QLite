@@ -1,0 +1,48 @@
+<!--begin::Aside-->
+<div
+	id="kt_aside"
+	class="aside  aside-dark aside-hoverable "
+	data-kt-drawer="true"
+	data-kt-drawer-name="aside"
+	data-kt-drawer-activate="{default: true, lg: false}"
+	data-kt-drawer-overlay="true"
+	data-kt-drawer-width="{default:'200px', '300px': '250px'}"
+	data-kt-drawer-direction="start"
+	data-kt-drawer-toggle="#kt_aside_mobile_toggle"
+	>
+    <!--begin::Brand-->
+    <div class="aside-logo flex-column-auto" id="kt_aside_logo">
+        <!--begin::Logo-->
+        <a href="?page=index">
+            <img alt="Logo" src="~/img/logo1.png" class="h-15px logo"/>
+        </a>
+        <!--end::Logo-->
+                    <!--begin::Aside toggler-->
+            <div id="kt_aside_toggle" class="btn btn-icon w-auto px-0 btn-active-color-primary aside-toggle me-n2"
+                data-kt-toggle="true"
+                data-kt-toggle-state="active"
+                data-kt-toggle-target="body"
+                data-kt-toggle-name="aside-minimize"
+                >
+                <i class="ki-solid ki-double-left fs-1 rotate-180"></i>            </div>
+            <!--end::Aside toggler-->
+            </div>
+    <!--end::Brand-->
+    <!--begin::Aside menu-->
+	<div class="aside-menu flex-column-fluid">
+-->
+        @await Html.PartialAsync("layout/aside/_menu")
+
+    </div>
+    <!--end::Aside menu-->
+    <!--begin::Footer-->
+    <div class="aside-footer flex-column-auto pb-7 px-5" id="kt_aside_footer">
+        <a href="https://preview.keenthemes.com/html/metronic/docs" class="btn btn-custom btn-primary w-100" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss-="click" title="200+ in-house components and 3rd-party plugins">
+            <span class="btn-label">
+                Docs & Components
+            </span>
+            <i class="ki-solid ki-document btn-icon fs-2"></i>        </a>
+    </div>
+    <!--end::Footer-->
+</div>
+<!--end::Aside-->
