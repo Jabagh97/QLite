@@ -1,0 +1,27 @@
+﻿@model Type
+
+<div id="kt_app_content" class="app-content  flex-column-fluid">
+    <!--begin::Content container-->
+    <div id="kt_app_content_container" class="app-container  container-fluid">
+        <table class="table table-striped border rounded gy-5 gs-7" id="table">
+            <!-- Table Header -->
+            <thead>
+                <tr style="background-color: #dfdfdf !important">
+                    @foreach (var property in Model.GetProperties())
+                    {
+                        <th>
+                            @Html.DisplayName(property.Name)
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <!-- Table Body -->
+            <tbody>
+                <!-- Add code to populate the table body based on your data -->
+            </tbody>
+        </table>
+    </div>
+    <!--end::Content container-->
+</div>
+
+

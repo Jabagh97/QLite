@@ -29,12 +29,13 @@
                 <div class="menu-item">
                     <!--begin:Menu link-->
                     @* BRANCH *@
-                    <a class="menu-link" asp-controller="Branches" asp-action="Index">
+                    <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="Branch">
                         <span class="menu-bullet">
                             <span class="bullet bullet-dot"></span>
                         </span>
                         <span class="menu-title">Branches</span>
                     </a>
+
                     <!--end:Menu link-->
                 </div>
                 <!--end:Menu item-->
@@ -43,7 +44,7 @@
                 <div class="menu-item">
                     <!--begin:Menu link-->
                     @* COUNTRY *@
-                    <a class="menu-link" asp-controller="Countries" asp-action="Index">
+                    <a class="menu-link" asp-controller="Generic" asp-action="Index" asp-route-modelName="Country">
                         <span class="menu-bullet">
                             <span class="bullet bullet-dot"></span>
                         </span>
