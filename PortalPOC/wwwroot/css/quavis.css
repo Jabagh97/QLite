@@ -1,0 +1,479 @@
+﻿
+#kt_scrolltop > i {
+    color: white !important;
+}
+
+h2 {
+    padding-top: 1.7rem;
+}
+
+#dcsTable_wrapper {
+    overflow: hidden;
+}
+
+#roleTable_filter > label > input { /* searchbox of grids */
+    background-color: #e4e4e4;
+}
+
+body {
+    overflow: overlay;
+}
+
+
+#table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.975rem;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    background-color: #fff;
+}
+
+    #table th, #table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #table th {
+        background-color: #0d6efd;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    /*#table tbody tr:hover {
+        background-color: #f5f5f5;
+    }*/
+
+td {
+    word-wrap: break-word !important;
+}
+
+#errorContainer {
+    margin-top: 1rem;
+}
+
+.codeDisplay {
+    color: #b93993;
+    font-family: SFMono-Regular, Menlo, Monaco;
+    font-size: 13px;
+    font-weight: 400;
+}
+
+/* works form both metronic command fontawesome icon classes in action buttons above grid */
+
+/*.d-flex {
+    flex-direction: row-reverse;
+}*/ 
+
+.menu, .menu-wrapper {
+    flex-direction: column;
+}
+
+.btn > span > i {
+    margin-right: 0.4rem !important;
+}
+
+/* VARIABLE DECLARATIONS START */
+:root {
+    --qv-main-color: #0666f1;
+}
+/* VARIABLE DECLARATIONS END */
+
+/* MAIN START */
+#editForm, #createForm {
+    padding-bottom: 2rem
+}
+
+#errorContainerAdd, #errorContainerEdit {
+    color: red;
+    background-color: #ffedf0;
+    border-radius: 0.25rem;
+    margin-top: 1.5rem;
+}
+
+#qvImageDisplayAdd, #qvImageDisplayEdit {
+    display: block;
+    width: 100%;
+    /*max-width: 100%;*/
+    border: 4px solid var(--bs-gray-300);
+    border-radius: 0.65rem;
+    display: inline;
+}
+
+#qvImagePreviewLabel {
+    display: block;
+    color: #a2a7b4;
+    font-style: italic;
+    margin-top: 1rem;
+}
+
+#qvFileInputAdd, #qvFileInputEdit {
+    display: inline;
+    margin-right: 1rem;
+}
+
+#qvDeleteIcon {
+    transition: 0.5s;
+    font-size: 3.1rem !important;
+    background-color: transparent;
+    border-radius: 1rem;
+}
+
+#qvDeleteIcon:hover {
+    color: #ff5a5a !important;
+}
+
+#qvDeleteIcon:active {
+    transition: background-color 0s; /* Remove the transition on click */
+    background-color: lightgrey;
+}
+
+#qvFileUploadContainer {
+    display: flex;
+    /* align-content: center; */
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* MAIN END */
+
+
+/* METRONIC START */
+
+/*.app-main {
+    padding-left: 18rem !important;
+}
+#kt_app_sidebar {
+    transition: 0.2s !important;
+}
+#kt_app_sidebar:hover {
+    transition: 0.2s !important;
+}
+*/
+
+/*i {*/
+/*normalde "var(--bs-text-muted)" idi ama sayfa yenilendiginde anlik siyah gorunuyordu ikonlar variabledan alirken, rengi hardcode verdim.*/
+/*color: #99a1b7 !important;
+}
+
+.menu-title {*/
+/*color: var(--bs-gray-500) !important;*/
+/*}*/
+/*.menu-link:hover {*/
+/*color: var(--bs-gray-800) !important;*/
+/*background-color: green;
+}*/
+/* METRONIC END */
+/* DATATABLES START */
+/*th.sorting:hover { 
+    background-color: #d4d4d4;
+    transition: 0.2s;
+    border-radius: 25px;
+}*/
+div.dataTables_wrapper div.dataTables_filter {
+    padding: 1rem 0 !important;
+    margin-bottom: 1rem !important;
+}
+
+tr:hover,
+td:hover,
+.odd:hover {
+    background-color: #0666f1 !important; /* table row hover bg color */
+}
+
+thead > tr {
+    /*background-color: #dfdfdf !important;*/
+    /*header bg color buradan verilemiyor cunku buradan verince hoverdan etkileniyor. 
+    inline verince daha specific oldugu icin hoverdan etkilenmiyor.*/
+
+    font-weight: 500 !important;
+}
+
+/*tr:nth-child(even) {
+    background-color: #e2e8ef !important;
+}*/
+
+#table_wrapper {
+    width: 100%;
+    margin: 0 0 5rem 0;
+}
+
+#table_length {
+    margin-bottom: -1.6rem;
+    margin-top: -1rem;
+}
+
+#table_wrapper > div.dt-buttons.btn-group.flex-wrap {
+    bottom: -1rem;
+    position: relative;
+}
+
+#table_filter > label > input {
+    background-color: #f3f3f3 !important;
+}
+
+td, th {
+    padding: 1rem !important;
+}
+
+table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
+table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
+    content: "<i class="fa-solid fa-magnifying-glass"></i>" !important;
+}
+
+/*thead {
+    background-color: grey !important;
+}*/
+
+table.dataTable {
+    border: 1px solid #cbcbcb;
+    border-radius: 2px;
+    border-collapse: collapse;
+}
+
+.table_wrapper {
+    margin-top: 2rem;
+}
+
+.dt-cuttons {
+    display: flex !important;
+}
+
+#table_length > label {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 0.6rem;
+}
+
+    #table_length > label > * {
+        margin: 0rem 0.3rem;
+    }
+
+.select-checkbox {
+    padding: 0rem 1rem !important;
+}
+
+table.dataTable > tbody > tr > td.select-checkbox:before, table.dataTable > tbody > tr > th.select-checkbox:before {
+    margin-left: -2px !important;
+    width: 0.8rem !important;
+    height: 0.8rem !important;
+}
+
+.addBtn {
+    /*background-color: #54cc00 !important;*/
+}
+
+.editBtn {
+    /*background-color: #f3e21e !important;*/
+}
+
+.deleteBtn {
+    /*background-color: #ff5050 !important;*/
+}
+
+#table_filter > label > input {
+    height: 35px !important;
+}
+
+.odd {
+    /*background-color: red !important;*/
+}
+
+/*.even {
+    background-color: #e2e8ef !important;
+}*/
+
+#table_info {
+    height: 3rem;
+}
+
+.pagination {
+    margin-top: -1rem;
+}
+/* DATATABLES END */
+/* SWEETALERT START */
+div.swal2-actions > .btn {
+    margin: 0.5rem 1rem !important;
+}
+
+.swal2-actions {
+    margin: 1rem 0rem;
+}
+/* SWEETALERT END */
+
+
+/* FORM START */
+.form-group {
+    margin: 0.8rem 0rem;
+}
+
+.modal-body > .row > .col {
+    width: 100% !important;
+}
+
+.row > .col-md-4 {
+    width: 100% !important;
+}
+
+#createForm > div > select,
+#editForm > div > select {
+    display: block;
+    width: 100%;
+    height: 43.56px;
+    border: 1px solid var(--bs-gray-300);
+    border-radius: 0.65rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+    #createForm > div > select:focus,
+    #editForm > div > select:focus {
+        border-color: #B5B5C3;
+    }
+/* FORM END */
+
+
+/* BOOTSTRAP START */
+.text-white {
+    color: #dbdfe9 !important;
+    font-family: Inter;
+    font-weight: 500 !important;
+}
+
+button:focus, btn:focus, a:focus, input:focus, .navbar-toggler:focus, select:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.modal-content {
+    padding: 1rem;
+    /*width: 150% !important;*/
+}
+
+.modal-dialog {
+    max-width: 45rem !important;
+    margin-top: 6rem !important;
+    margin-bottom: 6rem !important;
+}
+
+.btn {
+    display: flex;
+    align-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-primary {
+    background-color: var(--qv-main-color) !important;
+}
+
+.nav-link.active {
+    background-color: var(--qv-main-color) !important;
+}
+
+.paginate_button .page-item .active {
+    background-color: var(--qv-main-color) !important;
+}
+
+.table > :not(:last-child) > :last-child > * { /*fixes th bottom border being black*/
+    border-bottom-color: "" !important;
+}
+
+#navbarAccDropdown:hover {
+    background-color: lightgray;
+}
+/* BOOTSTRAP END */
+
+
+/*NAVBAR IMPROVEMENTS*/
+.nav-link:not(.active):hover {
+    background-color: dimgrey !important;
+}
+
+.nav-link:active {
+    background-color: #0b5fdb !important;
+}
+
+.nav-pills > li {
+    margin-bottom: 0.3rem;
+}
+
+.nav-item > .nav-link {
+    max-height: 2rem;
+    display: flex;
+    align-content: center;
+    flex-wrap: wrap;
+}
+
+.nav-pills .nav-link {
+    padding-left: 1.5rem;
+}
+
+
+.dashboard-Mon-container {
+    width: 100%;
+    height: 100%;
+    border: 3px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.dashboard-iframe {
+    width: 100%;
+    height: 100%;
+}
+
+
+/*Sessions CSS*/
+
+#customActions > * {
+    margin: 0 0.3rem;
+}
+
+#currentFilter {
+    transition: opacity 0.1s ease-in-out;
+    opacity: 0.6;
+}
+
+#myTableContainer {
+    transition: opacity 0.1s ease-in-out;
+    opacity: 1; /* Start with the tab visible */
+}
+
+.btnIcon {
+    color: #eeeeee !important;
+    margin: 0 -0.6rem 0 0.4rem;
+}
+
+.myBtn {
+    max-height: 4rem;
+}
+
+#currentFilter {
+    color: #9f9f9f;
+    font-style: italic;
+    font-size: large;
+    font-weight: 500;
+    margin-bottom: 0.8rem;
+}
+
+#currentFilterSpan {
+    color: #7b68ee;
+}
+
+#searchMode {
+    width: 10rem;
+    padding: 0 0 0 1rem;
+}
+
+.nestedModal {
+    -webkit-box-shadow: 10px 10px 300px 200px rgba(0,0,0,0.52);
+    -moz-box-shadow: 10px 10px 300px 200px rgba(0,0,0,0.52);
+    box-shadow: 10px 10px 300px 200px rgba(0,0,0,0.52);
+}

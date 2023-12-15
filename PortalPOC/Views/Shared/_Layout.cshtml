@@ -3,47 +3,124 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PortalPOC</title>
+    <title>@ViewData["Title"] - QvistaX</title>
+
+
+    <script src="~/lib/highcharts2/dashboards.js"></script>
+    <script src="~/lib/highcharts2/highcharts.js"></script>
+    <script src="~/lib/highcharts2/dashboards-plugin.js"></script>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PortalPOC.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PortalPOC</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2023 - PortalPOC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+
+    <link rel="stylesheet" href="~/css/dashboards.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/datagrid.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/highcharts.css" asp-append-version="true" />
+     @* BOOTSTRAP *@
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+
+    @* FONTAWESOME *@
+    <link href="~/lib/fontawesome/css/all.css" rel="stylesheet" />
+    <link href="~/lib/fontawesome/css/all.min.css" rel="stylesheet" />
+
+    @* DATATABLES *@
+    <link href="~/lib/DataTables-1.13.6/css/dataTables.bootstrap5.css" rel="stylesheet">
+    <link href="~/lib/DataTables-1.13.6/buttons/buttons.dataTables.min.css" rel="stylesheet">
+    <link href="~/lib/DataTables-1.13.6/select/select.dataTables.min.css" rel="stylesheet">
+    
+    @* JQUERY *@
+	<script await src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    @* BOOTSTRAP *@
+	<script src="~/lib/popper.min.js"></script>
+
+
+    @* SWEETALERT 2 *@
+    <link href="~/lib/swal/sweetalert2.css" rel="stylesheet">
+
+	@* CKEDITOR 4.22.1 *@
+	<script src="~/ckeditor/ckeditor.js"></script>
+
+
+	<!--begin::Fonts(mandatory for all pages)-->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+	<!--end::Fonts-->
+	<!--begin::Vendor Stylesheets(used for this page only)-->
+	<link href="~/assets/plugins/custom/fullcalendar/fullcalendar.bundle.css" rel="stylesheet" type="text/css" />
+	<link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
+	<!--end::Vendor Stylesheets-->
+	<!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
+	<link href="~/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
+	<link href="~/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body id="kt_body" 
+    data-kt-app-page-loading-enabled="true"
+    data-kt-app-page-loading="on"
+    class="header-fixed header-tablet-and-mobile-fixed toolbar-enabled toolbar-fixed toolbar-tablet-and-mobile-fixed aside-enabled aside-fixed"
+    style="--kt-toolbar-height:55px;--kt-toolbar-height-tablet-and-mobile:55px">
+    <!--layout-partial:partials/theme-mode/_init.html-->
+    <!--layout-partial:partials/_loader.html-->
+    <!--begin::Main-->
+    <!--begin::Root-->
+    <div class="d-flex flex-column flex-root">
+        <!--begin::Page-->
+        <div class="page d-flex flex-row flex-column-fluid">
+            <!--layout-partial:layout/aside/_base.html-->
+            <!--begin::Wrapper-->
+            <div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
+                <!--layout-partial:layout/header/_base.html-->
+                <!--begin::Content-->
+                <div class="content d-flex flex-column flex-column-fluid " id="kt_content">
+                    <!--layout-partial:layout/_toolbar.html-->
+                    <!--begin::Post-->
+                    <div class="post d-flex flex-column-fluid" id="kt_post">
+                        @RenderBody()
+                    </div>
+                    <!--end::Post-->
+                </div>
+                <!--end::Content-->
+                <!--layout-partial:layout/_footer.html-->
+            </div>
+            <!--end::Wrapper-->
         </div>
-    </footer>
+        <!--end::Page-->
+    </div>
+    <!--end::Root-->
+    <!--layout-partial:partials/_drawers.html-->
+    <!--end::Main-->
+    <!--layout-partial:partials/_scrolltop.html-->
+
+
+    <!--begin::Javascript-->
+    
+    <!--begin::Global Javascript Bundle(mandatory for all pages)-->
+    @* GENERAL *@
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/quavis.js" asp-append-version="true"></script>
+    <script src="~/js/baseConfig.js" asp-append-version="true"></script>
+    <script src="~/js/bootstrap-tab.js"></script>
+   
+   
+    @* SWEETALERT 2 *@
+    <script src="~/lib/swal/sweetalert2.all.js"></script>
+
+
+
+    <!--end::Global Javascript Bundle-->
+    <!--begin::Vendors Javascript(used for this page only)-->
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <!--end::Vendors Javascript-->
+    <!--begin::Custom Javascript(used for this page only)-->
+    
+    <!--end::Custom Javascript-->
+    <!--end::Javascript-->
 </body>
 </html>
