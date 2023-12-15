@@ -6,9 +6,9 @@ namespace PortalPOC.Controllers
 {
     public class GenericController : Controller
     {
-        private readonly AppDbContext _dbContext;
+        private readonly QuavisQorchAdminEasyTestContext _dbContext;
 
-        public GenericController(AppDbContext dbContext)
+        public GenericController(QuavisQorchAdminEasyTestContext dbContext)
         {
             _dbContext = dbContext;
         }

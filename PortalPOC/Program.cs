@@ -15,7 +15,7 @@ internal class Program
         builder.Services.AddControllersWithViews();
 
         // Correct indentation for AddDbContext
-        builder.Services.AddDbContext<AppDbContext>(options =>
+        builder.Services.AddDbContext<QuavisQorchAdminEasyTestContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
        
