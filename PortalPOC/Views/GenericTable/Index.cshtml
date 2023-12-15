@@ -1,5 +1,10 @@
 ﻿@model Type
 
+@{
+    var properties = Model.GetProperties();
+}
+
+
 <div id="kt_app_content" class="app-content  flex-column-fluid">
     <!--begin::Content container-->
     <div id="kt_app_content_container" class="app-container  container-fluid">
@@ -7,7 +12,7 @@
             <!-- Table Header -->
             <thead>
                 <tr style="background-color: #dfdfdf !important">
-                    @foreach (var property in Model.GetProperties())
+                    @foreach (var property in properties)
                     {
                         <th>
                             @Html.DisplayName(property.Name)
