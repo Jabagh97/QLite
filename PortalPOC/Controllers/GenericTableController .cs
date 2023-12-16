@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PortalPOC.Context;
 using PortalPOC.Models;
-using System.Data;
-using System.Data.Entity;
 
 namespace PortalPOC.Controllers
 {

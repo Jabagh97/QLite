@@ -1,9 +1,10 @@
-using PortalPOC.Context;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using PortalPOC;
+using PortalPOC.Models;
 
 internal class Program
 {
@@ -18,9 +19,31 @@ internal class Program
         builder.Services.AddDbContext<QuavisQorchAdminEasyTestContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-       
-
         var app = builder.Build();
+
+        // Initialize the database if InitDatabase is true
+        var initDatabase = Convert.ToBoolean(app.Configuration["InitDatabase"]);
+        if (initDatabase)
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var dbContext = services.GetRequiredService<QuavisQorchAdminEasyTestContext>();
+
+                    // Apply any pending migrations to the database
+                    dbContext.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    // Handle any exceptions that occur during database initialization
+                    Console.WriteLine("An error occurred while initializing the database.");
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
@@ -43,7 +66,4 @@ internal class Program
 
         app.Run();
     }
-
-
-    
 }
