@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using PortalPOC;
 using PortalPOC.Models;
+using PortalPOC.Services;
 
 internal class Program
 {
@@ -18,6 +19,9 @@ internal class Program
         // Correct indentation for AddDbContext
         builder.Services.AddDbContext<QuavisQorchAdminEasyTestContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        builder.Services.AddScoped<IDataService, DataService>();
+
 
         var app = builder.Build();
 

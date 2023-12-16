@@ -1,32 +1,180 @@
 ﻿@model Type
 
 @{
+
     var properties = Model.GetProperties();
+    var columnDefinitions = properties
+        .Select(property => new
+        {
+            LowercasePropertyName = char.ToLower(property.Name[0]) + property.Name.Substring(1),
+            DisplayName = Html.DisplayName(property.Name).ToString()
+        })
+        .Where(definition => !ShouldSkipProperty(definition.LowercasePropertyName))
+        .ToList();
+
+    bool ShouldSkipProperty(string propertyName)
+    {
+        // Add conditions here to skip specific properties
+        // Example: return propertyName === "oid" || propertyName === "createdby";
+        return propertyName == "oid" || propertyName == "createdBy" || propertyName == "modifiedBy" || propertyName == "createdDate" || propertyName == "createdDateUtc" || propertyName == "modifiedDate" || propertyName == "modifiedDateUtc";
+    }
+
 }
 
-
 <div id="kt_app_content" class="app-content  flex-column-fluid">
-    <!--begin::Content container-->
     <div id="kt_app_content_container" class="app-container  container-fluid">
-        <table class="table table-striped border rounded gy-5 gs-7" id="table">
-            <!-- Table Header -->
+        <!--begin::Wrapper-->
+        <div class="d-flex flex-stack mb-5">
+            <!--begin::Search-->
+            <div class="d-flex align-items-center position-relative my-1">
+                <i class="ki-duotone ki-magnifier fs-1 position-absolute ms-6"><span class="path1"></span><span class="path2"></span></i>
+                <input type="text" data-kt-docs-table-filter="search" class="form-control form-control-solid w-250px ps-15" placeholder="Search Customers" />
+            </div>
+            <!--end::Search-->
+            <!--begin::Toolbar-->
+            <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
+                <!--begin::Filter-->
+                <button type="button" class="btn btn-light-primary me-3" data-bs-toggle="tooltip" title="Coming Soon">
+                    <i class="ki-duotone ki-filter fs-2"><span class="path1"></span><span class="path2"></span></i>
+                    Filter
+                </button>
+                <!--end::Filter-->
+                <!--begin::Add customer-->
+                <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" title="Coming Soon">
+                    <i class="ki-duotone ki-plus fs-2"></i>
+                    Add Customer
+                </button>
+                <!--end::Add customer-->
+            </div>
+            <!--end::Toolbar-->
+            <!--begin::Group actions-->
+            <div class="d-flex justify-content-end align-items-center d-none" data-kt-docs-table-toolbar="selected">
+                <div class="fw-bold me-5">
+                    <span class="me-2" data-kt-docs-table-select="selected_count"></span> Selected
+                </div>
+
+                <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" title="Coming Soon">
+                    Selection Action
+                </button>
+            </div>
+            <!--end::Group actions-->
+        </div>
+        <!--end::Wrapper-->
+        <!--begin::Datatable-->
+        <table id="table" class="table align-middle table-row-dashed fs-6 gy-5">
             <thead>
-                <tr style="background-color: #dfdfdf !important">
-                    @foreach (var property in properties)
+                <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                  
+                    @foreach (var column in columnDefinitions)
                     {
                         <th>
-                            @Html.DisplayName(property.Name)
+                            @column.DisplayName
                         </th>
                     }
                 </tr>
             </thead>
-            <!-- Table Body -->
-            <tbody>
-                <!-- Add code to populate the table body based on your data -->
+            <tbody class="text-gray-600 fw-semibold">
             </tbody>
         </table>
+        <!--end::Datatable-->
+
     </div>
-    <!--end::Content container-->
 </div>
 
+@* <div id="kt_app_content" class="app-content  flex-column-fluid">
+    <div id="kt_app_content_container" class="app-container  container-fluid">
+        <table class="table table-striped table-bordered dt-responsive nowrap" id="table">
+            <!-- Table Header -->
+            <thead>
+                <tr style="background-color: #dfdfdf !important">
 
+                </tr>
+            </thead>
+            <!-- Table Body -->
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+ *@
+@section Scripts {
+    <script>
+        var columnDefinitions = [
+        @foreach (var column in columnDefinitions)
+        {
+            <text>{ "data": "@column.LowercasePropertyName", "name": "@column.DisplayName", "searchable": true }, </text>
+        }
+                        ];
+
+     
+        "use strict";
+
+        // Class definition
+        var KTDatatablesServerSide = function () {
+            // Shared variables
+            var table;
+            var dt;
+            var filterPayment;
+
+            // Private functions
+            var initDatatable = function () {
+                dt = $('#table').DataTable({
+                    searchDelay: 500,
+                    serverSide: true,
+                    processing: true,
+                    stateSave: true,
+                    paging: true,
+                    filter: true,
+                    processing: true,
+
+                    select: {
+                        style: 'multi',
+                        selector: 'td:first-child input[type="checkbox"]',
+                        className: 'row-selected'
+                    },
+                    ajax: {
+                        url: '@Url.Action("GetData", "GenericTable")',
+                        type: "POST",
+                        data: { "modelName": '@Model.Name' },
+                        dataType: "json",
+                        error: function (xhr, error, code) {
+                            console.log(xhr, code);
+                        }
+                    },
+                    columns: columnDefinitions,
+
+
+                });
+
+                table = dt.$;
+
+               
+            }
+
+            // Search Datatable 
+            var handleSearchDatatable = function () {
+                const filterSearch = document.querySelector('[data-kt-docs-table-filter="search"]');
+                filterSearch.addEventListener('keyup', function (e) {
+                    dt.search(e.target.value).draw();
+                });
+            }
+
+        
+
+            // Public methods
+            return {
+                init: function () {
+                    initDatatable();
+                    handleSearchDatatable();
+                }
+            }
+        }();
+
+        // On document ready
+        KTUtil.onDOMContentLoaded(function () {
+            KTDatatablesServerSide.init();
+        });
+
+
+
+    </script>
+}
