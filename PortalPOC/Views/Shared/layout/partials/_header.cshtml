@@ -12,14 +12,17 @@
 	<!--begin::Mobile logo-->
 	<div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
 		<a href="?page=index" class="d-lg-none">
-			<img alt="Logo" src="assets/media/logos/default-small.svg" class="h-30px"/>
+			<img alt="Logo" src="~/img/logo1.png" class="h-30px"/>
 		</a>
 	</div>
 	<!--end::Mobile logo-->
 <!--begin::Header wrapper-->
 <div class="d-flex align-items-stretch justify-content-between flex-lg-grow-1" id="kt_app_header_wrapper">
-<!--layout-partial:layout/partials/_page-title.html-->
-<!--layout-partial:layout/partials/header/_navbar.html-->
+
+			@await Html.PartialAsync("layout/partials/_page-title")
+
+			@await Html.PartialAsync("layout/partials/header/_navbar")
+
 </div>
 <!--end::Header wrapper-->            </div>
             <!--end::Header container-->

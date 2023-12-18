@@ -56306,7 +56306,7 @@ router-outlet {
     }
 
     [data-kt-app-sidebar-minimize=on] .app-sidebar {
-        /* transition:width .3s ease; */
+        transition: width .3s ease;
         margin-left: 0;
         margin-right: 0;
         margin-top: 0;
@@ -57822,7 +57822,7 @@ router-outlet {
 }
 
 [data-bs-theme=dark] [data-kt-app-layout=dark-sidebar] .app-sidebar {
-    border-right: 1px solid #1f212a;
+    border-right: 1px solid #1f212a
 }
 
 [data-kt-app-layout=light-sidebar] .app-sidebar {

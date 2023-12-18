@@ -88,6 +88,9 @@ namespace PortalPOC.Controllers
                 return View("Error");
             }
 
+            
+
+
             return View(typeTuple.Item2);
         }
 
