@@ -88,25 +88,25 @@ namespace PortalPOC.Controllers
 
         public IActionResult Index(string modelName)
         {
-            if (modelTypeMapping.TryGetValue(modelName, out var typeTuple))
+            if (string.IsNullOrEmpty(modelName) || !modelTypeMapping.TryGetValue(modelName, out var typeTuple))
             {
-                return View(typeTuple.Item2);
+                return View("Error");
             }
 
-            return View("Error");
+            return View(typeTuple.Item2);
         }
 
 
-      
         [HttpPost]
         public IActionResult GetData(string modelName)
         {
             // Extract request parameters
-            var pageSize = int.Parse(Request.Form["length"]);
-            var skip = int.Parse(Request.Form["start"]);
-            var searchValue = Request.Form["search[value]"];
-            var sortColumn = Request.Form[string.Concat("columns[", Request.Form["order[0][column]"], "][name]")];
-            var sortColumnDirection = Request.Form["order[0][dir]"];
+            var formData = Request.Form;
+            var pageSize = int.Parse(formData["length"]);
+            var skip = int.Parse(formData["start"]);
+            var searchValue = formData["search[value]"];
+            var sortColumn = formData[string.Concat("columns[", formData["order[0][column]"], "][name]")];
+            var sortColumnDirection = formData["order[0][dir]"];
 
             // Check if the model type is valid
             if (modelTypeMapping.TryGetValue(modelName, out var typeTuple))
@@ -131,10 +131,10 @@ namespace PortalPOC.Controllers
                 var paginatedData = filteredData.Skip(skip).Take(pageSize).ToList();
 
                 // Get total records count
-                var recordsTotal = 300;
+                var recordsTotal = filteredData.Count();
 
                 // Prepare JSON response
-                var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
+                 var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
 
 
                 return Ok(jsonData);
