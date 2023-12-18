@@ -1,25 +1,18 @@
 ﻿@model Type
 
-@{
 
+@{
     var properties = Model.GetProperties();
     var columnDefinitions = properties
         .Select(property => new
         {
-            LowercasePropertyName = char.ToLower(property.Name[0]) + property.Name.Substring(1),
-            DisplayName = Html.DisplayName(property.Name).ToString()
+            data = property.Name,
+            name = property.Name,
+            title = Html.DisplayName(property.Name).ToString()
         })
-        .Where(definition => !ShouldSkipProperty(definition.LowercasePropertyName))
         .ToList();
-
-    bool ShouldSkipProperty(string propertyName)
-    {
-        // Add conditions here to skip specific properties
-        // Example: return propertyName === "oid" || propertyName === "createdby";
-        return propertyName == "oid" || propertyName == "createdBy" || propertyName == "modifiedBy" || propertyName == "createdDate" || propertyName == "createdDateUtc" || propertyName == "modifiedDate" || propertyName == "modifiedDateUtc";
-    }
-
 }
+
 
 <div id="kt_app_content" class="app-content  flex-column-fluid">
     <div id="kt_app_content_container" class="app-container  container-fluid">
@@ -68,7 +61,7 @@
                     @foreach (var column in columnDefinitions)
                     {
                         <th>
-                            @column.DisplayName
+                            @column.title
                         </th>
                     }
                 </tr>
@@ -101,9 +94,10 @@
         var columnDefinitions = [
         @foreach (var column in columnDefinitions)
         {
-            <text>{ "data": "@column.LowercasePropertyName", "name": "@column.DisplayName", "searchable": true }, </text>
+            <text>{ "data": "@column.data", "name": "@column.name", "title": "@column.title", "searchable": true }, </text>
         }
-                        ];
+        ];
+
 
      
         "use strict";
@@ -134,7 +128,7 @@
                     ajax: {
                         url: '@Url.Action("GetData", "GenericTable")',
                         type: "POST",
-                        data: { "modelName": '@Model.Name' },
+                        data: { "modelName": '@Model.Name.Replace("ViewModel", "")' },
                         dataType: "json",
                         error: function (xhr, error, code) {
                             console.log(xhr, code);

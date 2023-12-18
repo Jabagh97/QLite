@@ -3,50 +3,54 @@ using Microsoft.EntityFrameworkCore;
 using PortalPOC.Models;
 using PortalPOC.Services;
 using PortalPOC.TableHelpers;
+using PortalPOC.ViewModals.Branch;
+using PortalPOC.ViewModals;
 using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Dynamic;
+using System.Security.Cryptography;
 
 namespace PortalPOC.Controllers
 {
     public class GenericTableController : Controller
     {
-       
+
         // Define a dictionary to map model names to types
-        private readonly Dictionary<string, Type> modelTypeMapping = new Dictionary<string, Type>
-    {
-             {"Account", typeof(Account)},
-             {"Branch", typeof(Branch)},
-             {"TicketPool", typeof(TicketPool)},
-             {"Ticket", typeof(Ticket)},
-             {"Country", typeof(Country)},
-             {"ServiceType", typeof(ServiceType)},
-             {"TicketState", typeof(TicketState)},
-             {"KappSetting", typeof(KappSetting)},
-             {"KioskApplication", typeof(KioskApplication)},
-             {"KioskApplicationType", typeof(Branch)},
-             {"Language", typeof(Language)},
-             {"Macro", typeof(Macro)},
-             {"Province", typeof(Province)},
-             {"KappRole", typeof(KappRole)},
-             {"KappUser", typeof(KappUser)},
-             {"KappWorkflow", typeof(KappWorkflow)},
-             {"Resource", typeof(Resource)},
-             {"Segment", typeof(Segment)},
-             {"SubProvince", typeof(SubProvince)},
-             {"Desk", typeof(Desk)},
-              {"TicketPoolProfile", typeof(TicketPoolProfile)},
+        private readonly Dictionary<string, (Type, Type)> modelTypeMapping = new Dictionary<string, (Type, Type)>
+{
+    {"Account", (typeof(Account), typeof(AccountViewModel))},
+    {"Branch", (typeof(Branch), typeof(BranchViewModel))},
+    {"TicketPool", (typeof(TicketPool), typeof(TicketPoolViewModel))},
+    {"Ticket", (typeof(Ticket), typeof(TicketViewModel))},
+    {"Country", (typeof(Country), typeof(CountryViewModel))},
+    {"ServiceType", (typeof(ServiceType), typeof(ServiceTypeViewModel))},
+    {"TicketState", (typeof(TicketState), typeof(TicketStateViewModel))},
+    {"KappSetting", (typeof(KappSetting), typeof(KappSettingViewModel))},
+    {"KioskApplication", (typeof(KioskApplication), typeof(KioskApplicationViewModel))},
+    {"KioskApplicationType", (typeof(Branch), typeof(BranchViewModel))},
+    {"Language", (typeof(Language), typeof(LanguageViewModel))},
+    {"Macro", (typeof(Macro), typeof(MacroViewModel))},
+    {"Province", (typeof(Province), typeof(ProvinceViewModel))},
+    {"KappRole", (typeof(KappRole), typeof(KappRoleViewModel))},
+    {"KappUser", (typeof(KappUser), typeof(KappUserViewModel))},
+    {"KappWorkflow", (typeof(KappWorkflow), typeof(KappWorkflowViewModel))},
+    {"Resource", (typeof(Resource), typeof(ResourceViewModel))},
+    {"Segment", (typeof(Segment), typeof(SegmentViewModel))},
+    {"SubProvince", (typeof(SubProvince), typeof(SubProvinceViewModel))},
+    {"Desk", (typeof(Desk), typeof(DeskViewModel))},
+    {"TicketPoolProfile", (typeof(TicketPoolProfile), typeof(TicketPoolProfileViewModel))},
+    {"Appointment", (typeof(Appointment), typeof(AppointmentViewModel))},
+    {"AppointmentSetting", (typeof(AppointmentSetting), typeof(AppointmentSettingViewModel))},
+    {"Design", (typeof(Design), typeof(DesignViewModel))},
+    {"DesignTarget", (typeof(DesignTarget), typeof(DesignTargetViewModel))},
+    {"DeskCreatableService", (typeof(DeskCreatableService), typeof(DeskCreatableServiceViewModel))},
+    {"DeskTransferableService", (typeof(DeskTransferableService), typeof(DeskTransferableServiceViewModel))},
+    {"QorchSession", (typeof(QorchSession), typeof(QorchSessionViewModel))},
 
-             {"Appointment", typeof(Appointment)},
-             {"AppointmentSetting", typeof(AppointmentSetting)},
-             {"Design", typeof(Design)},
-             {"DesignTarget", typeof(DesignTarget)},
-             {"DeskCreatableService", typeof(DeskCreatableService)},
-             {"DeskTransferableService", typeof(DeskTransferableService)},
-            
-             {"QorchSession", typeof(QorchSession)},
+};
 
-    };
+
 
         private readonly IDataService _dataService;
 
@@ -57,14 +61,16 @@ namespace PortalPOC.Controllers
 
         public IActionResult Index(string modelName)
         {
-
-            if (!modelTypeMapping.TryGetValue(modelName, out Type? modelType))
+            if (modelTypeMapping.TryGetValue(modelName, out var typeTuple))
             {
-                return View("Error");
+                return View(typeTuple.Item2);
             }
 
-            return View(modelType);
+            return View("Error");
         }
+
+
+      
         [HttpPost]
         public IActionResult GetData(string modelName)
         {
@@ -76,44 +82,36 @@ namespace PortalPOC.Controllers
             var sortColumnDirection = Request.Form["order[0][dir]"];
 
             // Check if the model type is valid
-            if (!modelTypeMapping.TryGetValue(modelName, out Type? modelType))
+            if (modelTypeMapping.TryGetValue(modelName, out var typeTuple))
+            {
+                Type modelType = typeTuple.Item1;
+                Type viewModelType = typeTuple.Item2;
+
+                // Use Type directly to invoke the Set method
+                var dbSet = _dataService.GetTypedDbSet(modelType);
+
+                // Query data from the DbSet
+                var data = ((IEnumerable)dbSet!).Cast<object>();
+
+                // Get filtered and paginated data from DataService
+                var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, data, searchValue, sortColumn, sortColumnDirection, modelTypeMapping);
+
+                // Paginate the data
+                var paginatedData = filteredData.Skip(skip).Take(pageSize).ToList();
+
+                // Get total records count
+                var recordsTotal = filteredData.Count();
+
+                // Prepare JSON response
+                var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
+
+                return Ok(jsonData);
+            }
+            else
             {
                 return Json(new { data = new List<object>() });
             }
-
-            // Use Type directly to invoke the Set method
-            var dbSet = _dataService.GetTypedDbSet(modelType);
-
-            // Query data from the DbSet
-            var data = ((IEnumerable)dbSet!).Cast<object>();
-
-            // Apply search filter
-            if (!string.IsNullOrEmpty(searchValue))
-            {
-                data = _dataService.ApplySearchFilter(data, searchValue);
-            }
-
-            // Apply sorting
-            if (!string.IsNullOrEmpty(sortColumn) && !string.IsNullOrEmpty(sortColumnDirection))
-            {
-                data = _dataService.ApplySorting(data, sortColumn, sortColumnDirection, modelType);
-            }
-
-            // Paginate the data
-            var paginatedData = data.Skip(skip).Take(pageSize).ToList();
-
-            // Get total records count
-            var recordsTotal = data.Count();
-
-            // Prepare JSON response
-            var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
-
-            return Ok(jsonData);
         }
-
-      
-
-
 
 
     }
