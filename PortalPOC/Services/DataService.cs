@@ -65,7 +65,7 @@ namespace PortalPOC.Services
                 var viewModelProperties = viewModelType.GetProperties().Select(p => p.Name).ToList();
                 var modelProperties = modelType.GetProperties().Where(p => viewModelProperties.Contains(p.Name)).ToList();
 
-                var filteredItem = new ExpandoObject() as IDictionary<string, object>;
+                var filteredItem = new Dictionary<string, object>();
 
                 foreach (var property in modelProperties)
                 {
@@ -87,11 +87,14 @@ namespace PortalPOC.Services
                                 var RelatedDbSet = GetTypedDbSet(relatedDbSet.Item1);
 
                                 // Perform a LINQ query to join and retrieve the name
-                                var relatedEntity = RelatedDbSet.Cast<dynamic>().FirstOrDefault(e => ((Guid)e.Oid) == (Guid)relatedValue);
+                                var relatedEntity = RelatedDbSet.Cast<dynamic>()
+                                    .Where(e => ((Guid)e.Oid) == (Guid)relatedValue)
+                                    .Select(e => new { e.Name }) // Only fetch necessary properties
+                                    .FirstOrDefault();
+
                                 var name = relatedEntity?.Name;
 
                                 filteredItem[property.Name] = name;
-
                             }
                         }
                         else

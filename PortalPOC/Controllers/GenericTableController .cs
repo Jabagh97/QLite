@@ -35,6 +35,7 @@ using PortalPOC.ViewModals.TicketPool;
 using PortalPOC.ViewModals.TicketPoolProfile;
 using PortalPOC.ViewModals.TicketState;
 using PortalPOC.ViewModals.Ticket;
+using PortalPOC.ViewModals.MacroRule;
 
 namespace PortalPOC.Controllers
 {
@@ -72,6 +73,7 @@ namespace PortalPOC.Controllers
     {"DeskCreatableService", (typeof(DeskCreatableService), typeof(DeskCreatableServiceViewModel))},
     {"DeskTransferableService", (typeof(DeskTransferableService), typeof(DeskTransferableServiceViewModel))},
     {"QorchSession", (typeof(QorchSession), typeof(QorchSessionViewModel))},
+     {"MacroRule", (typeof(MacroRule), typeof(MacroRuleViewModel))},
 
 };
 
@@ -116,7 +118,11 @@ namespace PortalPOC.Controllers
                 var dbSet = _dataService.GetTypedDbSet(modelType);
 
                 // Query data from the DbSet
-                var data = ((IEnumerable)dbSet!).Cast<object>();
+
+                var data = dbSet.Cast<dynamic>()
+                                  .Where(e => e.Gcrecord == null);
+                                  
+               
 
                 // Get filtered and paginated data from DataService
                 var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, data, searchValue, sortColumn, sortColumnDirection, modelTypeMapping);
@@ -125,10 +131,11 @@ namespace PortalPOC.Controllers
                 var paginatedData = filteredData.Skip(skip).Take(pageSize).ToList();
 
                 // Get total records count
-                var recordsTotal = filteredData.Count();
+                var recordsTotal = 300;
 
                 // Prepare JSON response
                 var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
+
 
                 return Ok(jsonData);
             }
