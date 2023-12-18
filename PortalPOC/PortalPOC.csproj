@@ -22,6 +22,7 @@
   <ItemGroup>
     <Folder Include="Context\" />
     <Folder Include="wwwroot\assets\js\" />
+    <Folder Include="wwwroot\JQuery\" />
   </ItemGroup>
 
 </Project>
