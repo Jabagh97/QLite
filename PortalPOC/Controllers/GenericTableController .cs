@@ -88,9 +88,6 @@ namespace PortalPOC.Controllers
                 return View("Error");
             }
 
-            
-
-
             return View(typeTuple.Item2);
         }
 
@@ -141,7 +138,7 @@ namespace PortalPOC.Controllers
             }
             else
             {
-                return Json(new { data = new List<object>() });
+                return View("Error");
             }
         }
 

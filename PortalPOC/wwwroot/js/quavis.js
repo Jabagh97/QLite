@@ -1,15 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // navbar active element highlighting
-    document.querySelectorAll('.menu-link').forEach(link => { 
-        var elementText = link.innerText.trim().replace(/\s/g, "").toLowerCase();
-        var currentLocation = location.pathname.split('/')[1].toLowerCase();
-        if (elementText === currentLocation) {
-            link.classList.add('active');
-            link.classList.remove('text-white');
-            link.style.backgroundColor = "#0d6efd";
-        }
-    });
-})
+
 
 $(document).ready(function () {
     // Check if an accordion item was previously open (has 'show' class)
@@ -75,25 +64,6 @@ $(document).ready(function () {
     });
 });
 
-
-//$(document).ready(function () {
-//    // Check if sidebar should be minimized based on localStorage
-//    if (localStorage.getItem("sidebar_minimize_state") === "on") {
-//        // Set attributes and classes for minimized sidebar
-//        $('body').attr('data-kt-app-sidebar-minimize', 'on');
-//        $('#kt_app_sidebar_toggle').attr('data-kt-toggle-state', 'active').addClass('active');
-//    }
-
-//    // Toggle sidebar and update localStorage
-//    $('#kt_app_sidebar_toggle').on('click', function () {
-//        var isMinimized = $('body').attr('data-kt-app-sidebar-minimize') === 'on';
-//        if (isMinimized) {
-//            localStorage.setItem('sidebar_minimize_state', 'off'); // Set to 'off' when sidebar is not minimized
-//        } else {
-//            localStorage.setItem('sidebar_minimize_state', 'on'); // Set to 'on' when sidebar is minimized
-//        }
-//    });
-//});
 
 
 
