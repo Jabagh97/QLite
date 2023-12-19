@@ -133,7 +133,12 @@ function initializeBaseModalButton(viewModelName, buttonName) {
     function showPopupModal(viewModel, action, additionalData = {}) {
         var modalBodyId = action.toLowerCase() + "ModalBody";
         var modalId = action.toLowerCase() + "Modal";
-        var url = `/${viewModel}/${action}Popup`;
+        var url = `GenericTable/AddPopup`;
+
+
+        // Pass viewModel as a query parameter
+        url += "?modelName=" + viewModel;
+
 
         $("#" + modalBodyId).load(url, additionalData,
             function (response, status, xhr) {

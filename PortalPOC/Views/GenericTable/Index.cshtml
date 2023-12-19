@@ -83,9 +83,9 @@
                         },
                         columns: columnDefinitions,
                         buttons: [
-                            initializeBaseModalButton("Branches", "Add"),
-                            initializeBaseModalButton("Branches", "Edit"),
-                            initializeBaseModalButton("Branches", "Delete"),
+                            initializeBaseModalButton('@Model.Name.Replace("ViewModel", "")', "Add"),
+                            initializeBaseModalButton("GenericTable", "Edit"),
+                            initializeBaseModalButton("GenericTable", "Delete"),
                             // Include export buttons here
                             ...addButtons("csv", "copy", "excel", "pdf", "print")
                         ]
@@ -111,3 +111,7 @@
 
     <script src="~/js/TableMethods.js"></script>
 }
+
+
+@await Html.PartialAsync("modals/AddModal")
+@await Html.PartialAsync("modals/EditModal")

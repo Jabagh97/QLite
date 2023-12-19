@@ -142,7 +142,16 @@ namespace PortalPOC.Controllers
             }
         }
 
-
+        public IActionResult AddPopup(string modelName)
+        {
+            if (string.IsNullOrEmpty(modelName) || !modelTypeMapping.TryGetValue(modelName, out var typeTuple))
+            {
+                // Return a JSON response for better control
+                return Json(new { success = false, errorMessage = "Invalid model name." });
+            }
+            ViewBag.ViewModel = typeTuple.Item2;
+            return View("GenericPartial", typeTuple.Item1);
+        }
     }
 
 }

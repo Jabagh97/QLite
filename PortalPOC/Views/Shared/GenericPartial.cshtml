@@ -1,0 +1,45 @@
+﻿
+@model Type
+
+@{
+    var modelProperties = Model.GetProperties();
+    var viewModelType = ViewBag.ViewModel as Type;
+    var viewModelProperties = viewModelType.GetProperties();
+    var filteredProperties = Model.GetProperties().Where(vp => viewModelProperties.Any(mp => mp.Name == vp.Name));
+}
+
+<form asp-controller="Generic" asp-action="Create" method="post" id="createForm">
+
+    @foreach (var property in filteredProperties)
+    {
+        // You can customize the input field rendering based on the property type
+        <div class="form-group">
+            <label asp-for="@property.Name"></label>
+            @if (property.PropertyType == typeof(string))
+            {
+                <input asp-for="@property.Name" class="form-control" />
+            }
+            else if (property.PropertyType == typeof(int))
+            {
+                <input asp-for="@property.Name" class="form-control" type="number" />
+            }
+            <!-- Add more conditions for other property types as needed -->
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+@section Scripts {
+<script>
+
+    // When the "Create" button is clicked, send an AJAX request
+    document.getElementById("createButton").addEventListener("click", function () {
+        // Serialize the form data
+        var formData = new FormData(document.getElementById("createForm"));
+
+      
+    });
+
+</script>
+}
