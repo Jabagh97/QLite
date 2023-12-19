@@ -129,10 +129,12 @@ namespace PortalPOC.Controllers
                 var paginatedData = filteredData.Skip(skip).Take(pageSize).ToList();
 
                 // Get total records count
-                var recordsTotal = filteredData.Count();
+                //var recordsTotal = filteredData.Count();
 
                 // Prepare JSON response
-                 var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
+                // var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
+
+                var jsonData = new {  data = paginatedData };
 
 
                 return Ok(jsonData);
