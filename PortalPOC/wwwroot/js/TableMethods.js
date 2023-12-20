@@ -132,7 +132,7 @@ function initializeBaseModalButton(viewModelName, buttonName) {
 
     function showPopupModal(viewModel, action, additionalData = {}) {
         var modalBodyId = action.toLowerCase() + "ModalBody";
-        var modalId = action.toLowerCase() + "Modal";
+        var modalId = "kt_modal_3";
         var url = `GenericTable/AddPopup`;
 
 

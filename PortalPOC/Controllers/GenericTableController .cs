@@ -150,7 +150,8 @@ namespace PortalPOC.Controllers
                 return Json(new { success = false, errorMessage = "Invalid model name." });
             }
             ViewBag.ViewModel = typeTuple.Item2;
-            return View("GenericPartial", typeTuple.Item1);
+            ViewBag.Action = "Create";
+            return PartialView("GenericPartial", typeTuple.Item1);
         }
     }
 
