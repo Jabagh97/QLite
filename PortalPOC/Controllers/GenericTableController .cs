@@ -31,6 +31,7 @@ using PortalPOC.ViewModals.TicketPoolProfile;
 using PortalPOC.ViewModals.TicketState;
 using PortalPOC.ViewModals.Ticket;
 using PortalPOC.ViewModals.MacroRule;
+using Microsoft.IdentityModel.Tokens;
 
 namespace PortalPOC.Controllers
 {
@@ -69,6 +70,7 @@ namespace PortalPOC.Controllers
     {"DeskTransferableService", (typeof(DeskTransferableService), typeof(DeskTransferableServiceViewModel))},
     {"QorchSession", (typeof(QorchSession), typeof(QorchSessionViewModel))},
      {"MacroRule", (typeof(MacroRule), typeof(MacroRuleViewModel))},
+     
 
 };
 
@@ -149,10 +151,40 @@ namespace PortalPOC.Controllers
                 // Return a JSON response for better control
                 return Json(new { success = false, errorMessage = "Invalid model name." });
             }
+
+            Type modelType = typeTuple.Item1;
+
+            // Create a dictionary to store lists of names associated with property names
+            var namesDictionary = new Dictionary<string, List<dynamic>>();
+
+            // Check for properties of type Guid?
+            var guidProperties = modelType.GetProperties().Where(p => p.PropertyType == typeof(Guid?));
+
+            foreach (var guidProperty in guidProperties)
+            {
+                if (string.IsNullOrEmpty(guidProperty.Name) || !modelTypeMapping.TryGetValue(guidProperty.Name, out var relatedTypeTuple))
+                {
+                    return PartialView("Error");
+                }
+
+                // Query the related entities to get a list of "Name" where Gcrecord == null
+                var relatedEntities = _dataService.GetTypedDbSet(relatedTypeTuple.Item1).Cast<dynamic>();
+                var names = relatedEntities
+                        .Where(e => e.Gcrecord == null)
+                        .Select(e => e.Name)
+                        .ToList();
+
+                // Add the list of names to the namesDictionary
+                namesDictionary[guidProperty.Name] = names;
+            }
+
+            ViewBag.DropDowns = namesDictionary;
             ViewBag.ViewModel = typeTuple.Item2;
             ViewBag.Action = "Create";
             return PartialView("GenericPartial", typeTuple.Item1);
         }
+
+
     }
 
 }

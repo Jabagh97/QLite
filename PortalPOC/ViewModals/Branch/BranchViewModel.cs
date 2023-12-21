@@ -23,7 +23,7 @@ namespace PortalPOC.ViewModals.Branch
         public string? Area { get; set; }
 
    
-        public string? KioskRestartProfile { get; set; }
+       // public string? KioskRestartProfile { get; set; }
         public string? Address { get; set; }
         public string? Address2 { get; set; }
 

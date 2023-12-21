@@ -35,7 +35,7 @@ public partial class Branch
 
     public string? Area { get; set; }
 
-    public Guid? KioskRestartProfile { get; set; }
+    //public Guid? KioskRestartProfile { get; set; }
 
     public string? Address { get; set; }
 

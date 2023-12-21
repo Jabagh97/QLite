@@ -1,35 +1,64 @@
-﻿
-@model Type
+﻿@model Type
 
 @{
     var modelProperties = Model.GetProperties();
     var viewModelType = ViewBag.ViewModel as Type;
     var viewModelProperties = viewModelType?.GetProperties();
-    var filteredProperties = Model.GetProperties().Where(vp => viewModelProperties.Any(mp => mp.Name == vp.Name));
+    var filteredProperties = modelProperties.Where(vp => viewModelProperties.Any(mp => mp.Name == vp.Name));
     var action = ViewBag.Action;
+    var dropDowns = ViewBag.DropDowns;
 
+    // Function to convert List<dynamic> to List<SelectListItem>
+    List<SelectListItem> ConvertToSelectList(IEnumerable<dynamic> items)
+    {
+        return items
+            .Select(item => new SelectListItem { Text = item.ToString(), Value = item.ToString() })
+            .ToList();
+    }
 }
 
 <form asp-controller="Generic" asp-action="Create" method="post" id="createForm">
-
     @foreach (var property in filteredProperties)
     {
+        // Get the display name of the property using ViewData
+        var modelMetadata = ViewData.ModelMetadata.Properties.FirstOrDefault(p => p.PropertyName == property.Name);
+        var displayName = modelMetadata?.DisplayName ?? property.Name;
+
+        List<dynamic>? dropDownData = null;
+
         // You can customize the input field rendering based on the property type
         <div class="form-group">
-            <label asp-for="@property.Name"></label>
-            @if (property.PropertyType == typeof(string))
+            <label asp-for="@property.Name" class="control-label">@displayName</label> <span style="color:red;">*</span>
+
+            @if (dropDowns != null && dropDowns.TryGetValue(property.Name, out  dropDownData))
             {
-                <input asp-for="@property.Name" class="form-control" />
+                // Log information to the console for debugging
+                Console.WriteLine($"Property: {property.Name}, Items: {string.Join(", ", dropDownData)}");
+
+                var selectList = ConvertToSelectList(dropDownData);
+
+                // Log information to the console for debugging
+                Console.WriteLine($"Property: {property.Name}, SelectList: {string.Join(", ", selectList.Select(item => item.Value))}");
+<select asp-for="@property.Name" class="form-control" asp-items="@selectList">
+   
+</select>
+
             }
-            else if (property.PropertyType == typeof(int))
+            else
             {
-                <input asp-for="@property.Name" class="form-control" type="number" />
+                // Render regular input fields for other property types
+                if (property.PropertyType == typeof(string))
+                {
+                    <input asp-for="@property.Name" class="form-control" />
+                }
+                else if (property.PropertyType == typeof(int))
+                {
+                    <input asp-for="@property.Name" class="form-control" type="number" />
+                }
+                <!-- Add more conditions for other property types as needed -->
             }
-            <!-- Add more conditions for other property types as needed -->
         </div>
     }
-
-    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 
 @section Scripts {
