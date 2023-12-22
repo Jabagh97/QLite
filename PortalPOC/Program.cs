@@ -21,6 +21,7 @@ internal class Program
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         builder.Services.AddScoped<IDataService, DataService>();
+        builder.Services.AddScoped<IModelTypeMappingService, ModelTypeMappingService>();
 
 
         var app = builder.Build();

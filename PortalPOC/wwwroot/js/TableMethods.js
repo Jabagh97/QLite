@@ -130,94 +130,95 @@ function initializeBaseModalButton(viewModelName, buttonName) {
 
     return baseModalButton;
 
-    function showPopupModal(viewModel, action, additionalData = {}) {
-        var modalBodyId = action.toLowerCase() + "ModalBody";
-        var modalId = "kt_modal_3";
-        var url = `GenericTable/AddPopup`;
-
-
-        // Pass viewModel as a query parameter
-        url += "?modelName=" + viewModel;
-
-
-        $("#" + modalBodyId).load(url, additionalData,
-            function (response, status, xhr) {
-                if (status === "error") {
-                    handleErrors(xhr.status);
-                } else {
-                    $('#' + modalId).modal('show');
-                }
-            });
-    }
-
-    function showDeleteConfirmation(viewModel, oids) {
-        const swalWithBootstrapButtons = Swal.mixin({
-            customClass: {
-                confirmButton: 'btn btn-success',
-                cancelButton: 'btn btn-danger'
-            },
-            buttonsStyling: false
-        });
-
-        swalWithBootstrapButtons.fire({
-            title: 'Are you sure?',
-            text: 'Are you sure you want to delete the selected items?',
-            icon: 'warning',
-            showCancelButton: true,
-            cancelButtonText: 'Cancel',
-            confirmButtonText: 'Delete',
-            reverseButtons: true
-        }).then((result) => {
-            var url = `/${viewModel}/Delete`;
-
-            if (result.isConfirmed) {
-                $.ajax({
-                    type: "POST",
-                    url: url,
-                    data: JSON.stringify(oids),
-                    contentType: "application/json",
-                    success: function (response) {
-                        $('#table').DataTable().ajax.reload();
-                        if (response.success === true) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Record deleted',
-                                showConfirmButton: false,
-                                timer: 1000
-                            });
-                        } else {
-                            handleErrors(401);
-                        }
-                    },
-                    error: function (error) {
-                        handleErrors(401);
-                    }
-                });
-            }
-        });
-    }
-
-    function handleErrors(status) {
-        var title, text;
-        if (status == 401) {
-            title = 'Session timed out';
-            text = 'Please login again';
-        } else {
-            title = 'Error';
-            text = 'An unexpected error occurred';
-        }
-
-        Swal.fire({
-            icon: 'warning',
-            title: title,
-            text: text,
-            showConfirmButton: false,
-            timer: 5000
-        }).then(function () {
-            location.reload();
-        });
-    }
+   
 }
 
 
 
+function showPopupModal(viewModel, action, additionalData = {}) {
+    var modalBodyId = action.toLowerCase() + "ModalBody";
+    var modalId = "kt_modal_3";
+    var url = `GenericTable/AddPopup`;
+
+
+    // Pass viewModel as a query parameter
+    url += "?modelName=" + viewModel;
+
+
+    $("#" + modalBodyId).load(url, additionalData,
+        function (response, status, xhr) {
+            if (status === "error") {
+                handleErrors(xhr.status);
+            } else {
+                $('#' + modalId).modal('show');
+            }
+        });
+}
+
+function showDeleteConfirmation(viewModel, oids) {
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: 'btn btn-success',
+            cancelButton: 'btn btn-danger'
+        },
+        buttonsStyling: false
+    });
+
+    swalWithBootstrapButtons.fire({
+        title: 'Are you sure?',
+        text: 'Are you sure you want to delete the selected items?',
+        icon: 'warning',
+        showCancelButton: true,
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Delete',
+        reverseButtons: true
+    }).then((result) => {
+        var url = `/${viewModel}/Delete`;
+
+        if (result.isConfirmed) {
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: JSON.stringify(oids),
+                contentType: "application/json",
+                success: function (response) {
+                    $('#table').DataTable().ajax.reload();
+                    if (response.success === true) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Record deleted',
+                            showConfirmButton: false,
+                            timer: 1000
+                        });
+                    } else {
+                        handleErrors(401);
+                    }
+                },
+                error: function (error) {
+                    handleErrors(401);
+                }
+            });
+        }
+    });
+}
+
+function handleErrors(status) {
+    var title, text;
+    if (status == 401) {
+        title = 'Session timed out';
+        text = 'Please login again';
+    } else {
+        title = 'Error';
+        text = 'An unexpected error occurred';
+    }
+
+    Swal.fire({
+        icon: 'warning',
+        title: title,
+        text: text,
+        showConfirmButton: false,
+        timer: 5000
+    }).then(function () {
+        location.reload();
+    });
+}

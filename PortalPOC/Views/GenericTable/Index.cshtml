@@ -1,6 +1,5 @@
 ﻿@model Type
 
-
 @{
     var properties = Model.GetProperties();
     var columnDefinitions = properties
@@ -13,24 +12,20 @@
         .ToList();
 }
 
-
-<div id="kt_app_content" class="app-content  flex-column-fluid">
-    <div id="kt_app_content_container" class="app-container  container-fluid">
+<div id="kt_app_content" class="app-content flex-column-fluid">
+    <div id="kt_app_content_container" class="app-container container-fluid">
         <!--begin::Wrapper-->
         <div class="d-flex flex-stack mb-5">
-           
+            <!-- Your wrapper content goes here if needed -->
         </div>
         <!--end::Wrapper-->
         <!--begin::Datatable-->
         <table id="table" class="table align-middle table-row-dashed fs-6 gy-5">
             <thead>
                 <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-
                     @foreach (var column in columnDefinitions)
                     {
-                        <th>
-                            @column.title
-                        </th>
+                        <th>@column.title</th>
                     }
                 </tr>
             </thead>
@@ -38,7 +33,6 @@
             </tbody>
         </table>
         <!--end::Datatable-->
-
     </div>
 </div>
 
@@ -52,17 +46,13 @@
         {
             <text>{ "data": "@column.data", "name": "@column.name", "title": "@column.title", "searchable": true }, </text>
         }
-                    ];
+                                    ];
 
-            // Class definition
-            var KTDatatablesServerSide = function () {
-                // Shared variables
+            var KTDatatablesServerSide = (function () {
                 var table;
                 var dt;
-               
 
-                // Private functions
-                var initializeDatatable = function () {
+                function initializeDatatable() {
                     dt = $('#table').DataTable({
                         searchDelay: 500,
                         serverSide: true,
@@ -83,26 +73,27 @@
                         },
                         columns: columnDefinitions,
                         buttons: [
-                            initializeBaseModalButton('@Model.Name.Replace("ViewModel", "")', "Add"),
-                            initializeBaseModalButton("GenericTable", "Edit"),
-                            initializeBaseModalButton("GenericTable", "Delete"),
-                            // Include export buttons here
-                            ...addButtons("csv", "copy", "excel", "pdf", "print")
+                                @if (!Model.Name.Equals("TicketViewModel") && !Model.Name.Contains("TicketSateViewModel"))
+                                {
+                                    @:initializeBaseModalButton('@Model.Name.Replace("ViewModel", "")', "Add"),
+                                    @:initializeBaseModalButton("GenericTable", "Edit"),
+                                    @:initializeBaseModalButton("GenericTable", "Delete"),
+                                }
+                                     // Include export buttons here
+                                    ...addButtons("csv", "copy", "excel", "pdf", "print")
                         ]
                     });
 
                     table = dt.$;
                 }
 
-                // Public methods
                 return {
                     init: function () {
                         initializeDatatable();
                     }
-                }
-            }();
+                };
+            })();
 
-            // On document ready
             KTUtil.onDOMContentLoaded(function () {
                 KTDatatablesServerSide.init();
             });
@@ -111,7 +102,6 @@
 
     <script src="~/js/TableMethods.js"></script>
 }
-
 
 @await Html.PartialAsync("modals/AddModal")
 @await Html.PartialAsync("modals/EditModal")
