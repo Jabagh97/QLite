@@ -4,7 +4,6 @@ using PortalPOC.Models;
 using PortalPOC.Services;
 
 using Microsoft.IdentityModel.Tokens;
-using System.Reflection;
 
 namespace PortalPOC.Controllers
 {
@@ -59,28 +58,26 @@ namespace PortalPOC.Controllers
                 // Use Type directly to invoke the Set method
                 var dbSet = _dataService.GetTypedDbSet(modelType);
 
-                // Ensure dbSet is IQueryable
-                var queryableDbSet = dbSet.AsQueryable();
+                // Query data from the DbSet
 
-                // Filter the data
-                var data = queryableDbSet.Where(e => EF.Property<object>(e, "Gcrecord") == null);
+                var data = dbSet.Cast<dynamic>()
+                                  .Where(e => e.Gcrecord == null);
 
 
 
                 // Get filtered and paginated data from DataService
                 var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, data, searchValue, sortColumn, sortColumnDirection, modelTypeMapping);
 
-              
                 // Paginate the data
                 var paginatedData = filteredData.Skip(skip).Take(pageSize).ToList();
 
                 // Get total records count
-                var recordsTotal = filteredData.Count();
+                //var recordsTotal = filteredData.Count();
 
                 // Prepare JSON response
-                var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
+                // var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
 
-              
+                var jsonData = new { data = paginatedData };
 
 
                 return Ok(jsonData);
@@ -105,7 +102,7 @@ namespace PortalPOC.Controllers
             Type modelType = typeTuple.Item1;
 
             // Create a dictionary to store lists of names associated with property names
-            var namesDictionary = new Dictionary<string, List<PropertyInfo>>();
+            var namesDictionary = new Dictionary<string, List<dynamic>>();
 
             // Check for properties of type Guid?
             var guidProperties = modelType.GetProperties().Where(p => p.PropertyType == typeof(Guid?));
@@ -118,10 +115,10 @@ namespace PortalPOC.Controllers
                 }
 
                 // Query the related entities to get a list of "Name" where Gcrecord == null
-                var relatedEntities = _dataService.GetTypedDbSet(relatedTypeTuple.Item1);
+                var relatedEntities = _dataService.GetTypedDbSet(relatedTypeTuple.Item1).Cast<dynamic>();
                 var names = relatedEntities
-                            .Where(e => e.GetType().GetProperty("Gcrecord").GetValue(e, null) == null)
-                            .Select(e => e.GetType().GetProperty("Name") != null ? e.GetType().GetProperty("Name") : e.GetType().GetProperty("KappName"))
+                            .Where(e => e.Gcrecord == null)
+                            .Select(e => e.GetType().GetProperty("Name") != null ? e.Name : e.KappName)
                             .ToList();
 
 
