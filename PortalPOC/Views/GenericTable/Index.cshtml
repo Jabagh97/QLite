@@ -5,7 +5,7 @@
     var columnDefinitions = properties
         .Select(property => new
         {
-            data = property.Name,
+            data = property.Name.ToLower(),
             name = property.Name,
             title = Html.DisplayName(property.Name).ToString()
         })
