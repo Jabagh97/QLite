@@ -62,9 +62,11 @@ namespace PortalPOC.Services
         }
 
 
-        public IQueryable GetFilteredAndPaginatedData(Type modelType, Type viewModelType, IQueryable data, string searchValue, string sortColumn, string sortColumnDirection, Dictionary<string, (Type, Type)> modelTypeMapping)
+        public IQueryable GetFilteredAndPaginatedData(Type modelType, Type viewModelType, IQueryable data, string searchValue, string sortColumn, string sortColumnDirection)
         {
-           
+            // Only Select View Properties from Model
+
+            data = FilterPropertiesBasedOnViewModel(data, modelType, viewModelType);
 
             // Apply search filter
             data = ApplySearchFilter(data, searchValue, modelType);
@@ -75,7 +77,28 @@ namespace PortalPOC.Services
             return data;
         }
 
-      
+        private IQueryable FilterPropertiesBasedOnViewModel(IQueryable data, Type modelType, Type viewModelType)
+        {
+            var modelProperties = modelType.GetProperties().Select(p => p.Name).ToList();
+            var viewModelProperties = viewModelType.GetProperties().Select(p => p.Name).ToList();
+
+            var commonProperties = modelProperties.Intersect(viewModelProperties).ToList();
+
+            if (commonProperties.Any())
+            {
+                // Construct the dynamic select expression with braces
+                var selectExpression = string.Join(", ", commonProperties);
+                
+
+
+                // Project the data to include only common properties 
+                return data.Select($"new ({selectExpression})");
+            }
+            else
+            {
+                return data;
+            }
+        }
 
 
 
@@ -85,12 +108,12 @@ namespace PortalPOC.Services
         }
         private void ProcessGuidOrOidProperty(object value, string propertyName, object item, Dictionary<string, (Type, Type)> modelTypeMapping, Dictionary<string, object> filteredItem)
         {
-          
+
         }
 
         private void ProcessRelatedGuidOrOidProperty(object relatedValue, string propertyName, Dictionary<string, (Type, Type)> modelTypeMapping, Dictionary<string, object> filteredItem)
         {
-           
+
         }
         #endregion
     }

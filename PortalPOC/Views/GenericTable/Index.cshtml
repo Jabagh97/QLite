@@ -5,7 +5,8 @@
     var columnDefinitions = properties
         .Select(property => new
         {
-            data = property.Name.ToLower(),
+            // Lowercase the first letter of the property name
+            data = char.ToLower(property.Name[0]) + property.Name.Substring(1),
             name = property.Name,
             title = Html.DisplayName(property.Name).ToString()
         })

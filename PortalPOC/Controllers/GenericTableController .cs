@@ -53,12 +53,6 @@ namespace PortalPOC.Controllers
                 Type modelType = typeTuple.Item1;
                 Type viewModelType = typeTuple.Item2;
 
-                var modelProperties = modelType.GetProperties().Select(p => p.Name).ToList();
-                var viewModelProperties = viewModelType.GetProperties().Select(p => p.Name).ToList();
-
-                var commonProperties = modelProperties.Intersect(viewModelProperties).ToList();
-
-                var selectExpression = string.Join(", ", commonProperties);
 
                 // Use Type directly to invoke the Set method
                 var dbSet = _dataService.GetTypedDbSet(modelType);
@@ -67,17 +61,14 @@ namespace PortalPOC.Controllers
 
                 var data = dbSet.Where("Gcrecord == null");
 
-               
-
-
 
                 // Get filtered and paginated data from DataService
-                var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, data, searchValue, sortColumn, sortColumnDirection, modelTypeMapping);
+                var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, data, searchValue, sortColumn, sortColumnDirection);
 
 
 
                 // Paginate the data
-                var paginatedData = filteredData.Select($"new ({selectExpression})").Skip(skip).Take(pageSize).ToDynamicList();
+                var paginatedData = filteredData.Skip(skip).Take(pageSize).ToDynamicList();
 
                 // Get total records count
                 var recordsTotal = filteredData.Count();
