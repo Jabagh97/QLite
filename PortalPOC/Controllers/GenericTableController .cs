@@ -63,7 +63,7 @@ namespace PortalPOC.Controllers
 
 
                 // Get filtered and paginated data from DataService
-                var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, data, searchValue, sortColumn, sortColumnDirection);
+                var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, data, searchValue, sortColumn, sortColumnDirection, modelTypeMapping);
 
 
 

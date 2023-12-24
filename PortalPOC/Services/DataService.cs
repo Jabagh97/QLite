@@ -62,11 +62,11 @@ namespace PortalPOC.Services
         }
 
 
-        public IQueryable GetFilteredAndPaginatedData(Type modelType, Type viewModelType, IQueryable data, string searchValue, string sortColumn, string sortColumnDirection)
+        public IQueryable GetFilteredAndPaginatedData(Type modelType, Type viewModelType, IQueryable data, string searchValue, string sortColumn, string sortColumnDirection, Dictionary<string, (Type, Type)> modelTypeMapping)
         {
             // Only Select View Properties from Model
 
-            data = FilterPropertiesBasedOnViewModel(data, modelType, viewModelType);
+            data = FilterPropertiesBasedOnViewModel(data, modelType, viewModelType, modelTypeMapping);
 
             // Apply search filter
             data = ApplySearchFilter(data, searchValue, modelType);
@@ -77,19 +77,15 @@ namespace PortalPOC.Services
             return data;
         }
 
-        private IQueryable FilterPropertiesBasedOnViewModel(IQueryable data, Type modelType, Type viewModelType)
+        private IQueryable FilterPropertiesBasedOnViewModel(IQueryable data, Type modelType, Type viewModelType, Dictionary<string, (Type, Type)> modelTypeMapping)
         {
-            var modelProperties = modelType.GetProperties().Select(p => p.Name).ToList();
             var viewModelProperties = viewModelType.GetProperties().Select(p => p.Name).ToList();
+            var modelProperties = modelType.GetProperties().Where(p => viewModelProperties.Contains(p.Name)).ToList();
 
-            var commonProperties = modelProperties.Intersect(viewModelProperties).ToList();
-
-            if (commonProperties.Any())
+            if (modelProperties.Any())
             {
                 // Construct the dynamic select expression with braces
-                var selectExpression = string.Join(", ", commonProperties);
-                
-
+                var selectExpression = GenerateSelectExpression(modelProperties, modelType, modelTypeMapping);
 
                 // Project the data to include only common properties 
                 return data.Select($"new ({selectExpression})");
@@ -99,6 +95,50 @@ namespace PortalPOC.Services
                 return data;
             }
         }
+
+        private string GenerateSelectExpression(List<PropertyInfo> modelProperties, Type modelType, Dictionary<string, (Type, Type)> modelTypeMapping)
+        {
+            var selectExpressions = new List<string>();
+
+            // Start with the main entity (e.g., "branch")
+            selectExpressions.Add($"{modelType.Name}.*");
+
+            foreach (var property in modelProperties)
+            {
+                var propertyName = property.Name;
+
+                // Handle Guid or Oid properties
+                if (Nullable.GetUnderlyingType(property.PropertyType) == typeof(Guid))
+                {
+                    var relatedEntityName = GetRelatedEntityName(propertyName, property.PropertyType, modelTypeMapping);
+                    var relatedPropertyName = "Name";
+
+                    // Join operation for Guid properties
+                    var joinExpression = $"left join {relatedEntityName} on {relatedEntityName}.Oid = {modelType.Name}.{propertyName}";
+                    var valueExpression = $"{relatedEntityName}.{relatedPropertyName} as {propertyName}";
+
+                    selectExpressions.Add(joinExpression + " " + valueExpression);
+                }
+            }
+
+            return string.Join(", ", selectExpressions);
+        }
+
+
+
+
+        private string GetRelatedEntityName(string propertyName, Type propertyType, Dictionary<string, (Type, Type)> modelTypeMapping)
+        {
+            if (propertyType == typeof(Guid) && modelTypeMapping.TryGetValue(propertyName, out var relatedDbSet))
+            {
+                return relatedDbSet.Item2.Name;
+            }
+
+            return propertyName;
+        }
+
+
+
 
 
 
