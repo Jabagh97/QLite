@@ -135,14 +135,14 @@ namespace PortalPOC.Services
          GetTypedDbSet(relatedType),
          outerKeySelector,
          innerKeySelector,
-         $"new (outer.{propertyInfo.Name} as {propertyInfo.Name} , inner as TEst1  )"
+         $"new ({string.Join(", ", modelProperties.Select(p => $"outer.{p.Name} as {p.Name}"))}, inner as Test1  )"
      );
 
                 // Select the desired properties from the left join result
               
 
                 Console.WriteLine(intermediateData.ToQueryString());
-                break;
+                //break;
             }
 
             return intermediateData;
