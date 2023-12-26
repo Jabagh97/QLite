@@ -123,26 +123,30 @@ namespace PortalPOC.Services
                         break;
                 }
 
+
                 // Build the dynamic select expression with braces for each iteration
-                //var resultSelector = $"new ({string.Join(", ", modelProperties.Select(p => $"outer.{p.Name} as {p.Name}"))})";
+                var resultSelector = $"{string.Join(", ", modelProperties.Select(p => $"outer.{p.Name} as {p.Name}"))}, (inner.FirstOrDefault() != null ? inner.FirstOrDefault().Name : null) as {propertyInfo.Name}";
 
                 // Replace the specific part for the related property
-                //resultSelector = resultSelector.Replace($"outer.{propertyInfo.Name} as {propertyInfo.Name}", $"inner.{propertyToJoin} as {propertyInfo.Name}");
+                resultSelector = resultSelector.Replace($"outer.{propertyInfo.Name} as {propertyInfo.Name},", "");
+
+                // Remove trailing comma if necessary
+                resultSelector = resultSelector.TrimEnd(',', ' ');
 
                 // Accumulate left join operations
                 intermediateData = DynamicQueryableExtensions.GroupJoin(
-         intermediateData,
-         GetTypedDbSet(relatedType),
-         outerKeySelector,
-         innerKeySelector,
-         $"new ({string.Join(", ", modelProperties.Select(p => $"outer.{p.Name} as {p.Name}"))}, inner as Test1  )"
-     );
+                    intermediateData,
+                    GetTypedDbSet(relatedType),
+                    outerKeySelector,
+                    innerKeySelector,
+                    $"new ({resultSelector})"
+                );
 
-                // Select the desired properties from the left join result
-              
+               
 
                 Console.WriteLine(intermediateData.ToQueryString());
-                //break;
+
+                
             }
 
             return intermediateData;
