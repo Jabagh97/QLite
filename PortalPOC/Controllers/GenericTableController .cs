@@ -57,7 +57,7 @@ namespace PortalPOC.Controllers
                 // Use Type directly to invoke the Set method
                 var dbSet = _dataService.GetTypedDbSet(modelType);
 
-                // Query data from the DbSet
+                // Query undeleted data from the DbSet 
 
                 var data = dbSet.Where("Gcrecord == null");
 

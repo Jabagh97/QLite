@@ -10,7 +10,7 @@
 
         public bool? IsParent { get; set; }
 
-        public string? Parent { get; set; }
+       // public string? Parent { get; set; }
 
         public string? Prefix { get; set; }
     }

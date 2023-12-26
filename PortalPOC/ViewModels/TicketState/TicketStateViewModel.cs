@@ -5,7 +5,7 @@
 
         public string? Desk { get; set; }
 
-        public string? User { get; set; }
+       // public string? User { get; set; }
 
        // public string? Ticket { get; set; }
 
@@ -33,7 +33,7 @@
 
         public string? CallingRuleDescription { get; set; }
 
-        public int? DeskAppType { get; set; }
+       // public int? DeskAppType { get; set; }
 
         public int? TicketCallType { get; set; }
 

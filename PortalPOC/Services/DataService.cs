@@ -1,9 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 using PortalPOC.Models;
 
 using System.Linq.Dynamic.Core;
 
 using System.Reflection;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
 namespace PortalPOC.Services
@@ -24,14 +27,23 @@ namespace PortalPOC.Services
             try
             {
                 var setMethod = typeof(DbContext).GetMethod(nameof(DbContext.Set), Type.EmptyTypes);
-                return (IQueryable)setMethod!.MakeGenericMethod(modelType).Invoke(_dbContext, null);
+                var typedDbSet = setMethod!.MakeGenericMethod(modelType).Invoke(_dbContext, null);
+
+                // Log or print the DbSet information for debugging
+                Console.WriteLine($"Typed DbSet for {modelType.Name}: {typedDbSet}");
+
+                return (IQueryable)typedDbSet;
             }
             catch (Exception ex)
             {
-                // Handle the exception (log or rethrow)
+                // Log or print the exception details for debugging
+                Console.WriteLine($"Error getting DbSet for type {modelType.Name}: {ex.Message}");
+
+                // Rethrow the exception for better diagnosis
                 throw new InvalidOperationException($"Error getting DbSet for type {modelType.Name}", ex);
             }
         }
+
 
 
         public IQueryable ApplySearchFilter(IQueryable data, string searchValue, Type modelType)
@@ -69,92 +81,75 @@ namespace PortalPOC.Services
             data = FilterPropertiesBasedOnViewModel(data, modelType, viewModelType, modelTypeMapping);
 
             // Apply search filter
-            data = ApplySearchFilter(data, searchValue, modelType);
+            // data = ApplySearchFilter(data, searchValue, modelType);
 
             // Apply sorting
-            data = ApplySorting(data, sortColumn, sortColumnDirection, modelType);
+            // data = ApplySorting(data, sortColumn, sortColumnDirection, modelType);
 
             return data;
         }
+
 
         private IQueryable FilterPropertiesBasedOnViewModel(IQueryable data, Type modelType, Type viewModelType, Dictionary<string, (Type, Type)> modelTypeMapping)
         {
             var viewModelProperties = viewModelType.GetProperties().Select(p => p.Name).ToList();
             var modelProperties = modelType.GetProperties().Where(p => viewModelProperties.Contains(p.Name)).ToList();
 
-            if (modelProperties.Any())
-            {
-                // Construct the dynamic select expression with braces
-                var selectExpression = GenerateSelectExpression(modelProperties, modelType, modelTypeMapping);
-
-                // Project the data to include only common properties 
-                return data.Select($"new ({selectExpression})");
-            }
-            else
+            if (!modelProperties.Any())
             {
                 return data;
             }
-        }
 
-        private string GenerateSelectExpression(List<PropertyInfo> modelProperties, Type modelType, Dictionary<string, (Type, Type)> modelTypeMapping)
-        {
-            var selectExpressions = new List<string>();
+            IQueryable intermediateData = data;
 
-            // Start with the main entity (e.g., "branch")
-            selectExpressions.Add($"{modelType.Name}.*");
-
-            foreach (var property in modelProperties)
+            foreach (var propertyInfo in modelProperties.Where(p => Nullable.GetUnderlyingType(p.PropertyType) == typeof(Guid)))
             {
-                var propertyName = property.Name;
+                var (relatedType, relatedKeyType) = modelTypeMapping[propertyInfo.Name];
 
-                // Handle Guid or Oid properties
-                if (Nullable.GetUnderlyingType(property.PropertyType) == typeof(Guid))
+                // Create key selector expressions
+                var outerKeySelector = $"it.{propertyInfo.Name}";
+                var innerKeySelector = "Oid";
+
+                // Define a mapping for special cases
+                string propertyToJoin;
+                switch (propertyInfo.Name)
                 {
-                    var relatedEntityName = GetRelatedEntityName(propertyName, property.PropertyType, modelTypeMapping);
-                    var relatedPropertyName = "Name";
-
-                    // Join operation for Guid properties
-                    var joinExpression = $"left join {relatedEntityName} on {relatedEntityName}.Oid = {modelType.Name}.{propertyName}";
-                    var valueExpression = $"{relatedEntityName}.{relatedPropertyName} as {propertyName}";
-
-                    selectExpressions.Add(joinExpression + " " + valueExpression);
+                    case "KioskApplication":
+                        propertyToJoin = "KappName";
+                        break;
+                    // Add more cases as needed
+                    default:
+                        propertyToJoin = "Name";
+                        break;
                 }
+
+                // Build the dynamic select expression with braces for each iteration
+                var resultSelector = $"new ({string.Join(", ", modelProperties.Select(p => $"outer.{p.Name} as {p.Name}"))})";
+
+                // Replace the specific part for the related property
+                resultSelector = resultSelector.Replace($"outer.{propertyInfo.Name} as {propertyInfo.Name}", $"inner.{propertyToJoin} as {propertyInfo.Name}");
+
+                // Accumulate join operations
+                intermediateData = DynamicQueryableExtensions.Join(
+                    intermediateData,
+                    GetTypedDbSet(relatedType),
+                    outerKeySelector,
+                    innerKeySelector,
+                    resultSelector
+                );
+
+                Console.WriteLine(intermediateData.ToQueryString());
             }
 
-            return string.Join(", ", selectExpressions);
+            return intermediateData;
         }
-
-
-
-
-        private string GetRelatedEntityName(string propertyName, Type propertyType, Dictionary<string, (Type, Type)> modelTypeMapping)
-        {
-            if (propertyType == typeof(Guid) && modelTypeMapping.TryGetValue(propertyName, out var relatedDbSet))
-            {
-                return relatedDbSet.Item2.Name;
-            }
-
-            return propertyName;
-        }
-
-
-
-
 
 
         private object GetPropertyValue(object item, PropertyInfo property)
         {
             return property.GetValue(item);
         }
-        private void ProcessGuidOrOidProperty(object value, string propertyName, object item, Dictionary<string, (Type, Type)> modelTypeMapping, Dictionary<string, object> filteredItem)
-        {
-
-        }
-
-        private void ProcessRelatedGuidOrOidProperty(object relatedValue, string propertyName, Dictionary<string, (Type, Type)> modelTypeMapping, Dictionary<string, object> filteredItem)
-        {
-
-        }
+      
         #endregion
     }
 
