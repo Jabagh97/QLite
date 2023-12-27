@@ -54,7 +54,7 @@ namespace PortalPOC.Services
                                            .Where(p => p.PropertyType == typeof(string))
                                            .Select(p => p.Name);
 
-                var filterExpression = string.Join(" OR ", properties.Select(p => $"{p}.Contains(@0)"));
+                var filterExpression = string.Join(" OR ", properties.Select(p => $"{p}.contains(@0)"));
 
                 return data.Where(filterExpression, searchValue);
             }
@@ -81,7 +81,7 @@ namespace PortalPOC.Services
             data = FilterPropertiesBasedOnViewModel(data, modelType, viewModelType, modelTypeMapping);
 
             // Apply search filter
-            // data = ApplySearchFilter(data, searchValue, modelType);
+            //data = ApplySearchFilter(data, searchValue, modelType);
 
             // Apply sorting
             // data = ApplySorting(data, sortColumn, sortColumnDirection, modelType);
@@ -117,21 +117,20 @@ namespace PortalPOC.Services
                     case "KioskApplication":
                         propertyToJoin = "KappName";
                         break;
-                    // Add more cases as needed
                     default:
                         propertyToJoin = "Name";
                         break;
                 }
 
-
                 // Build the dynamic select expression with braces for each iteration
-                var resultSelector = $"{string.Join(", ", modelProperties.Select(p => $"outer.{p.Name} as {p.Name}"))}, (inner.FirstOrDefault() != null ? inner.FirstOrDefault().Name : null) as {propertyInfo.Name}";
+                var resultSelector = $"{string.Join(", ", modelProperties.Select(p => $"outer.{p.Name} as {p.Name}"))}";
 
                 // Replace the specific part for the related property
-                resultSelector = resultSelector.Replace($"outer.{propertyInfo.Name} as {propertyInfo.Name},", "");
+                resultSelector = resultSelector.Replace($"outer.{propertyInfo.Name} as {propertyInfo.Name}",
+           $"(inner.DefaultIfEmpty().FirstOrDefault().{propertyToJoin}) as {propertyInfo.Name}");
 
-                // Remove trailing comma if necessary
-                resultSelector = resultSelector.TrimEnd(',', ' ');
+
+             
 
                 // Accumulate left join operations
                 intermediateData = DynamicQueryableExtensions.GroupJoin(
@@ -139,15 +138,14 @@ namespace PortalPOC.Services
                     GetTypedDbSet(relatedType),
                     outerKeySelector,
                     innerKeySelector,
-                    $"new ({resultSelector})"
+                    $"new {{ {resultSelector} }}"
                 );
-
-               
-
+                    
+                    /*.Select($"new  {{ {resultSelector} }}");
+*/
                 Console.WriteLine(intermediateData.ToQueryString());
-
-                
             }
+
 
             return intermediateData;
         }
