@@ -125,25 +125,40 @@ namespace PortalPOC.Services
                 // Build the dynamic select expression with braces for each iteration
                 var resultSelector = $"{string.Join(", ", modelProperties.Select(p => $"outer.{p.Name} as {p.Name}"))}";
 
-                // Replace the specific part for the related property
-                resultSelector = resultSelector.Replace($"outer.{propertyInfo.Name} as {propertyInfo.Name}",
-           $"(inner.DefaultIfEmpty().FirstOrDefault().{propertyToJoin}) as {propertyInfo.Name}");
+                //     // Replace the specific part for the related property
+                //     resultSelector = resultSelector.Replace($"outer.{propertyInfo.Name} as {propertyInfo.Name}",
+                //$"(inner.DefaultIfEmpty().FirstOrDefault().{propertyToJoin}) as {propertyInfo.Name}");
+
+                intermediateData = DynamicQueryableExtensions.GroupJoin(
+                                     intermediateData,
+                                     GetTypedDbSet(relatedType),
+                                     outerKeySelector,
+                                     innerKeySelector,
+                                     $"new {{ outer as outer, inner as inner }}"
+                                 );
+                 intermediateData = intermediateData
+           .SelectMany("inner.DefaultIfEmpty()", $"outer", "new (outer as Outer, inner as Inner)");
+
+                //  var flattenedData = intermediateData.SelectMany($"inner.DefaultIfEmpty().FirstOrDefault().{propertyToJoin}");
 
 
-             
+
+
+                Console.WriteLine(intermediateData.ToQueryString());
+
 
                 // Accumulate left join operations
-                intermediateData = DynamicQueryableExtensions.GroupJoin(
-                    intermediateData,
-                    GetTypedDbSet(relatedType),
-                    outerKeySelector,
-                    innerKeySelector,
-                    $"new {{ {resultSelector} }}"
-                );
-                    
-                    /*.Select($"new  {{ {resultSelector} }}");
+                //intermediateData = DynamicQueryableExtensions.GroupJoin(
+                //    intermediateData,
+                //    GetTypedDbSet(relatedType),
+                //    outerKeySelector,
+                //    innerKeySelector,
+                //    $"new {{ {resultSelector} }}"
+                //);
+
+                /*.Select($"new  {{ {resultSelector} }}");
 */
-                Console.WriteLine(intermediateData.ToQueryString());
+
             }
 
 
