@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using PortalPOC.Helpers;
 using PortalPOC.Models;
-
+using PortalPOC.QueryFactory;
 using System.Linq.Dynamic.Core;
 
 using System.Reflection;
@@ -16,9 +16,12 @@ namespace PortalPOC.Services
     {
         private readonly QuavisQorchAdminEasyTestContext _dbContext;
 
-        public DataService(QuavisQorchAdminEasyTestContext dbContext)
+        private readonly IQueryFactory _queryFactory;
+
+        public DataService(QuavisQorchAdminEasyTestContext dbContext, IQueryFactory queryFactory)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _queryFactory = queryFactory;
         }
 
 
@@ -83,7 +86,7 @@ namespace PortalPOC.Services
 
             var data = dbSet?.Where("Gcrecord == null");
 
-            data = FilterPropertiesBasedOnViewModel(data, modelType, viewModelType, modelTypeMapping);
+            data = FilterPropertiesBasedOnViewModel(modelType);
 
       
             data = ApplySearchFilter(data, searchValue, modelType, viewModelType);
@@ -96,34 +99,13 @@ namespace PortalPOC.Services
 
 
 
-        private IQueryable FilterPropertiesBasedOnViewModel(IQueryable? data, Type modelType, Type viewModelType, Dictionary<string, (Type, Type)> modelTypeMapping)
+        private IQueryable FilterPropertiesBasedOnViewModel(Type modelType)
         {
-            switch (modelType.Name)
-            {
-                case "Branch":
-                    return QueriesHelper.BranchProperties(_dbContext);
-                case "Country":
-                    return QueriesHelper.CountryProperties(_dbContext);
-                case "Province":
-                    return QueriesHelper.ProvinceProperties(_dbContext);
-                case "Resource":
-                    return QueriesHelper.ResourceProperties(_dbContext);
-                case "SubProvince":
-                    return QueriesHelper.SubProvinceProperties(_dbContext);
-                case "KappSetting":
-                    return QueriesHelper.KappSettingProperties(_dbContext);
-                case "KioskApplication":
-                    return QueriesHelper.KioskApplicationProperties(_dbContext);
-                case "KioskApplicationType":
-                    return QueriesHelper.KioskApplicationTypeProperties(_dbContext);
-                case "Language":
-                    return QueriesHelper.LanguageProperties(_dbContext);
-                default:
-                    throw new NotSupportedException($"Model type '{modelType.Name}' is not supported.");
-            }
+           return _queryFactory.SelectQuery(modelType, _dbContext);
+
         }
 
-       
+
 
 
 

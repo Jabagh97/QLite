@@ -7,6 +7,7 @@ using PortalPOC;
 using PortalPOC.Models;
 using PortalPOC.Services;
 using PortalPOC.Helpers;
+using PortalPOC.QueryFactory;
 
 internal class Program
 {
@@ -24,6 +25,7 @@ internal class Program
         builder.Services.AddScoped<IDataService, DataService>();
         builder.Services.AddScoped<IModelTypeMappingService, ModelTypeMappingService>();
         builder.Services.AddScoped<IDataTableRequestExtractor, DataTableRequestExtractor>();
+        builder.Services.AddScoped<IQueryFactory, QueryFactory>();
 
         var app = builder.Build();
 
