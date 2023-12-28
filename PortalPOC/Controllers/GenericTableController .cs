@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
+using PortalPOC.Helpers;
 using PortalPOC.Services;
 using System.Linq.Dynamic.Core;
 
@@ -34,53 +34,46 @@ namespace PortalPOC.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetData(string modelName)
+        public IActionResult GetData(string modelName, [FromServices] IDataTableRequestExtractor requestExtractor)
         {
-            // Extract request parameters
-            var formData = Request.Form;
-            var pageSize = int.Parse(formData["length"]);
-            var skip = int.Parse(formData["start"]);
-            var searchValue = formData["search[value]"];
-            var sortColumn = formData[string.Concat("columns[", formData["order[0][column]"], "][name]")];
-            var sortColumnDirection = formData["order[0][dir]"];
-
-            var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
-
-
-            // Check if the model type is valid
-            if (modelTypeMapping.TryGetValue(modelName, out var typeTuple))
+            try
             {
-                Type modelType = typeTuple.Item1;
-                Type viewModelType = typeTuple.Item2;
+                var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
 
+                // Check if the model type is valid
+                if (modelTypeMapping.TryGetValue(modelName, out var typeTuple))
+                {
+                    Type modelType = typeTuple.Item1;
+                    Type viewModelType = typeTuple.Item2;
 
-                // Use Type directly to invoke the Set method
-                var dbSet = _dataService.GetTypedDbSet(modelType);
+                    // Extract request parameters using the injected extractor
+                    var parameters = requestExtractor.ExtractParameters(Request.Form);
 
-                // Query undeleted data from the DbSet 
+                  
+                    // Get filtered and paginated data from DataService
+                    var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, parameters.SearchValue, parameters.SortColumn, parameters.SortColumnDirection, modelTypeMapping);
 
-                var data = dbSet.Where("Gcrecord == null");
+                    // Paginate the data
+                    var paginatedData = filteredData.Skip(parameters.Skip).Take(parameters.PageSize).ToDynamicList();
 
+                    // Get total records count
+                    var recordsTotal = filteredData.Count();
 
-                // Get filtered and paginated data from DataService
-                var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, data, searchValue, sortColumn, sortColumnDirection, modelTypeMapping);
+                    // Prepare JSON response
+                    var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
 
-
-
-                // Paginate the data
-                var paginatedData = filteredData.Skip(skip).Take(pageSize).ToDynamicList();
-
-                // Get total records count
-                var recordsTotal = filteredData.Count();
-
-                // Prepare JSON response
-                var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
-
-                return Ok(jsonData);
+                    return Ok(jsonData);
+                }
+                else
+                {
+                    return NotFound($"Model type '{modelName}' not found.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return View("Error");
+                
+                
+                return StatusCode(500, ex.Message + "  Internal Server Error");
             }
         }
 

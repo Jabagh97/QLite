@@ -2,10 +2,10 @@
 {
     public interface IDataService
     {
-        IQueryable GetTypedDbSet(Type modelType);
-        IQueryable ApplySearchFilter(IQueryable data, string searchValue,Type modelType, Type viewModelType);
-        IQueryable ApplySorting(IQueryable data, string sortColumn, string sortColumnDirection, Type modelType);
+        IQueryable? GetTypedDbSet(Type modelType);
+        IQueryable ApplySearchFilter(IQueryable data, string? searchValue,Type modelType, Type viewModelType);
+        IQueryable ApplySorting(IQueryable data, string? sortColumn, string? sortColumnDirection);
 
-        IQueryable GetFilteredAndPaginatedData(Type modelType, Type viewModelType, IQueryable data, string searchValue, string sortColumn, string sortColumnDirection, Dictionary<string, (Type, Type)> modelTypeMapping);
+        IQueryable GetFilteredAndPaginatedData(Type modelType, Type viewModelType, string? searchValue, string? sortColumn, string? sortColumnDirection, Dictionary<string, (Type, Type)> modelTypeMapping);
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using PortalPOC;
 using PortalPOC.Models;
 using PortalPOC.Services;
+using PortalPOC.Helpers;
 
 internal class Program
 {
@@ -22,7 +23,7 @@ internal class Program
 
         builder.Services.AddScoped<IDataService, DataService>();
         builder.Services.AddScoped<IModelTypeMappingService, ModelTypeMappingService>();
-
+        builder.Services.AddScoped<IDataTableRequestExtractor, DataTableRequestExtractor>();
 
         var app = builder.Build();
 
