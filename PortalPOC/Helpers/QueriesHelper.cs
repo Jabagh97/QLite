@@ -51,6 +51,21 @@ namespace PortalPOC.Helpers
                        c.Oid
                    };
         }
+        public static IQueryable LanguageProperties(QuavisQorchAdminEasyTestContext _dbContext)
+        {
+            return from l in _dbContext.Languages
+                   select new
+                   {
+                       l.Name,
+                       l.EnglishName,
+                       l.LocalName,
+                       l.CultureInfo,
+                       l.LangCode,
+                       l.IsDefault,
+                       l.Logo,
+                       l.Oid
+                   };
+        }
 
         public static IQueryable ProvinceProperties(QuavisQorchAdminEasyTestContext _dbContext)
         {
@@ -64,25 +79,6 @@ namespace PortalPOC.Helpers
                        p.Oid
                    };
         }
-
-        public static IQueryable ResourceProperties(QuavisQorchAdminEasyTestContext _dbContext)
-        {
-            return from r in _dbContext.Resources
-                   join a in _dbContext.Accounts on r.Account equals a.Oid into accountGroup
-            from account in accountGroup.DefaultIfEmpty()
-                   join l in _dbContext.Languages on r.Language equals l.Oid into languageGroup
-                   from language in languageGroup.DefaultIfEmpty()
-                   select new
-                   {
-                       r.Parameter,
-                       r.ParameterValue,
-                       r.Description,
-                       Language = language != null ? language.Name : null,
-                       Account = account != null ? account.Name : null,
-                       r.Oid
-                   };
-        }
-
         public static IQueryable SubProvinceProperties(QuavisQorchAdminEasyTestContext _dbContext)
         {
             return from sp in _dbContext.SubProvinces
@@ -159,21 +155,40 @@ namespace PortalPOC.Helpers
                        kat.Oid
                    };
         }
+        public static IQueryable KappWorkFlowProperties(QuavisQorchAdminEasyTestContext _dbContext) { return null; }
+        public static IQueryable DesignProperties(QuavisQorchAdminEasyTestContext _dbContext) { return null; }
+        public static IQueryable DeskProperties(QuavisQorchAdminEasyTestContext _dbContext) { return null; }
+        public static IQueryable MacroProperties(QuavisQorchAdminEasyTestContext _dbContext) { return null; }
+        public static IQueryable MacroRuleProperties(QuavisQorchAdminEasyTestContext _dbContext) { return null; }
 
-        public static IQueryable LanguageProperties(QuavisQorchAdminEasyTestContext _dbContext)
+        public static IQueryable TicketPoolProperties(QuavisQorchAdminEasyTestContext _dbContext) { return null; }
+        public static IQueryable TicketProperties(QuavisQorchAdminEasyTestContext _dbContext) { return null; }
+        public static IQueryable TicketStateProperties(QuavisQorchAdminEasyTestContext _dbContext) { return null; }
+        public static IQueryable SegmentProperties(QuavisQorchAdminEasyTestContext _dbContext) { return null; }
+        public static IQueryable ResourceProperties(QuavisQorchAdminEasyTestContext _dbContext)
         {
-            return from l in _dbContext.Languages
+            return from r in _dbContext.Resources
+                   join a in _dbContext.Accounts on r.Account equals a.Oid into accountGroup
+            from account in accountGroup.DefaultIfEmpty()
+                   join l in _dbContext.Languages on r.Language equals l.Oid into languageGroup
+                   from language in languageGroup.DefaultIfEmpty()
                    select new
                    {
-                       l.Name,
-                       l.EnglishName,
-                       l.LocalName,
-                       l.CultureInfo,
-                       l.LangCode,
-                       l.IsDefault,
-                       l.Logo,
-                       l.Oid
+                       r.Parameter,
+                       r.ParameterValue,
+                       r.Description,
+                       Language = language != null ? language.Name : null,
+                       Account = account != null ? account.Name : null,
+                       r.Oid
                    };
         }
+
+     
+
+       
+
+       
+
+      
     }
 }
