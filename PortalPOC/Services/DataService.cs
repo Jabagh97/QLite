@@ -86,9 +86,9 @@ namespace PortalPOC.Services
 
             var data = dbSet?.Where("Gcrecord == null");
 
-            data = FilterPropertiesBasedOnViewModel(modelType);
+            data = _queryFactory.SelectAndJoinQuery(modelType, _dbContext);
 
-      
+
             data = ApplySearchFilter(data, searchValue, modelType, viewModelType);
 
           
@@ -96,18 +96,6 @@ namespace PortalPOC.Services
 
             return data;
         }
-
-
-
-        private IQueryable FilterPropertiesBasedOnViewModel(Type modelType)
-        {
-           return _queryFactory.SelectQuery(modelType, _dbContext);
-
-        }
-
-
-
-
 
         #endregion
     }

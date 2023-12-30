@@ -69,7 +69,7 @@ namespace PortalPOC.QueryFactory
         }
 
 
-        public IQueryable SelectQuery(Type modelType, QuavisQorchAdminEasyTestContext _dbContext)
+        public IQueryable SelectAndJoinQuery(Type modelType, QuavisQorchAdminEasyTestContext _dbContext)
         {
             return modelType.Name switch
             {

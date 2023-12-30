@@ -4,6 +4,6 @@ namespace PortalPOC.QueryFactory
 {
     public interface IQueryFactory
     {
-        IQueryable SelectQuery(Type modelType, QuavisQorchAdminEasyTestContext dbContext);
+        IQueryable SelectAndJoinQuery(Type modelType, QuavisQorchAdminEasyTestContext dbContext);
     }
 }
