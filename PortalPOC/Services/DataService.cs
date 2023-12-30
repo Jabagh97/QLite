@@ -92,7 +92,7 @@ namespace PortalPOC.Services
             data = ApplySearchFilter(data, searchValue, modelType, viewModelType);
 
           
-             data = ApplySorting(data, sortColumn, sortColumnDirection);
+            data = ApplySorting(data, sortColumn, sortColumnDirection);
 
             return data;
         }
