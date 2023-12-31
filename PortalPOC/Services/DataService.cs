@@ -86,7 +86,7 @@ namespace PortalPOC.Services
 
             var data = dbSet?.Where("Gcrecord == null");
 
-            data = _queryFactory.SelectAndJoinQuery(modelType, _dbContext);
+            data = _queryFactory.SelectAndJoinQuery(data,modelType, viewModelType, _dbContext);
 
 
             data = ApplySearchFilter(data, searchValue, modelType, viewModelType);
