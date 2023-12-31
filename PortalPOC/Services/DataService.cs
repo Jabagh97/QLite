@@ -98,6 +98,37 @@ namespace PortalPOC.Services
         }
 
         #endregion
+
+
+
+        public Dictionary<string, List<dynamic>> GetGuidPropertyNames(Type modelType, Dictionary<string, (Type, Type)> modelTypeMapping)
+        {
+            var namesDictionary = new Dictionary<string, List<dynamic>>();
+
+            var guidProperties = modelType.GetProperties().Where(p => p.PropertyType == typeof(Guid?));
+
+            foreach (var guidProperty in guidProperties)
+            {
+                if (string.IsNullOrEmpty(guidProperty.Name) || !modelTypeMapping.TryGetValue(guidProperty.Name, out var relatedTypeTuple))
+                {
+                    return namesDictionary; // Early return in case of an error
+                }
+
+                var names = GetRelatedEntityNames(relatedTypeTuple.Item1);
+
+                namesDictionary[guidProperty.Name] = names;
+            }
+
+            return namesDictionary;
+        }
+
+        private List<dynamic> GetRelatedEntityNames(Type relatedEntityType)
+        {
+            var relatedEntities = GetTypedDbSet(relatedEntityType);
+            return relatedEntities?.Where("Gcrecord == null").Select("new (Name as Name, Oid as Oid)").ToDynamicList();
+        }
+
+        
     }
 
 }

@@ -77,49 +77,52 @@ namespace PortalPOC.Controllers
             }
         }
 
-        //public IActionResult AddPopup(string modelName)
-        //{
-        //    var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
 
 
-        //    if (string.IsNullOrEmpty(modelName) || !modelTypeMapping.TryGetValue(modelName, out var typeTuple))
-        //    {
-        //        // Return a JSON response for better control
-        //        return Json(new { success = false, errorMessage = "Invalid model name." });
-        //    }
+        public IActionResult AddPopup(string modelName)
+        {
+            try
+            {
+                var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
 
-        //    Type modelType = typeTuple.Item1;
+                if (!modelTypeMapping.TryGetValue(modelName, out var typeTuple))
+                {
+                    return NotFound($"Model type '{modelName}' not found.");
+                }
 
-        //    // Create a dictionary to store lists of names associated with property names
-        //    var namesDictionary = new Dictionary<string, List<dynamic>>();
+                Type modelType = typeTuple.Item1;
 
-        //    // Check for properties of type Guid?
-        //    var guidProperties = modelType.GetProperties().Where(p => p.PropertyType == typeof(Guid?));
+                var namesDictionary = _dataService.GetGuidPropertyNames(modelType, modelTypeMapping);
 
-        //    foreach (var guidProperty in guidProperties)
-        //    {
-        //        if (string.IsNullOrEmpty(guidProperty.Name) || !modelTypeMapping.TryGetValue(guidProperty.Name, out var relatedTypeTuple))
-        //        {
-        //            return PartialView("Error");
-        //        }
+                ViewBag.DropDowns = namesDictionary;
+                ViewBag.ViewModel = typeTuple.Item2;
+                ViewBag.Action = "Create";
 
-        //        // Query the related entities to get a list of "Name" where Gcrecord == null
-        //        var relatedEntities = _dataService.GetTypedDbSet(relatedTypeTuple.Item1).Cast<dynamic>();
-        //        var names = relatedEntities
-        //                    .Where(e => e.Gcrecord == null)
-        //                    .Select(e => e.GetType().GetProperty("Name") != null ? e.Name : e.KappName)
-        //                    .ToList();
+                return PartialView("GenericPartial", modelType);
+            }
+            catch (Exception ex)
+            {
+             
+                return NotFound($"Model type '{modelName}' not found.");
+            }
+        }
 
+        [HttpPost]
+        public IActionResult Create([FromBody] Dictionary<string, object> formData)
+        {
+            try
+            {
+               
 
-        //        // Add the list of names to the namesDictionary
-        //        namesDictionary[guidProperty.Name] = names;
-        //    }
-
-        //    ViewBag.DropDowns = namesDictionary;
-        //    ViewBag.ViewModel = typeTuple.Item2;
-        //    ViewBag.Action = "Create";
-        //    return PartialView("GenericPartial", typeTuple.Item1);
-        //}
+                // Return a success response
+                return Ok(new { success = true, message = "Model created successfully" });
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and return an error response
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
 
 
     }

@@ -83,6 +83,8 @@
     @await Html.PartialAsync("partials/_scrolltop")
 
     <!--begin::Modals-->
+    @await Html.PartialAsync("modals/AddModal")
+    @await Html.PartialAsync("modals/EditModal")
     <!--end::Modals-->
 
     <script src="JQuery/jquery-3.7.1.js"></script>
@@ -92,8 +94,8 @@
     <script src="~/js/quavis.js"></script>
     <script src="~/lib/swal/sweetalert2.all.js"></script>
     <script src="~/assets/plugins/custom/draggable/draggable.bundle.js"></script>
-    
-
+    <script src="~/js/ModelButtons.js"></script>
+   
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

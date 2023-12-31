@@ -9,66 +9,37 @@
     var dropDowns = ViewBag.DropDowns;
 }
 
-<form asp-controller="Generic" asp-action="@action" method="post" id="createForm">
+<form id="createForm">
     @foreach (var property in filteredProperties)
     {
-        List<dynamic>? dropDownData = null;
-        var propertyName = property.Name;
-
         <div class="form-group">
-            <label class="control-label">@property.Name</label> <span style="color:red;">*</span>
-
-            @if (dropDowns != null && dropDowns.TryGetValue(propertyName, out dropDownData))
+            <label for="@property.Name">@property.Name</label>
+            @if (dropDowns != null && dropDowns.ContainsKey(property.Name))
             {
-                var selectList = new SelectList(dropDownData);
-
-                <select asp-for="@propertyName" asp-items="@selectList" class="form-control">
-                    <option value="">Select...</option>
-                    
+                <!-- Render dropdown -->
+                <select name="@property.Name" id="@property.Name" class="form-control">
+                    <option value="">-- Select --</option>
+                    @foreach (var item in dropDowns[property.Name])
+                    {
+                        <option value="@item.Oid">@item.Name</option>
+                    }
                 </select>
             }
             else
             {
-                // Render regular input fields for other property types
-                if (property.PropertyType == typeof(string))
-                {
-                    <input asp-for="@propertyName" class="form-control" />
-                }
-                else if (property.PropertyType == typeof(int))
-                {
-                    <input asp-for="@propertyName" class="form-control" type="number" />
-                }
-                <!-- Add more conditions for other property types as needed -->
+                <!-- Render text input -->
+                <input type="text" name="@property.Name" id="@property.Name" class="form-control" />
             }
         </div>
     }
 
-    <button type="button" id="createButton" class="btn btn-primary">Create</button>
+    <button type="button" id="createButton">Create</button>
 </form>
 
+
+<!-- Other HTML code -->
 @section Scripts {
-    <script>
-        // When the "Create" button is clicked, send an AJAX request
-        document.getElementById("createButton").addEventListener("click", function () {
-            // Serialize the form data
-            var formData = new FormData(document.getElementById("createForm"));
-
-            // Perform an AJAX request using formData
-            // ...
-
-            // Example: You can use fetch API to send the form data
-            fetch('/Generic/Create', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // Handle the response as needed
-                    console.log(data);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        });
-    </script>
+  
 }
+
+

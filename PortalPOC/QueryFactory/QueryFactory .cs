@@ -31,8 +31,12 @@ namespace PortalPOC.QueryFactory
     public class QueryFactory : IQueryFactory
     {
 
-        public IQueryable SelectAndJoinQuery(IQueryable data, Type modelType, Type viewModelType, QuavisQorchAdminEasyTestContext _dbContext)
+        public IQueryable SelectAndJoinQuery(IQueryable? data, Type modelType, Type viewModelType, QuavisQorchAdminEasyTestContext _dbContext)
         {
+            if (data == null)
+            {
+                return Enumerable.Empty<object>().AsQueryable();
+            }
 
             var query = data;
             var modelProperties = modelType.GetProperties();
