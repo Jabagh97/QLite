@@ -9,14 +9,18 @@
     var dropDowns = ViewBag.DropDowns;
 }
 
-<form id="createForm">
+<form asp-controller="GenericTable" asp-action="Create" method="post" id="createForm">
     @foreach (var property in filteredProperties)
     {
+        var propertyType = property.PropertyType;
+        var inputType = GetInputType(propertyType);
+
         <div class="form-group">
             <label for="@property.Name">@property.Name</label>
-            @if (dropDowns != null && dropDowns.ContainsKey(property.Name))
+
+            @if (dropDowns != null && dropDowns?.ContainsKey(property.Name) )
             {
-                <!-- Render dropdown -->
+                <!-- Render dropdown for Guid -->
                 <select name="@property.Name" id="@property.Name" class="form-control">
                     <option value="">-- Select --</option>
                     @foreach (var item in dropDowns[property.Name])
@@ -27,8 +31,8 @@
             }
             else
             {
-                <!-- Render text input -->
-                <input type="text" name="@property.Name" id="@property.Name" class="form-control" />
+                <!-- Render text input with dynamic type -->
+                <input type="@inputType" name="@property.Name" id="@property.Name" class="form-control" />
             }
         </div>
     }
@@ -36,10 +40,32 @@
     <button type="button" id="createButton">Create</button>
 </form>
 
+@functions {
+    // Helper function to determine input type based on property type
+    private string GetInputType(Type propertyType)
+    {
+        if (IsNullableType(propertyType))
+        {
+            propertyType = Nullable.GetUnderlyingType(propertyType);
+        }
 
-<!-- Other HTML code -->
-@section Scripts {
-  
+        if (propertyType == typeof(Int32) || propertyType == typeof(decimal) || propertyType == typeof(int))
+        {
+            return "number";
+        }
+        else if (propertyType == typeof(DateTime))
+        {
+            return "datetime-local";
+        }
+        else
+        {
+            return "text";
+        }
+    }
+
+    // Helper function to check if a type is nullable
+    private bool IsNullableType(Type type)
+    {
+        return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+    }
 }
-
-

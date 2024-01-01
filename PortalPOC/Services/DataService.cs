@@ -23,9 +23,6 @@ namespace PortalPOC.Services
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _queryFactory = queryFactory;
         }
-
-
-        #region GetData
         public IQueryable? GetTypedDbSet(Type modelType)
         {
             try
@@ -47,6 +44,9 @@ namespace PortalPOC.Services
                 throw new InvalidOperationException($"Error getting DbSet for type {modelType.Name}", ex);
             }
         }
+
+
+        #region GetData
 
 
 
@@ -100,7 +100,7 @@ namespace PortalPOC.Services
         #endregion
 
 
-
+        #region Create
         public Dictionary<string, List<dynamic>> GetGuidPropertyNames(Type modelType, Dictionary<string, (Type, Type)> modelTypeMapping)
         {
             var namesDictionary = new Dictionary<string, List<dynamic>>();
@@ -128,7 +128,37 @@ namespace PortalPOC.Services
             return relatedEntities?.Where("Gcrecord == null").Select("new (Name as Name, Oid as Oid)").ToDynamicList();
         }
 
-        
+        public object CreateModel(Type modelType, Dictionary<string, object> formData)
+        {
+            // Validate and create a model instance
+            var modelInstance = Activator.CreateInstance(modelType);
+
+            foreach (var property in formData)
+            {
+                var propertyInfo = modelType.GetProperty(property.Key);
+
+                if (propertyInfo != null)
+                {
+                    // Convert the value to the property type
+                    var convertedValue = QueriesHelper.ConvertToType(property.Value.ToString(), propertyInfo.PropertyType);
+
+                    // Set the property value
+                    propertyInfo.SetValue(modelInstance, convertedValue);
+                }
+            }
+
+            // Save the created model instance to your data store or perform any necessary operations
+            _queryFactory.CreateInstance(_dbContext,modelInstance);
+
+            // Return the created model instance
+            return modelInstance;
+        }
+
+    
+
+
+        #endregion
+
     }
 
 }

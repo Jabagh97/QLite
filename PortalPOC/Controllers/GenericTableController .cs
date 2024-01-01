@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PortalPOC.Helpers;
 using PortalPOC.Services;
+using System.Collections.Generic;
 using System.Linq.Dynamic.Core;
 
 namespace PortalPOC.Controllers
@@ -79,7 +80,7 @@ namespace PortalPOC.Controllers
 
 
 
-        public IActionResult AddPopup(string modelName)
+        public IActionResult AddPopup(string modelName, string action)
         {
             try
             {
@@ -96,26 +97,49 @@ namespace PortalPOC.Controllers
 
                 ViewBag.DropDowns = namesDictionary;
                 ViewBag.ViewModel = typeTuple.Item2;
-                ViewBag.Action = "Create";
+                ViewBag.Action = action; // Pass action from the query string
 
                 return PartialView("GenericPartial", modelType);
             }
             catch (Exception ex)
             {
-             
+                // Log the exception
                 return NotFound($"Model type '{modelName}' not found.");
             }
         }
 
+
         [HttpPost]
+        //[ValidateAntiForgeryToken]
         public IActionResult Create([FromBody] Dictionary<string, object> formData)
         {
             try
             {
-               
+                // Validate formData and create a model instance
+                if (!formData.ContainsKey("modelType"))
+                {
+                    return BadRequest("Model type not provided.");
+                }
 
-                // Return a success response
-                return Ok(new { success = true, message = "Model created successfully" });
+                // Extract modelType from formData
+                string modelTypeName = formData["modelType"].ToString();
+
+                var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
+
+                if (!modelTypeMapping.TryGetValue(modelTypeName, out var typeTuple))
+                {
+                    return NotFound($"Model type '{modelTypeName}' not found.");
+                }
+
+                Type modelType = typeTuple.Item1;
+
+                formData.Remove("modelType");
+
+                // Create an instance of the model using the specified modelType
+                var modelInstance = _dataService.CreateModel(modelType, formData);
+
+                // Return a success response with the created model
+                return Ok(new { success = true, message = "Model created successfully", data = modelInstance });
             }
             catch (Exception ex)
             {
@@ -123,6 +147,8 @@ namespace PortalPOC.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
+
 
 
     }

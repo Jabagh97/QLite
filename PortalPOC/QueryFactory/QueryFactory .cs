@@ -3,25 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PortalPOC.Helpers;
 using PortalPOC.Models;
-using PortalPOC.ViewModels.Branch;
-using PortalPOC.ViewModels.Country;
-using PortalPOC.ViewModels.Design;
-using PortalPOC.ViewModels.Desk;
-using PortalPOC.ViewModels.KappRole;
-using PortalPOC.ViewModels.KappSetting;
-using PortalPOC.ViewModels.KappWorkflow;
-using PortalPOC.ViewModels.KioskApplication;
-using PortalPOC.ViewModels.KioskApplicationType;
-using PortalPOC.ViewModels.Language;
-using PortalPOC.ViewModels.Macro;
-using PortalPOC.ViewModels.MacroRule;
-using PortalPOC.ViewModels.Province;
-using PortalPOC.ViewModels.Resource;
-using PortalPOC.ViewModels.Segment;
-using PortalPOC.ViewModels.SubProvince;
-using PortalPOC.ViewModels.Ticket;
-using PortalPOC.ViewModels.TicketPool;
-using PortalPOC.ViewModels.TicketState;
+
 using System.Linq.Dynamic.Core;
 using System.Reflection;
 
@@ -55,7 +37,7 @@ namespace PortalPOC.QueryFactory
             {
                 var propertyToJoin = property.Name switch
                 {
-                    "KioskApplication" => "KappName",
+                    "KioskApplicationNavigation" => "KappName",
                     _ => "Name"
                 };
 
@@ -74,6 +56,24 @@ namespace PortalPOC.QueryFactory
 
           
         }
+
+        public void CreateInstance(QuavisQorchAdminEasyTestContext _dbContext,object modelInstance)
+        {
+            // Ensure the modelInstance is not null
+            if (modelInstance == null)
+            {
+                throw new ArgumentNullException(nameof(modelInstance), "Model instance cannot be null.");
+            }
+
+            modelInstance = QueriesHelper.SetStandardProperties(modelInstance);
+
+            // Add the model instance to the DbContext
+            _dbContext.Add(modelInstance);
+
+            // Save changes to the database
+            _dbContext.SaveChanges();
+        }
+
 
     }
 }

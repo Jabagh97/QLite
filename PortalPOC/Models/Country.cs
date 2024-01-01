@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 
 namespace PortalPOC.Models;
 
@@ -18,7 +20,8 @@ public partial class Country
     public DateTime? ModifiedDate { get; set; }
 
     public DateTime? ModifiedDateUtc { get; set; }
-
+    [Required]
+    [DisplayName("Name")]
     public string? Name { get; set; }
 
     public string? Mask { get; set; }
