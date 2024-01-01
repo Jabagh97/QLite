@@ -9,7 +9,7 @@ using System.Reflection;
 
 namespace PortalPOC.QueryFactory
 {
-  
+
     public class QueryFactory : IQueryFactory
     {
 
@@ -25,7 +25,7 @@ namespace PortalPOC.QueryFactory
             var viewModelProperties = viewModelType.GetProperties();
 
             var selectProperties = modelProperties
-                .Where(mp => viewModelProperties.Any(vp => vp.Name == mp.Name));
+                .Where(mp => viewModelProperties.Any(vp => vp.Name == mp.Name || mp.Name == "Oid"));
 
             var leftJoinProperties = modelProperties
                 .Where(mp => viewModelProperties.Any(vp => mp.Name.Contains(vp.Name)) && QueriesHelper.IsNavigationProperty(mp));
@@ -50,6 +50,7 @@ namespace PortalPOC.QueryFactory
                     : $"{property.Name} as {property.Name}";
             });
 
+          
             var selectProjection = string.Join(", ", selectExpressions);
 
             return query.Select($"new ({selectProjection})");

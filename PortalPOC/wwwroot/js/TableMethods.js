@@ -111,13 +111,14 @@ function initializeBaseModalButton(viewModelName, buttonName) {
 
     if (buttonName === 'Add') {
         baseModalButton.action = function (e, dt, node, config) {
-            showPopupModal(viewModelName, buttonName);
+            showAddPopupModal(viewModelName, buttonName);
         };
     } else if (buttonName === 'Edit') {
         baseModalButton.extend = 'selectedSingle';
         baseModalButton.action = function (e, dt, button, config) {
-            var oid = dt.row({ selected: true }).data().oid;
-            showPopupModal(viewModelName, buttonName, { 'id': oid });
+            var data = dt.row({ selected: true }).data();
+
+            showEditPopupModal(viewModelName, buttonName, { 'data': data });
         };
     } else if (buttonName === 'Delete') {
         baseModalButton.extend = 'selected';
@@ -135,8 +136,8 @@ function initializeBaseModalButton(viewModelName, buttonName) {
 
 
 
-function showPopupModal(viewModel, action, additionalData = {}) {
-    var modalBodyId = action.toLowerCase() + "ModalBody";
+function showAddPopupModal(viewModel, action, additionalData = {}) {
+    var modalBodyId =  "addModalBody";
     var modalId = "kt_modal_3";
     var url = `GenericTable/AddPopup`;
 
@@ -151,7 +152,6 @@ function showPopupModal(viewModel, action, additionalData = {}) {
                 handleErrors(xhr.status);
             } else {
                 $('#' + modalId).modal('show');
-
                 document.getElementById("createButton").addEventListener('click', function (event) {
                     // Create an object to store form data
                     var formDataObject = {};
@@ -211,7 +211,7 @@ function showPopupModal(viewModel, action, additionalData = {}) {
                         },
                         error: function (error) {
 
-                          
+
 
                             // show error message
                             Swal.fire({
@@ -224,9 +224,104 @@ function showPopupModal(viewModel, action, additionalData = {}) {
                     });
                 });
 
+            
             }
         });
 }
+
+function showEditPopupModal(viewModel, action, additionalData = {}) {
+    var modalBodyId = "editModalBody";
+    var modalId = "kt_modal_3_Edit";
+    var url = `GenericTable/EditPopup`;
+
+    // Pass viewModel as a query parameter
+    url += "?modelName=" + viewModel;
+
+    $("#" + modalBodyId).load(url, additionalData,
+        function (response, status, xhr) {
+            if (status === "error") {
+                handleErrors(xhr.status);
+            } else {
+                $('#' + modalId).modal('show');
+                document.getElementById("saveButton").addEventListener('click', function (event) {
+                    // Create an object to store form data
+                    var formDataObject = {};
+
+                    var formData = new FormData(document.getElementById("editForm"));
+                    formData.forEach(function (value, key) {
+                        formDataObject[key] = value;
+                    });
+
+                    formDataObject['modelType'] = viewModel;
+
+                    // Send the form data to the controller using AJAX
+                    $.ajax({
+                        url: $("#editForm").attr("action"),
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formDataObject),
+                        success: function (response) {
+
+                            if (response.success === false) {
+
+                                // if there is stuff in error list, problem is probably validation error
+                                // otherwise, an internal error happened (e.g., num of rows affected was 0)
+
+                                if (response.errors == null) {
+                                    // show failure message
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'An unexpected error happened',
+                                        showConfirmButton: false,
+                                        timer: 2000
+                                    })
+                                }
+                                else {
+                                    // display validation errors
+                                    var errorMessages = response.errors.join('<br>');
+                                    $('#errorContainer').html(errorMessages);
+                                }
+
+                            }
+                            else {
+
+                                $('#addModal').modal('hide'); // hide the add modal
+                                $('#table').DataTable().ajax.reload(); // reload the grid
+
+                                // show success message
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'New entry saved',
+                                    showConfirmButton: false,
+                                    timer: 1000
+                                })
+
+                            }
+
+                            KTApp.hidePageLoading();
+                        },
+                        error: function (error) {
+
+
+
+                            // show error message
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'An unexpected error occured: ' + error
+                            })
+
+                            KTApp.hidePageLoading();
+                        }
+                    });
+                });
+
+
+            }
+        });
+
+}
+
+
 
 function showDeleteConfirmation(viewModel, oids) {
     const swalWithBootstrapButtons = Swal.mixin({

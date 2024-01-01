@@ -104,7 +104,7 @@ namespace PortalPOC.Controllers
             catch (Exception ex)
             {
                 // Log the exception
-                return NotFound($"Model type '{modelName}' not found.");
+                return NotFound($"Model type '{modelName}' not found.  " + ex.Message);
             }
         }
 
@@ -116,13 +116,15 @@ namespace PortalPOC.Controllers
             try
             {
                 // Validate formData and create a model instance
-                if (!formData.ContainsKey("modelType"))
+                if (!formData.TryGetValue("modelType", out var modelTypeValue) || modelTypeValue == null)
                 {
                     return BadRequest("Model type not provided.");
                 }
 
-                // Extract modelType from formData
-                string modelTypeName = formData["modelType"].ToString();
+                if (!(modelTypeValue is string modelTypeName))
+                {
+                    return BadRequest("Invalid model type provided.");
+                }
 
                 var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
 
@@ -148,6 +150,35 @@ namespace PortalPOC.Controllers
             }
         }
 
+        public IActionResult EditPopup(string modelName, string action, Dictionary<string, string> Data)
+        {
+            try
+            {
+                var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
+
+                if (!modelTypeMapping.TryGetValue(modelName, out var typeTuple))
+                {
+                    return NotFound($"Model type '{modelName}' not found.");
+                }
+
+                Type modelType = typeTuple.Item1;
+
+                var namesDictionary = _dataService.GetGuidPropertyNames(modelType, modelTypeMapping);
+
+                // Pass the received data to the view using ViewBag
+                ViewBag.Data = Data;
+                ViewBag.DropDowns = namesDictionary;
+                ViewBag.ViewModel = typeTuple.Item2;
+                ViewBag.Action = action; // Pass action from the query string
+
+                return PartialView("GenericPartial", modelType);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return NotFound($"Model type '{modelName}' not found.  " + ex.Message);
+            }
+        }
 
 
 

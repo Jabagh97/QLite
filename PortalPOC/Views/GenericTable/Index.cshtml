@@ -78,8 +78,8 @@
                                 @if (!Model.Name.Equals("TicketViewModel") && !Model.Name.Contains("TicketSateViewModel"))
                                 {
                                     @:initializeBaseModalButton('@Model.Name.Replace("ViewModel", "")', "Add"),
-                                    @:initializeBaseModalButton("GenericTable", "Edit"),
-                                    @:initializeBaseModalButton("GenericTable", "Delete"),
+                                    @:initializeBaseModalButton('@Model.Name.Replace("ViewModel", "")', "Edit"),
+                                    @:initializeBaseModalButton('@Model.Name.Replace("ViewModel", "")', "Delete"),
                                 }
                                      // Include export buttons here
                                     ...addButtons("csv", "copy", "excel", "pdf", "print")

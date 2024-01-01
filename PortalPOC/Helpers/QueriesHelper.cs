@@ -13,7 +13,7 @@ namespace PortalPOC.Helpers
         public static bool IsNavigationProperty(PropertyInfo property) =>
             property.PropertyType.IsClass && property.PropertyType != typeof(string);
 
-        public static object ConvertToType(string value, Type targetType)
+        public static object ConvertToType(string? value, Type targetType)
         {
             if (TryConvertToSpecificType(value, targetType, out var convertedValue))
             {
@@ -24,7 +24,7 @@ namespace PortalPOC.Helpers
             return Convert.ChangeType(value, targetType);
         }
 
-        private static bool TryConvertToSpecificType(string value, Type targetType, out object convertedValue)
+        private static bool TryConvertToSpecificType(string? value, Type targetType, out object? convertedValue)
         {
             convertedValue = null;
 

@@ -111,7 +111,7 @@ namespace PortalPOC.Services
             {
                 if (string.IsNullOrEmpty(guidProperty.Name) || !modelTypeMapping.TryGetValue(guidProperty.Name, out var relatedTypeTuple))
                 {
-                    return namesDictionary; // Early return in case of an error
+                    continue; // Skip to the next property in case of an error
                 }
 
                 var names = GetRelatedEntityNames(relatedTypeTuple.Item1);
@@ -125,13 +125,19 @@ namespace PortalPOC.Services
         private List<dynamic> GetRelatedEntityNames(Type relatedEntityType)
         {
             var relatedEntities = GetTypedDbSet(relatedEntityType);
-            return relatedEntities?.Where("Gcrecord == null").Select("new (Name as Name, Oid as Oid)").ToDynamicList();
+            return relatedEntities?.Where("Gcrecord == null").Select("new (Name as Name, Oid as Oid)").ToDynamicList()
+                ?? new List<dynamic>(); 
         }
 
         public object CreateModel(Type modelType, Dictionary<string, object> formData)
         {
             // Validate and create a model instance
             var modelInstance = Activator.CreateInstance(modelType);
+
+            if (modelInstance == null)
+            {
+                throw new InvalidOperationException("Failed to create model instance.");
+            }
 
             foreach (var property in formData)
             {
@@ -140,7 +146,7 @@ namespace PortalPOC.Services
                 if (propertyInfo != null)
                 {
                     // Convert the value to the property type
-                    var convertedValue = QueriesHelper.ConvertToType(property.Value.ToString(), propertyInfo.PropertyType);
+                    var convertedValue = QueriesHelper.ConvertToType(property.Value?.ToString(), propertyInfo.PropertyType);
 
                     // Set the property value
                     propertyInfo.SetValue(modelInstance, convertedValue);
@@ -148,13 +154,14 @@ namespace PortalPOC.Services
             }
 
             // Save the created model instance to your data store or perform any necessary operations
-            _queryFactory.CreateInstance(_dbContext,modelInstance);
+            _queryFactory.CreateInstance(_dbContext, modelInstance!);
 
             // Return the created model instance
             return modelInstance;
         }
 
-    
+
+
 
 
         #endregion

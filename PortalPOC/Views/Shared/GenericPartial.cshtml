@@ -4,52 +4,105 @@
     var modelProperties = Model.GetProperties();
     var viewModelType = ViewBag.ViewModel as Type;
     var viewModelProperties = viewModelType?.GetProperties();
-    var filteredProperties = modelProperties.Where(vp => viewModelProperties.Any(mp => mp.Name == vp.Name));
+    var filteredProperties = modelProperties.Where(vp => viewModelProperties?.Any(mp => mp.Name == vp.Name) == true);
     var action = ViewBag.Action;
     var dropDowns = ViewBag.DropDowns;
+    var formData = ViewBag.Data as Dictionary<string, string>;
+
 }
+@if (action == "AddPopup")
+{
+    <form asp-controller="GenericTable" asp-action="Create" method="post" id="createForm">
+        @foreach (var property in filteredProperties)
+        {
+            var propertyType = property.PropertyType;
+            var inputType = GetInputType(propertyType);
 
-<form asp-controller="GenericTable" asp-action="Create" method="post" id="createForm">
-    @foreach (var property in filteredProperties)
-    {
-        var propertyType = property.PropertyType;
-        var inputType = GetInputType(propertyType);
+            <div class="form-group">
+                <label for="@property.Name">@property.Name</label>
 
-        <div class="form-group">
-            <label for="@property.Name">@property.Name</label>
+                @if (dropDowns?.ContainsKey(property.Name) == true)
+                {
+                    <!-- Render dropdown for Guid -->
+                    <select name="@property.Name" id="@property.Name" class="form-control">
+                        <option value="">-- Select --</option>
+                        @foreach (var item in dropDowns[property.Name])
+                        {
+                            <option value="@item.Oid">@item.Name</option>
+                        }
+                    </select>
+                }
+                else
+                {
+                    <!-- Render text input with dynamic type -->
+                    <input type="@inputType" name="@property.Name" id="@property.Name" class="form-control" />
+                }
+            </div>
+        }
 
-            @if (dropDowns != null && dropDowns?.ContainsKey(property.Name) )
-            {
-                <!-- Render dropdown for Guid -->
-                <select name="@property.Name" id="@property.Name" class="form-control">
-                    <option value="">-- Select --</option>
-                    @foreach (var item in dropDowns[property.Name])
-                    {
-                        <option value="@item.Oid">@item.Name</option>
-                    }
-                </select>
-            }
-            else
-            {
-                <!-- Render text input with dynamic type -->
-                <input type="@inputType" name="@property.Name" id="@property.Name" class="form-control" />
-            }
-        </div>
-    }
+        <button type="button" id="createButton">Create</button>
+    </form>
 
-    <button type="button" id="createButton">Create</button>
-</form>
+}
+else if (action == "EditPopup")
+{
+
+
+    <form asp-controller="GenericTable" asp-action="Edit" method="post" id="editForm">
+        @foreach (var property in filteredProperties)
+        {
+            var propertyName = property.Name;
+            var propertyType = property.PropertyType;
+            var inputType = GetInputType(propertyType);
+
+            <div class="form-group">
+                <label for="@propertyName">@propertyName</label>
+
+                @if (dropDowns?.ContainsKey(propertyName) == true)
+                {
+                    <!-- Render dropdown for Guid -->
+                    <select name="@propertyName" id="@propertyName" class="form-control">
+                        <option value="">-- Select --</option>
+                        @foreach (var item in dropDowns[propertyName])
+                        {
+                             var isSelected = (formData.ContainsKey(propertyName.ToLower()) &&
+                            formData[propertyName.ToLower()] == item.Name) ? true : false;
+
+                            if (@isSelected)
+                            {
+                                <option value="@item.Oid" selected>@item.Name</option>
+                            }
+                            else
+                            {
+
+                                <option value="@item.Oid">@item.Name</option>
+                            }
+                        }
+                    </select>
+                }
+                else
+                {
+                    var value = (formData.ContainsKey(propertyName.ToLower()) ? formData[propertyName.ToLower()] : "");
+                    <!-- Render text input with dynamic type -->
+                    <input type="@inputType" name="@propertyName" id="@propertyName" class="form-control" value="@value" />
+                }
+            </div>
+        }
+
+        <button type="button" id="saveButton">Save</button>
+    </form>
+}
 
 @functions {
     // Helper function to determine input type based on property type
     private string GetInputType(Type propertyType)
     {
-        if (IsNullableType(propertyType))
+        if (IsNullableType(propertyType, out var underlyingType))
         {
-            propertyType = Nullable.GetUnderlyingType(propertyType);
+            propertyType = underlyingType;
         }
 
-        if (propertyType == typeof(Int32) || propertyType == typeof(decimal) || propertyType == typeof(int))
+        if (propertyType == typeof(int) || propertyType == typeof(decimal) || propertyType == typeof(int))
         {
             return "number";
         }
@@ -63,9 +116,10 @@
         }
     }
 
-    // Helper function to check if a type is nullable
-    private bool IsNullableType(Type type)
+    // Helper function to check if a type is nullable and get the underlying type
+    private bool IsNullableType(Type type, out Type underlyingType)
     {
-        return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        underlyingType = Nullable.GetUnderlyingType(type);
+        return underlyingType != null;
     }
 }
