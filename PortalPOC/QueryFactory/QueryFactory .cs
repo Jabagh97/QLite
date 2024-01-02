@@ -103,7 +103,7 @@ namespace PortalPOC.QueryFactory
             _dbContext.SaveChanges();
         }
 
-        public bool SoftDeleteInstance(QuavisQorchAdminEasyTestContext _dbContext,IQueryable data, Type modelType, string ID)
+        public bool SoftDeleteInstance(QuavisQorchAdminEasyTestContext dbContext, IQueryable data, Type modelType, string id)
         {
             try
             {
@@ -115,11 +115,11 @@ namespace PortalPOC.QueryFactory
                 }
 
                 // Find the entity by its primary key
-                var entity = data.Where($"Oid == \"{ID}\"").FirstOrDefault();
+                var entity = data.Where($"Oid == \"{id}\"").FirstOrDefault();
 
                 if (entity == null)
                 {
-                    throw new ArgumentException($"Entity with ID {ID} not found.");
+                    throw new ArgumentException($"Entity with ID {id} not found.");
                 }
 
                 // Traverse navigation properties and set foreign keys to null
@@ -134,9 +134,7 @@ namespace PortalPOC.QueryFactory
                         if (foreignKeyProperty != null)
                         {
                             // Set the foreign key property to null for each related entity
-
-                           
-                            var relatedEntities = GetTypedDbSet(_dbContext,relatedEntityType)?.Where($"{modelType.Name}  == \"{ID}\"");
+                            var relatedEntities = GetTypedDbSet(dbContext, relatedEntityType)?.Where($"{modelType.Name} == \"{id}\"");
                             foreach (var relatedEntity in relatedEntities)
                             {
                                 foreignKeyProperty.SetValue(relatedEntity, null);
@@ -145,7 +143,7 @@ namespace PortalPOC.QueryFactory
                     }
                 }
 
-                // Set the 'Gcrecord' property to bla bla bla
+                // Set the 'Gcrecord' property to some value
                 var isDeletedProperty = modelType.GetProperty("Gcrecord");
                 if (isDeletedProperty != null)
                 {
@@ -157,10 +155,10 @@ namespace PortalPOC.QueryFactory
                 }
 
                 // Update the entity state to Modified
-                _dbContext.Entry(entity).State = EntityState.Modified;
+                dbContext.Entry(entity).State = EntityState.Modified;
 
                 // Save changes to the database
-                _dbContext.SaveChanges();
+                dbContext.SaveChanges();
 
                 return true; // Soft delete successful
             }
@@ -170,6 +168,7 @@ namespace PortalPOC.QueryFactory
                 return false; // Soft delete failed
             }
         }
+
         public IQueryable? GetTypedDbSet(QuavisQorchAdminEasyTestContext _dbContext,Type modelType)
         {
             try

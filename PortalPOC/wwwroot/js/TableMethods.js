@@ -218,13 +218,13 @@ function initializeBaseModalButton(viewModelName, buttonName) {
 // Helper function to show modals
 function showModal(modalId, modalBodyId, formId, viewModel, buttonName, additionalData = {}) {
     var url = `GenericTable/ShowPopup?modelName=${viewModel}&opType=${buttonName}`;
-
     $("#" + modalBodyId).load(url, additionalData, function (response, status, xhr) {
         if (status === "error") {
             handleErrors(xhr.status);
         } else {
             $('#' + modalId).modal('show');
-            document.getElementById("submit").addEventListener('click', function (event) {
+            $("#" + modalBodyId).off('click', '#submit'); // Remove existing click event handler
+            $("#" + modalBodyId).on('click', '#submit', function (event) {
                 event.preventDefault();
                 handleFormSubmission(viewModel, buttonName, formId);
             });
