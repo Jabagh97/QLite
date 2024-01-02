@@ -8,12 +8,17 @@ using PortalPOC.Models;
 using PortalPOC.Services;
 using PortalPOC.Helpers;
 using PortalPOC.QueryFactory;
+using System.Reflection;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
+       
+
         var builder = WebApplication.CreateBuilder(args);
+
+      
 
         // Add services to the container.
         builder.Services.AddControllersWithViews();
@@ -28,6 +33,9 @@ internal class Program
         builder.Services.AddScoped<IQueryFactory, QueryFactory>();
 
         var app = builder.Build();
+
+        AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
+
 
         // Initialize the database if InitDatabase is true
         var initDatabase = Convert.ToBoolean(app.Configuration["InitDatabase"]);
@@ -74,4 +82,26 @@ internal class Program
 
         app.Run();
     }
+    private static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
+    {
+        // Handle the assembly load event
+        Console.WriteLine($"Assembly loaded: {args.LoadedAssembly.FullName}");
+        // Add your logic to process the loaded assembly
+    }
+
+
+    private static void LoadAssembly(string assemblyName)
+    {
+        try
+        {
+            // Try loading the assembly
+            Assembly.Load(assemblyName);
+            Console.WriteLine($"Assembly loaded: {assemblyName}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading assembly {assemblyName}: {ex.Message}");
+        }
+    }
+
 }

@@ -74,6 +74,25 @@
                             }
                         },
                         columns: columnDefinitions,
+                        columnDefs: [
+                            { targets: '_all', "defaultContent": "" },
+                            {
+                                targets: '_all',
+                                "render": function (data, type, row, meta) {
+                                    if (String(data).length <= 100) {
+                                        return data
+                                    }
+                                    else {
+                                        return data.substring(0, 30) + ".....";
+                                    }
+                                }
+                            }
+                        ],
+                        lengthMenu: [
+                            [10, 25, 50, -1],
+                            ['10 rows', '25 rows', '50 rows', 'Show all']
+                        ], // Set the available options for records per page
+                        pageLength: 10, // Set the initial value
                         buttons: [
                                 @if (!Model.Name.Equals("TicketViewModel") && !Model.Name.Contains("TicketSateViewModel"))
                                 {
@@ -102,7 +121,6 @@
         });
     </script>
    
-    <script src="~/js/TableMethods.js"></script>
 }
 
 
