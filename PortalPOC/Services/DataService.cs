@@ -100,7 +100,7 @@ namespace PortalPOC.Services
         #endregion
 
 
-        #region CreateData
+        #region Create&EditData
         public Dictionary<string, List<dynamic>> GetGuidPropertyNames(Type modelType, Dictionary<string, (Type, Type)> modelTypeMapping)
         {
             var namesDictionary = new Dictionary<string, List<dynamic>>();
@@ -160,8 +160,91 @@ namespace PortalPOC.Services
             return modelInstance;
         }
 
+        public object UpdateModel(Type modelType, Dictionary<string, object> formData)
+        {
+            // Validate and update the model instance
+            if (!formData.ContainsKey("Oid"))
+            {
+                throw new ArgumentException("ID not provided in the formData.");
+            }
+
+            var idValue = formData["Oid"].ToString();
+
+            var dbSet = GetTypedDbSet(modelType);
+          
+
+            // Fetch the existing entity from your data store
+            var existingEntity = _queryFactory.GetById(idValue, dbSet);
+
+            if (existingEntity == null)
+            {
+                throw new ArgumentException($"Entity with ID {idValue} not found.");
+            }
+
+            foreach (var property in formData)
+            {
+                var propertyName = property.Key;
+                var propertyInfo = modelType.GetProperty(propertyName);
+
+                if (propertyInfo != null)
+                {
+                    // Convert the value to the property type
+                    var convertedValue = QueriesHelper.ConvertToType(property.Value?.ToString(), propertyInfo.PropertyType);
+
+                    // Set the property value
+                    propertyInfo.SetValue(existingEntity, convertedValue);
+                }
+            }
+
+            // Save changes to your data store or perform any necessary operations
+            _queryFactory.UpdateInstance(_dbContext, existingEntity);
+
+            // Return the updated model instance
+            return existingEntity;
+        }
 
 
+        #endregion
+
+
+        #region SoftDelete
+
+        public bool SoftDelete(Type modelType, Dictionary<string, object> formData)
+        {
+            try
+            {
+                foreach (var item in formData) 
+                {
+
+                    // Ensure the dictionary contains the primary key value
+                    if (!item.Key.Equals("Oid"))
+                    {
+                        throw new ArgumentException("Primary key 'Oid' not provided in the formData.");
+                    }
+
+                    // Extract primary key value
+                    var primaryKeyValue = item.Value.ToString();
+                     primaryKeyValue = primaryKeyValue.Trim('[', ']').Replace("\"", "");
+
+
+                    // Get the DbSet for the specified model type
+                    var dbSet = GetTypedDbSet(modelType);
+
+                    // Find the entity by its primary key
+                    var entity = _queryFactory.SoftDeleteInstance(_dbContext, dbSet, modelType, primaryKeyValue);
+
+                }
+
+
+
+                return true; // Soft delete successful
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it accordingly
+                return false; // Soft delete failed
+            }
+        }
 
 
         #endregion

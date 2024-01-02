@@ -7,7 +7,7 @@
 
         public string? ServiceType { get; set; }
 
-        public string? Desk { get; set; }
+        public string? CurrentDesk { get; set; }
 
         public string? Segment { get; set; }
 

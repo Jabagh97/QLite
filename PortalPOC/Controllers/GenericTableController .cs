@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using PortalPOC.Helpers;
 using PortalPOC.Services;
 using System.Collections.Generic;
@@ -8,13 +9,8 @@ namespace PortalPOC.Controllers
 {
     public class GenericTableController : Controller
     {
-
         private readonly IModelTypeMappingService _modelTypeMappingService;
-
-
         private readonly IDataService _dataService;
-
-       
 
         public GenericTableController(IDataService dataService, IModelTypeMappingService modelTypeMappingService)
         {
@@ -41,73 +37,31 @@ namespace PortalPOC.Controllers
             {
                 var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
 
-                // Check if the model type is valid
-                if (modelTypeMapping.TryGetValue(modelName, out var typeTuple))
-                {
-                    Type modelType = typeTuple.Item1;
-                    Type viewModelType = typeTuple.Item2;
-
-                    // Extract request parameters using the injected extractor
-                    var parameters = requestExtractor.ExtractParameters(Request.Form);
-
-                  
-                    // Get filtered and paginated data from DataService
-                    var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, parameters.SearchValue, parameters.SortColumn, parameters.SortColumnDirection, modelTypeMapping);
-
-                    // Paginate the data
-                    var paginatedData = filteredData.Skip(parameters.Skip).Take(parameters.PageSize).ToDynamicList();
-
-                    // Get total records count
-                    var recordsTotal = filteredData.Count();
-
-                    // Prepare JSON response
-                    var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
-
-                    return Ok(jsonData);
-                }
-                else
-                {
-                    return NotFound($"Model type '{modelName}' not found.");
-                }
-            }
-            catch (Exception ex)
-            {
-                
-                
-                return StatusCode(500, ex.Message + "  Internal Server Error");
-            }
-        }
-
-
-
-        public IActionResult AddPopup(string modelName, string action)
-        {
-            try
-            {
-                var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
-
                 if (!modelTypeMapping.TryGetValue(modelName, out var typeTuple))
                 {
                     return NotFound($"Model type '{modelName}' not found.");
                 }
 
                 Type modelType = typeTuple.Item1;
+                Type viewModelType = typeTuple.Item2;
 
-                var namesDictionary = _dataService.GetGuidPropertyNames(modelType, modelTypeMapping);
+                var parameters = requestExtractor.ExtractParameters(Request.Form);
 
-                ViewBag.DropDowns = namesDictionary;
-                ViewBag.ViewModel = typeTuple.Item2;
-                ViewBag.Action = action; // Pass action from the query string
+                var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, parameters.SearchValue, parameters.SortColumn, parameters.SortColumnDirection, modelTypeMapping);
 
-                return PartialView("GenericPartial", modelType);
+                var paginatedData = filteredData.Skip(parameters.Skip).Take(parameters.PageSize).ToDynamicList();
+
+                var recordsTotal = filteredData.Count();
+
+                var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
+
+                return Ok(jsonData);
             }
             catch (Exception ex)
             {
-                // Log the exception
-                return NotFound($"Model type '{modelName}' not found.  " + ex.Message);
+                return StatusCode(500, new { success = false, message = ex.Message + " Internal Server Error" });
             }
         }
-
 
         [HttpPost]
         //[ValidateAntiForgeryToken]
@@ -116,15 +70,13 @@ namespace PortalPOC.Controllers
             try
             {
                 // Validate formData and create a model instance
-                if (!formData.TryGetValue("modelType", out var modelTypeValue) || modelTypeValue == null)
+                if (!formData.ContainsKey("modelType"))
                 {
                     return BadRequest("Model type not provided.");
                 }
 
-                if (!(modelTypeValue is string modelTypeName))
-                {
-                    return BadRequest("Invalid model type provided.");
-                }
+                // Extract modelType from formData
+                string modelTypeName = formData["modelType"].ToString();
 
                 var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
 
@@ -149,8 +101,85 @@ namespace PortalPOC.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpPost]
+        public IActionResult Edit([FromBody] Dictionary<string, object> formData)
+        {
+            try
+            {
+                // Validate formData and create a model instance
+                if (!formData.ContainsKey("modelType"))
+                {
+                    return BadRequest("Model type not provided.");
+                }
 
-        public IActionResult EditPopup(string modelName, string action, Dictionary<string, string> Data)
+                // Extract modelType from formData
+                string modelTypeName = formData["modelType"].ToString();
+
+                var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
+
+                if (!modelTypeMapping.TryGetValue(modelTypeName, out var typeTuple))
+                {
+                    return NotFound($"Model type '{modelTypeName}' not found.");
+                }
+
+                Type modelType = typeTuple.Item1;
+
+                formData.Remove("modelType");
+
+                // Update the instance of the model using the specified modelType
+                var modelInstance = _dataService.UpdateModel(modelType, formData);
+
+                // Return a success response with the created model
+                return Ok(new { success = true, message = "Model created successfully", data = modelInstance });
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and return an error response
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+
+        [HttpPost]
+        public IActionResult Delete([FromBody] Dictionary<string, object> Data)
+        {
+            try
+            {
+                // Validate Data and create a model instance
+                if (!Data.ContainsKey("modelType"))
+                {
+                    return BadRequest("Model type not provided.");
+                }
+
+                // Extract modelType from formData
+                string modelTypeName = Data["modelType"].ToString();
+
+                var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
+
+                if (!modelTypeMapping.TryGetValue(modelTypeName, out var typeTuple))
+                {
+                    return NotFound($"Model type '{modelTypeName}' not found.");
+                }
+
+                Type modelType = typeTuple.Item1;
+
+                Data.Remove("modelType");
+
+                // Create an instance of the model using the specified modelType
+                var modelInstance = _dataService.SoftDelete(modelType, Data);
+
+                // Return a success response with the created model
+                return Ok(new { success = true, message = "Model created successfully", data = modelInstance });
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and return an error response
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+
+        public IActionResult ShowPopup(string modelName, string opType, Dictionary<string, string> data)
         {
             try
             {
@@ -165,23 +194,23 @@ namespace PortalPOC.Controllers
 
                 var namesDictionary = _dataService.GetGuidPropertyNames(modelType, modelTypeMapping);
 
-                // Pass the received data to the view using ViewBag
-                ViewBag.Data = Data;
+                if (!opType.IsNullOrEmpty() && opType.Contains("Edit"))
+                {
+                    ViewBag.Data = data;
+                }
+
                 ViewBag.DropDowns = namesDictionary;
                 ViewBag.ViewModel = typeTuple.Item2;
-                ViewBag.Action = action; // Pass action from the query string
+                ViewBag.Action = opType;
 
                 return PartialView("GenericPartial", modelType);
             }
             catch (Exception ex)
             {
                 // Log the exception
-                return NotFound($"Model type '{modelName}' not found.  " + ex.Message);
+                return NotFound($"Model type '{modelName}' not found. {ex.Message}");
             }
         }
-
-
-
     }
 
 }

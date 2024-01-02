@@ -1,328 +1,83 @@
-﻿
-
-function addButtons(...buttonNames) {
-   
-
-    let buttons = [];
-
-    if (buttonNames.includes("importCsv")) {
-        buttons.push({
-            text: '<i class="fa-solid fa-file-csv"></i>Import CSV',
-            action: function (e, dt, button, config) {
-                $("#csvModalBody").load("/Resources/CsvPopup",
-                    function (response, status, xhr) {
-                        if (status == "error") {
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Session timed out',
-                                text: "Please login again",
-                                showConfirmButton: false,
-                                timer: 5000
-                            }).then(function () {
-                                location.reload();
-                            });
-                        }
-                        else {
-                            $('#csvModal').modal('show');
-                        }
-                    });
-            },
-            className: 'editBtn'
-        });
-    }
-
-    if (buttonNames.includes('csv')) {
-        buttons.push({
-            extend: 'csv',
-            text: '<i class="fa fa-file-csv"></i>Export CSV',
-            titleAttr: 'CSV'
-        });
-    }
-
-    if (buttonNames.includes('copy')) {
-        buttons.push({
-            extend: 'copy',
-            text: '<i class="fa fa-file"></i>Copy',
-            titleAttr: 'Copy'
-        });
-    }
-
-    if (buttonNames.includes('excel')) {
-        buttons.push({
-            extend: 'excel',
-            text: '<i class="fa fa-file-excel"></i>Excel',
-            titleAttr: 'Excel'
-        });
-    }
-
-
-
-    if (buttonNames.includes('pdf')) {
-        buttons.push({
-            extend: 'pdf',
-            text: '<i class="fa fa-file-pdf"></i>PDF',
-            titleAttr: 'PDF'
-        });
-    }
-
-    if (buttonNames.includes('print')) {
-        buttons.push({
-            extend: 'print',
-            text: '<i class="fa fa-print"></i>Print',
-            exportOptions: {
-                columns: ':visible'
-            },
-            customize: function (win) {
-                var last = null;
-                var current = null;
-                var bod = [];
-
-                var css = '@@page { size: landscape; }',
-                    head = win.document.head || win.document.getElementsByTagName('head')[0],
-                    style = win.document.createElement('style');
-
-                style.type = 'text/css';
-                style.media = 'print';
-
-                if (style.styleSheet) {
-                    style.styleSheet.cssText = css;
-                } else {
-                    style.appendChild(win.document.createTextNode(css));
-                }
-
-                head.appendChild(style);
-            }
-        });
-    }
-
-
-
-
-    return buttons;
-}
-
-
-
-function initializeBaseModalButton(viewModelName, buttonName) {
-    let baseModalButton = {
-        text: `<i class="fa fa-${buttonName.toLowerCase()}"></i>${buttonName.charAt(0).toUpperCase() + buttonName.slice(1)}`,
-        className: buttonName.toLowerCase() + 'Btn'
+﻿// Helper function to create DataTable buttons
+function createDataTableButton(extend, text, titleAttr) {
+    return {
+        extend: extend,
+        text: text,
+        titleAttr: titleAttr
     };
+}
 
-    if (buttonName === 'Add') {
-        baseModalButton.action = function (e, dt, node, config) {
-            showAddPopupModal(viewModelName, buttonName);
-        };
-    } else if (buttonName === 'Edit') {
-        baseModalButton.extend = 'selectedSingle';
-        baseModalButton.action = function (e, dt, button, config) {
-            var data = dt.row({ selected: true }).data();
 
-            showEditPopupModal(viewModelName, buttonName, { 'data': data });
-        };
-    } else if (buttonName === 'Delete') {
-        baseModalButton.extend = 'selected';
-        baseModalButton.text = '<i class="ki-outline ki-trash fs-3" style="position:relative; top:3px;"></i>Delete';
-        baseModalButton.action = function (e, dt, button, config) {
-            var oids = Array.from(dt.rows({ selected: true }).data()).map(obj => obj.oid);
-            showDeleteConfirmation(viewModelName, oids);
-        };
+
+// Helper function to handle form submissions
+function handleFormSubmission(viewModel, buttonName, formId) {
+    var formDataObject = {};
+    var formData = new FormData(document.getElementById(formId));
+
+    formData.forEach(function (value, key) {
+        formDataObject[key] = value;
+    });
+
+    formDataObject['modelType'] = viewModel;
+
+    $.ajax({
+        url: $("#" + formId).attr("action"),
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(formDataObject),
+        success: function (response) {
+            handleFormSubmissionSuccess(response, viewModel, buttonName);
+        },
+        error: function (error) {
+            handleFormSubmissionError(error);
+        }
+    });
+}
+
+// Helper function to handle form submission success
+function handleFormSubmissionSuccess(response, viewModel, buttonName) {
+    if (response.success === false) {
+        handleFormSubmissionFailure(response);
+    } else {
+        $('#' + (buttonName.toLowerCase() === 'add' ? 'addModal' : 'kt_modal_3_Edit')).modal('hide');
+        $('#table').DataTable().ajax.reload();
+        Swal.fire({
+            icon: 'success',
+            title: 'New entry saved',
+            showConfirmButton: false,
+            timer: 1000
+        });
     }
 
-    return baseModalButton;
-
-   
+    KTApp.hidePageLoading();
 }
 
-
-
-function showAddPopupModal(viewModel, action, additionalData = {}) {
-    var modalBodyId =  "addModalBody";
-    var modalId = "kt_modal_3";
-    var url = `GenericTable/AddPopup`;
-
-
-    // Pass viewModel as a query parameter
-    url += "?modelName=" + viewModel;
-
-
-    $("#" + modalBodyId).load(url, additionalData,
-        function (response, status, xhr) {
-            if (status === "error") {
-                handleErrors(xhr.status);
-            } else {
-                $('#' + modalId).modal('show');
-                document.getElementById("createButton").addEventListener('click', function (event) {
-                    // Create an object to store form data
-                    var formDataObject = {};
-
-                    var formData = new FormData(document.getElementById("createForm"));
-                    formData.forEach(function (value, key) {
-                        formDataObject[key] = value;
-                    });
-
-                    formDataObject['modelType'] = viewModel;
-
-                    // Send the form data to the controller using AJAX
-                    $.ajax({
-                        url: $("#createForm").attr("action"),
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify(formDataObject),
-                        success: function (response) {
-
-                            if (response.success === false) {
-
-                                // if there is stuff in error list, problem is probably validation error
-                                // otherwise, an internal error happened (e.g., num of rows affected was 0)
-
-                                if (response.errors == null) {
-                                    // show failure message
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'An unexpected error happened',
-                                        showConfirmButton: false,
-                                        timer: 2000
-                                    })
-                                }
-                                else {
-                                    // display validation errors
-                                    var errorMessages = response.errors.join('<br>');
-                                    $('#errorContainer').html(errorMessages);
-                                }
-
-                            }
-                            else {
-
-                                $('#addModal').modal('hide'); // hide the add modal
-                                $('#table').DataTable().ajax.reload(); // reload the grid
-
-                                // show success message
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'New entry saved',
-                                    showConfirmButton: false,
-                                    timer: 1000
-                                })
-
-                            }
-
-                            KTApp.hidePageLoading();
-                        },
-                        error: function (error) {
-
-
-
-                            // show error message
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'An unexpected error occured: ' + error
-                            })
-
-                            KTApp.hidePageLoading();
-                        }
-                    });
-                });
-
-            
-            }
+// Helper function to handle form submission failure
+function handleFormSubmissionFailure(response) {
+    if (response.errors == null) {
+        Swal.fire({
+            icon: 'error',
+            title: 'An unexpected error happened',
+            showConfirmButton: false,
+            timer: 2000
         });
+    } else {
+        var errorMessages = response.errors.join('<br>');
+        $('#errorContainer').html(errorMessages);
+    }
 }
 
-function showEditPopupModal(viewModel, action, additionalData = {}) {
-    var modalBodyId = "editModalBody";
-    var modalId = "kt_modal_3_Edit";
-    var url = `GenericTable/EditPopup`;
+// Helper function to handle form submission error
+function handleFormSubmissionError(error) {
+    Swal.fire({
+        icon: 'error',
+        title: 'An unexpected error occurred: ' + error
+    });
 
-    // Pass viewModel as a query parameter
-    url += "?modelName=" + viewModel;
-
-    $("#" + modalBodyId).load(url, additionalData,
-        function (response, status, xhr) {
-            if (status === "error") {
-                handleErrors(xhr.status);
-            } else {
-                $('#' + modalId).modal('show');
-                document.getElementById("saveButton").addEventListener('click', function (event) {
-                    // Create an object to store form data
-                    var formDataObject = {};
-
-                    var formData = new FormData(document.getElementById("editForm"));
-                    formData.forEach(function (value, key) {
-                        formDataObject[key] = value;
-                    });
-
-                    formDataObject['modelType'] = viewModel;
-
-                    // Send the form data to the controller using AJAX
-                    $.ajax({
-                        url: $("#editForm").attr("action"),
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify(formDataObject),
-                        success: function (response) {
-
-                            if (response.success === false) {
-
-                                // if there is stuff in error list, problem is probably validation error
-                                // otherwise, an internal error happened (e.g., num of rows affected was 0)
-
-                                if (response.errors == null) {
-                                    // show failure message
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'An unexpected error happened',
-                                        showConfirmButton: false,
-                                        timer: 2000
-                                    })
-                                }
-                                else {
-                                    // display validation errors
-                                    var errorMessages = response.errors.join('<br>');
-                                    $('#errorContainer').html(errorMessages);
-                                }
-
-                            }
-                            else {
-
-                                $('#addModal').modal('hide'); // hide the add modal
-                                $('#table').DataTable().ajax.reload(); // reload the grid
-
-                                // show success message
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'New entry saved',
-                                    showConfirmButton: false,
-                                    timer: 1000
-                                })
-
-                            }
-
-                            KTApp.hidePageLoading();
-                        },
-                        error: function (error) {
-
-
-
-                            // show error message
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'An unexpected error occured: ' + error
-                            })
-
-                            KTApp.hidePageLoading();
-                        }
-                    });
-                });
-
-
-            }
-        });
-
+    KTApp.hidePageLoading();
 }
 
-
-
+// Helper function to show delete confirmation
 function showDeleteConfirmation(viewModel, oids) {
     const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
@@ -341,26 +96,20 @@ function showDeleteConfirmation(viewModel, oids) {
         confirmButtonText: 'Delete',
         reverseButtons: true
     }).then((result) => {
-        var url = `/${viewModel}/Delete`;
+        var url = `/GenericTable/Delete`;
+        var payload = {
+            modelType: viewModel,
+            Oid: oids
+        };
 
         if (result.isConfirmed) {
             $.ajax({
                 type: "POST",
                 url: url,
-                data: JSON.stringify(oids),
+                data: JSON.stringify(payload),
                 contentType: "application/json",
                 success: function (response) {
-                    $('#table').DataTable().ajax.reload();
-                    if (response.success === true) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Record deleted',
-                            showConfirmButton: false,
-                            timer: 1000
-                        });
-                    } else {
-                        handleErrors(401);
-                    }
+                    handleDeleteConfirmationSuccess(response);
                 },
                 error: function (error) {
                     handleErrors(401);
@@ -370,6 +119,22 @@ function showDeleteConfirmation(viewModel, oids) {
     });
 }
 
+// Helper function to handle delete confirmation success
+function handleDeleteConfirmationSuccess(response) {
+    $('#table').DataTable().ajax.reload();
+    if (response.success === true) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Record deleted',
+            showConfirmButton: false,
+            timer: 1000
+        });
+    } else {
+        handleErrors(401);
+    }
+}
+
+// Helper function to handle errors
 function handleErrors(status) {
     var title, text;
     if (status == 401) {
@@ -388,5 +153,81 @@ function handleErrors(status) {
         timer: 5000
     }).then(function () {
         location.reload();
+    });
+}
+
+// Main function to add DataTable buttons based on input buttonNames
+function addButtons(...buttonNames) {
+    let buttons = [];
+
+    if (buttonNames.includes("importCsv")) {
+        buttons.push({
+            text: '<i class="fa-solid fa-file-csv"></i>Import CSV',
+            action: function (e, dt, button, config) {
+                showModal('csvModal', 'csvModalBody', 'csvForm', null, null);
+            },
+            className: 'editBtn'
+        });
+    }
+
+    const dataTableButtons = {
+        csv: createDataTableButton('csv', '<i class="fa fa-file-csv"></i>Export CSV', 'CSV'),
+        copy: createDataTableButton('copy', '<i class="fa fa-file"></i>Copy', 'Copy'),
+        excel: createDataTableButton('excel', '<i class="fa fa-file-excel"></i>Excel', 'Excel'),
+        pdf: createDataTableButton('pdf', '<i class="fa fa-file-pdf"></i>PDF', 'PDF'),
+        print: createDataTableButton('print', '<i class="fa fa-print"></i>Print', 'Print')
+    };
+
+    buttonNames.forEach(buttonName => {
+        if (dataTableButtons[buttonName]) {
+            buttons.push(dataTableButtons[buttonName]);
+        }
+    });
+
+    return buttons;
+}
+
+// Function to initialize base modal button
+function initializeBaseModalButton(viewModelName, buttonName) {
+    let baseModalButton = {
+        text: `<i class="fa fa-${buttonName.toLowerCase()}"></i>${buttonName.charAt(0).toUpperCase() + buttonName.slice(1)}`,
+        className: buttonName.toLowerCase() + 'Btn'
+    };
+  
+    if (buttonName === 'Add') {
+        baseModalButton.action = function (e, dt, node, config) {
+            showModal("kt_modal_3", "addModalBody", "createForm",viewModelName, buttonName);
+        };
+    } else if (buttonName === 'Edit') {
+        baseModalButton.extend = 'selectedSingle';
+        baseModalButton.action = function (e, dt, button, config) {
+            var data = dt.row({ selected: true }).data();
+            showModal("kt_modal_3_Edit", "editModalBody", "editForm",viewModelName, buttonName, { 'data': data });
+        };
+    } else if (buttonName === 'Delete') {
+        baseModalButton.extend = 'selected';
+        baseModalButton.text = '<i class="ki-outline ki-trash fs-3" style="position:relative; top:3px;"></i>Delete';
+        baseModalButton.action = function (e, dt, button, config) {
+            var oids = Array.from(dt.rows({ selected: true }).data()).map(obj => obj.oid);
+            showDeleteConfirmation(viewModelName, oids);
+        };
+    }
+
+    return baseModalButton;
+}
+// Helper function to show modals
+function showModal(modalId, modalBodyId, formId, viewModel, buttonName, additionalData = {}) {
+    var url = `GenericTable/ShowPopup?modelName=${viewModel}&opType=${buttonName}`;
+
+    $("#" + modalBodyId).load(url, additionalData, function (response, status, xhr) {
+        if (status === "error") {
+            handleErrors(xhr.status);
+        } else {
+            $('#' + modalId).modal('show');
+            document.getElementById("submit").addEventListener('click', function (event) {
+                event.preventDefault();
+                handleFormSubmission(viewModel, buttonName, formId);
+            });
+        }
     });
 }

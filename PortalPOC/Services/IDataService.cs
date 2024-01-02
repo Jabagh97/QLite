@@ -9,5 +9,8 @@
         Dictionary<string, List<dynamic>> GetGuidPropertyNames(Type modelType, Dictionary<string, (Type, Type)> modelTypeMapping);
 
         object CreateModel(Type modelType, Dictionary<string, object> formData);
+        object UpdateModel(Type modelType, Dictionary<string, object> formData);
+
+        bool SoftDelete(Type modelType, Dictionary<string, object> formData);
     }
 }
