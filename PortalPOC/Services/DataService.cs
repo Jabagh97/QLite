@@ -7,6 +7,7 @@ using PortalPOC.QueryFactory;
 using System.Linq.Dynamic.Core;
 
 using System.Reflection;
+using System.Text.Json;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
@@ -213,29 +214,31 @@ namespace PortalPOC.Services
         {
             try
             {
-                foreach (var item in formData) 
+                // Ensure the dictionary contains the primary key value
+                if (!formData.TryGetValue("Oid", out var oidJsonElement) || oidJsonElement == null)
                 {
-
-                    // Ensure the dictionary contains the primary key value
-                    if (!item.Key.Equals("Oid"))
-                    {
-                        throw new ArgumentException("Primary key 'Oid' not provided in the formData.");
-                    }
-
-                    // Extract primary key value
-                    var primaryKeyValue = item.Value.ToString();
-                     primaryKeyValue = primaryKeyValue.Trim('[', ']').Replace("\"", "");
-
-
-                    // Get the DbSet for the specified model type
-                    var dbSet = GetTypedDbSet(modelType);
-
-                    // Find the entity by its primary key
-                    var entity = _queryFactory.SoftDeleteInstance(_dbContext, dbSet, modelType, primaryKeyValue);
-
+                    throw new ArgumentException("Primary key 'Oid' not provided in the formData.");
                 }
 
+                // Extract primary key values
+                var primaryKeyValues = JsonSerializer.Deserialize<List<string>>(oidJsonElement.ToString());
 
+                // Get the DbSet for the specified model type
+                var dbSet = GetTypedDbSet(modelType);
+
+                foreach (var primaryKeyValue in primaryKeyValues)
+                {
+                    // Trim and replace as needed
+                    var cleanedPrimaryKeyValue = primaryKeyValue?.Trim('[', ']').Replace("\"", "");
+
+                    if (!string.IsNullOrEmpty(cleanedPrimaryKeyValue))
+                    {
+                        // Find the entity by its primary key
+                        var entity = _queryFactory.SoftDeleteInstance(_dbContext, dbSet, modelType, cleanedPrimaryKeyValue);
+
+                        // Your logic for cascade delete or other operations
+                    }
+                }
 
                 return true; // Soft delete successful
             }
@@ -245,6 +248,8 @@ namespace PortalPOC.Services
                 return false; // Soft delete failed
             }
         }
+
+
 
 
         #endregion
