@@ -3,7 +3,9 @@ using Microsoft.IdentityModel.Tokens;
 using PortalPOC.Helpers;
 using PortalPOC.Services;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
+using System.Reflection;
 
 namespace PortalPOC.Controllers
 {
@@ -63,81 +65,35 @@ namespace PortalPOC.Controllers
             }
         }
 
+       
         [HttpPost]
         //[ValidateAntiForgeryToken]
         public IActionResult Create([FromBody] Dictionary<string, object> formData)
         {
             try
             {
-                // Validate formData and create a model instance
-                if (!formData.ContainsKey("modelType"))
-                {
-                    return BadRequest("Model type not provided.");
-                }
-
-                // Extract modelType from formData
-                string modelTypeName = formData["modelType"].ToString();
-
-                var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
-
-                if (!modelTypeMapping.TryGetValue(modelTypeName, out var typeTuple))
-                {
-                    return NotFound($"Model type '{modelTypeName}' not found.");
-                }
-
-                Type modelType = typeTuple.Item1;
-
-                formData.Remove("modelType");
-
-                // Create an instance of the model using the specified modelType
-                var modelInstance = _dataService.CreateModel(modelType, formData);
-
-                // Return a success response with the created model
-                return Ok(new { success = true, message = "Model created successfully", data = modelInstance });
+                return ProcessModelOperation(formData, isCreateOperation: true);
             }
             catch (Exception ex)
             {
-                // Handle exceptions and return an error response
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
         [HttpPost]
         public IActionResult Edit([FromBody] Dictionary<string, object> formData)
         {
             try
             {
-                // Validate formData and create a model instance
-                if (!formData.ContainsKey("modelType"))
-                {
-                    return BadRequest("Model type not provided.");
-                }
-
-                // Extract modelType from formData
-                string modelTypeName = formData["modelType"].ToString();
-
-                var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
-
-                if (!modelTypeMapping.TryGetValue(modelTypeName, out var typeTuple))
-                {
-                    return NotFound($"Model type '{modelTypeName}' not found.");
-                }
-
-                Type modelType = typeTuple.Item1;
-
-                formData.Remove("modelType");
-
-                // Update the instance of the model using the specified modelType
-                var modelInstance = _dataService.UpdateModel(modelType, formData);
-
-                // Return a success response with the created model
-                return Ok(new { success = true, message = "Model created successfully", data = modelInstance });
+                return ProcessModelOperation(formData, isCreateOperation: false);
             }
             catch (Exception ex)
             {
-                // Handle exceptions and return an error response
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
+      
 
 
         [HttpPost]
@@ -211,6 +167,51 @@ namespace PortalPOC.Controllers
                 return NotFound($"Model type '{modelName}' not found. {ex.Message}");
             }
         }
+
+        private IActionResult ProcessModelOperation(Dictionary<string, object> formData, bool isCreateOperation)
+        {
+            // Validate formData and create/update a model instance
+            if (!formData.ContainsKey("modelType"))
+            {
+                return BadRequest("Model type not provided.");
+            }
+
+            // Extract modelType from formData
+            string modelTypeName = formData["modelType"].ToString();
+
+            var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
+
+            if (!modelTypeMapping.TryGetValue(modelTypeName, out var typeTuple))
+            {
+                return NotFound($"Model type '{modelTypeName}' not found.");
+            }
+
+            Type modelType = typeTuple.Item1;
+            Type viewModelType = typeTuple.Item2;
+            formData.Remove("modelType");
+
+            var requiredProperties = viewModelType
+                .GetProperties()
+                .Where(prop => prop.GetCustomAttribute<RequiredAttribute>() != null)
+                .Select(prop => prop.Name);
+
+            foreach (var requiredProperty in requiredProperties)
+            {
+                if (!formData.ContainsKey(requiredProperty) || formData[requiredProperty]?.ToString() == "")
+                {
+                    return StatusCode(500, new { success = false, message = $"Required field '{requiredProperty}' is missing or null." });
+                }
+            }
+
+            // Create/update the instance of the model using the specified modelType
+            var modelInstance = isCreateOperation
+                ? _dataService.CreateModel(modelType, formData)
+                : _dataService.UpdateModel(modelType, formData);
+
+            // Return a success response with the created/updated model
+            return Ok(new { success = true, message = $"{(isCreateOperation ? "Create" : "Update")} operation successful", data = modelInstance });
+        }
+
     }
 
 }

@@ -1,4 +1,6 @@
-﻿@model Type
+﻿@using System.Reflection;
+@using System.ComponentModel.DataAnnotations;
+@model Type
 
 @{
     var modelProperties = Model.GetProperties();
@@ -32,7 +34,16 @@
                         }
                         else
                         {
-                            <label for="@propertyName">@propertyName</label>
+                          <label for="@propertyName">
+                                @propertyName
+                                @{
+                                    var viewModelProperty = viewModelProperties.FirstOrDefault(vp => vp.Name == propertyName);
+                                    if (viewModelProperty != null && viewModelProperty.GetCustomAttribute<RequiredAttribute>() != null)
+                                    {
+                                        <span style="color: red;">*</span>
+                                    }
+                                }
+                            </label>
 
                             @if (isDropDown)
                             {

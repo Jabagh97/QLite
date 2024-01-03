@@ -4,6 +4,7 @@ namespace PortalPOC.ViewModels.Branch
 {
     public class BranchViewModel
     {
+        [Required]
         public string? Name { get; set; }
 
         public string? Account { get; set; }
