@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QLite.KioskLibrary\QLite.KioskLibrary.csproj" />
-    <ProjectReference Include="..\Quavis.QorchLite.Hwlib\QLite.KioskLibrary.csproj" />
   </ItemGroup>
 
 </Project>
