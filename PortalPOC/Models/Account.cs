@@ -1,7 +1,11 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.Account;
+using PortalPOC.ViewModels.Branch;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(Account), typeof(AccountViewModel))]
 
 public partial class Account
 {

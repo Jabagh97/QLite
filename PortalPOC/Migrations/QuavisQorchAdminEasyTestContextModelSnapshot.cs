@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PortalPOC.Models;
 
@@ -10,30 +9,26 @@ using PortalPOC.Models;
 
 namespace PortalPOC.Migrations
 {
-    [DbContext(typeof(QuavisQorchAdminEasyTestContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     partial class QuavisQorchAdminEasyTestContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.14")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.14");
 
             modelBuilder.Entity("PortalPOC.Models.Account", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Code")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -42,19 +37,19 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<byte[]>("LogoS")
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("BLOB");
 
                     b.Property<string>("Mail")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -64,10 +59,10 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -79,14 +74,14 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.AccountLanguage", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -95,15 +90,15 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<Guid?>("Language")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -112,7 +107,7 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -128,7 +123,7 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.Appointment", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("AppointmentDate")
                         .HasColumnType("datetime");
@@ -137,11 +132,11 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -150,12 +145,12 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -165,21 +160,21 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("NationalId")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("NationalID");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Segment")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ServiceType")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -197,20 +192,20 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.AppointmentSetting", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("AppointmentPerDay")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -219,12 +214,12 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -233,10 +228,10 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("ServiceType")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -252,50 +247,50 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.AuditDataItemPersistent", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("AuditedObject")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("NewObject")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NewValue")
                         .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("OldObject")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("OldValue")
                         .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("OperationType")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PropertyName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -319,17 +314,17 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.AuditedObjectWeakReference", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("DisplayName")
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("GuidId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("IntId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -339,33 +334,33 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.Branch", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Address")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Address2")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Area")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("BranchCode")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Country")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -374,15 +369,12 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
-
-                    b.Property<Guid?>("KioskRestartProfile")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -392,23 +384,23 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Province")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("SubProvince")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Terminal")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("TicketPoolProfile")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -430,11 +422,11 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.Country", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -443,23 +435,23 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("LangCode")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<byte[]>("Logo")
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("BLOB");
 
                     b.Property<string>("Mask")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -468,18 +460,19 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PhoneCode")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Sequence")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -491,24 +484,24 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.DashboardDatum", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("SynchronizeTitle")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -520,14 +513,14 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.Design", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -536,22 +529,22 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<string>("DesignData")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("DesignTag")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<Guid?>("KioskApplicationType")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -561,14 +554,14 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("WfStep")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -580,17 +573,17 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.DesignTarget", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -599,18 +592,18 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("Design")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<Guid?>("KioskApplication")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -619,7 +612,7 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -633,27 +626,27 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.Desk", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ActiveUser")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("ActivityStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("Autocall")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -662,14 +655,14 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("CurrentTicketNumber")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("DisplayNo")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<DateTime?>("LastStateTime")
@@ -677,7 +670,7 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -687,13 +680,13 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Pano")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -709,17 +702,17 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.DeskCreatableService", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -728,15 +721,15 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("Desk")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -745,10 +738,10 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("ServiceType")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -766,17 +759,17 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.DeskMacroSchedule", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -785,28 +778,28 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<bool?>("D1")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("D2")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("D3")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("D4")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("D5")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("D6")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("D7")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Desk")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime");
@@ -815,18 +808,18 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<bool?>("HaftalikRutin")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Macro")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -835,10 +828,10 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("Pasif")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime");
@@ -847,7 +840,7 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("User")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -867,11 +860,11 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.DeskStatus", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -880,18 +873,18 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("Desk")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("DeskActivityStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -900,7 +893,7 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("StateEndTime")
                         .HasColumnType("datetime");
@@ -909,7 +902,7 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("User")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -925,17 +918,17 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.DeskTransferableService", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -944,15 +937,15 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("Desk")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -961,10 +954,10 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("ServiceType")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -982,14 +975,14 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.KappRelation", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Child")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -998,15 +991,15 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<byte[]>("Icon")
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("BLOB");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -1015,10 +1008,10 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Parent")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -1034,10 +1027,10 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.KappRole", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("BusinessRole")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -1047,11 +1040,11 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.KappSessionStep", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -1060,15 +1053,15 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<Guid?>("KappSession")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -1077,15 +1070,15 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Step")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("SubStep")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -1097,20 +1090,20 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.KappSetting", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("CacheTimeout")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -1120,18 +1113,18 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Description")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<Guid?>("KioskApplication")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -1140,15 +1133,15 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Parameter")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ParameterValue")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -1166,25 +1159,25 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.KappUser", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("AuthorizedBranch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool?>("CanChangeMacro")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Desk")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("LastDesk")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -1204,11 +1197,11 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.KappWorkflow", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -1217,15 +1210,15 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<string>("DesignData")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -1235,16 +1228,16 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("RestartProfile")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("SessionType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -1256,20 +1249,20 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.KioskApplication", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool?>("Active")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -1279,32 +1272,32 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("DesignTag")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<bool?>("HasDigitalDisplay")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("HwId")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("KappName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("KappWorkflow")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("KioskApplicationType")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -1313,15 +1306,15 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PlatformAuthClientId")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PlatformAuthClientSecret")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -1341,18 +1334,18 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.KioskApplicationType", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Code")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -1361,12 +1354,12 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -1376,13 +1369,13 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("QorchAppType")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -1396,11 +1389,11 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.Language", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -1410,33 +1403,33 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("CultureInfo")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("EnglishName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<bool?>("IsDefault")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("LangCode")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LocalName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<byte[]>("Logo")
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("BLOB");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -1446,10 +1439,10 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -1461,14 +1454,14 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.Macro", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -1477,18 +1470,18 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<int?>("MacroType")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("MaxWaitingTime")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -1498,13 +1491,13 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("ToThisDesk")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -1518,11 +1511,11 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.MacroRule", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -1532,24 +1525,24 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Description")
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<Guid?>("Macro")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("MaxWaitingTime")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("MinWaitingTime")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -1558,22 +1551,22 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Segment")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Sequence")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("ServiceType")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("ToThisDesk")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("Transfer")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -1591,25 +1584,25 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.ModelDifference", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ContextId")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("UserId")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Version")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -1621,24 +1614,24 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.ModelDifferenceAspect", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Owner")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Xml")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -1652,21 +1645,21 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.PermissionPolicyActionPermissionObject", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ActionId")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Role")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -1680,29 +1673,29 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.PermissionPolicyMemberPermissionsObject", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Criteria")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("Members")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("ReadState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("TypePermissionObject")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("WriteState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -1716,23 +1709,23 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.PermissionPolicyNavigationPermissionsObject", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("ItemPath")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("NavigateState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Role")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -1746,32 +1739,32 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.PermissionPolicyObjectPermissionsObject", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Criteria")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("DeleteState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<int?>("NavigateState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("ReadState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("TypePermissionObject")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("WriteState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -1785,30 +1778,30 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.PermissionPolicyRole", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool?>("CanEditModel")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<bool?>("IsAdministrative")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("ObjectType")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("PermissionPolicy")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -1822,35 +1815,35 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.PermissionPolicyTypePermissionsObject", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("CreateState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("DeleteState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<int?>("NavigateState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("ReadState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Role")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("TargetType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("WriteState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -1864,30 +1857,30 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.PermissionPolicyUser", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool?>("ChangePasswordOnFirstLogon")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("ObjectType")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("StoredPassword")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -1901,27 +1894,26 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.PermissionPolicyUserLoginInfo", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LoginProviderName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ProviderUserKey")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("User")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
                     b.HasIndex(new[] { "LoginProviderName", "ProviderUserKey" }, "iLoginProviderNameProviderUserKey_PermissionPolicyUserLoginInfo")
-                        .IsUnique()
-                        .HasFilter("[LoginProviderName] IS NOT NULL AND [ProviderUserKey] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex(new[] { "User" }, "iUser_PermissionPolicyUserLoginInfo");
 
@@ -1931,23 +1923,22 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.PermissionPolicyUserUsersPermissionPolicyRoleRole", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("TEXT")
                         .HasColumnName("OID");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Roles")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Users")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
                     b.HasIndex(new[] { "Roles", "Users" }, "iRolesUsers_PermissionPolicyUserUsers_PermissionPolicyRoleRoles")
-                        .IsUnique()
-                        .HasFilter("[Roles] IS NOT NULL AND [Users] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex(new[] { "Roles" }, "iRoles_PermissionPolicyUserUsers_PermissionPolicyRoleRoles");
 
@@ -1959,14 +1950,14 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.Province", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Country")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -1975,12 +1966,12 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -1990,10 +1981,10 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -2007,14 +1998,14 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.QorchSession", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -2024,7 +2015,7 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("CurrentStep")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("datetime");
@@ -2034,30 +2025,30 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Error")
                         .HasMaxLength(400)
-                        .HasColumnType("nvarchar(400)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("InputInfo")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("InputType")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("InputValue")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("KioskApplication")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -2066,13 +2057,13 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Segment")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ServiceType")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("StartTime")
                         .HasColumnType("datetime");
@@ -2081,10 +2072,10 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<bool?>("Success")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Workflow")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -2104,14 +2095,14 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.Resource", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -2120,18 +2111,18 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<Guid?>("Language")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -2140,14 +2131,14 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Parameter")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ParameterValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -2163,11 +2154,11 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.RestartProfile", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -2176,12 +2167,12 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -2191,16 +2182,16 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("RestartPerNumOfDays")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("RestartPerNumOfSession")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("RestartTime")
                         .HasColumnType("datetime");
@@ -2215,14 +2206,14 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.Segment", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -2231,18 +2222,18 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<bool?>("Default")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<bool?>("IsParent")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -2252,17 +2243,17 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Parent")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Prefix")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -2278,17 +2269,17 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.ServiceType", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool?>("CallInKiosk")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -2297,28 +2288,28 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<bool?>("Default")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<bool?>("GenTicketByDesk")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<byte[]>("Icon")
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("BLOB");
 
                     b.Property<bool?>("IsParent")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Key")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -2328,16 +2319,16 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Parent")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("SeqNo")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -2353,14 +2344,14 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.SubProvince", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Country")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -2369,12 +2360,12 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -2384,13 +2375,13 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Province")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -2406,24 +2397,24 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.Ticket", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CardNo")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("CreatedByDesk")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("CreatedByKiosk")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -2432,42 +2423,42 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("CurrentDesk")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("CurrentState")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("CustomerInfo")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CustomerNo")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("DayOfYear")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Desk")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("LangCode")
                         .HasMaxLength(4)
-                        .HasColumnType("nvarchar(4)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("LastOpr")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("LastOprTime")
                         .HasColumnType("datetime");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -2477,43 +2468,43 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("NationalId")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Number")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Segment")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("SegmentName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ServiceType")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ServiceTypeName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("TicketNote")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("TicketPool")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ToDesk")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ToServiceType")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Year")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -2539,13 +2530,13 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.TicketPool", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("BreakEndTime")
                         .HasColumnType("datetime");
@@ -2554,11 +2545,11 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("CopyNumber")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -2567,21 +2558,21 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<Guid?>("KioskApplication")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("MaxWaitingTicketCount")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("MaxWaitingTicketCountControlTime")
                         .HasColumnType("datetime");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -2590,26 +2581,26 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<bool?>("NotAvailable")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("RangeEnd")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("RangeStart")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("ResetOnRange")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Segment")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ServiceCode")
                         .HasMaxLength(1)
-                        .HasColumnType("nvarchar(1)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ServiceEndTime")
                         .HasColumnType("datetime");
@@ -2618,10 +2609,10 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("ServiceType")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("TicketPoolProfile")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -2645,14 +2636,14 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.TicketPoolProfile", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Account")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -2661,12 +2652,12 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -2676,10 +2667,10 @@ namespace PortalPOC.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -2693,18 +2684,18 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.TicketState", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("Branch")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CallingRuleDescription")
                         .HasMaxLength(400)
-                        .HasColumnType("nvarchar(400)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -2713,28 +2704,28 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("Desk")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("DeskAppType")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<Guid?>("KioskAppId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("TEXT")
                         .HasColumnName("KioskAppID");
 
                     b.Property<Guid?>("Macro")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime");
@@ -2743,42 +2734,42 @@ namespace PortalPOC.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("Segment")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("SegmentName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ServiceType")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ServiceTypeName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("StartTime")
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("Ticket")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("TicketCallType")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("TicketNumber")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("TicketOprValue")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("TicketStateValue")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("User")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
@@ -2800,14 +2791,14 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.UploadBo", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -2820,32 +2811,32 @@ namespace PortalPOC.Migrations
                 {
                     b.Property<string>("Account")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<TimeSpan?>("AvarageTime")
                         .HasPrecision(0)
-                        .HasColumnType("time(0)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Branch")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("DeskActivityStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("ProcessCount")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("TicketCount")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<TimeSpan?>("TotalTime")
                         .HasPrecision(0)
-                        .HasColumnType("time(0)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.ToTable((string)null);
 
@@ -2856,52 +2847,52 @@ namespace PortalPOC.Migrations
                 {
                     b.Property<TimeSpan?>("AvgProcessTime")
                         .HasPrecision(0)
-                        .HasColumnType("time(0)");
+                        .HasColumnType("TEXT");
 
                     b.Property<TimeSpan?>("AvgWaitingTime")
                         .HasPrecision(0)
-                        .HasColumnType("time(0)");
+                        .HasColumnType("TEXT");
 
                     b.Property<TimeSpan?>("MaxProcessTime")
                         .HasPrecision(0)
-                        .HasColumnType("time(0)");
+                        .HasColumnType("TEXT");
 
                     b.Property<TimeSpan?>("MaxWaitingTime")
                         .HasPrecision(0)
-                        .HasColumnType("time(0)");
+                        .HasColumnType("TEXT");
 
                     b.Property<TimeSpan?>("MinProcessTime")
                         .HasPrecision(0)
-                        .HasColumnType("time(0)");
+                        .HasColumnType("TEXT");
 
                     b.Property<TimeSpan?>("MinWaitingTime")
                         .HasPrecision(0)
-                        .HasColumnType("time(0)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("TicketCount")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("TicketCountPercentage")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("TotalProcessTime")
                         .HasColumnType("datetime");
 
                     b.Property<int>("TotalProcessTimePercentage")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("TotalWaitingTime")
                         .HasColumnType("datetime");
 
                     b.Property<int>("TotalWaitingTimePercentage")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.ToTable((string)null);
 
@@ -2912,24 +2903,21 @@ namespace PortalPOC.Migrations
                 {
                     b.Property<int>("Oid")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("OID");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Oid"));
 
                     b.Property<string>("AssemblyName")
                         .HasMaxLength(254)
-                        .HasColumnType("nvarchar(254)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("TypeName")
                         .HasMaxLength(254)
-                        .HasColumnType("nvarchar(254)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
 
                     b.HasIndex(new[] { "TypeName" }, "iTypeName_XPObjectType")
-                        .IsUnique()
-                        .HasFilter("[TypeName] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("XPObjectType", (string)null);
                 });
@@ -2937,24 +2925,24 @@ namespace PortalPOC.Migrations
             modelBuilder.Entity("PortalPOC.Models.XpweakReference", b =>
                 {
                     b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("Gcrecord")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
                     b.Property<int?>("ObjectType")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("OptimisticLockField")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("TargetKey")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("TargetType")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 

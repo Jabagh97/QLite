@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using PortalPOC.Constants;
 using PortalPOC.Helpers;
 using PortalPOC.Models;
 using PortalPOC.QueryFactory;
@@ -15,14 +16,15 @@ namespace PortalPOC.Services
 {
     public class DataService : IDataService
     {
-        private readonly QuavisQorchAdminEasyTestContext _dbContext;
+        private readonly ApplicationDbContext _dbContext;
 
         private readonly IQueryFactory _queryFactory;
 
-        public DataService(QuavisQorchAdminEasyTestContext dbContext, IQueryFactory queryFactory)
+        public DataService(ApplicationDbContext dbContext, IQueryFactory queryFactory)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _queryFactory = queryFactory;
+            _queryFactory = queryFactory ?? throw new ArgumentNullException(nameof(queryFactory));
+
         }
         public IQueryable? GetTypedDbSet(Type modelType)
         {
@@ -31,18 +33,16 @@ namespace PortalPOC.Services
                 var setMethod = typeof(DbContext).GetMethod(nameof(DbContext.Set), Type.EmptyTypes);
                 var typedDbSet = setMethod!.MakeGenericMethod(modelType).Invoke(_dbContext, null);
 
-                // Log or print the DbSet information for debugging
-                Console.WriteLine($"Typed DbSet for {modelType.Name}: {typedDbSet}");
 
                 return typedDbSet as IQueryable;
             }
             catch (Exception ex)
             {
                 // Log or print the exception details for debugging
-                Console.WriteLine($"Error getting DbSet for type {modelType.Name}: {ex.Message}");
+                Console.WriteLine($"{Errors.ErrorGettingDbSet} {modelType.Name}: {ex.Message}");
 
                 // Rethrow the exception for better diagnosis
-                throw new InvalidOperationException($"Error getting DbSet for type {modelType.Name}", ex);
+                throw new InvalidOperationException($"{Errors.ErrorGettingDbSet} {modelType.Name}: {ex.Message}", ex);
             }
         }
 
@@ -61,13 +61,11 @@ namespace PortalPOC.Services
 
                 var filterExpression = string.Join(" OR ", commonProperties.Select(p => $"{p}.ToLower().Contains(@0)"));
 
-                return data.Where(filterExpression, searchValue.ToLower());
+                return data.Where(filterExpression, searchValue);
             }
 
             return data;
         }
-
-
 
 
         public IQueryable ApplySorting(IQueryable data, string? sortColumn, string? sortColumnDirection)
@@ -81,19 +79,38 @@ namespace PortalPOC.Services
         }
 
 
-        public IQueryable GetFilteredAndPaginatedData(Type modelType, Type viewModelType, string? searchValue, string? sortColumn, string? sortColumnDirection, Dictionary<string, (Type, Type)> modelTypeMapping)
+        public IQueryable GetFilteredAndPaginatedData(Type modelType, Type viewModelType, string? searchValue, string? sortColumn, string? sortColumnDirection)
         {
             var dbSet = GetTypedDbSet(modelType);
+            var data = dbSet;
 
-            var data = dbSet?.Where("Gcrecord == null");
 
-            data = _queryFactory.SelectAndJoinQuery(data,modelType, viewModelType, _dbContext);
+            IQuery Model = _queryFactory.GetModel(modelType.Name);
+
+            data = Model.SelectAndJoinQuery(data, modelType, viewModelType, _dbContext);
 
 
             data = ApplySearchFilter(data, searchValue, modelType, viewModelType);
-
-          
             data = ApplySorting(data, sortColumn, sortColumnDirection);
+
+            return data;
+        }
+
+
+        public IQueryable GetTabData(Type innerType, Type innerViewType, string Oid, Type mainModelType)
+        {
+            var dbSet = GetTypedDbSet(innerType);
+            var data = dbSet;
+
+            IQuery Model = _queryFactory.GetModel(innerType.Name);
+
+
+            var optionalArguments = new Dictionary<string, object>
+            {
+                [mainModelType.Name] = Oid,
+            };
+
+            data = Model.SelectAndJoinQuery(data, innerType, innerViewType, _dbContext, optionalArguments);
 
             return data;
         }
@@ -125,19 +142,25 @@ namespace PortalPOC.Services
 
         private List<dynamic> GetRelatedEntityNames(Type relatedEntityType)
         {
+            var propertyName = relatedEntityType.Name switch
+            {
+                Properties.DeviceType => Properties.VirtualComponentName,
+                _ => Properties.Name
+            };
+
             var relatedEntities = GetTypedDbSet(relatedEntityType);
-            return relatedEntities?.Where("Gcrecord == null").Select("new (Name as Name, Oid as Oid)").ToDynamicList()
-                ?? new List<dynamic>(); 
+            return relatedEntities?.Where($"{Properties.Gcrecord} == null").Select($"new ({propertyName} as {propertyName}, {Properties.Oid} as {Properties.Oid})").ToDynamicList()
+                ?? new List<dynamic>();
         }
 
-        public object CreateModel(Type modelType, Dictionary<string, object> formData)
+        public object CreateModel(string user, Type modelType, Dictionary<string, object> formData)
         {
             // Validate and create a model instance
             var modelInstance = Activator.CreateInstance(modelType);
 
             if (modelInstance == null)
             {
-                throw new InvalidOperationException("Failed to create model instance.");
+                throw new InvalidOperationException(Errors.NotCreated);
             }
 
             foreach (var property in formData)
@@ -154,32 +177,35 @@ namespace PortalPOC.Services
                 }
             }
 
+            IQuery Model = _queryFactory.GetModel(modelType.Name);
+
             // Save the created model instance to your data store or perform any necessary operations
-            _queryFactory.CreateInstance(_dbContext, modelInstance!);
+            Model.CreateInstance(user, _dbContext, modelInstance!);
 
             // Return the created model instance
             return modelInstance;
         }
 
-        public object UpdateModel(Type modelType, Dictionary<string, object> formData)
+        public object UpdateModel(string user, Type modelType, Dictionary<string, object> formData)
         {
             // Validate and update the model instance
-            if (!formData.ContainsKey("Oid"))
+            if (!formData.ContainsKey(Properties.Oid))
             {
-                throw new ArgumentException("ID not provided in the formData.");
+                throw new ArgumentException(Errors.NullOid);
             }
 
-            var idValue = formData["Oid"].ToString();
+            var idValue = formData[Properties.Oid].ToString();
 
             var dbSet = GetTypedDbSet(modelType);
-          
+
+            IQuery Model = _queryFactory.GetModel(modelType.Name);
 
             // Fetch the existing entity from your data store
-            var existingEntity = _queryFactory.GetById(idValue, dbSet);
+            var existingEntity = Model.GetById(idValue, dbSet);
 
             if (existingEntity == null)
             {
-                throw new ArgumentException($"Entity with ID {idValue} not found.");
+                throw new ArgumentException(Errors.EntityNotFound);
             }
 
             foreach (var property in formData)
@@ -198,7 +224,7 @@ namespace PortalPOC.Services
             }
 
             // Save changes to your data store or perform any necessary operations
-            _queryFactory.UpdateInstance(_dbContext, existingEntity);
+            Model.UpdateInstance(user, _dbContext, existingEntity);
 
             // Return the updated model instance
             return existingEntity;
@@ -215,9 +241,9 @@ namespace PortalPOC.Services
             try
             {
                 // Ensure the dictionary contains the primary key value
-                if (!formData.TryGetValue("Oid", out var oidJsonElement) || oidJsonElement == null)
+                if (!formData.TryGetValue(Properties.Oid, out var oidJsonElement) || oidJsonElement == null)
                 {
-                    throw new ArgumentException("Primary key 'Oid' not provided in the formData.");
+                    throw new ArgumentException(Errors.NullOid);
                 }
 
                 // Extract primary key values
@@ -233,10 +259,11 @@ namespace PortalPOC.Services
 
                     if (!string.IsNullOrEmpty(cleanedPrimaryKeyValue))
                     {
-                        // Find the entity by its primary key
-                        var entity = _queryFactory.SoftDeleteInstance(_dbContext, dbSet, modelType, cleanedPrimaryKeyValue);
+                        IQuery Model = _queryFactory.GetModel(modelType.Name);
 
-                        // Your logic for cascade delete or other operations
+                        // Find the entity by its primary key
+                        var entity = Model.SoftDeleteInstance(_dbContext, dbSet, modelType, cleanedPrimaryKeyValue);
+
                     }
                 }
 
@@ -247,6 +274,23 @@ namespace PortalPOC.Services
                 // Log the exception or handle it accordingly
                 return false; // Soft delete failed
             }
+        }
+
+        public bool RemoveFromSubList(string tabName, Type modelType, string modelOid, List<string> Oids)
+        {
+            IQuery Model = _queryFactory.GetModel(modelType.Name);
+
+            bool allSuccess = true;
+
+            foreach (var oid in Oids)
+            {
+                var result = Model.RemoveFromSubList(_dbContext, tabName, modelType, modelOid, oid);
+
+                // Update the 'allSuccess' flag based on the result of each iteration
+                allSuccess = allSuccess && result;
+            }
+
+            return allSuccess;
         }
 
 

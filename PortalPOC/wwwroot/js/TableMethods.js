@@ -1,9 +1,108 @@
-﻿// Helper function to create DataTable buttons
-function createDataTableButton(extend, text, titleAttr) {
+﻿
+//Init Table stuff
+function initializeDataTable(modelName, columnDefinitions) {
+    let dt;
+    let table;
+
+    function initializeDatatable() {
+        dt = $('#table').DataTable({
+            searchDelay: 500,
+            serverSide: true,
+            processing: true,
+            //stateSave: true,
+            paging: true,
+            filter: true,
+            dom: 'Bfrtilp',
+            select: true,
+            ajax: {
+                url: '/GenericTable/GetData',
+                type: "POST",
+                data: { "modelName": modelName },
+                dataType: "json",
+                error: function (xhr, error, code) {
+                    console.log(xhr, code);
+                }
+            },
+            columns: columnDefinitions,
+            columnDefs: [
+                { targets: '_all', "defaultContent": "" },
+                {
+                    targets: '_all',
+                    "render": function (data, type, row, meta) {
+                        if (String(data).length <= 100) {
+                            return data
+                        }
+                        else {
+                            return data.substring(0, 30) + ".....";
+                        }
+                    }
+                }
+            ],
+            lengthMenu: [
+                [5, 10, 25, 50, 1000],
+                ['5 rows', '10 rows', '25 rows', '50 rows', 'Show all']
+            ],
+            pageLength: 10,
+            buttons: generateButtons(modelName)
+        });
+
+        table = dt.$;
+    }
+
+
+
+    function generateButtons(modelName) {
+        var buttons = [
+            // Include export buttons here
+            'csv', 'copy', 'excel', 'pdf', 'print'
+        ];
+
+        if (modelName !== 'KioskPkg' && !modelName.includes('KioskRequest')) {
+            buttons.unshift('Add', 'Edit', 'Delete');
+        }
+
+        return buttons.map(function (button) {
+            if (button === 'Add' || button === 'Edit' || button === 'Delete') {
+                return initializeBaseModalButton(modelName, button);
+            } else {
+                return button;
+            }
+        });
+    }
+
+    // Function to initialize base modal button
+    function initializeBaseModalButton(viewModelName, buttonName) {
+        let baseModalButton = {
+            text: `<i class="fa fa-${buttonName.toLowerCase()}"></i>${buttonName.charAt(0).toUpperCase() + buttonName.slice(1)}`,
+            className: ''
+        };
+
+        if (buttonName === 'Add') {
+            baseModalButton.action = function (e, dt, node, config) {
+                showAddModal("kt_modal_3", "addModalBody", "createForm", viewModelName, buttonName);
+            };
+        } else if (buttonName === 'Edit') {
+            baseModalButton.extend = 'selectedSingle';
+            baseModalButton.action = function (e, dt, button, config) {
+                var data = dt.row({ selected: true }).data();
+                showEditModal("kt_modal_3_Edit", "editModalBody", "editForm", viewModelName, buttonName, { 'data': data });
+            };
+        } else if (buttonName === 'Delete') {
+            baseModalButton.extend = 'selected';
+            baseModalButton.text = '<i class="ki-outline ki-trash fs-3"></i>Delete';
+            baseModalButton.action = function (e, dt, button, config) {
+                var oids = Array.from(dt.rows({ selected: true }).data()).map(obj => obj.oid);
+                showDeleteConfirmation(viewModelName, oids);
+            };
+        }
+
+        return baseModalButton;
+    }
+
+    // ... (existing code for initializeBaseModalButton)
+
     return {
-        extend: extend,
-        text: text,
-        titleAttr: titleAttr
+        init: initializeDatatable(),
     };
 }
 
@@ -150,73 +249,18 @@ function handleErrors(status) {
         title: title,
         text: text,
         showConfirmButton: false,
-        timer: 5000
+        timer: 50000
     }).then(function () {
         location.reload();
     });
 }
 
-// Main function to add DataTable buttons based on input buttonNames
-function addButtons(...buttonNames) {
-    let buttons = [];
 
-    if (buttonNames.includes("importCsv")) {
-        buttons.push({
-            text: '<i class="fa-solid fa-file-csv"></i>Import CSV',
-            action: function (e, dt, button, config) {
-                showModal('csvModal', 'csvModalBody', 'csvForm', null, null);
-            },
-            className: 'editBtn'
-        });
-    }
 
-    const dataTableButtons = {
-        csv: createDataTableButton('csv', '<i class="fa fa-file-csv"></i>Export CSV', 'CSV'),
-        copy: createDataTableButton('copy', '<i class="fa fa-file"></i>Copy', 'Copy'),
-        excel: createDataTableButton('excel', '<i class="fa fa-file-excel"></i>Excel', 'Excel'),
-        pdf: createDataTableButton('pdf', '<i class="fa fa-file-pdf"></i>PDF', 'PDF'),
-        print: createDataTableButton('print', '<i class="fa fa-print"></i>Print', 'Print')
-    };
 
-    buttonNames.forEach(buttonName => {
-        if (dataTableButtons[buttonName]) {
-            buttons.push(dataTableButtons[buttonName]);
-        }
-    });
 
-    return buttons;
-}
-
-// Function to initialize base modal button
-function initializeBaseModalButton(viewModelName, buttonName) {
-    let baseModalButton = {
-        text: `<i class="fa fa-${buttonName.toLowerCase()}"></i>${buttonName.charAt(0).toUpperCase() + buttonName.slice(1)}`,
-        className: buttonName.toLowerCase() + 'Btn'
-    };
-  
-    if (buttonName === 'Add') {
-        baseModalButton.action = function (e, dt, node, config) {
-            showModal("kt_modal_3", "addModalBody", "createForm",viewModelName, buttonName);
-        };
-    } else if (buttonName === 'Edit') {
-        baseModalButton.extend = 'selectedSingle';
-        baseModalButton.action = function (e, dt, button, config) {
-            var data = dt.row({ selected: true }).data();
-            showModal("kt_modal_3_Edit", "editModalBody", "editForm",viewModelName, buttonName, { 'data': data });
-        };
-    } else if (buttonName === 'Delete') {
-        baseModalButton.extend = 'selected';
-        baseModalButton.text = '<i class="ki-outline ki-trash fs-3" style="position:relative; top:3px;"></i>Delete';
-        baseModalButton.action = function (e, dt, button, config) {
-            var oids = Array.from(dt.rows({ selected: true }).data()).map(obj => obj.oid);
-            showDeleteConfirmation(viewModelName, oids);
-        };
-    }
-
-    return baseModalButton;
-}
 // Helper function to show modals
-function showModal(modalId, modalBodyId, formId, viewModel, buttonName, additionalData = {}) {
+function showAddModal(modalId, modalBodyId, formId, viewModel, buttonName, additionalData = {}) {
     var url = `GenericTable/ShowPopup?modelName=${viewModel}&opType=${buttonName}`;
     $("#" + modalBodyId).load(url, additionalData, function (response, status, xhr) {
         if (status === "error") {
@@ -231,3 +275,64 @@ function showModal(modalId, modalBodyId, formId, viewModel, buttonName, addition
         }
     });
 }
+// Helper function to show modals
+function showEditModal(modalId, modalBodyId, formId, viewModel, buttonName, additionalData = {}) {
+
+    var url = `GenericTable/ShowPopup?modelName=${viewModel}&opType=${buttonName}`;
+    $('#Wrapper').addClass('slide-out');
+    $('#Wrapper').removeClass('slide-out').addClass('slide-in');
+
+    $("#Wrapper").load(url, additionalData, function (response, status, xhr) {
+        if (status === "error") {
+            handleErrors(xhr.status);
+        } else {
+
+
+            // Wait for the slide-out animation to complete, then replace the content and slide in the new content
+            setTimeout(function () {
+
+                // Remove the slide-out class and add the slide-in class to slide in the new content
+
+                // Attach event handler for form submission
+                $('#Wrapper').off('click', '#submit'); // Remove existing click event handler
+                $('#Wrapper').on('click', '#submit', function (event) {
+                    event.preventDefault();
+                    handleFormSubmission(viewModel, buttonName, formId);
+                });
+            }, 150); // Adjust the timeout value to match the duration of your slide-out animation
+        }
+    });
+
+}
+
+
+
+
+// Function to handle the "Back" action
+function back() {
+
+    location.reload(true);
+
+
+}
+
+
+// Function to handle file selection and display preview
+function handleFileSelect(propertyName, fileInputId) {
+    var fileInput = document.getElementById(fileInputId);
+    var preview = document.getElementById(`${propertyName}Preview`);
+    var hiddenInput = document.getElementById(`${propertyName}HiddenInput`);
+
+    var file = fileInput.files[0];
+    if (file) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+            hiddenInput.value = e.target.result.split(',')[1];
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+

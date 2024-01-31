@@ -18,7 +18,7 @@ $(document).ready(function () {
         $(this).addClass('show');
 
         // Save the ID of the opened accordion item to localStorage
-        localStorage.setItem('accordionItemOpen',  $(this).closest('.menu').attr('id'));
+        localStorage.setItem('accordionItemOpen', $(this).closest('.menu').attr('id'));
     });
 });
 
@@ -33,8 +33,7 @@ $(document).ready(function () {
         $('body').attr('data-kt-app-sidebar-minimize', 'on');
         $('#kt_app_sidebar_toggle').attr('data-kt-toggle-state', 'active').addClass('active');
     }
-    else
-    {
+    else {
         // Remove attributes and classes for minimized sidebar
         $('body').attr('data-kt-app-sidebar-minimize', 'off');
         $(this).attr('data-kt-toggle-state', '').removeClass('active');
@@ -120,7 +119,7 @@ function copyToClipboard(event, elementId) {
 
 
 function showMetronicPopup(message, type) {
-    
+
     Swal.fire({
         icon: type, // success, error, warning, etc.
         title: message,

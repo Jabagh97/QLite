@@ -1,7 +1,11 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.Branch;
+using PortalPOC.ViewModels.DeskCreatableService;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(DeskCreatableService), typeof(DeskCreatableServiceViewModel))]
 
 public partial class DeskCreatableService
 {

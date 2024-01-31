@@ -5,13 +5,13 @@ using PortalPOC.Models;
 
 namespace PortalPOC.Models;
 
-public partial class QuavisQorchAdminEasyTestContext : DbContext
+public partial class ApplicationDbContext : DbContext
 {
-    public QuavisQorchAdminEasyTestContext()
+    public ApplicationDbContext()
     {
     }
 
-    public QuavisQorchAdminEasyTestContext(DbContextOptions<QuavisQorchAdminEasyTestContext> options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
@@ -134,7 +134,7 @@ public partial class QuavisQorchAdminEasyTestContext : DbContext
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+            optionsBuilder.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
         }
     }
 

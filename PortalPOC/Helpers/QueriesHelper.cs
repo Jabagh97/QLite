@@ -62,7 +62,7 @@ namespace PortalPOC.Helpers
             }
             else if (targetType == typeof(byte[]))
             {
-                convertedValue = Encoding.UTF8.GetBytes(value);
+                convertedValue = Convert.FromBase64String(value);
                 return true;
             }
             else if (targetType == typeof(byte?[]))
@@ -70,7 +70,7 @@ namespace PortalPOC.Helpers
                 if (string.IsNullOrEmpty(value))
                     return true;
 
-                var byteArray = Encoding.UTF8.GetBytes(value);
+                var byteArray = Convert.FromBase64String(value);
                 convertedValue = byteArray.Select(b => (byte?)b).ToArray();
                 return true;
             }
@@ -78,15 +78,23 @@ namespace PortalPOC.Helpers
             return false;
         }
 
-        public static object SetStandardProperties(object modelInstance)
+        public static object SetStandardProperties(object modelInstance, string user, string? operation = null)
         {
-            SetPropertyIfExist(modelInstance, "Oid", Guid.NewGuid());
-            SetPropertyIfExist(modelInstance, "CreatedBy", "YourCreatedByValue"); // TODO
-            SetPropertyIfExist(modelInstance, "ModifiedBy", "YourModifiedByValue"); // TODO
-            SetPropertyIfExist(modelInstance, "CreatedDate", DateTime.Now);
-            SetPropertyIfExist(modelInstance, "CreatedDateUtc", DateTime.UtcNow);
-            SetPropertyIfExist(modelInstance, "ModifiedDate", DateTime.Now);
-            SetPropertyIfExist(modelInstance, "ModifiedDateUtc", DateTime.UtcNow);
+            if (operation != null && operation.Contains("Create"))
+            {
+                SetPropertyIfExist(modelInstance, "Oid", Guid.NewGuid());
+                SetPropertyIfExist(modelInstance, "CreatedBy", user);
+                SetPropertyIfExist(modelInstance, "CreatedDate", DateTime.Now);
+                SetPropertyIfExist(modelInstance, "CreatedDateUtc", DateTime.UtcNow);
+            }
+            else
+            {
+                SetPropertyIfExist(modelInstance, "ModifiedBy", user);
+
+                SetPropertyIfExist(modelInstance, "ModifiedDate", DateTime.Now);
+                SetPropertyIfExist(modelInstance, "ModifiedDateUtc", DateTime.UtcNow);
+            }
+
 
             return modelInstance;
         }
@@ -96,6 +104,29 @@ namespace PortalPOC.Helpers
             var property = modelInstance.GetType().GetProperty(propertyName);
             property?.SetValue(modelInstance, value);
         }
+
+        public static IQueryable HandleUniqueCases(Type modelType, ref IQueryable query)
+        {
+            var modelTypeName = modelType.Name;
+
+            // Check if modelType.Name is VComponent, Qrole, or Quser
+            if (modelTypeName == "Qrole" || modelTypeName == "Quser")
+            {
+                return query;
+            }
+            else
+            {
+                // For other model types, apply the filter Gcrecord == null
+                return query = query.Where("Gcrecord == null");
+            }
+        }
+
+        public static string RemoveNavigationKeyword(string propertyName)
+        {
+            const string navigationKeyword = "Navigation";
+            return propertyName.Replace(navigationKeyword, string.Empty);
+        }
+
     }
 
 }

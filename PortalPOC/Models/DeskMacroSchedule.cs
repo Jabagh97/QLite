@@ -1,7 +1,10 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.DeskCreatableService;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+//[ModelMapping(typeof(DeskMacroSchedule), typeof(DeskMacroScheduleViewModel))]
 
 public partial class DeskMacroSchedule
 {

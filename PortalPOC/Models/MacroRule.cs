@@ -1,7 +1,11 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.Language;
+using PortalPOC.ViewModels.MacroRule;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(MacroRule), typeof(MacroRuleViewModel))]
 
 public partial class MacroRule
 {

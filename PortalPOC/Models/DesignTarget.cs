@@ -1,7 +1,11 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.Design;
+using PortalPOC.ViewModels.DesignTarget;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(DesignTarget), typeof(DesignTargetViewModel))]
 
 public partial class DesignTarget
 {

@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using PortalPOC.Constants;
 using PortalPOC.Helpers;
 using PortalPOC.Services;
 using System.Collections.Generic;
@@ -13,45 +15,49 @@ namespace PortalPOC.Controllers
     {
         private readonly IModelTypeMappingService _modelTypeMappingService;
         private readonly IDataService _dataService;
+        private readonly IDataTableRequestExtractor _requestExtractor;
 
-        public GenericTableController(IDataService dataService, IModelTypeMappingService modelTypeMappingService)
+
+
+        public GenericTableController(IDataService dataService, IModelTypeMappingService modelTypeMappingService, IDataTableRequestExtractor requestExtractor)
         {
             _dataService = dataService;
             _modelTypeMappingService = modelTypeMappingService;
+            _requestExtractor = requestExtractor;
         }
 
         public IActionResult Index(string modelName)
         {
-            var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
-
-            if (string.IsNullOrEmpty(modelName) || !modelTypeMapping.TryGetValue(modelName, out var typeTuple))
+            if (!_modelTypeMappingService.TryGetModelTypes(modelName, out var modelType, out var viewModelType))
             {
                 return View("Error");
             }
 
-            return View(typeTuple.Item2);
+            ViewBag.PageTitle = modelName;
+
+
+            return View(ViewNavigations.GenericTable, viewModelType);
         }
 
+
         [HttpPost]
-        public IActionResult GetData(string modelName, [FromServices] IDataTableRequestExtractor requestExtractor)
+        public IActionResult GetData(string modelName)
         {
             try
             {
-                var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
-
-                if (!modelTypeMapping.TryGetValue(modelName, out var typeTuple))
+                if (!_modelTypeMappingService.TryGetModelTypes(modelName, out var modelType, out var viewModelType))
                 {
-                    return NotFound($"Model type '{modelName}' not found.");
+                    return NotFound(Errors.NullModel);
                 }
 
-                Type modelType = typeTuple.Item1;
-                Type viewModelType = typeTuple.Item2;
+                var parameters = _requestExtractor.ExtractParameters(Request.Form);
 
-                var parameters = requestExtractor.ExtractParameters(Request.Form);
-
-                var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, parameters.SearchValue, parameters.SortColumn, parameters.SortColumnDirection, modelTypeMapping);
+                var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, parameters.SearchValue, parameters.SortColumn, parameters.SortColumnDirection);
 
                 var paginatedData = filteredData.Skip(parameters.Skip).Take(parameters.PageSize).ToDynamicList();
+
+                // var paginatedData = filteredData.ToDynamicList();
+
 
                 var recordsTotal = filteredData.Count();
 
@@ -65,9 +71,8 @@ namespace PortalPOC.Controllers
             }
         }
 
-       
+
         [HttpPost]
-        //[ValidateAntiForgeryToken]
         public IActionResult Create([FromBody] Dictionary<string, object> formData)
         {
             try
@@ -93,8 +98,6 @@ namespace PortalPOC.Controllers
             }
         }
 
-      
-
 
         [HttpPost]
         public IActionResult Delete([FromBody] Dictionary<string, object> Data)
@@ -104,20 +107,17 @@ namespace PortalPOC.Controllers
                 // Validate Data and create a model instance
                 if (!Data.ContainsKey("modelType"))
                 {
-                    return BadRequest("Model type not provided.");
+                    return BadRequest(Errors.NoModelType);
                 }
 
                 // Extract modelType from formData
-                string modelTypeName = Data["modelType"].ToString();
+                string modelName = Data["modelType"].ToString();
 
-                var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
-
-                if (!modelTypeMapping.TryGetValue(modelTypeName, out var typeTuple))
+                if (!_modelTypeMappingService.TryGetModelTypes(modelName, out var modelType, out var viewModelType))
                 {
-                    return NotFound($"Model type '{modelTypeName}' not found.");
+                    return NotFound(Errors.NullModel);
                 }
 
-                Type modelType = typeTuple.Item1;
 
                 Data.Remove("modelType");
 
@@ -125,7 +125,7 @@ namespace PortalPOC.Controllers
                 var modelInstance = _dataService.SoftDelete(modelType, Data);
 
                 // Return a success response with the created model
-                return Ok(new { success = true, message = "Model created successfully", data = modelInstance });
+                return Ok(new { success = modelInstance, message = "Model Deleted successfully" });
             }
             catch (Exception ex)
             {
@@ -141,55 +141,73 @@ namespace PortalPOC.Controllers
             {
                 var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
 
-                if (!modelTypeMapping.TryGetValue(modelName, out var typeTuple))
-                {
-                    return NotFound($"Model type '{modelName}' not found.");
-                }
 
-                Type modelType = typeTuple.Item1;
+                if (!_modelTypeMappingService.TryGetModelTypes(modelName, out var modelType, out var viewModelType))
+                {
+                    return NotFound(Errors.NullModel);
+                }
 
                 var namesDictionary = _dataService.GetGuidPropertyNames(modelType, modelTypeMapping);
 
-                if (!opType.IsNullOrEmpty() && opType.Contains("Edit"))
+                if (!opType.IsNullOrEmpty() && opType.Contains(Operations.Edit))
                 {
                     ViewBag.Data = data;
                 }
 
                 ViewBag.DropDowns = namesDictionary;
-                ViewBag.ViewModel = typeTuple.Item2;
+                ViewBag.ViewModel = viewModelType;
                 ViewBag.Action = opType;
 
-                return PartialView("GenericPartial", modelType);
+
+                return PartialView(ViewNavigations.GenericPartial, modelType);
+
             }
             catch (Exception ex)
             {
                 // Log the exception
-                return NotFound($"Model type '{modelName}' not found. {ex.Message}");
+                return NotFound($" '{modelName}' {Errors.ModelNotFound}  {ex.Message}");
             }
         }
+
+        #region Helpers
 
         private IActionResult ProcessModelOperation(Dictionary<string, object> formData, bool isCreateOperation)
         {
             // Validate formData and create/update a model instance
             if (!formData.ContainsKey("modelType"))
             {
-                return BadRequest("Model type not provided.");
+                return BadRequest(Errors.NoModelType);
             }
 
             // Extract modelType from formData
-            string modelTypeName = formData["modelType"].ToString();
+            string modelName = formData["modelType"].ToString();
 
-            var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
 
-            if (!modelTypeMapping.TryGetValue(modelTypeName, out var typeTuple))
+            if (!_modelTypeMappingService.TryGetModelTypes(modelName, out var modelType, out var viewModelType))
             {
-                return NotFound($"Model type '{modelTypeName}' not found.");
+                return NotFound(Errors.NullModel);
             }
 
-            Type modelType = typeTuple.Item1;
-            Type viewModelType = typeTuple.Item2;
+
             formData.Remove("modelType");
 
+            ValidateRequiredFields(formData, viewModelType);
+
+
+            var user = Utils.GetCurrentUserName(User);
+
+
+            // Create/update the instance of the model using the specified modelType
+            var modelInstance = isCreateOperation
+                ? _dataService.CreateModel(user, modelType, formData)
+                : _dataService.UpdateModel(user, modelType, formData);
+
+            // Return a success response with the created/updated model
+            return Ok(new { success = true, message = $"{(isCreateOperation ? "Create" : "Update")} operation successful", data = modelInstance });
+        }
+
+        private void ValidateRequiredFields(Dictionary<string, object> formData, Type viewModelType)
+        {
             var requiredProperties = viewModelType
                 .GetProperties()
                 .Where(prop => prop.GetCustomAttribute<RequiredAttribute>() != null)
@@ -199,18 +217,12 @@ namespace PortalPOC.Controllers
             {
                 if (!formData.ContainsKey(requiredProperty) || formData[requiredProperty]?.ToString() == "")
                 {
-                    return StatusCode(500, new { success = false, message = $"Required field '{requiredProperty}' is missing or null." });
+                    throw new Exception($"Required field '{requiredProperty}' is missing or null.");
                 }
             }
-
-            // Create/update the instance of the model using the specified modelType
-            var modelInstance = isCreateOperation
-                ? _dataService.CreateModel(modelType, formData)
-                : _dataService.UpdateModel(modelType, formData);
-
-            // Return a success response with the created/updated model
-            return Ok(new { success = true, message = $"{(isCreateOperation ? "Create" : "Update")} operation successful", data = modelInstance });
         }
+
+        #endregion
 
     }
 

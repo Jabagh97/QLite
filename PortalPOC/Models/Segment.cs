@@ -1,7 +1,11 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.Resource;
+using PortalPOC.ViewModels.Segment;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(Segment), typeof(SegmentViewModel))]
 
 public partial class Segment
 {

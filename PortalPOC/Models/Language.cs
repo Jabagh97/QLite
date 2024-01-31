@@ -1,7 +1,10 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.Language;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(Language), typeof(LanguageViewModel))]
 
 public partial class Language
 {

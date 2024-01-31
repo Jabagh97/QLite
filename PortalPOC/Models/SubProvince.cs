@@ -1,7 +1,10 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.SubProvince;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(SubProvince), typeof(SubProvinceViewModel))]
 
 public partial class SubProvince
 {

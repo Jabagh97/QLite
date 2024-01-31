@@ -1,0 +1,99 @@
+﻿
+@model Type
+
+@{
+    var properties = Model.GetProperties();
+    var columnDefinitions = properties
+        .Select(property => new
+        {
+            // Lowercase the first letter of the property name
+            data = char.ToLower(property.Name[0]) + property.Name.Substring(1),
+            name = property.Name,
+            title = Html.DisplayName(property.Name).ToString(),
+            isBool = property.GetCustomAttribute<BooleanAttribute>() != null
+        })
+        .ToList();
+}
+
+<div id="kt_app_content" class="app-content flex-column-fluid">
+    <div id="kt_app_content_container" class="app-container container-fluid">
+        <!--begin::Wrapper-->
+        <div class="d-flex flex-stack mb-5">
+            <!-- Your wrapper content goes here if needed -->
+        </div>
+        <!--end::Wrapper-->
+        <!--begin::Datatable-->
+
+        <div id="Wrapper">
+        <table id="table" class="table table-hover table-rounded border gy-7 gs-7"  style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+            <thead>
+                <tr class="fw-semibold fs-7 text-primary border-bottom border-gray-200 py-4">
+                    @foreach (var column in columnDefinitions)
+                    {
+                        <th>@column.title</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Your table body content goes here -->
+            </tbody>
+        </table>
+        </div>
+        <!--end::Datatable-->
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var columnDefinitions = [
+        @foreach (var column in columnDefinitions)
+        {
+            @if (column.name.IndexOf("Logo", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                <text>
+                        {
+                            "data": "@column.data",
+                            "name": "@column.name",
+                            "title": "@column.title",
+                            "render": function (data, type, row, meta) {
+                                if (data != null) {
+                                    return '<img style="width: 50%; max-height: 10rem;" src="data:image/jpg;base64,' + data + '" />';
+                                } else {
+                                    return '';
+                                }
+                            }
+                        },
+                </text>
+            }
+            else
+            {
+             <text>
+            {
+                "data": "@column.data",
+                "name": "@column.name",
+                "title": "@column.title",
+                @if (column.isBool)
+                {
+                    <text>"render": function (data, type, row, meta) {
+                        var color = data === false ? 'red' : 'green';
+                        return '<span style="color: ' + color + ';font-weight:600;">' + data + '</span>';
+                    }</text>
+                }
+            },
+        </text>
+            }
+        }
+        ];
+
+
+            var modelName = '@Model.Name.Replace("ViewModel", "")';
+            initializeDataTable(modelName, columnDefinitions).init();
+        });
+    </script>
+
+
+}
+
+

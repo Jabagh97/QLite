@@ -1,7 +1,11 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.Language;
+using PortalPOC.ViewModels.Macro;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(Macro), typeof(MacroViewModel))]
 
 public partial class Macro
 {

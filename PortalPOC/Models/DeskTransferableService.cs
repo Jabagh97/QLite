@@ -1,7 +1,11 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.Branch;
+using PortalPOC.ViewModels.DeskTransferableService;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(DeskTransferableService), typeof(DeskTransferableServiceViewModel))]
 
 public partial class DeskTransferableService
 {

@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.Branch;
+using PortalPOC.ViewModels.Country;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(Country), typeof(CountryViewModel))]
 
 public partial class Country
 {

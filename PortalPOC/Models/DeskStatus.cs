@@ -1,7 +1,10 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.Branch;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+//[ModelMapping(typeof(DeskStatus), typeof(DeskStatusViewModel))]
 
 public partial class DeskStatus
 {

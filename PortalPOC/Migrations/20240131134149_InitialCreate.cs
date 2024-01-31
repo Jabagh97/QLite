@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PortalPOC.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateDataBase : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,19 +15,19 @@ namespace PortalPOC.Migrations
                 name: "Account",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Mail = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    LogoS = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Code = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Mail = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    LogoS = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -38,21 +38,21 @@ namespace PortalPOC.Migrations
                 name: "Country",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Mask = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Sequence = table.Column<int>(type: "int", nullable: true),
-                    PhoneCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    LangCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Logo = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Mask = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Sequence = table.Column<int>(type: "INTEGER", nullable: true),
+                    PhoneCode = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    LangCode = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Logo = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -63,12 +63,12 @@ namespace PortalPOC.Migrations
                 name: "DashboardData",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    SynchronizeTitle = table.Column<bool>(type: "bit", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Content = table.Column<string>(type: "TEXT", nullable: true),
+                    Title = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    SynchronizeTitle = table.Column<bool>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -79,21 +79,21 @@ namespace PortalPOC.Migrations
                 name: "Design",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    DesignData = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    KioskApplicationType = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DesignTag = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    WfStep = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    DesignData = table.Column<string>(type: "TEXT", nullable: true),
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    KioskApplicationType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    DesignTag = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    WfStep = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -104,20 +104,20 @@ namespace PortalPOC.Migrations
                 name: "DeskStatus",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Desk = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    User = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeskActivityStatus = table.Column<int>(type: "int", nullable: true),
+                    Desk = table.Column<Guid>(type: "TEXT", nullable: true),
+                    User = table.Column<Guid>(type: "TEXT", nullable: true),
+                    DeskActivityStatus = table.Column<int>(type: "INTEGER", nullable: true),
                     StateStartTime = table.Column<DateTime>(type: "datetime", nullable: true),
                     StateEndTime = table.Column<DateTime>(type: "datetime", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -128,18 +128,18 @@ namespace PortalPOC.Migrations
                 name: "KappSessionStep",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Step = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    SubStep = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    KappSession = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Step = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    SubStep = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    KappSession = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -150,19 +150,19 @@ namespace PortalPOC.Migrations
                 name: "KappWorkflow",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    SessionType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DesignData = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RestartProfile = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    SessionType = table.Column<string>(type: "TEXT", nullable: true),
+                    DesignData = table.Column<string>(type: "TEXT", nullable: true),
+                    RestartProfile = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -173,22 +173,22 @@ namespace PortalPOC.Migrations
                 name: "Language",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    EnglishName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    LocalName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    CultureInfo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    LangCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Logo = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    IsDefault = table.Column<bool>(type: "bit", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    EnglishName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    LocalName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    CultureInfo = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    LangCode = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Logo = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    IsDefault = table.Column<bool>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -199,12 +199,12 @@ namespace PortalPOC.Migrations
                 name: "ModelDifference",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ContextId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Version = table.Column<int>(type: "int", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UserId = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ContextId = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Version = table.Column<int>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -215,19 +215,19 @@ namespace PortalPOC.Migrations
                 name: "RestartProfile",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    RestartPerNumOfSession = table.Column<int>(type: "int", nullable: true),
-                    RestartPerNumOfDays = table.Column<int>(type: "int", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    RestartPerNumOfSession = table.Column<int>(type: "INTEGER", nullable: true),
+                    RestartPerNumOfDays = table.Column<int>(type: "INTEGER", nullable: true),
                     RestartTime = table.Column<DateTime>(type: "datetime", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -238,9 +238,9 @@ namespace PortalPOC.Migrations
                 name: "UploadBO",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -251,10 +251,10 @@ namespace PortalPOC.Migrations
                 name: "XPObjectType",
                 columns: table => new
                 {
-                    OID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TypeName = table.Column<string>(type: "nvarchar(254)", maxLength: 254, nullable: true),
-                    AssemblyName = table.Column<string>(type: "nvarchar(254)", maxLength: 254, nullable: true)
+                    OID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    TypeName = table.Column<string>(type: "TEXT", maxLength: 254, nullable: true),
+                    AssemblyName = table.Column<string>(type: "TEXT", maxLength: 254, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -265,19 +265,19 @@ namespace PortalPOC.Migrations
                 name: "KioskApplicationType",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    QorchAppType = table.Column<int>(type: "int", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Code = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    QorchAppType = table.Column<int>(type: "INTEGER", nullable: true),
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -293,20 +293,20 @@ namespace PortalPOC.Migrations
                 name: "Macro",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    MacroType = table.Column<int>(type: "int", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ToThisDesk = table.Column<int>(type: "int", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true),
-                    MaxWaitingTime = table.Column<int>(type: "int", nullable: true)
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    MacroType = table.Column<int>(type: "INTEGER", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ToThisDesk = table.Column<int>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true),
+                    MaxWaitingTime = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -322,21 +322,21 @@ namespace PortalPOC.Migrations
                 name: "Segment",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Default = table.Column<bool>(type: "bit", nullable: true),
-                    IsParent = table.Column<bool>(type: "bit", nullable: true),
-                    Parent = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Prefix = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Default = table.Column<bool>(type: "INTEGER", nullable: true),
+                    IsParent = table.Column<bool>(type: "INTEGER", nullable: true),
+                    Parent = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Prefix = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -357,25 +357,25 @@ namespace PortalPOC.Migrations
                 name: "ServiceType",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Icon = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    Parent = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsParent = table.Column<bool>(type: "bit", nullable: true),
-                    CallInKiosk = table.Column<bool>(type: "bit", nullable: true),
-                    GenTicketByDesk = table.Column<bool>(type: "bit", nullable: true),
-                    Default = table.Column<bool>(type: "bit", nullable: true),
-                    SeqNo = table.Column<int>(type: "int", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Key = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Icon = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    Parent = table.Column<Guid>(type: "TEXT", nullable: true),
+                    IsParent = table.Column<bool>(type: "INTEGER", nullable: true),
+                    CallInKiosk = table.Column<bool>(type: "INTEGER", nullable: true),
+                    GenTicketByDesk = table.Column<bool>(type: "INTEGER", nullable: true),
+                    Default = table.Column<bool>(type: "INTEGER", nullable: true),
+                    SeqNo = table.Column<int>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -396,17 +396,17 @@ namespace PortalPOC.Migrations
                 name: "TicketPoolProfile",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -422,17 +422,17 @@ namespace PortalPOC.Migrations
                 name: "Province",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Country = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Country = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -448,19 +448,19 @@ namespace PortalPOC.Migrations
                 name: "DesignTarget",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Design = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    KioskApplication = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Design = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    KioskApplication = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -476,17 +476,17 @@ namespace PortalPOC.Migrations
                 name: "AccountLanguage",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Language = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Language = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -507,20 +507,20 @@ namespace PortalPOC.Migrations
                 name: "Resource",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Language = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Parameter = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ParameterValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Language = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Parameter = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ParameterValue = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -541,12 +541,12 @@ namespace PortalPOC.Migrations
                 name: "ModelDifferenceAspect",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Xml = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Owner = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Xml = table.Column<string>(type: "TEXT", nullable: true),
+                    Owner = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -562,14 +562,14 @@ namespace PortalPOC.Migrations
                 name: "PermissionPolicyRole",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    IsAdministrative = table.Column<bool>(type: "bit", nullable: true),
-                    CanEditModel = table.Column<bool>(type: "bit", nullable: true),
-                    PermissionPolicy = table.Column<int>(type: "int", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true),
-                    ObjectType = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    IsAdministrative = table.Column<bool>(type: "INTEGER", nullable: true),
+                    CanEditModel = table.Column<bool>(type: "INTEGER", nullable: true),
+                    PermissionPolicy = table.Column<int>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true),
+                    ObjectType = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -585,14 +585,14 @@ namespace PortalPOC.Migrations
                 name: "PermissionPolicyUser",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StoredPassword = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ChangePasswordOnFirstLogon = table.Column<bool>(type: "bit", nullable: true),
-                    UserName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true),
-                    ObjectType = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    StoredPassword = table.Column<string>(type: "TEXT", nullable: true),
+                    ChangePasswordOnFirstLogon = table.Column<bool>(type: "INTEGER", nullable: true),
+                    UserName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true),
+                    ObjectType = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -608,12 +608,12 @@ namespace PortalPOC.Migrations
                 name: "XPWeakReference",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TargetType = table.Column<int>(type: "int", nullable: true),
-                    TargetKey = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true),
-                    ObjectType = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    TargetType = table.Column<int>(type: "INTEGER", nullable: true),
+                    TargetKey = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true),
+                    ObjectType = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -634,24 +634,24 @@ namespace PortalPOC.Migrations
                 name: "MacroRule",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Macro = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ServiceType = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Segment = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Transfer = table.Column<bool>(type: "bit", nullable: true),
-                    ToThisDesk = table.Column<int>(type: "int", nullable: true),
-                    MaxWaitingTime = table.Column<int>(type: "int", nullable: true),
-                    MinWaitingTime = table.Column<int>(type: "int", nullable: true),
-                    Sequence = table.Column<int>(type: "int", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Macro = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Segment = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Transfer = table.Column<bool>(type: "INTEGER", nullable: true),
+                    ToThisDesk = table.Column<int>(type: "INTEGER", nullable: true),
+                    MaxWaitingTime = table.Column<int>(type: "INTEGER", nullable: true),
+                    MinWaitingTime = table.Column<int>(type: "INTEGER", nullable: true),
+                    Sequence = table.Column<int>(type: "INTEGER", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -677,18 +677,18 @@ namespace PortalPOC.Migrations
                 name: "SubProvince",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Country = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Province = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Country = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Province = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -709,8 +709,8 @@ namespace PortalPOC.Migrations
                 name: "KappRole",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    BusinessRole = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    BusinessRole = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -726,11 +726,11 @@ namespace PortalPOC.Migrations
                 name: "PermissionPolicyActionPermissionObject",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ActionId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Role = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ActionId = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Role = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -746,12 +746,12 @@ namespace PortalPOC.Migrations
                 name: "PermissionPolicyNavigationPermissionsObject",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ItemPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NavigateState = table.Column<int>(type: "int", nullable: true),
-                    Role = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ItemPath = table.Column<string>(type: "TEXT", nullable: true),
+                    NavigateState = table.Column<int>(type: "INTEGER", nullable: true),
+                    Role = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -767,16 +767,16 @@ namespace PortalPOC.Migrations
                 name: "PermissionPolicyTypePermissionsObject",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Role = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    TargetType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ReadState = table.Column<int>(type: "int", nullable: true),
-                    WriteState = table.Column<int>(type: "int", nullable: true),
-                    CreateState = table.Column<int>(type: "int", nullable: true),
-                    DeleteState = table.Column<int>(type: "int", nullable: true),
-                    NavigateState = table.Column<int>(type: "int", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Role = table.Column<Guid>(type: "TEXT", nullable: true),
+                    TargetType = table.Column<string>(type: "TEXT", nullable: true),
+                    ReadState = table.Column<int>(type: "INTEGER", nullable: true),
+                    WriteState = table.Column<int>(type: "INTEGER", nullable: true),
+                    CreateState = table.Column<int>(type: "INTEGER", nullable: true),
+                    DeleteState = table.Column<int>(type: "INTEGER", nullable: true),
+                    NavigateState = table.Column<int>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -792,10 +792,10 @@ namespace PortalPOC.Migrations
                 name: "PermissionPolicyUserUsers_PermissionPolicyRoleRoles",
                 columns: table => new
                 {
-                    OID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Roles = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Users = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true)
+                    OID = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Roles = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Users = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -816,10 +816,10 @@ namespace PortalPOC.Migrations
                 name: "AuditedObjectWeakReference",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    GuidId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IntId = table.Column<int>(type: "int", nullable: true),
-                    DisplayName = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    GuidId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    IntId = table.Column<int>(type: "INTEGER", nullable: true),
+                    DisplayName = table.Column<string>(type: "TEXT", maxLength: 250, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -835,27 +835,26 @@ namespace PortalPOC.Migrations
                 name: "Branch",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Country = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Province = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    SubProvince = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    BranchCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Terminal = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Area = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    KioskRestartProfile = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Address2 = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    TicketPoolProfile = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Country = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Province = table.Column<Guid>(type: "TEXT", nullable: true),
+                    SubProvince = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    BranchCode = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Terminal = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Area = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Address = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Address2 = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    TicketPoolProfile = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -891,14 +890,14 @@ namespace PortalPOC.Migrations
                 name: "PermissionPolicyMemberPermissionsObject",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Members = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ReadState = table.Column<int>(type: "int", nullable: true),
-                    WriteState = table.Column<int>(type: "int", nullable: true),
-                    Criteria = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TypePermissionObject = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Members = table.Column<string>(type: "TEXT", nullable: true),
+                    ReadState = table.Column<int>(type: "INTEGER", nullable: true),
+                    WriteState = table.Column<int>(type: "INTEGER", nullable: true),
+                    Criteria = table.Column<string>(type: "TEXT", nullable: true),
+                    TypePermissionObject = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -914,15 +913,15 @@ namespace PortalPOC.Migrations
                 name: "PermissionPolicyObjectPermissionsObject",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Criteria = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ReadState = table.Column<int>(type: "int", nullable: true),
-                    WriteState = table.Column<int>(type: "int", nullable: true),
-                    DeleteState = table.Column<int>(type: "int", nullable: true),
-                    NavigateState = table.Column<int>(type: "int", nullable: true),
-                    TypePermissionObject = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Criteria = table.Column<string>(type: "TEXT", nullable: true),
+                    ReadState = table.Column<int>(type: "INTEGER", nullable: true),
+                    WriteState = table.Column<int>(type: "INTEGER", nullable: true),
+                    DeleteState = table.Column<int>(type: "INTEGER", nullable: true),
+                    NavigateState = table.Column<int>(type: "INTEGER", nullable: true),
+                    TypePermissionObject = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -938,19 +937,19 @@ namespace PortalPOC.Migrations
                 name: "AuditDataItemPersistent",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UserName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     ModifiedOn = table.Column<DateTime>(type: "datetime", nullable: true),
-                    OperationType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
-                    AuditedObject = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OldObject = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    NewObject = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OldValue = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
-                    NewValue = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
-                    PropertyName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    OperationType = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Description = table.Column<string>(type: "TEXT", maxLength: 2048, nullable: true),
+                    AuditedObject = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OldObject = table.Column<Guid>(type: "TEXT", nullable: true),
+                    NewObject = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OldValue = table.Column<string>(type: "TEXT", maxLength: 1024, nullable: true),
+                    NewValue = table.Column<string>(type: "TEXT", maxLength: 1024, nullable: true),
+                    PropertyName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -976,22 +975,22 @@ namespace PortalPOC.Migrations
                 name: "Appointment",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    NationalID = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    NationalID = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    PhoneNumber = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     AppointmentDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     BookingDate = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ServiceType = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Segment = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Segment = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1017,19 +1016,19 @@ namespace PortalPOC.Migrations
                 name: "AppointmentSettings",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ServiceType = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    AppointmentPerDay = table.Column<int>(type: "int", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    AppointmentPerDay = table.Column<int>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1050,26 +1049,26 @@ namespace PortalPOC.Migrations
                 name: "KioskApplication",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    KioskApplicationType = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    KappWorkflow = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    KappName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    HwId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    DesignTag = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    PlatformAuthClientId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    PlatformAuthClientSecret = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Active = table.Column<bool>(type: "bit", nullable: true),
-                    HasDigitalDisplay = table.Column<bool>(type: "bit", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    KioskApplicationType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    KappWorkflow = table.Column<Guid>(type: "TEXT", nullable: true),
+                    KappName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    HwId = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    DesignTag = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    PlatformAuthClientId = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    PlatformAuthClientSecret = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Active = table.Column<bool>(type: "INTEGER", nullable: true),
+                    HasDigitalDisplay = table.Column<bool>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1100,25 +1099,25 @@ namespace PortalPOC.Migrations
                 name: "Desk",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Pano = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DisplayNo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ActivityStatus = table.Column<int>(type: "int", nullable: true),
-                    CurrentTicketNumber = table.Column<int>(type: "int", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Pano = table.Column<Guid>(type: "TEXT", nullable: true),
+                    DisplayNo = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ActivityStatus = table.Column<int>(type: "INTEGER", nullable: true),
+                    CurrentTicketNumber = table.Column<int>(type: "INTEGER", nullable: true),
                     LastStateTime = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Autocall = table.Column<bool>(type: "bit", nullable: true),
-                    ActiveUser = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Autocall = table.Column<bool>(type: "INTEGER", nullable: true),
+                    ActiveUser = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1139,18 +1138,18 @@ namespace PortalPOC.Migrations
                 name: "KappRelation",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Parent = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Child = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Icon = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Parent = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Child = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Icon = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1171,22 +1170,22 @@ namespace PortalPOC.Migrations
                 name: "KappSettings",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    KioskApplication = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Parameter = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ParameterValue = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    CacheTimeout = table.Column<int>(type: "int", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    KioskApplication = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Parameter = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ParameterValue = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Description = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    CacheTimeout = table.Column<int>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1212,30 +1211,30 @@ namespace PortalPOC.Migrations
                 name: "QorchSession",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    KioskApplication = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Segment = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ServiceType = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Success = table.Column<bool>(type: "bit", nullable: true),
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    KioskApplication = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Segment = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Success = table.Column<bool>(type: "INTEGER", nullable: true),
                     StartTime = table.Column<DateTime>(type: "datetime", nullable: true),
                     StartTimeUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     EndTime = table.Column<DateTime>(type: "datetime", nullable: true),
                     EndTimeUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    CurrentStep = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    InputValue = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    InputInfo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    InputType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Workflow = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Error = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    CurrentStep = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    InputValue = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    InputInfo = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    InputType = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Workflow = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Error = table.Column<string>(type: "TEXT", maxLength: 400, nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1266,33 +1265,33 @@ namespace PortalPOC.Migrations
                 name: "TicketPool",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    TicketPoolProfile = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ServiceType = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Segment = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    KioskApplication = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    MaxWaitingTicketCount = table.Column<int>(type: "int", nullable: true),
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    TicketPoolProfile = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Segment = table.Column<Guid>(type: "TEXT", nullable: true),
+                    KioskApplication = table.Column<Guid>(type: "TEXT", nullable: true),
+                    MaxWaitingTicketCount = table.Column<int>(type: "INTEGER", nullable: true),
                     MaxWaitingTicketCountControlTime = table.Column<DateTime>(type: "datetime", nullable: true),
                     ServiceStartTime = table.Column<DateTime>(type: "datetime", nullable: true),
                     ServiceEndTime = table.Column<DateTime>(type: "datetime", nullable: true),
                     BreakStartTime = table.Column<DateTime>(type: "datetime", nullable: true),
                     BreakEndTime = table.Column<DateTime>(type: "datetime", nullable: true),
-                    RangeStart = table.Column<int>(type: "int", nullable: true),
-                    RangeEnd = table.Column<int>(type: "int", nullable: true),
-                    ResetOnRange = table.Column<bool>(type: "bit", nullable: true),
-                    NotAvailable = table.Column<bool>(type: "bit", nullable: true),
-                    ServiceCode = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: true),
-                    CopyNumber = table.Column<int>(type: "int", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    RangeStart = table.Column<int>(type: "INTEGER", nullable: true),
+                    RangeEnd = table.Column<int>(type: "INTEGER", nullable: true),
+                    ResetOnRange = table.Column<bool>(type: "INTEGER", nullable: true),
+                    NotAvailable = table.Column<bool>(type: "INTEGER", nullable: true),
+                    ServiceCode = table.Column<string>(type: "TEXT", maxLength: 1, nullable: true),
+                    CopyNumber = table.Column<int>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1333,19 +1332,19 @@ namespace PortalPOC.Migrations
                 name: "DeskCreatableServices",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Desk = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ServiceType = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Desk = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1371,19 +1370,19 @@ namespace PortalPOC.Migrations
                 name: "DeskTransferableServices",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Desk = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ServiceType = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Desk = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1409,13 +1408,13 @@ namespace PortalPOC.Migrations
                 name: "KappUser",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    AuthorizedBranch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Desk = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    LastDesk = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CanChangeMacro = table.Column<bool>(type: "bit", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    AuthorizedBranch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Desk = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastDesk = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CanChangeMacro = table.Column<bool>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1456,39 +1455,39 @@ namespace PortalPOC.Migrations
                 name: "Ticket",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ServiceType = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Desk = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Segment = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ServiceTypeName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    SegmentName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    LangCode = table.Column<string>(type: "nvarchar(4)", maxLength: 4, nullable: true),
-                    CurrentState = table.Column<int>(type: "int", nullable: true),
-                    LastOpr = table.Column<int>(type: "int", nullable: true),
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Desk = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Segment = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ServiceTypeName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    SegmentName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    LangCode = table.Column<string>(type: "TEXT", maxLength: 4, nullable: true),
+                    CurrentState = table.Column<int>(type: "INTEGER", nullable: true),
+                    LastOpr = table.Column<int>(type: "INTEGER", nullable: true),
                     LastOprTime = table.Column<DateTime>(type: "datetime", nullable: true),
-                    ToServiceType = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ToDesk = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CurrentDesk = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Number = table.Column<int>(type: "int", nullable: true),
-                    DayOfYear = table.Column<int>(type: "int", nullable: true),
-                    Year = table.Column<int>(type: "int", nullable: true),
-                    TicketNote = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    CustomerInfo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    CustomerNo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    CardNo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    NationalId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    TicketPool = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedByDesk = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true),
-                    CreatedByKiosk = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    ToServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ToDesk = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CurrentDesk = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Number = table.Column<int>(type: "INTEGER", nullable: true),
+                    DayOfYear = table.Column<int>(type: "INTEGER", nullable: true),
+                    Year = table.Column<int>(type: "INTEGER", nullable: true),
+                    TicketNote = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    CustomerInfo = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    CustomerNo = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    CardNo = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    NationalId = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    TicketPool = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CreatedByDesk = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true),
+                    CreatedByKiosk = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1534,33 +1533,33 @@ namespace PortalPOC.Migrations
                 name: "DeskMacroSchedule",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Macro = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Account = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Desk = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    User = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Macro = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Desk = table.Column<Guid>(type: "TEXT", nullable: true),
+                    User = table.Column<Guid>(type: "TEXT", nullable: true),
                     StartDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     EndDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     StartTime = table.Column<DateTime>(type: "datetime", nullable: true),
                     EndTime = table.Column<DateTime>(type: "datetime", nullable: true),
-                    HaftalikRutin = table.Column<bool>(type: "bit", nullable: true),
-                    D1 = table.Column<bool>(type: "bit", nullable: true),
-                    D2 = table.Column<bool>(type: "bit", nullable: true),
-                    D3 = table.Column<bool>(type: "bit", nullable: true),
-                    D4 = table.Column<bool>(type: "bit", nullable: true),
-                    D5 = table.Column<bool>(type: "bit", nullable: true),
-                    D6 = table.Column<bool>(type: "bit", nullable: true),
-                    D7 = table.Column<bool>(type: "bit", nullable: true),
-                    Pasif = table.Column<bool>(type: "bit", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true)
+                    HaftalikRutin = table.Column<bool>(type: "INTEGER", nullable: true),
+                    D1 = table.Column<bool>(type: "INTEGER", nullable: true),
+                    D2 = table.Column<bool>(type: "INTEGER", nullable: true),
+                    D3 = table.Column<bool>(type: "INTEGER", nullable: true),
+                    D4 = table.Column<bool>(type: "INTEGER", nullable: true),
+                    D5 = table.Column<bool>(type: "INTEGER", nullable: true),
+                    D6 = table.Column<bool>(type: "INTEGER", nullable: true),
+                    D7 = table.Column<bool>(type: "INTEGER", nullable: true),
+                    Pasif = table.Column<bool>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1591,11 +1590,11 @@ namespace PortalPOC.Migrations
                 name: "PermissionPolicyUserLoginInfo",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LoginProviderName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ProviderUserKey = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    User = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true)
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    LoginProviderName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ProviderUserKey = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    User = table.Column<Guid>(type: "TEXT", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1611,33 +1610,33 @@ namespace PortalPOC.Migrations
                 name: "TicketState",
                 columns: table => new
                 {
-                    Oid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Desk = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    User = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Ticket = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Branch = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    TicketNumber = table.Column<int>(type: "int", nullable: true),
-                    TicketStateValue = table.Column<int>(type: "int", nullable: true),
-                    TicketOprValue = table.Column<int>(type: "int", nullable: true),
+                    Desk = table.Column<Guid>(type: "TEXT", nullable: true),
+                    User = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Ticket = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Branch = table.Column<Guid>(type: "TEXT", nullable: true),
+                    TicketNumber = table.Column<int>(type: "INTEGER", nullable: true),
+                    TicketStateValue = table.Column<int>(type: "INTEGER", nullable: true),
+                    TicketOprValue = table.Column<int>(type: "INTEGER", nullable: true),
                     StartTime = table.Column<DateTime>(type: "datetime", nullable: true),
                     EndTime = table.Column<DateTime>(type: "datetime", nullable: true),
-                    ServiceType = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Segment = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ServiceTypeName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    SegmentName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Macro = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CallingRuleDescription = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
-                    DeskAppType = table.Column<int>(type: "int", nullable: true),
-                    TicketCallType = table.Column<int>(type: "int", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "int", nullable: true),
-                    GCRecord = table.Column<int>(type: "int", nullable: true),
-                    KioskAppID = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    ServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Segment = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ServiceTypeName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    SegmentName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Macro = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CallingRuleDescription = table.Column<string>(type: "TEXT", maxLength: 400, nullable: true),
+                    DeskAppType = table.Column<int>(type: "INTEGER", nullable: true),
+                    TicketCallType = table.Column<int>(type: "INTEGER", nullable: true),
+                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
+                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true),
+                    KioskAppID = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -2138,8 +2137,7 @@ namespace PortalPOC.Migrations
                 name: "iLoginProviderNameProviderUserKey_PermissionPolicyUserLoginInfo",
                 table: "PermissionPolicyUserLoginInfo",
                 columns: new[] { "LoginProviderName", "ProviderUserKey" },
-                unique: true,
-                filter: "[LoginProviderName] IS NOT NULL AND [ProviderUserKey] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "iUser_PermissionPolicyUserLoginInfo",
@@ -2155,8 +2153,7 @@ namespace PortalPOC.Migrations
                 name: "iRolesUsers_PermissionPolicyUserUsers_PermissionPolicyRoleRoles",
                 table: "PermissionPolicyUserUsers_PermissionPolicyRoleRoles",
                 columns: new[] { "Roles", "Users" },
-                unique: true,
-                filter: "[Roles] IS NOT NULL AND [Users] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "iUsers_PermissionPolicyUserUsers_PermissionPolicyRoleRoles",
@@ -2387,8 +2384,7 @@ namespace PortalPOC.Migrations
                 name: "iTypeName_XPObjectType",
                 table: "XPObjectType",
                 column: "TypeName",
-                unique: true,
-                filter: "[TypeName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "iGCRecord_XPWeakReference",

@@ -1,7 +1,11 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.Resource;
+using PortalPOC.ViewModels.ServiceType;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(ServiceType), typeof(ServiceTypeViewModel))]
 
 public partial class ServiceType
 {

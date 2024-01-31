@@ -1,7 +1,10 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.KioskApplicationType;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(KioskApplicationType), typeof(KioskApplicationTypeViewModel))]
 
 public partial class KioskApplicationType
 {

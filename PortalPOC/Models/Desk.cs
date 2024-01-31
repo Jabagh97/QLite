@@ -1,7 +1,11 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.DesignTarget;
+using PortalPOC.ViewModels.Desk;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(Desk), typeof(DeskViewModel))]
 
 public partial class Desk
 {

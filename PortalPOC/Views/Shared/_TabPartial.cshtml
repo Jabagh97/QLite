@@ -1,0 +1,37 @@
+﻿@model TabPartialViewModel
+
+<ul class="nav nav-tabs" id="myTabs" role="tablist">
+    @foreach (var collectionProperty in Model.ICollectionProperties)
+    {
+        <li class="nav-item">
+            <a class="nav-link"
+           id="@($"{collectionProperty.Name}Tab")"
+           data-toggle="tab"
+           href="#@collectionProperty.Name"
+           role="tab"
+           aria-controls="@collectionProperty.Name"
+           aria-selected="false"
+           onclick="loadTabData('@collectionProperty.Name', '@Model.ModelType.Name', '@Model.FormData["oid"]' )">
+                @collectionProperty.Name
+            </a>
+        </li>
+    }
+</ul>
+
+
+
+<div class="table-responsive">
+    <table class="table table-hover table-rounded border gy-7 gs-7" id="dynamicTabTable" style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <thead>
+            <!-- Thead will be dynamically filled based on the data received from the server -->
+        </thead>
+        <tbody>
+            <!-- Tbody will be dynamically filled based on the data received from the server -->
+        </tbody>
+        <tfoot>
+            <tr>
+                <th></th> <!-- Add an empty th for pagination -->
+            </tr>
+        </tfoot>
+    </table>
+</div>

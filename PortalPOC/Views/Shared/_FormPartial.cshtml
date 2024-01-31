@@ -1,0 +1,149 @@
+﻿@model FormPartialViewModel
+
+<form asp-controller="GenericTable" asp-action="@(Model.Action == "Add" ? "Create" : "Edit")" method="post" id="@(Model.Action == "Add" ? "createForm" : "editForm")">
+    <div class="row">
+        @foreach (var property in Model.FilteredProperties)
+        {
+            var propertyName = property.Name;
+            var isOidProperty = propertyName.Contains("Oid");
+            var value = Model.FormData?.ContainsKey(Char.ToLower(propertyName[0]) + propertyName.Substring(1)) == true
+            ? Model.FormData[Char.ToLower(propertyName[0]) + propertyName.Substring(1)]
+            : "";
+
+            var propertyToLower = Char.ToLower(propertyName[0]) + propertyName.Substring(1);
+            var viewModelProperty = Model.ViewModelProperties?.FirstOrDefault(vp => vp.Name == propertyName);
+            var isJsonInput = viewModelProperty?.GetCustomAttribute<JsonInputAttribute>() != null;
+            var isNonEditable = viewModelProperty?.GetCustomAttribute<NonEditableAttribute>() != null;
+            var isIcon = viewModelProperty?.GetCustomAttribute<IconAttribute>() != null;
+            var isRequired = viewModelProperty?.GetCustomAttribute<RequiredAttribute>() != null;
+
+            @if (!isOidProperty && !(Model.Action == "Add" && isNonEditable))
+            {
+                <div class="col-md-6 mb-6">
+                    <div class="form-group">
+                        <label for="@propertyName">
+                            @if (isRequired)
+                            {
+                                <span style="color: red;">*</span>
+                            }
+                            @propertyName
+
+                            @if (isJsonInput) { RenderJsonInput(property, value); }
+                            else if (isNonEditable) { RenderNonEditableInput(property, value); }
+                            else if (isIcon) { RenderIconInput(property, value); }
+                            else
+                            {
+                                @if (Model.DropDowns?.ContainsKey(property.Name) == true)
+                                {
+
+                                    <select name="@property.Name" id="@property.Name" class="form-select form-select-lg form-select-solid">
+                                        <option value="">-- None --</option>
+                                        @foreach (var item in Model.DropDowns[property.Name])
+                                        {
+                                            var isSelected = false;
+                                            if (property.Name.Equals("DeviceType"))
+                                            {
+                                                isSelected = Model.FormData?.ContainsKey(propertyToLower) == true && item.VirtualComponentName.Equals(Model.FormData[propertyToLower]);
+                                                <option value="@item.Oid" selected="@isSelected">@item.VirtualComponentName</option>
+                                            }
+                                            else
+                                            {
+                                                isSelected = Model.FormData?.ContainsKey(propertyToLower) == true && item.Name.Equals(Model.FormData[propertyToLower]);
+                                                <option value="@item.Oid" selected="@isSelected">@item.Name</option>
+                                            }
+                                        }
+                                    </select>
+                                }
+                                else
+                                {
+                                    RenderInput(property, value);
+                                }
+                            }
+                        </label>
+                    </div>
+                </div>
+            }
+            else if (isOidProperty)
+            {
+                <!-- Render hidden input for Oid property -->
+                <input hidden type="text" name="@property.Name" id="@property.Name" value="@value" />
+            }
+        }
+    </div>
+
+    <button type="button" id="submit" class="btn btn-bg-success mt-3">@((Model.Action == "Add" ? "Create" : "Save"))</button>
+</form>
+@functions {
+
+
+    void RenderInput(PropertyInfo property, string value)
+    {
+
+        <input type="text" name="@property.Name" id="@property.Name" class="form-control" value="@value" />
+    }
+
+
+    void RenderIconInput(PropertyInfo property, string value)
+    {
+        var propertyName = property.Name;
+        var fileInputId = $"{propertyName}FileInput";
+        var previewId = $"{propertyName}Preview";
+        var hiddenInputId = $"{propertyName}HiddenInput";
+
+        <div class="custom-file">
+            <input type="file" class="custom-file-input" id="@fileInputId" accept="image/*" onchange="handleFileSelect('@propertyName', '@fileInputId')">
+        </div>
+
+        @if (!string.IsNullOrEmpty(value))
+        {
+            <img id="@previewId" style="width: 50%; max-height: 10rem; margin-top: 5px;" src="data:image/jpg;base64,@value" alt="@propertyName" />
+        }
+        else
+        {
+            <img id="@previewId" style="width: 50%; max-height: 10rem; margin-top: 5px;" src="/img/noImage.jpg" alt="@propertyName" />
+        }
+
+        <!-- Add the hidden input field -->
+        <input type="hidden" id="@hiddenInputId" name="@propertyName" value="@value" />
+
+
+    }
+
+
+
+    void RenderJsonInput(PropertyInfo property, string value)
+    {
+        <textarea name="@property.Name" id="@property.Name" class="form-control" rows="5">@value</textarea>
+    }
+
+    void RenderNonEditableInput(PropertyInfo property, string value)
+    {
+        <input type="text" name="@property.Name" id="@property.Name" class="form-control" value="@value" disabled />
+    }
+
+
+
+    private string GetInputType(Type propertyType)
+    {
+        if (IsNullableType(propertyType, out var underlyingType))
+        {
+            propertyType = underlyingType;
+        }
+
+        return propertyType switch
+        {
+            Type t when t == typeof(int) || t == typeof(decimal) => "number",
+            Type t when t == typeof(DateTime) => "datetime-local",
+            _ => "text",
+        };
+    }
+
+    private bool IsNullableType(Type type, out Type underlyingType)
+    {
+        underlyingType = Nullable.GetUnderlyingType(type);
+        return underlyingType != null;
+    }
+
+
+
+}

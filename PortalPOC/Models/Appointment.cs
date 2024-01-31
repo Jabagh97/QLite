@@ -1,7 +1,11 @@
-﻿using System;
+﻿using PortalPOC.CustomAttribute;
+using PortalPOC.ViewModels.Account;
+using PortalPOC.ViewModels.Appointment;
+using System;
 using System.Collections.Generic;
 
 namespace PortalPOC.Models;
+[ModelMapping(typeof(Appointment), typeof(AppointmentViewModel))]
 
 public partial class Appointment
 {

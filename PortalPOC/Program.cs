@@ -28,8 +28,8 @@ internal class Program
         builder.Services.AddControllersWithViews();
 
         // Correct indentation for AddDbContext
-        builder.Services.AddDbContext<QuavisQorchAdminEasyTestContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         builder.Services.AddScoped<IDataService, DataService>();
         builder.Services.AddScoped<IModelTypeMappingService, ModelTypeMappingService>();
@@ -50,7 +50,7 @@ internal class Program
             var services = scope.ServiceProvider;
             try
             {
-                var dbContext = services.GetRequiredService<QuavisQorchAdminEasyTestContext>();
+                var dbContext = services.GetRequiredService<ApplicationDbContext>();
                 WarmUpEntity<KappRole>(dbContext);
 
                 Console.WriteLine("Warming Up Done !!!");
@@ -71,7 +71,7 @@ internal class Program
                 var services = scope.ServiceProvider;
                 try
                 {
-                    var dbContext = services.GetRequiredService<QuavisQorchAdminEasyTestContext>();
+                    var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
                     // Apply any pending migrations to the database
                     dbContext.Database.Migrate();
@@ -107,7 +107,7 @@ internal class Program
 
         app.Run();
     }
-    private static void WarmUpEntity<TEntity>(QuavisQorchAdminEasyTestContext dbContext) where TEntity : class
+    private static void WarmUpEntity<TEntity>(ApplicationDbContext dbContext) where TEntity : class
     {
         // Use LINQ dynamic to perform a query on the DbSet<TEntity>
         var query = dbContext.Set<TEntity>().AsQueryable();
