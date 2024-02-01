@@ -1,4 +1,4 @@
-﻿using Quavis.QorchLite.Data.Dto;
+﻿using QLite.Dto;
 
 namespace Quavis.QorchLite.Hwlib
 {

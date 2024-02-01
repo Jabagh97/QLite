@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QLite.Common\QLite.Common.csproj" />
+    <ProjectReference Include="..\QLite.Dto\QLite.Dto.csproj" />
   </ItemGroup>
 
 </Project>

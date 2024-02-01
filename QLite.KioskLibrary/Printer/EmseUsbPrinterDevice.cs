@@ -50,7 +50,7 @@ namespace Quavis.QorchLite.Hwlib.Printer
             }
             else if (connected == false)
             {
-                LoggerAdapter.Warning($"print disconnected {vendorIdStr} {productIdStr}");
+                //LoggerAdapter.Warning($"print disconnected {vendorIdStr} {productIdStr}");
                 
                 DevStream?.Dispose();
                 DevStream = null;
@@ -164,7 +164,7 @@ namespace Quavis.QorchLite.Hwlib.Printer
                 }
                 catch (Exception ex)
                 {
-                    LoggerAdapter.Error(ex, "");
+                    //LoggerAdapter.Error(ex, "");
                     return false;
                 }
 

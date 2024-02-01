@@ -2,8 +2,9 @@
 using HidSharp;
 using HidSharp.Utility;
 using Microsoft.Extensions.Configuration;
+using QLite.Dto;
+using QLite.Kio;
 using Quavis.QorchLite.Common;
-using Quavis.QorchLite.Data.Dto;
 using Quavis.QorchLite.Hwlib.Display;
 using Quavis.QorchLite.Hwlib.Hardware;
 using Quavis.QorchLite.Hwlib.Printer;
@@ -32,13 +33,13 @@ namespace Quavis.QorchLite.Hwlib
             _printer.Send(html);
         }
 
-        public void Display(QueNumData data)
-        {
-            if (_display == null)
-                return;
+        //public void Display(QueNumData data)
+        //{
+        //    if (_display == null)
+        //        return;
 
-            _display.Send(data);
-        }
+        //    _display.Send(data);
+        //}
 
         void CreateDevices()
         {

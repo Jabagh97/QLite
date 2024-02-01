@@ -47,7 +47,7 @@
                 catch (Exception)
                 {
                     tryCount++;
-                    LoggerAdapter.Debug("TryToPrint count:" + tryCount);
+                   // LoggerAdapter.Debug("TryToPrint count:" + tryCount);
 
                     if (tryCount == TryCount)
                         throw;
@@ -60,7 +60,7 @@
         public bool Print(Bitmap img)
         {
 
-            LoggerAdapter.Debug("emsequeprintUtil print...");
+            //LoggerAdapter.Debug("emsequeprintUtil print...");
 
             try
             {
@@ -82,7 +82,7 @@
             }
             catch (Exception ex)
             {
-                LoggerAdapter.Error(ex, "");
+                //LoggerAdapter.Error(ex, "");
                 throw;
             }
             return true;
@@ -174,7 +174,7 @@
                 ticketImage = ticketImage.Clone(new Rectangle(0, 0, ticketImage.Width, ticketImage.Height), PixelFormat.Format24bppRgb);
             }
 
-            LoggerAdapter.Debug($"EmptyLineHeight: {emptyLineHeight} -- TicketImageWidth: {ticketImage.Width} -- TicketImagePixelFormat: {ticketImage.PixelFormat}");
+            //LoggerAdapter.Debug($"EmptyLineHeight: {emptyLineHeight} -- TicketImageWidth: {ticketImage.Width} -- TicketImagePixelFormat: {ticketImage.PixelFormat}");
 
             if (emptyLineHeight != 0 || (int)PrinterMaxPixelValue != ticketImage.Width || ticketImage.PixelFormat != PixelFormat.Format24bppRgb)
             {

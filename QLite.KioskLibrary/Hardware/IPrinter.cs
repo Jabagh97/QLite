@@ -1,9 +1,10 @@
-﻿using Quavis.QorchLite.Data.Dto;
+﻿using QLite.Dto;
 using Quavis.QorchLite.Hwlib.Call;
 using Quavis.QorchLite.Hwlib.Display;
+using Quavis.QorchLite.Hwlib.Hardware;
 using System;
 
-namespace Quavis.QorchLite.Hwlib.Hardware
+namespace QLite.Kio
 {
 
     public interface ICallDevice
