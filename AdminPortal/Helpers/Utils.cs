@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace PortalPOC.Helpers
 {
@@ -55,6 +56,29 @@ namespace PortalPOC.Helpers
             {
                 // TODO logla
                 return "";
+            }
+        }
+
+        public static object ConvertJsonElementValue(JsonElement jsonElement)
+        {
+            switch (jsonElement.ValueKind)
+            {
+                case JsonValueKind.Null:
+                    return null;
+                case JsonValueKind.True:
+                    return true;
+                case JsonValueKind.False:
+                    return false;
+                case JsonValueKind.Number:
+                    return jsonElement.GetRawText();
+                case JsonValueKind.String:
+                    return jsonElement.GetString();
+                case JsonValueKind.Object:
+                    return jsonElement.EnumerateObject().ToDictionary(kvp => kvp.Name, kvp => ConvertJsonElementValue(kvp.Value));
+                case JsonValueKind.Array:
+                    return jsonElement.EnumerateArray().Select(ConvertJsonElementValue).ToList();
+                default:
+                    return null; // Handle other value kinds as needed
             }
         }
 

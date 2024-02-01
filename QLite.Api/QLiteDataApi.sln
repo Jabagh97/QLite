@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QLiteDataApi", "QLiteDataApi.csproj", "{B8CEA7BA-D0F4-402A-871D-5B6E2B0D0789}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QLite.Data", "..\QLite.Data\QLite.Data.csproj", "{6B36A745-E819-40CB-94AC-4975900BADE9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B8CEA7BA-D0F4-402A-871D-5B6E2B0D0789}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8CEA7BA-D0F4-402A-871D-5B6E2B0D0789}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8CEA7BA-D0F4-402A-871D-5B6E2B0D0789}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8CEA7BA-D0F4-402A-871D-5B6E2B0D0789}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B36A745-E819-40CB-94AC-4975900BADE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B36A745-E819-40CB-94AC-4975900BADE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B36A745-E819-40CB-94AC-4975900BADE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B36A745-E819-40CB-94AC-4975900BADE9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3A142BF5-5BFB-4E75-AE5C-E4F4D9C58232}
+	EndGlobalSection
+EndGlobal

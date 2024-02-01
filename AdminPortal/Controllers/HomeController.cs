@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PortalPOC.Models;
 using System.Diagnostics;
+
+using QLite.Data.ViewModels;
 
 namespace PortalPOC.Controllers
 {
@@ -26,7 +27,7 @@ namespace PortalPOC.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View();
         }
     }
 }

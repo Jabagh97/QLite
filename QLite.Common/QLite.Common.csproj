@@ -11,8 +11,4 @@
     <PackageReference Include="NLog" Version="4.7.14" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\QLite.Dto\QLite.Dto.csproj" />
-  </ItemGroup>
-
 </Project>

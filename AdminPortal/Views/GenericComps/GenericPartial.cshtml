@@ -1,4 +1,5 @@
-﻿@model Type
+﻿@using QLite.Data.Models.ViewModels;
+@model Type
 
 @{
     var modelProperties = Model.GetProperties();
@@ -13,8 +14,8 @@
 
     var filteredProperties = modelProperties
         .Where(mp => viewModelProperties.Any(vp => vp.Name == mp.Name || mp.Name == "Oid"));
-    var action = ViewBag.Action;
-    var dropDowns = ViewBag.DropDowns;
+    var action = ViewBag.Action as string;
+    var dropDowns = ViewBag.DropDowns as Dictionary<string, List<dynamic>>;
     var formData = ViewBag.Data as Dictionary<string, string>;
 }
 

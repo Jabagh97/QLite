@@ -1,29 +1,32 @@
-﻿using Azure;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using PortalPOC.Constants;
+using Microsoft.SqlServer.Server;
+using Newtonsoft.Json;
 using PortalPOC.Helpers;
-using PortalPOC.Services;
-using System.Collections.Generic;
+using QLite.Data.Services;
+using QLiteDataApi.Constants;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
 using System.Reflection;
+using System.Text;
+using System.Text.Json;
 
 namespace PortalPOC.Controllers
 {
     public class GenericTableController : Controller
     {
         private readonly IModelTypeMappingService _modelTypeMappingService;
-        private readonly IDataService _dataService;
         private readonly IDataTableRequestExtractor _requestExtractor;
 
+        private readonly HttpClient _httpClient;
 
 
-        public GenericTableController(IDataService dataService, IModelTypeMappingService modelTypeMappingService, IDataTableRequestExtractor requestExtractor)
+        public GenericTableController(IModelTypeMappingService modelTypeMappingService, IDataTableRequestExtractor requestExtractor)
         {
-            _dataService = dataService;
             _modelTypeMappingService = modelTypeMappingService;
             _requestExtractor = requestExtractor;
+            _httpClient = new HttpClient();
+            _httpClient.BaseAddress = new Uri("http://localhost:5169/");
         }
 
         public IActionResult Index(string modelName)
@@ -41,29 +44,25 @@ namespace PortalPOC.Controllers
 
 
         [HttpPost]
-        public IActionResult GetData(string modelName)
+        public async Task<IActionResult> GetData(string modelName)
         {
             try
             {
-                if (!_modelTypeMappingService.TryGetModelTypes(modelName, out var modelType, out var viewModelType))
-                {
-                    return NotFound(Errors.NullModel);
-                }
-
                 var parameters = _requestExtractor.ExtractParameters(Request.Form);
 
-                var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, parameters.SearchValue, parameters.SortColumn, parameters.SortColumnDirection);
+                var apiUrl = $"api/Admin/GetData?modelName={modelName}&searchValue={parameters.SearchValue}&sortColumn={parameters.SortColumn}&sortColumnDirection={parameters.SortColumnDirection}&skip={parameters.Skip}&pageSize={parameters.PageSize}";
 
-                var paginatedData = filteredData.Skip(parameters.Skip).Take(parameters.PageSize).ToDynamicList();
+                var response = await _httpClient.GetAsync(apiUrl);
 
-                // var paginatedData = filteredData.ToDynamicList();
-
-
-                var recordsTotal = filteredData.Count();
-
-                var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
-
-                return Ok(jsonData);
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonData = await response.Content.ReadAsStringAsync();
+                    return Ok(jsonData);
+                }
+                else
+                {
+                    return StatusCode(500, new { success = false, message = "Internal Server Error" });
+                }
             }
             catch (Exception ex)
             {
@@ -72,25 +71,89 @@ namespace PortalPOC.Controllers
         }
 
 
+
         [HttpPost]
         public IActionResult Create([FromBody] Dictionary<string, object> formData)
         {
             try
             {
-                return ProcessModelOperation(formData, isCreateOperation: true);
+                var apiUrl = "api/Admin/Create";
+
+
+                var convertedFormData = formData.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => Utils.ConvertJsonElementValue((JsonElement)kvp.Value));
+
+                var jsonFormData = JsonConvert.SerializeObject(convertedFormData);
+
+
+                // Create HttpContent with JSON data
+                var content = new StringContent(jsonFormData, Encoding.UTF8, "application/json");
+
+                // Make the request to the second API method
+                var response = _httpClient.PostAsync(apiUrl, content).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Process the response if needed
+                    var result = response.Content.ReadAsStringAsync().Result;
+                    return Ok(result);
+                }
+                else
+                {
+                    return StatusCode((int)response.StatusCode, new { success = false, message = "Error creating" });
+                }
+
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+      
+
+
+
 
         [HttpPost]
         public IActionResult Edit([FromBody] Dictionary<string, object> formData)
         {
             try
             {
-                return ProcessModelOperation(formData, isCreateOperation: false);
+                try
+                {
+                    var apiUrl = "api/Admin/Edit";
+
+
+                    var convertedFormData = formData.ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => Utils.ConvertJsonElementValue((JsonElement)kvp.Value));
+
+                    var jsonFormData = JsonConvert.SerializeObject(convertedFormData);
+
+
+                    // Create HttpContent with JSON data
+                    var content = new StringContent(jsonFormData, Encoding.UTF8, "application/json");
+
+                    // Make the request to the second API method
+                    var response = _httpClient.PostAsync(apiUrl, content).Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Process the response if needed
+                        var result = response.Content.ReadAsStringAsync().Result;
+                        return Ok(result);
+                    }
+                    else
+                    {
+                        return StatusCode((int)response.StatusCode, new { success = false, message = "Error Editing" });
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { success = false, message = ex.Message });
+                }
             }
             catch (Exception ex)
             {
@@ -104,28 +167,25 @@ namespace PortalPOC.Controllers
         {
             try
             {
-                // Validate Data and create a model instance
-                if (!Data.ContainsKey("modelType"))
-                {
-                    return BadRequest(Errors.NoModelType);
-                }
-
-                // Extract modelType from formData
-                string modelName = Data["modelType"].ToString();
-
-                if (!_modelTypeMappingService.TryGetModelTypes(modelName, out var modelType, out var viewModelType))
-                {
-                    return NotFound(Errors.NullModel);
-                }
+                var apiUrl = "api/Admin/Delete";
 
 
-                Data.Remove("modelType");
+                var convertedFormData = Data.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => Utils.ConvertJsonElementValue((JsonElement)kvp.Value));
 
-                // Create an instance of the model using the specified modelType
-                var modelInstance = _dataService.SoftDelete(modelType, Data);
+                var jsonFormData = JsonConvert.SerializeObject(convertedFormData);
+
+
+                // Create HttpContent with JSON data
+                var content = new StringContent(jsonFormData, Encoding.UTF8, "application/json");
+
+                // Make the request to the second API method
+                var response = _httpClient.PostAsync(apiUrl, content).Result;
+
 
                 // Return a success response with the created model
-                return Ok(new { success = modelInstance, message = "Model Deleted successfully" });
+                return Ok(new { success = true, message = "item Deleted successfully" });
             }
             catch (Exception ex)
             {
@@ -135,7 +195,7 @@ namespace PortalPOC.Controllers
         }
 
 
-        public IActionResult ShowPopup(string modelName, string opType, Dictionary<string, string> data)
+        public async Task<IActionResult> ShowPopup(string modelName, string opType, Dictionary<string, string> data)
         {
             try
             {
@@ -147,14 +207,30 @@ namespace PortalPOC.Controllers
                     return NotFound(Errors.NullModel);
                 }
 
-                var namesDictionary = _dataService.GetGuidPropertyNames(modelType, modelTypeMapping);
+
+                var apiUrl = $"api/Admin/GetDropDowns?modelName={modelName}";
+
+                var response = await _httpClient.GetAsync(apiUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var namesDictionaryJson = await response.Content.ReadAsStringAsync();
+                    var namesDictionary = JsonConvert.DeserializeObject<Dictionary<string, List<dynamic>>>(namesDictionaryJson);
+
+                    ViewBag.DropDowns = namesDictionary;
+
+                }
+                else
+                {
+                    return StatusCode((int)response.StatusCode, new { success = false, message = "PopUp Error" });
+                }
+
 
                 if (!opType.IsNullOrEmpty() && opType.Contains(Operations.Edit))
                 {
                     ViewBag.Data = data;
                 }
 
-                ViewBag.DropDowns = namesDictionary;
                 ViewBag.ViewModel = viewModelType;
                 ViewBag.Action = opType;
 
@@ -169,60 +245,7 @@ namespace PortalPOC.Controllers
             }
         }
 
-        #region Helpers
 
-        private IActionResult ProcessModelOperation(Dictionary<string, object> formData, bool isCreateOperation)
-        {
-            // Validate formData and create/update a model instance
-            if (!formData.ContainsKey("modelType"))
-            {
-                return BadRequest(Errors.NoModelType);
-            }
-
-            // Extract modelType from formData
-            string modelName = formData["modelType"].ToString();
-
-
-            if (!_modelTypeMappingService.TryGetModelTypes(modelName, out var modelType, out var viewModelType))
-            {
-                return NotFound(Errors.NullModel);
-            }
-
-
-            formData.Remove("modelType");
-
-            ValidateRequiredFields(formData, viewModelType);
-
-
-            var user = Utils.GetCurrentUserName(User);
-
-
-            // Create/update the instance of the model using the specified modelType
-            var modelInstance = isCreateOperation
-                ? _dataService.CreateModel(user, modelType, formData)
-                : _dataService.UpdateModel(user, modelType, formData);
-
-            // Return a success response with the created/updated model
-            return Ok(new { success = true, message = $"{(isCreateOperation ? "Create" : "Update")} operation successful", data = modelInstance });
-        }
-
-        private void ValidateRequiredFields(Dictionary<string, object> formData, Type viewModelType)
-        {
-            var requiredProperties = viewModelType
-                .GetProperties()
-                .Where(prop => prop.GetCustomAttribute<RequiredAttribute>() != null)
-                .Select(prop => prop.Name);
-
-            foreach (var requiredProperty in requiredProperties)
-            {
-                if (!formData.ContainsKey(requiredProperty) || formData[requiredProperty]?.ToString() == "")
-                {
-                    throw new Exception($"Required field '{requiredProperty}' is missing or null.");
-                }
-            }
-        }
-
-        #endregion
 
     }
 

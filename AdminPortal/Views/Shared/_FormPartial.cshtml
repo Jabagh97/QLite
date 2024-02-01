@@ -1,4 +1,5 @@
-﻿@model FormPartialViewModel
+﻿@using QLite.Data.Models.ViewModels;
+@model FormPartialViewModel
 
 <form asp-controller="GenericTable" asp-action="@(Model.Action == "Add" ? "Create" : "Edit")" method="post" id="@(Model.Action == "Add" ? "createForm" : "editForm")">
     <div class="row">
