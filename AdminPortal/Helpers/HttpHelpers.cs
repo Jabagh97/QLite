@@ -1,6 +1,15 @@
 ﻿
 namespace PortalPOC.Helpers
 {
+
+      public class DeleteRowsRequest
+    {
+        public List<string>? SelectedOids { get; set; }
+        public string? TabName { get; set; }
+        public string? ModelName { get; set; }
+
+        public string? ModelOid { get; set;}
+    }
     public class DataTableRequestParameters
     {
         public int PageSize { get; set; }

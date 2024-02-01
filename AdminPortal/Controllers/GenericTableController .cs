@@ -131,6 +131,62 @@ namespace PortalPOC.Controllers
         }
 
 
+
+
+
+        [HttpPost]
+        public async Task<ActionResult> LoadTabData(string tabName, string modelName, string Oid)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync(EndPoints.AdminGetCollection(tabName,modelName,Oid));
+                return response.IsSuccessStatusCode
+                   ? Ok(await response.Content.ReadAsStringAsync())
+                   : StatusCode(500, new { success = false, message = "Internal Server Error" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { status = "error", message = ex.Message });
+            }
+        }
+        [HttpPost]
+        public ActionResult DeleteSelectedRows([FromBody] DeleteRowsRequest request)
+        {
+            try
+            {
+                if (request == null)
+                {
+                    return BadRequest("Invalid request parameters.");
+                }
+
+
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+
+              
+                    var response = _httpClient.PostAsync(EndPoints.AdminDeleteFromCollection, content).Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = response.Content.ReadAsStringAsync().Result;
+                        var status = JsonConvert.DeserializeAnonymousType(result, new { status = "" });
+                        return Json(status);
+                    }
+                    else
+                    {
+                        return BadRequest("Failed to delete rows.");
+                    }
+                
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it according to your requirements
+                return Json(new { status = "error", error = ex.Message });
+            }
+        }
+
+
+
+
     }
 
 }

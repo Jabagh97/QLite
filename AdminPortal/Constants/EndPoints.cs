@@ -15,6 +15,10 @@
 
         public static string AdminEdit = "api/Admin/Edit";
 
+        public static string AdminGetCollection(string tabName, string modelName, string Oid) => $"api/Admin/GetDbSetCollection?tabName={tabName}&modelName={modelName}&Oid={Oid}";
+
+        public static string AdminDeleteFromCollection = "api/Admin/DeleteFromDbSetCollection";
+
 
     }
 }

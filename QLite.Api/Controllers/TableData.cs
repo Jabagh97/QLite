@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using QLite.Data.Services;
 using QLiteDataApi.Constants;
+using QLiteDataApi.Helpers;
 using QLiteDataApi.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
@@ -28,7 +29,7 @@ namespace QLiteDataApi.Controllers
 
         [HttpGet]
         [Route("api/Admin/GetData")]
-        public IActionResult GetData(string modelName, string searchValue, string sortColumn, string sortColumnDirection, int skip,int pageSize)
+        public IActionResult GetData(string modelName, string searchValue, string sortColumn, string sortColumnDirection, int skip, int pageSize)
         {
             try
             {
@@ -97,7 +98,7 @@ namespace QLiteDataApi.Controllers
                 {
                     return NotFound(Errors.NullModel);
                 }
-                Dictionary<string,List<dynamic>> namesDictionary = _dataService.GetGuidPropertyNames(modelType, modelTypeMapping);
+                Dictionary<string, List<dynamic>> namesDictionary = _dataService.GetGuidPropertyNames(modelType, modelTypeMapping);
 
                 return Ok(namesDictionary);
             }
@@ -106,9 +107,6 @@ namespace QLiteDataApi.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-
-
-
 
 
         [HttpPost]
@@ -148,8 +146,97 @@ namespace QLiteDataApi.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("api/Admin/GetDbSetCollection")]
+        public ActionResult LoadTabData(string tabName, string modelName, string Oid)
+        {
+            try
+            {
+                var modelTypeMapping = _modelTypeMappingService.GetModelTypeMapping();
 
 
+                if (!_modelTypeMappingService.TryGetModelTypes(modelName, out var modelType, out var viewModelType))
+                {
+                    return NotFound($" '{modelName}' {Errors.ModelNotFound} ");
+                }
+
+                PropertyInfo tabProperty = modelType.GetProperty(tabName);
+
+                if (tabProperty?.PropertyType.IsGenericType == true &&
+                    tabProperty.PropertyType.GetGenericTypeDefinition() == typeof(ICollection<>))
+                {
+                    // Get the inner type of the ICollection<T>
+                    Type innerType = tabProperty.PropertyType.GetGenericArguments()[0];
+
+                    // Find matching viewModelType using LINQ
+                    Type tabViewModelType = modelTypeMapping.FirstOrDefault(pair => pair.Value.Item1 == innerType).Value.Item2;
+
+                    if (tabViewModelType != null)
+                    {
+                        var data = _dataService.GetTabData(innerType, tabViewModelType, Oid, modelType);
+                        return Json(new { status = "success", data = data });
+                    }
+                    else
+                    {
+                        return BadRequest($" {Errors.NoMatchingViewModel}  '{innerType}'.");
+                    }
+                }
+                else
+                {
+                    return BadRequest($"Property '{tabName}' {Errors.NotCollection}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions if needed
+                return Json(new { status = "error", message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+
+        [Route("api/Admin/DeleteFromDbSetCollection")]
+
+        public ActionResult DeleteSelectedRows([FromBody] DeleteRowsRequest request)
+        {
+            try
+            {
+                // Check for null values
+                if (request == null || request.SelectedOids == null || string.IsNullOrEmpty(request.TabName) || string.IsNullOrEmpty(request.ModelName))
+                {
+                    return BadRequest("Invalid request parameters.");
+                }
+
+                var selectedOids = request.SelectedOids;
+                var tabName = request.TabName;
+                var modelName = request.ModelName;
+
+                var modelOid = request.ModelOid;
+
+                // Check if modelType and viewModelType can be retrieved
+                if (!_modelTypeMappingService.TryGetModelTypes(modelName, out var modelType, out var viewModelType))
+                {
+                    return NotFound($" '{modelName}' {Errors.ModelNotFound} ");
+                }
+
+                // Perform deletion logic
+                var result = _dataService.RemoveFromSubList(tabName, modelType, modelOid, selectedOids);
+
+                if (result)
+                {
+                    return Ok(new { status = "success" });
+                }
+                else
+                {
+                    return BadRequest("Failed to delete rows.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it according to your requirements
+                return Json(new { status = "error", error = ex.Message });
+            }
+        }
 
         #region Helpers
 
