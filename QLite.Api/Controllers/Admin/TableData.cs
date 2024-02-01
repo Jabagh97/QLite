@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
 using System.Reflection;
 
-namespace QLiteDataApi.Controllers
+namespace QLiteDataApi.Controllers.Admin
 {
     public class TableData : Controller
     {
@@ -174,7 +174,7 @@ namespace QLiteDataApi.Controllers
                     if (tabViewModelType != null)
                     {
                         var data = _dataService.GetTabData(innerType, tabViewModelType, Oid, modelType);
-                        return Json(new { status = "success", data = data });
+                        return Json(new { status = "success", data });
                     }
                     else
                     {

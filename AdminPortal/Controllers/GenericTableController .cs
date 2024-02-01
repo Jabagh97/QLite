@@ -105,8 +105,6 @@ namespace PortalPOC.Controllers
             }
         }
 
-
-
         public IActionResult ProcessData(string apiUrl, Dictionary<string, object> formData, string successMessage, string errorMessage)
         {
             try
@@ -129,10 +127,6 @@ namespace PortalPOC.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-
-
-
-
 
         [HttpPost]
         public async Task<ActionResult> LoadTabData(string tabName, string modelName, string Oid)
