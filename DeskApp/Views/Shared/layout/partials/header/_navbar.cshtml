@@ -1,0 +1,54 @@
+<!--begin::Navbar-->
+<div class="app-navbar flex-shrink-0">
+    <!--begin::Search-->
+    <div class="app-navbar-item align-items-stretch ms-1 ms-lg-3">
+@*        @await Html.PartialAsync("partials/search/_dropdown")
+*@
+    </div>
+    <!--end::Search-->
+    <!--begin::Activities-->
+    <div class="app-navbar-item ms-1 ms-lg-3">
+        <!--begin::Drawer toggle-->
+        <div class="btn btn-icon btn-icon-white btn-custom btn-active-color-primary w-35px h-35px w-md-40px h-md-40px" id="kt_activities_toggle">
+            <i class="ki-solid ki-element-11 fs-1"></i>
+        </div>
+        <!--end::Drawer toggle-->
+    </div>
+    <!--end::Activities-->
+    <!--begin::Notifications-->
+    <div class="app-navbar-item ms-1 ms-lg-3">
+        <!--begin::Menu- wrapper-->
+        <div class="btn btn-icon btn-icon-white btn-custom btn-active-color-primary w-35px h-35px w-md-40px h-md-40px" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
+            <i class="ki-solid ki-notification-status fs-1"></i>
+        </div>
+      @*  @await Html.PartialAsync("partials/menus/_notifications-menu")*@
+
+        <!--end::Menu wrapper-->
+    </div>
+    <!--end::Notifications-->
+    <!--begin::User menu-->
+    <div class="app-navbar-item ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
+        <!--begin::Menu wrapper-->
+        <div class="cursor-pointer symbol symbol-35px"
+            data-kt-menu-trigger="{default: 'click', lg: 'hover'}"
+            data-kt-menu-attach="parent"
+            data-kt-menu-placement="bottom-end">
+            <img class="symbol symbol-35px" src="assets/media/avatars/300-1.jpg" alt="user"/>
+        </div>
+        @await Html.PartialAsync("partials/menus/_user-account-menu")
+
+        <!--end::Menu wrapper-->
+    </div>
+    <!--end::User menu-->
+    <!--begin::Action-->
+    <div class="app-navbar-item">
+        <a href="#" class="btn btn-sm btn-success d-flex flex-center ms-6 ps-3 pe-4 h-35px"  data-bs-toggle="modal" data-bs-target="#kt_modal_invite_friends">
+            <i class="ki-solid ki-plus-square fs-2"></i>
+            <span>Invite</span>
+        </a>
+    </div>
+    <!--end::Action-->
+    <!--begin::Sidebar menu toggle-->
+        <!--end::Sidebar menu toggle-->
+</div>
+<!--end::Navbar-->
