@@ -22,9 +22,9 @@ namespace Quavis.QorchLite.Hwlib
         ICallDevice _call;
         IHwHubContext _hc;
 
-        public HwManager(IHwHubContext hc)
+        public HwManager()//(IHwHubContext hc)
         {
-            _hc = hc;
+            //_hc = hc;
         }
 
 

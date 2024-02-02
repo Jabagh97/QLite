@@ -33,6 +33,8 @@ internal class Program
         // Add your services to the container
         services.AddControllersWithViews();
 
+        services.AddScoped<HwManager>();
+
 
         // Add any other services you may need
     }
