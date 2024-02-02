@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\Shared\layout\partials\header\_menu.cshtml" />
+    <Content Remove="Views\Shared\layout\partials\header\_navbar.cshtml" />
+    <Content Remove="Views\Shared\layout\partials\_content-menu.cshtml" />
+    <Content Remove="Views\Shared\layout\partials\_content.cshtml" />
+    <Content Remove="Views\Shared\layout\partials\_footer.cshtml" />
+    <Content Remove="Views\Shared\layout\partials\_header.cshtml" />
+    <Content Remove="Views\Shared\layout\partials\_hero.cshtml" />
+    <Content Remove="Views\Shared\layout\partials\_page-title.cshtml" />
+    <Content Remove="Views\Shared\layout\partials\_toolbar.cshtml" />
+    <Content Remove="Views\Shared\layout\_default.cshtml" />
+    <Content Remove="Views\Shared\partials\_scrolltop.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Views\Shared\layout\partials\header\_menu.cshtml" />
+    <None Include="Views\Shared\layout\partials\header\_navbar.cshtml" />
+    <None Include="Views\Shared\layout\partials\_content-menu.cshtml" />
+    <None Include="Views\Shared\layout\partials\_content.cshtml" />
+    <None Include="Views\Shared\layout\partials\_footer.cshtml" />
+    <None Include="Views\Shared\layout\partials\_header.cshtml" />
+    <None Include="Views\Shared\layout\partials\_hero.cshtml" />
+    <None Include="Views\Shared\layout\partials\_page-title.cshtml" />
+    <None Include="Views\Shared\layout\partials\_toolbar.cshtml" />
+    <None Include="Views\Shared\layout\_default.cshtml" />
+    <None Include="Views\Shared\partials\theme-mode\_init.cshtml" />
+    <None Include="Views\Shared\partials\theme-mode\_main.cshtml" />
+    <None Include="Views\Shared\partials\theme-mode\__menu.cshtml" />
+    <None Include="Views\Shared\partials\_scrolltop.cshtml" />
+  </ItemGroup>
+
+</Project>
