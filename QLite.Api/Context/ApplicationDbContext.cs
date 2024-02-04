@@ -90,13 +90,13 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<UploadBo> UploadBos { get; set; }
 
   
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseSqlite("Data Source=queue.db");
-        }
-    }
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //{
+    //    if (!optionsBuilder.IsConfigured)
+    //    {
+    //        optionsBuilder.UseSqlLite("Data Source=queue.db");
+    //    }
+    //}
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -169,19 +169,19 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.Oid).ValueGeneratedNever();
 
-            entity.HasOne(d => d.AccountNavigation).WithMany(p => p.AppUsers)
-                .HasForeignKey(d => d.Account)
-                .HasConstraintName("FK_AppUser_Account");
+            //entity.HasOne(d => d.AccountNavigation).WithMany(p => p.AppUsers)
+            //    .HasForeignKey(d => d.Account)
+            //    .HasConstraintName("FK_AppUser_Account");
 
           
 
-            entity.HasOne(d => d.BranchNavigation).WithMany(p => p.AppUserBranchNavigations)
-                .HasForeignKey(d => d.Branch)
-                .HasConstraintName("FK_AppUser_Branch");
+            //entity.HasOne(d => d.BranchNavigation).WithMany(p => p.AppUserBranchNavigations)
+            //    .HasForeignKey(d => d.Branch)
+            //    .HasConstraintName("FK_AppUser_Branch");
 
-            entity.HasOne(d => d.DeskNavigation).WithMany(p => p.AppUserDeskNavigations)
-                .HasForeignKey(d => d.Desk)
-                .HasConstraintName("FK_AppUser_Desk");
+            //entity.HasOne(d => d.DeskNavigation).WithMany(p => p.AppUserDeskNavigations)
+            //    .HasForeignKey(d => d.Desk)
+            //    .HasConstraintName("FK_AppUser_Desk");
 
            
         });
@@ -422,9 +422,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.Macro)
                 .HasConstraintName("FK_DeskMacroSchedule_Macro");
 
-            entity.HasOne(d => d.UserNavigation).WithMany(p => p.DeskMacroSchedules)
-                .HasForeignKey(d => d.User)
-                .HasConstraintName("FK_DeskMacroSchedule_User");
+            //entity.HasOne(d => d.UserNavigation).WithMany(p => p.DeskMacroSchedules)
+            //    .HasForeignKey(d => d.User)
+            //    .HasConstraintName("FK_DeskMacroSchedule_User");
         });
 
         modelBuilder.Entity<DeskStatus>(entity =>
@@ -1205,9 +1205,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
         });
 
-     
 
-      
+
+
 
         OnModelCreatingPartial(modelBuilder);
     }

@@ -77,7 +77,7 @@ namespace QLiteDataApi
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-           // DataSeed.SeedDatabase(app);
+           DataSeed.SeedDatabase(app);
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

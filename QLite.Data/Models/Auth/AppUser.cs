@@ -29,15 +29,15 @@ namespace QLite.Data.Models.Auth
 
         public Guid? Desk { get; set; }
 
-        public virtual Account? AccountNavigation { get; set; }
+        //public virtual Account? AccountNavigation { get; set; }
 
 
-        public virtual Branch? BranchNavigation { get; set; }
+        //public virtual Branch? BranchNavigation { get; set; }
 
-        public virtual Desk? DeskNavigation { get; set; }
+        //public virtual Desk? DeskNavigation { get; set; }
 
 
-        public virtual ICollection<DeskMacroSchedule> DeskMacroSchedules { get; } = new List<DeskMacroSchedule>();
+        //public virtual ICollection<DeskMacroSchedule> DeskMacroSchedules { get; } = new List<DeskMacroSchedule>();
 
         public int? Gcrecord { get; set; }
 
