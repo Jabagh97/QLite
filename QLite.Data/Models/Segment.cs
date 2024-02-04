@@ -41,7 +41,6 @@ public partial class Segment
 
     public virtual Account? AccountNavigation { get; set; }
 
-    public virtual ICollection<Appointment> Appointments { get; } = new List<Appointment>();
 
     public virtual ICollection<Segment> InverseParentNavigation { get; } = new List<Segment>();
 

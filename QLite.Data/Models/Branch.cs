@@ -1,4 +1,6 @@
 ﻿using QLite.Data.CustomAttribute;
+using QLite.Data.Models;
+using QLite.Data.Models.Auth;
 using QLite.Data.ViewModels.Branch;
 using System;
 using System.Collections.Generic;
@@ -52,9 +54,7 @@ public partial class Branch
 
     public virtual Account? AccountNavigation { get; set; }
 
-    public virtual ICollection<AppointmentSetting> AppointmentSettings { get; } = new List<AppointmentSetting>();
-
-    public virtual ICollection<Appointment> Appointments { get; } = new List<Appointment>();
+  
 
     public virtual Country? CountryNavigation { get; set; }
 
@@ -68,9 +68,8 @@ public partial class Branch
 
     public virtual ICollection<KappSetting> KappSettings { get; } = new List<KappSetting>();
 
-    public virtual ICollection<KappUser> KappUserAuthorizedBranchNavigations { get; } = new List<KappUser>();
 
-    public virtual ICollection<KappUser> KappUserBranchNavigations { get; } = new List<KappUser>();
+    public virtual ICollection<AppUser> AppUserBranchNavigations { get; } = new List<AppUser>();
 
     public virtual ICollection<KioskApplication> KioskApplications { get; } = new List<KioskApplication>();
 

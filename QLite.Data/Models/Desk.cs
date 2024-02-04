@@ -1,4 +1,6 @@
 ﻿using QLite.Data.CustomAttribute;
+using QLite.Data.Models;
+using QLite.Data.Models.Auth;
 using QLite.Data.ViewModels.DesignTarget;
 using QLite.Data.ViewModels.Desk;
 using System;
@@ -55,9 +57,8 @@ public partial class Desk
 
     public virtual ICollection<DeskTransferableService> DeskTransferableServices { get; } = new List<DeskTransferableService>();
 
-    public virtual ICollection<KappUser> KappUserDeskNavigations { get; } = new List<KappUser>();
+    public virtual ICollection<AppUser> AppUserDeskNavigations { get; } = new List<AppUser>();
 
-    public virtual ICollection<KappUser> KappUserLastDeskNavigations { get; } = new List<KappUser>();
 
     public virtual KioskApplication? PanoNavigation { get; set; }
 

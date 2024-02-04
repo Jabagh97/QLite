@@ -1,6 +1,9 @@
 ﻿
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using QLite.Data;
+using QLite.Data.Models;
+using QLite.Data.Models.Auth;
 
 namespace QLiteDataApi.Context;
 
@@ -19,19 +22,14 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AccountLanguage> AccountLanguages { get; set; }
 
-    public virtual DbSet<Appointment> Appointments { get; set; }
+    public virtual DbSet<AppUser> AppUsers { get; set; }
 
-    public virtual DbSet<AppointmentSetting> AppointmentSettings { get; set; }
 
-    public virtual DbSet<AuditDataItemPersistent> AuditDataItemPersistents { get; set; }
-
-    public virtual DbSet<AuditedObjectWeakReference> AuditedObjectWeakReferences { get; set; }
 
     public virtual DbSet<Branch> Branches { get; set; }
 
     public virtual DbSet<Country> Countries { get; set; }
 
-    public virtual DbSet<DashboardDatum> DashboardData { get; set; }
 
     public virtual DbSet<Design> Designs { get; set; }
 
@@ -49,13 +47,11 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<KappRelation> KappRelations { get; set; }
 
-    public virtual DbSet<KappRole> KappRoles { get; set; }
 
     public virtual DbSet<KappSessionStep> KappSessionSteps { get; set; }
 
     public virtual DbSet<KappSetting> KappSettings { get; set; }
 
-    public virtual DbSet<KappUser> KappUsers { get; set; }
 
     public virtual DbSet<KappWorkflow> KappWorkflows { get; set; }
 
@@ -68,28 +64,6 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<Macro> Macros { get; set; }
 
     public virtual DbSet<MacroRule> MacroRules { get; set; }
-
-    public virtual DbSet<ModelDifference> ModelDifferences { get; set; }
-
-    public virtual DbSet<ModelDifferenceAspect> ModelDifferenceAspects { get; set; }
-
-    public virtual DbSet<PermissionPolicyActionPermissionObject> PermissionPolicyActionPermissionObjects { get; set; }
-
-    public virtual DbSet<PermissionPolicyMemberPermissionsObject> PermissionPolicyMemberPermissionsObjects { get; set; }
-
-    public virtual DbSet<PermissionPolicyNavigationPermissionsObject> PermissionPolicyNavigationPermissionsObjects { get; set; }
-
-    public virtual DbSet<PermissionPolicyObjectPermissionsObject> PermissionPolicyObjectPermissionsObjects { get; set; }
-
-    public virtual DbSet<PermissionPolicyRole> PermissionPolicyRoles { get; set; }
-
-    public virtual DbSet<PermissionPolicyTypePermissionsObject> PermissionPolicyTypePermissionsObjects { get; set; }
-
-    public virtual DbSet<PermissionPolicyUser> PermissionPolicyUsers { get; set; }
-
-    public virtual DbSet<PermissionPolicyUserLoginInfo> PermissionPolicyUserLoginInfos { get; set; }
-
-    public virtual DbSet<PermissionPolicyUserUsersPermissionPolicyRoleRole> PermissionPolicyUserUsersPermissionPolicyRoleRoles { get; set; }
 
     public virtual DbSet<Province> Provinces { get; set; }
 
@@ -115,14 +89,7 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<UploadBo> UploadBos { get; set; }
 
-    public virtual DbSet<VDeskStatus> VDeskStatuses { get; set; }
-
-    public virtual DbSet<VUserPerformanceReport> VUserPerformanceReports { get; set; }
-
-    public virtual DbSet<XpobjectType> XpobjectTypes { get; set; }
-
-    public virtual DbSet<XpweakReference> XpweakReferences { get; set; }
-
+  
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -185,133 +152,43 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_AccountLanguage_Language");
         });
 
-        modelBuilder.Entity<Appointment>(entity =>
+
+        modelBuilder.Entity<AppUser>(entity =>
         {
             entity.HasKey(e => e.Oid);
 
-            entity.ToTable("Appointment");
+            entity.ToTable("AppUser");
 
-            entity.HasIndex(e => e.Branch, "iBranch_Appointment");
+            entity.HasIndex(e => e.Account, "iAccount_AppUser");
 
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_Appointment");
 
-            entity.HasIndex(e => e.Segment, "iSegment_Appointment");
+            entity.HasIndex(e => e.Branch, "iBranch_AppUser");
 
-            entity.HasIndex(e => e.ServiceType, "iServiceType_Appointment");
+            entity.HasIndex(e => e.Desk, "iDesk_AppUser");
+
 
             entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.AppointmentDate).HasColumnType("datetime");
-            entity.Property(e => e.BookingDate).HasColumnType("datetime");
-            entity.Property(e => e.CreatedBy).HasMaxLength(100);
-            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-            entity.Property(e => e.CreatedDateUtc).HasColumnType("datetime");
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
-            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
-            entity.Property(e => e.ModifiedDateUtc).HasColumnType("datetime");
-            entity.Property(e => e.NationalId)
-                .HasMaxLength(100)
-                .HasColumnName("NationalID");
-            entity.Property(e => e.PhoneNumber).HasMaxLength(100);
 
-            entity.HasOne(d => d.BranchNavigation).WithMany(p => p.Appointments)
+            entity.HasOne(d => d.AccountNavigation).WithMany(p => p.AppUsers)
+                .HasForeignKey(d => d.Account)
+                .HasConstraintName("FK_AppUser_Account");
+
+          
+
+            entity.HasOne(d => d.BranchNavigation).WithMany(p => p.AppUserBranchNavigations)
                 .HasForeignKey(d => d.Branch)
-                .HasConstraintName("FK_Appointment_Branch");
+                .HasConstraintName("FK_AppUser_Branch");
 
-            entity.HasOne(d => d.SegmentNavigation).WithMany(p => p.Appointments)
-                .HasForeignKey(d => d.Segment)
-                .HasConstraintName("FK_Appointment_Segment");
+            entity.HasOne(d => d.DeskNavigation).WithMany(p => p.AppUserDeskNavigations)
+                .HasForeignKey(d => d.Desk)
+                .HasConstraintName("FK_AppUser_Desk");
 
-            entity.HasOne(d => d.ServiceTypeNavigation).WithMany(p => p.Appointments)
-                .HasForeignKey(d => d.ServiceType)
-                .HasConstraintName("FK_Appointment_ServiceType");
+           
         });
 
-        modelBuilder.Entity<AppointmentSetting>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
 
-            entity.HasIndex(e => e.Branch, "iBranch_AppointmentSettings");
 
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_AppointmentSettings");
 
-            entity.HasIndex(e => e.ServiceType, "iServiceType_AppointmentSettings");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.CreatedBy).HasMaxLength(100);
-            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-            entity.Property(e => e.CreatedDateUtc).HasColumnType("datetime");
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
-            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
-            entity.Property(e => e.ModifiedDateUtc).HasColumnType("datetime");
-
-            entity.HasOne(d => d.BranchNavigation).WithMany(p => p.AppointmentSettings)
-                .HasForeignKey(d => d.Branch)
-                .HasConstraintName("FK_AppointmentSettings_Branch");
-
-            entity.HasOne(d => d.ServiceTypeNavigation).WithMany(p => p.AppointmentSettings)
-                .HasForeignKey(d => d.ServiceType)
-                .HasConstraintName("FK_AppointmentSettings_ServiceType");
-        });
-
-        modelBuilder.Entity<AuditDataItemPersistent>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("AuditDataItemPersistent");
-
-            entity.HasIndex(e => e.AuditedObject, "iAuditedObject_AuditDataItemPersistent");
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_AuditDataItemPersistent");
-
-            entity.HasIndex(e => e.ModifiedOn, "iModifiedOn_AuditDataItemPersistent");
-
-            entity.HasIndex(e => e.NewObject, "iNewObject_AuditDataItemPersistent");
-
-            entity.HasIndex(e => e.OldObject, "iOldObject_AuditDataItemPersistent");
-
-            entity.HasIndex(e => e.OperationType, "iOperationType_AuditDataItemPersistent");
-
-            entity.HasIndex(e => e.UserName, "iUserName_AuditDataItemPersistent");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.Description).HasMaxLength(2048);
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-            entity.Property(e => e.ModifiedOn).HasColumnType("datetime");
-            entity.Property(e => e.NewValue).HasMaxLength(1024);
-            entity.Property(e => e.OldValue).HasMaxLength(1024);
-            entity.Property(e => e.OperationType).HasMaxLength(100);
-            entity.Property(e => e.PropertyName).HasMaxLength(100);
-            entity.Property(e => e.UserName).HasMaxLength(100);
-
-            entity.HasOne(d => d.AuditedObjectNavigation).WithMany(p => p.AuditDataItemPersistents)
-                .HasForeignKey(d => d.AuditedObject)
-                .HasConstraintName("FK_AuditDataItemPersistent_AuditedObject");
-
-            entity.HasOne(d => d.NewObjectNavigation).WithMany(p => p.AuditDataItemPersistentNewObjectNavigations)
-                .HasForeignKey(d => d.NewObject)
-                .HasConstraintName("FK_AuditDataItemPersistent_NewObject");
-
-            entity.HasOne(d => d.OldObjectNavigation).WithMany(p => p.AuditDataItemPersistentOldObjectNavigations)
-                .HasForeignKey(d => d.OldObject)
-                .HasConstraintName("FK_AuditDataItemPersistent_OldObject");
-        });
-
-        modelBuilder.Entity<AuditedObjectWeakReference>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("AuditedObjectWeakReference");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.DisplayName).HasMaxLength(250);
-
-            entity.HasOne(d => d.OidNavigation).WithOne(p => p.AuditedObjectWeakReference)
-                .HasForeignKey<AuditedObjectWeakReference>(d => d.Oid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AuditedObjectWeakReference_Oid");
-        });
 
         modelBuilder.Entity<Branch>(entity =>
         {
@@ -389,16 +266,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.PhoneCode).HasMaxLength(100);
         });
 
-        modelBuilder.Entity<DashboardDatum>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_DashboardData");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-            entity.Property(e => e.Title).HasMaxLength(100);
-        });
+      
 
         modelBuilder.Entity<Design>(entity =>
         {
@@ -647,19 +515,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_KappRelation_Parent");
         });
 
-        modelBuilder.Entity<KappRole>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("KappRole");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-
-            entity.HasOne(d => d.OidNavigation).WithOne(p => p.KappRole)
-                .HasForeignKey<KappRole>(d => d.Oid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_KappRole_Oid");
-        });
+       
 
         modelBuilder.Entity<KappSessionStep>(entity =>
         {
@@ -718,48 +574,13 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_KappSettings_KioskApplication");
         });
 
-        modelBuilder.Entity<KappUser>(entity =>
+       
+
+
+        modelBuilder.Entity<AppUser>(entity =>
         {
-            entity.HasKey(e => e.Oid);
+           
 
-            entity.ToTable("KappUser");
-
-            entity.HasIndex(e => e.Account, "iAccount_KappUser");
-
-            entity.HasIndex(e => e.AuthorizedBranch, "iAuthorizedBranch_KappUser");
-
-            entity.HasIndex(e => e.Branch, "iBranch_KappUser");
-
-            entity.HasIndex(e => e.Desk, "iDesk_KappUser");
-
-            entity.HasIndex(e => e.LastDesk, "iLastDesk_KappUser");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-
-            entity.HasOne(d => d.AccountNavigation).WithMany(p => p.KappUsers)
-                .HasForeignKey(d => d.Account)
-                .HasConstraintName("FK_KappUser_Account");
-
-            entity.HasOne(d => d.AuthorizedBranchNavigation).WithMany(p => p.KappUserAuthorizedBranchNavigations)
-                .HasForeignKey(d => d.AuthorizedBranch)
-                .HasConstraintName("FK_KappUser_AuthorizedBranch");
-
-            entity.HasOne(d => d.BranchNavigation).WithMany(p => p.KappUserBranchNavigations)
-                .HasForeignKey(d => d.Branch)
-                .HasConstraintName("FK_KappUser_Branch");
-
-            entity.HasOne(d => d.DeskNavigation).WithMany(p => p.KappUserDeskNavigations)
-                .HasForeignKey(d => d.Desk)
-                .HasConstraintName("FK_KappUser_Desk");
-
-            entity.HasOne(d => d.LastDeskNavigation).WithMany(p => p.KappUserLastDeskNavigations)
-                .HasForeignKey(d => d.LastDesk)
-                .HasConstraintName("FK_KappUser_LastDesk");
-
-            entity.HasOne(d => d.OidNavigation).WithOne(p => p.KappUser)
-                .HasForeignKey<KappUser>(d => d.Oid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_KappUser_Oid");
         });
 
         modelBuilder.Entity<KappWorkflow>(entity =>
@@ -939,211 +760,8 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_MacroRule_ServiceType");
         });
 
-        modelBuilder.Entity<ModelDifference>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("ModelDifference");
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_ModelDifference");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.ContextId).HasMaxLength(100);
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-            entity.Property(e => e.UserId).HasMaxLength(100);
-        });
-
-        modelBuilder.Entity<ModelDifferenceAspect>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("ModelDifferenceAspect");
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_ModelDifferenceAspect");
-
-            entity.HasIndex(e => e.Owner, "iOwner_ModelDifferenceAspect");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-            entity.Property(e => e.Name).HasMaxLength(100);
-
-            entity.HasOne(d => d.OwnerNavigation).WithMany(p => p.ModelDifferenceAspects)
-                .HasForeignKey(d => d.Owner)
-                .HasConstraintName("FK_ModelDifferenceAspect_Owner");
-        });
-
-        modelBuilder.Entity<PermissionPolicyActionPermissionObject>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("PermissionPolicyActionPermissionObject");
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_PermissionPolicyActionPermissionObject");
-
-            entity.HasIndex(e => e.Role, "iRole_PermissionPolicyActionPermissionObject");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.ActionId).HasMaxLength(100);
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-
-            entity.HasOne(d => d.RoleNavigation).WithMany(p => p.PermissionPolicyActionPermissionObjects)
-                .HasForeignKey(d => d.Role)
-                .HasConstraintName("FK_PermissionPolicyActionPermissionObject_Role");
-        });
-
-        modelBuilder.Entity<PermissionPolicyMemberPermissionsObject>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("PermissionPolicyMemberPermissionsObject");
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_PermissionPolicyMemberPermissionsObject");
-
-            entity.HasIndex(e => e.TypePermissionObject, "iTypePermissionObject_PermissionPolicyMemberPermissionsObject");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-
-            entity.HasOne(d => d.TypePermissionObjectNavigation).WithMany(p => p.PermissionPolicyMemberPermissionsObjects)
-                .HasForeignKey(d => d.TypePermissionObject)
-                .HasConstraintName("FK_PermissionPolicyMemberPermissionsObject_TypePermissionObject");
-        });
-
-        modelBuilder.Entity<PermissionPolicyNavigationPermissionsObject>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("PermissionPolicyNavigationPermissionsObject");
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_PermissionPolicyNavigationPermissionsObject");
-
-            entity.HasIndex(e => e.Role, "iRole_PermissionPolicyNavigationPermissionsObject");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-
-            entity.HasOne(d => d.RoleNavigation).WithMany(p => p.PermissionPolicyNavigationPermissionsObjects)
-                .HasForeignKey(d => d.Role)
-                .HasConstraintName("FK_PermissionPolicyNavigationPermissionsObject_Role");
-        });
-
-        modelBuilder.Entity<PermissionPolicyObjectPermissionsObject>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("PermissionPolicyObjectPermissionsObject");
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_PermissionPolicyObjectPermissionsObject");
-
-            entity.HasIndex(e => e.TypePermissionObject, "iTypePermissionObject_PermissionPolicyObjectPermissionsObject");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-
-            entity.HasOne(d => d.TypePermissionObjectNavigation).WithMany(p => p.PermissionPolicyObjectPermissionsObjects)
-                .HasForeignKey(d => d.TypePermissionObject)
-                .HasConstraintName("FK_PermissionPolicyObjectPermissionsObject_TypePermissionObject");
-        });
-
-        modelBuilder.Entity<PermissionPolicyRole>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("PermissionPolicyRole");
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_PermissionPolicyRole");
-
-            entity.HasIndex(e => e.ObjectType, "iObjectType_PermissionPolicyRole");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-            entity.Property(e => e.Name).HasMaxLength(100);
-
-            entity.HasOne(d => d.ObjectTypeNavigation).WithMany(p => p.PermissionPolicyRoles)
-                .HasForeignKey(d => d.ObjectType)
-                .HasConstraintName("FK_PermissionPolicyRole_ObjectType");
-        });
-
-        modelBuilder.Entity<PermissionPolicyTypePermissionsObject>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("PermissionPolicyTypePermissionsObject");
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_PermissionPolicyTypePermissionsObject");
-
-            entity.HasIndex(e => e.Role, "iRole_PermissionPolicyTypePermissionsObject");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-
-            entity.HasOne(d => d.RoleNavigation).WithMany(p => p.PermissionPolicyTypePermissionsObjects)
-                .HasForeignKey(d => d.Role)
-                .HasConstraintName("FK_PermissionPolicyTypePermissionsObject_Role");
-        });
-
-        modelBuilder.Entity<PermissionPolicyUser>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("PermissionPolicyUser");
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_PermissionPolicyUser");
-
-            entity.HasIndex(e => e.ObjectType, "iObjectType_PermissionPolicyUser");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-            entity.Property(e => e.UserName).HasMaxLength(100);
-
-            entity.HasOne(d => d.ObjectTypeNavigation).WithMany(p => p.PermissionPolicyUsers)
-                .HasForeignKey(d => d.ObjectType)
-                .HasConstraintName("FK_PermissionPolicyUser_ObjectType");
-        });
-
-        modelBuilder.Entity<PermissionPolicyUserLoginInfo>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("PermissionPolicyUserLoginInfo");
-
-            entity.HasIndex(e => new { e.LoginProviderName, e.ProviderUserKey }, "iLoginProviderNameProviderUserKey_PermissionPolicyUserLoginInfo").IsUnique();
-
-            entity.HasIndex(e => e.User, "iUser_PermissionPolicyUserLoginInfo");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.LoginProviderName).HasMaxLength(100);
-            entity.Property(e => e.ProviderUserKey).HasMaxLength(100);
-
-            entity.HasOne(d => d.UserNavigation).WithMany(p => p.PermissionPolicyUserLoginInfos)
-                .HasForeignKey(d => d.User)
-                .HasConstraintName("FK_PermissionPolicyUserLoginInfo_User");
-        });
-
-        modelBuilder.Entity<PermissionPolicyUserUsersPermissionPolicyRoleRole>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("PermissionPolicyUserUsers_PermissionPolicyRoleRoles");
-
-            entity.HasIndex(e => new { e.Roles, e.Users }, "iRolesUsers_PermissionPolicyUserUsers_PermissionPolicyRoleRoles").IsUnique();
-
-            entity.HasIndex(e => e.Roles, "iRoles_PermissionPolicyUserUsers_PermissionPolicyRoleRoles");
-
-            entity.HasIndex(e => e.Users, "iUsers_PermissionPolicyUserUsers_PermissionPolicyRoleRoles");
-
-            entity.Property(e => e.Oid)
-                .ValueGeneratedNever()
-                .HasColumnName("OID");
-
-            entity.HasOne(d => d.RolesNavigation).WithMany(p => p.PermissionPolicyUserUsersPermissionPolicyRoleRoles)
-                .HasForeignKey(d => d.Roles)
-                .HasConstraintName("FK_PermissionPolicyUserUsers_PermissionPolicyRoleRoles_Roles");
-
-            entity.HasOne(d => d.UsersNavigation).WithMany(p => p.PermissionPolicyUserUsersPermissionPolicyRoleRoles)
-                .HasForeignKey(d => d.Users)
-                .HasConstraintName("FK_PermissionPolicyUserUsers_PermissionPolicyRoleRoles_Users");
-        });
+      
+     
 
         modelBuilder.Entity<Province>(entity =>
         {
@@ -1587,73 +1205,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
         });
 
-        modelBuilder.Entity<VDeskStatus>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("V_DeskStatus");
+     
 
-            entity.Property(e => e.Account).HasMaxLength(100);
-            entity.Property(e => e.AvarageTime).HasPrecision(0);
-            entity.Property(e => e.Branch).HasMaxLength(100);
-            entity.Property(e => e.TotalTime).HasPrecision(0);
-            entity.Property(e => e.UserName).HasMaxLength(100);
-        });
-
-        modelBuilder.Entity<VUserPerformanceReport>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("V_UserPerformanceReport");
-
-            entity.Property(e => e.AvgProcessTime).HasPrecision(0);
-            entity.Property(e => e.AvgWaitingTime).HasPrecision(0);
-            entity.Property(e => e.MaxProcessTime).HasPrecision(0);
-            entity.Property(e => e.MaxWaitingTime).HasPrecision(0);
-            entity.Property(e => e.MinProcessTime).HasPrecision(0);
-            entity.Property(e => e.MinWaitingTime).HasPrecision(0);
-            entity.Property(e => e.TotalProcessTime).HasColumnType("datetime");
-            entity.Property(e => e.TotalWaitingTime).HasColumnType("datetime");
-            entity.Property(e => e.UserName).HasMaxLength(100);
-        });
-
-        modelBuilder.Entity<XpobjectType>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("XPObjectType");
-
-            entity.HasIndex(e => e.TypeName, "iTypeName_XPObjectType").IsUnique();
-
-            entity.Property(e => e.Oid).HasColumnName("OID");
-            entity.Property(e => e.AssemblyName).HasMaxLength(254);
-            entity.Property(e => e.TypeName).HasMaxLength(254);
-        });
-
-        modelBuilder.Entity<XpweakReference>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("XPWeakReference");
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_XPWeakReference");
-
-            entity.HasIndex(e => e.ObjectType, "iObjectType_XPWeakReference");
-
-            entity.HasIndex(e => e.TargetType, "iTargetType_XPWeakReference");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-            entity.Property(e => e.TargetKey).HasMaxLength(100);
-
-            entity.HasOne(d => d.ObjectTypeNavigation).WithMany(p => p.XpweakReferenceObjectTypeNavigations)
-                .HasForeignKey(d => d.ObjectType)
-                .HasConstraintName("FK_XPWeakReference_ObjectType");
-
-            entity.HasOne(d => d.TargetTypeNavigation).WithMany(p => p.XpweakReferenceTargetTypeNavigations)
-                .HasForeignKey(d => d.TargetType)
-                .HasConstraintName("FK_XPWeakReference_TargetType");
-        });
+      
 
         OnModelCreatingPartial(modelBuilder);
     }

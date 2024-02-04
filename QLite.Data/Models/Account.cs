@@ -1,5 +1,7 @@
 ﻿
 using QLite.Data.CustomAttribute;
+using QLite.Data.Models;
+using QLite.Data.Models.Auth;
 using QLite.Data.ViewModels.Account;
 using System;
 using System.Collections.Generic;
@@ -41,7 +43,7 @@ public partial class Account
 
     public virtual ICollection<KappSetting> KappSettings { get; } = new List<KappSetting>();
 
-    public virtual ICollection<KappUser> KappUsers { get; } = new List<KappUser>();
+    public virtual ICollection<AppUser> AppUsers { get; } = new List<AppUser>();
 
     public virtual ICollection<KioskApplicationType> KioskApplicationTypes { get; } = new List<KioskApplicationType>();
 

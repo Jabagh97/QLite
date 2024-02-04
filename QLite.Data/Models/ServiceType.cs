@@ -49,9 +49,7 @@ public partial class ServiceType
 
     public virtual Account? AccountNavigation { get; set; }
 
-    public virtual ICollection<AppointmentSetting> AppointmentSettings { get; } = new List<AppointmentSetting>();
 
-    public virtual ICollection<Appointment> Appointments { get; } = new List<Appointment>();
 
     public virtual ICollection<DeskCreatableService> DeskCreatableServices { get; } = new List<DeskCreatableService>();
 

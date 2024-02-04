@@ -1,4 +1,6 @@
 ﻿using QLite.Data.CustomAttribute;
+using QLite.Data.Models;
+using QLite.Data.Models.Auth;
 using QLite.Data.ViewModels.DeskCreatableService;
 using System;
 using System.Collections.Generic;
@@ -68,5 +70,5 @@ public partial class DeskMacroSchedule
 
     public virtual Macro? MacroNavigation { get; set; }
 
-    public virtual KappUser? UserNavigation { get; set; }
+    public virtual AppUser? UserNavigation { get; set; }
 }

@@ -1,6 +1,6 @@
-﻿namespace QLite.Data.ViewModels.KappUser
+﻿namespace QLite.Data.ViewModels.AppUser
 {
-    internal class KappUserViewModel
+    internal class AppUserViewModel
     {
     }
 }
