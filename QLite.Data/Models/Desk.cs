@@ -57,7 +57,7 @@ public partial class Desk
 
     public virtual ICollection<DeskTransferableService> DeskTransferableServices { get; } = new List<DeskTransferableService>();
 
-    public virtual ICollection<AppUser> AppUserDeskNavigations { get; } = new List<AppUser>();
+    public virtual ICollection<ApplicationUser> AppUserDeskNavigations { get; } = new List<ApplicationUser>();
 
 
     public virtual KioskApplication? PanoNavigation { get; set; }

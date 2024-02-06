@@ -20,6 +20,6 @@ namespace QLite.Data.ViewModels
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
 
-        public QLite.Data.Models.Auth.AppUser User { get; set; }
+        public QLite.Data.Models.Auth.ApplicationUser User { get; set; }
     }
 }

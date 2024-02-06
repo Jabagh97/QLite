@@ -364,3 +364,5 @@ FodyWeavers.xsd
 /AdminPortal/queue.db
 /AdminPortal/queue.db-shm
 /AdminPortal/queue.db-wal
+/QLiteAuthenticationServer/Logs/log-20240206.txt
+/QLiteAuthenticationServer/Logs/log-20240206.txt

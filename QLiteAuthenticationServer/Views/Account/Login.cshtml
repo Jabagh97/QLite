@@ -1,0 +1,131 @@
+@model LoginViewModel
+
+
+<div id="myContainer" style="display: flex;">
+
+    <div style="width:30%;">
+
+        <h1 class="fs-2qx" style="margin-bottom: 5rem;">Login</h1>
+
+        <div>
+
+            <form asp-route="Login">
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                <div class="form-group">
+                    <label asp-for="Username"></label>
+                    <input class="form-control" placeholder="Username" asp-for="Username" autofocus>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Password"></label>
+                    <input type="password" class="form-control" placeholder="Password" asp-for="Password" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="OTP" class="control-label"></label> 
+                    <input type="text" asp-for="OTP" class="form-control" id="otpInput" style="color: #8f8f8f; font-size: 1.5em; height: 43.56px; line-height: 0.5;" />
+                </div>
+
+                <div class="form-group" style="margin-top:2rem !important;">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="RememberLogin">
+                        <label class="form-check-label" asp-for="RememberLogin">
+                            Remember My Login
+                        </label>
+                    </div>
+                </div>
+
+                <div style="margin-top:2rem !important;">
+                    <button style="width: 10rem;" class="btn btn-primary" name="button" value="login">Login</button>
+                </div>
+
+            </form>
+
+            <partial name="_ValidationSummary" />
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+    // ensures that only digits are allowed on the OTP field, and limits the length to 6 characters.
+    document.getElementById('otpInput').addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '').substring(0, 6);
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@* 
+
+
+<div class="col-lg-5 login-page">
+
+
+    <partial name="_ValidationSummary" />
+
+    <div>
+
+
+        <div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Login</h2>
+                </div>
+
+                <div class="card-body">
+                    <form asp-route="Login">
+                        <input type="hidden" asp-for="ReturnUrl" />
+
+                        <div class="form-group">
+                            <label asp-for="Username"></label>
+                            <input class="form-control" placeholder="Username" asp-for="Username" autofocus>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Password"></label>
+                            <input type="password" class="form-control" placeholder="Password" asp-for="Password" autocomplete="off">
+                        </div>
+                            
+                        @if (Model.AllowRememberLogin)
+                        {
+                            <div class="form-group" style="margin-top:2rem !important;">
+                                <div class="form-check">
+                                    <input class="form-check-input" asp-for="RememberLogin">
+                                    <label class="form-check-label" asp-for="RememberLogin">
+                                        Remember My Login
+                                    </label>
+                                </div>
+                            </div>
+                        }
+
+                        <div style="margin-top:2rem !important;">
+                            <button class="btn btn-primary" name="button" value="login">Login</button>
+                            <button class="btn btn-secondary" name="button" value="cancel">Cancel</button>
+                        </div>
+                            
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+
+
+    </div>
+</div> *@

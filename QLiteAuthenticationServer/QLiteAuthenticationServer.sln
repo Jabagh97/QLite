@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QLiteAuthenticationServer", "QLiteAuthenticationServer.csproj", "{2F408E47-519E-4C42-AEEF-CC043074EB70}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QLite.Data", "..\QLite.Data\QLite.Data.csproj", "{9199A1AF-CF4B-42D2-8306-FB1A5FE9D3DA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F408E47-519E-4C42-AEEF-CC043074EB70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F408E47-519E-4C42-AEEF-CC043074EB70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F408E47-519E-4C42-AEEF-CC043074EB70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F408E47-519E-4C42-AEEF-CC043074EB70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9199A1AF-CF4B-42D2-8306-FB1A5FE9D3DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9199A1AF-CF4B-42D2-8306-FB1A5FE9D3DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9199A1AF-CF4B-42D2-8306-FB1A5FE9D3DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9199A1AF-CF4B-42D2-8306-FB1A5FE9D3DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DBD91B93-43AB-43FC-BAC4-8268DDD6A1C7}
+	EndGlobalSection
+EndGlobal
