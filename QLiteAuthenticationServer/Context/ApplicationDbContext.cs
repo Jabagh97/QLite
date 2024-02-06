@@ -6,7 +6,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace QLiteAuthenticationServer.Context
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionKeyContext
     {
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -14,6 +14,8 @@ namespace QLiteAuthenticationServer.Context
         {
 
         }
+
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } // this is where cryptographic keys are stored
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

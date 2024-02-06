@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using QLite.Data.Models.Auth;
 using QLiteAuthenticationServer.Services;
 using QLiteAuthenticationServer.Helpers;
+using System.Security.Cryptography.X509Certificates;
 
 namespace QLiteAuthenticationServer
 {
@@ -27,19 +28,24 @@ namespace QLiteAuthenticationServer
 
         public void ConfigureServices(IServiceCollection services)
         {
-         //   X509Certificate2 _certificate = Utils.GetCertificateFromStore(Configuration["certificateName"]);
+              X509Certificate2 _certificate = Utils.GetCertificateFromStore(Configuration["certificateName"]);
 
             if (Environment.IsDevelopment())
-         //    IdentityModelEventSource.ShowPII = true; // only have this enabled in development
+                IdentityModelEventSource.ShowPII = true; // only have this enabled in development
 
             services.AddControllersWithViews();
 
-         // services.AddSameSiteCookiePolicy();
+            // services.AddSameSiteCookiePolicy();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
-          
+            // data protection service
+            services.AddDataProtection()
+                .SetApplicationName("asdqwe")
+                .PersistKeysToDbContext<ApplicationDbContext>()
+                .AddKeyManagementOptions(o => o.AutoGenerateKeys = Configuration.GetValue<bool>("AutoGenerateKeys"));
+            //.ProtectKeysWithCertificate(_certificate);
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -49,7 +55,6 @@ namespace QLiteAuthenticationServer
             // Microsoft still thinks they know what’s best for you by mapping the OIDC standard claims to their proprietary ones.
             // This can be fixed elegantly by clearing the inbound claim type map on the Microsoft JWT token handler:
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-
             var builder = services.AddIdentityServer(options =>
             {
                 options.Events.RaiseErrorEvents = true;
@@ -60,11 +65,11 @@ namespace QLiteAuthenticationServer
                 // see https://identityserver4.readthedocs.io/en/latest/topics/resources.html
                 options.EmitStaticAudienceClaim = true;
             })
-                .AddInMemoryIdentityResources(Config.IdentityResources)
-                .AddInMemoryApiScopes(Config.ApiScopes)
-                .AddInMemoryClients(Config.Clients(Configuration))
-                .AddAspNetIdentity<ApplicationUser>()
-                .AddProfileService<MyProfileService>();
+                          .AddInMemoryIdentityResources(Config.IdentityResources)
+                          .AddInMemoryApiScopes(Config.ApiScopes)
+                          .AddInMemoryClients(Config.Clients(Configuration))
+                          .AddAspNetIdentity<ApplicationUser>()
+                          .AddProfileService<MyProfileService>();
 
             services.AddAuthentication("QuavisCookie")
                 .AddCookie("QuavisCookie", options =>
@@ -126,8 +131,8 @@ namespace QLiteAuthenticationServer
             temp1.Dispose();
             #endregion
 
-           
-           // builder.AddSigningCredential(_certificate);
+
+             builder.AddSigningCredential(_certificate);
 
             // builder.AddDeveloperSigningCredential(); // won't work in production. replace with `AddSigningCredential` when deploying!
 
@@ -146,7 +151,7 @@ namespace QLiteAuthenticationServer
             services.AddSingleton<QuavisEncryptionService>(); // encryption & decrypion service
 
 
-            
+
         }
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory, QuavisEncryptionService encService)
@@ -208,7 +213,7 @@ namespace QLiteAuthenticationServer
             app.UseAuthorization();
 
 
-           
+
             //if (Configuration.GetValue<bool>("UseFingerprintMiddleware")) // conditionally register fingerprint middleware (so we can disable it easily just in case)
             //    app.UseMiddleware<FingerprintMiddleware>(); // custom fingerprint middleware
 

@@ -1,15 +1,24 @@
-﻿<div class="flex-column">
-
-    <div class="card mb-3" style="width:70%;">
-        <div class="card-body">
-            <h5 class="card-title">Welcome to Quavis Kiosk Admin</h5>
-            <p class="card-text">
-               
-            </p>
-            @* <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p> *@
+﻿@if (User != null && User.Identity != null && User.Identity.IsAuthenticated == true)
+{
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                @await Html.PartialAsync("Components/WaitingTickets")
+            </div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        @await Html.PartialAsync("Components/MainPanel")
+                    </div>
+                    <div class="col-md-12">
+                        @await Html.PartialAsync("Components/CompletedTickets")
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <img src="~/img/homepage.jpg" class="logo" style="display:inline; width:30rem; margin:0 0 4rem 0;">
-
-</div>
+}
+else
+{
+    <span> LogIn Please </span>
+}

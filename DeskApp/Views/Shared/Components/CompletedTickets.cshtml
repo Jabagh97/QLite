@@ -1,0 +1,61 @@
+﻿<div class="col-md-6 col-xl-12">
+    <!--begin::Card-->
+    <div class="card">
+        <a href="/metronic8/demo1/apps/projects/project.html" class="card-body">
+            <!--begin::Card toolbar-->
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <h3 class="card-title mb-0">Completed Tickets</h3>
+                <span class="badge badge-light-primary fw-bold px-4 py-2">0</span>
+            </div>
+            <!--end::Card toolbar-->
+            <!--begin::Tabs-->
+            <div class="d-flex justify-content-between text-decoration-none p-2 mb-2 border-bottom waitinglist-tabs" style="overflow-x: auto;">
+                <div class="">
+                    <button class="btn btn-primary position-relative waiting-ticket-btn active" type="button">
+                        <i class="fas fa-clock mr-1"></i> waiting
+                        <span class="badge badge-pill badge-info position-absolute">0</span>
+                    </button>
+                </div>
+                <div class="">
+                    <button class="btn btn-secondary position-relative waiting-ticket-btn" type="button">
+                        <i class="fas fa-parking mr-1"></i> inThePark
+                        <span class="badge badge-pill badge-info position-absolute">0</span>
+                    </button>
+                </div>
+                <div class="">
+                    <button class="btn btn-secondary position-relative waiting-ticket-btn" type="button">
+                        <i class="fas fa-exchange-alt mr-1"></i> inTheTransfer
+                        <span class="badge badge-pill badge-info position-absolute">0</span>
+                    </button>
+                </div>
+            </div>
+            <!--end::Tabs-->
+            <!--begin::Table-->
+            <div class="container-desk-table">
+                <div class="wrap-desk-table">
+                    <div class="desk-table" style="overflow-y: auto; max-height: 1500px;">
+                        <table class="desk-table">
+                            <thead>
+                                <tr class="desk-table-row head">
+                                    <th class="desk-table-column">ticketNumber</th>
+                                    <th class="desk-table-column">service</th>
+                                    <th class="desk-table-column">segmentName</th>
+                                    <th class="desk-table-column icon-column"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="alert alert-danger m-1" role="alert">thereAreNoTicketsOnTheWaitingList</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--end::Table-->
+        </a>
+    </div>
+    <!--end::Card-->
+</div>

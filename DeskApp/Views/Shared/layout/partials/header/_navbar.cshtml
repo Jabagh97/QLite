@@ -41,10 +41,8 @@
         {
             @await Html.PartialAsync("partials/menus/_user-account-menu")
 
+            
         }
-
-
-
         else
         {
             <a href="@Configuration["SiteDomain"]/Account/Login" style="margin: auto 2rem auto auto !important;">
@@ -60,13 +58,3 @@
     <!--end::Sidebar menu toggle-->
 </div>
 <!--end::Navbar-->
-@*  <div class="btn-group" style="margin: auto 2rem auto auto !important;">
-                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="ki-outline ki-user fs-2" style="color: #767676 !important;"> </i> @User?.Identity?.Name
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="@Configuration["OpenIdConnect:Authority"]">Auth Server</a></li>
-                        <div class="dropdown-divider"></div>
-                        <li><a class="dropdown-item" href="@Configuration["SiteDomain"]/Account/Logout">Logout</a></li>
-                    </ul>
-                </div>*@
