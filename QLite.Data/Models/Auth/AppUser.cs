@@ -11,6 +11,9 @@ namespace QLite.Data.Models.Auth
     {
         public Guid Oid { get; set; }
 
+
+        public AccountType AccountType { get; set; }
+
         public string? CreatedBy { get; set; }
 
         public string? ModifiedBy { get; set; }
@@ -29,6 +32,9 @@ namespace QLite.Data.Models.Auth
 
         public Guid? Desk { get; set; }
 
+        public bool IsActive { get; set; } = true;
+       
+
         //public virtual Account? AccountNavigation { get; set; }
 
 
@@ -41,5 +47,12 @@ namespace QLite.Data.Models.Auth
 
         public int? Gcrecord { get; set; }
 
+    }
+
+    public enum AccountType
+    {
+        NormalUser,     // 0
+        SuperUser,    // 1
+        Baykus  // 2
     }
 }

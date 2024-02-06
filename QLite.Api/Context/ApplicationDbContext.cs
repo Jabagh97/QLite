@@ -22,7 +22,6 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AccountLanguage> AccountLanguages { get; set; }
 
-    public virtual DbSet<AppUser> AppUsers { get; set; }
 
 
 
@@ -153,41 +152,7 @@ public partial class ApplicationDbContext : DbContext
         });
 
 
-        modelBuilder.Entity<AppUser>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("AppUser");
-
-            entity.HasIndex(e => e.Account, "iAccount_AppUser");
-
-
-            entity.HasIndex(e => e.Branch, "iBranch_AppUser");
-
-            entity.HasIndex(e => e.Desk, "iDesk_AppUser");
-
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-
-            //entity.HasOne(d => d.AccountNavigation).WithMany(p => p.AppUsers)
-            //    .HasForeignKey(d => d.Account)
-            //    .HasConstraintName("FK_AppUser_Account");
-
-          
-
-            //entity.HasOne(d => d.BranchNavigation).WithMany(p => p.AppUserBranchNavigations)
-            //    .HasForeignKey(d => d.Branch)
-            //    .HasConstraintName("FK_AppUser_Branch");
-
-            //entity.HasOne(d => d.DeskNavigation).WithMany(p => p.AppUserDeskNavigations)
-            //    .HasForeignKey(d => d.Desk)
-            //    .HasConstraintName("FK_AppUser_Desk");
-
-           
-        });
-
-
-
+      
 
 
         modelBuilder.Entity<Branch>(entity =>
