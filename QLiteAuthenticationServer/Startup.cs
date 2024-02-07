@@ -28,14 +28,14 @@ namespace QLiteAuthenticationServer
 
         public void ConfigureServices(IServiceCollection services)
         {
-              X509Certificate2 _certificate = Utils.GetCertificateFromStore(Configuration["certificateName"]);
+            //  X509Certificate2 _certificate = Utils.GetCertificateFromStore(Configuration["certificateName"]);
 
             if (Environment.IsDevelopment())
-                IdentityModelEventSource.ShowPII = true; // only have this enabled in development
+                IdentityModelEventSource.ShowPII = true;
 
             services.AddControllersWithViews();
 
-            // services.AddSameSiteCookiePolicy();
+            services.AddSameSiteCookiePolicy();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
@@ -52,9 +52,9 @@ namespace QLiteAuthenticationServer
                 .AddDefaultTokenProviders();
 
 
-            // Microsoft still thinks they know what’s best for you by mapping the OIDC standard claims to their proprietary ones.
-            // This can be fixed elegantly by clearing the inbound claim type map on the Microsoft JWT token handler:
+
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
             var builder = services.AddIdentityServer(options =>
             {
                 options.Events.RaiseErrorEvents = true;
@@ -78,52 +78,21 @@ namespace QLiteAuthenticationServer
                     //options.Cookie.Expiration = TimeSpan.FromHours(5);
                     options.ExpireTimeSpan = TimeSpan.FromHours(5);
                     options.SessionStore = new MemoryCacheTicketStore();
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+                    options.Cookie.SameSite = SameSiteMode.Strict;
 
-                    if (Configuration["SecureCookie"] == "true")
-                    {
-                        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                        options.Cookie.HttpOnly = false;
-                    }
-                    else
-                    {
-                        options.Cookie.HttpOnly = true;
-                        options.Cookie.SecurePolicy = CookieSecurePolicy.None;
-                        options.Cookie.SameSite = SameSiteMode.Strict;
-                    }
                 });
 
             services.AddAuthorization(options =>
             {
-                // `asBaykus` only
-                options.AddPolicy("BaykusOnly", policy =>
-                    policy.RequireClaim("asBaykus"));
-
-                // either `asBaykus` OR `asSuperUser`
-                options.AddPolicy("SuperUserOnly", policy =>
-                    policy.RequireAssertion(context => context.User.HasClaim(c =>
-                        c.Type == "asSuperUser" || c.Type == "asBaykus"
-                        )));
-
-                // SmtpUserOnly -> `asSmtpUser` OR `asBaykus`
-                options.AddPolicy("SmtpUserOnly", policy =>
-                    policy.RequireAssertion(context => context.User.HasClaim(c =>
-                        c.Type == "asSmtpUser" || c.Type == "asBaykus"
-                        )));
+                
             });
 
 
-            builder.Services.AddHttpClient(); // post requestler gonderebilmek icin
+            builder.Services.AddHttpClient(); 
 
-            if (Configuration["SecureCookie"] != "true")
-            {
-                services.ConfigureApplicationCookie(options =>
-                {
-                    options.Cookie.HttpOnly = true;
-                    options.Cookie.SecurePolicy = CookieSecurePolicy.None;
-                    options.Cookie.SameSite = SameSiteMode.Strict;
-                });
-
-            }
+           
 
             #region AUTO MIGRATION
             var temp1 = services.BuildServiceProvider().GetRequiredService<ApplicationDbContext>();
@@ -132,9 +101,9 @@ namespace QLiteAuthenticationServer
             #endregion
 
 
-             builder.AddSigningCredential(_certificate);
+            //builder.AddSigningCredential(_certificate);
 
-            // builder.AddDeveloperSigningCredential(); // won't work in production. replace with `AddSigningCredential` when deploying!
+            builder.AddDeveloperSigningCredential(); // won't work in production. replace with `AddSigningCredential` when deploying!
 
             #region REGISTER AUTOMAPPER
             // not sure why `AddAutoMapper` doesn't work, but this works too.
@@ -212,10 +181,6 @@ namespace QLiteAuthenticationServer
             app.UseIdentityServer();
             app.UseAuthorization();
 
-
-
-            //if (Configuration.GetValue<bool>("UseFingerprintMiddleware")) // conditionally register fingerprint middleware (so we can disable it easily just in case)
-            //    app.UseMiddleware<FingerprintMiddleware>(); // custom fingerprint middleware
 
             app.UseEndpoints(endpoints =>
             {
