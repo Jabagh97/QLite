@@ -16,7 +16,7 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
 
 
-        // Correct indentation for AddDbContext
+        // AddDbContext
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -58,13 +58,19 @@ internal class Program
             app.UseSwaggerUI();
         }
 
-        app.UseHttpsRedirection();
+        //app.UseHttpsRedirection();
 
         app.UseAuthorization();
 
         app.MapControllers();
 
+        //var siteDomain = builder.Configuration.GetValue<string>("SiteDomain");
+
+
+        // app.Run(siteDomain);
+
         app.Run();
+
     }
 
     private static void WarmUpEntity<TEntity>(ApplicationDbContext dbContext) where TEntity : class

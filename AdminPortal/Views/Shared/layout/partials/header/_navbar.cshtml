@@ -6,7 +6,7 @@
     <!--begin::DropDown-->
     <div class="app-navbar-item align-items-stretch ms-1 ms-md-4">
         @if (User.Identity.IsAuthenticated)
-        {@*
+       {
             <div class="btn-group" style="margin: auto 2rem auto auto !important;">
                 <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="ki-outline ki-user fs-2" style="color: #767676 !important;"> </i> @User?.Identity?.Name
@@ -16,7 +16,7 @@
                     <div class="dropdown-divider"></div>
                     <li><a class="dropdown-item" href="/Account/Logout">Logout</a></li>
                 </ul>
-            </div>*@
+            </div>
         }
         else
         {

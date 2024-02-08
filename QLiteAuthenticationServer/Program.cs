@@ -54,5 +54,11 @@ public class Program
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>();
+                var config = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json")
+                    .Build();
+                var ipAddress = config["SiteDomain"];
+                webBuilder.UseUrls(ipAddress);
             });
 }

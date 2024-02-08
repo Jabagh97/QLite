@@ -43,7 +43,7 @@ public partial class Account
 
     public virtual ICollection<KappSetting> KappSettings { get; } = new List<KappSetting>();
 
-    public virtual ICollection<ApplicationUser> AppUsers { get; } = new List<ApplicationUser>();
+   // public virtual ICollection<ApplicationUser> AppUsers { get; } = new List<ApplicationUser>();
 
     public virtual ICollection<KioskApplicationType> KioskApplicationTypes { get; } = new List<KioskApplicationType>();
 

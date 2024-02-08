@@ -15,8 +15,8 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
     <!--end::Fonts-->
     <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
-    <link href="assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
-    <link href="assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
     <link href="~/css/site.css" rel="stylesheet" type="text/css" />
 
 
@@ -62,7 +62,10 @@
             @await Html.PartialAsync("layout/partials/_header")
             <!--begin::Wrapper-->
             <div class="app-wrapper  flex-column flex-row-fluid " id="kt_app_wrapper">
-                @await Html.PartialAsync("layout/partials/_sidebar")
+                 @if (User != null && User.Identity != null && User.Identity.IsAuthenticated == true)
+                {
+                    @await Html.PartialAsync("layout/partials/_sidebar")
+                }
                 <!--begin::Main-->
                 <div class="app-main flex-column flex-row-fluid " id="kt_app_main">
                     <!--begin::Content wrapper-->
@@ -87,10 +90,10 @@
     @await Html.PartialAsync("modals/EditModal")
     <!--end::Modals-->
 
-    <script src="JQuery/jquery-3.7.1.js"></script>
-    <script src="DataTables/datatables.js"></script>
-    <script src="bootstrap/js/bootstrap.bundle.js"></script>
-    <script src="assets/js/scripts.bundle.js"></script>
+    <script src="~/JQuery/jquery-3.7.1.js"></script>
+    <script src="~/DataTables/datatables.js"></script>
+    <script src="~/bootstrap/js/bootstrap.bundle.js"></script>
+    <script src="~/assets/js/scripts.bundle.js"></script>
     <script src="~/js/quavis.js"></script>
     <script src="~/lib/swal/sweetalert2.all.js"></script>
     <script src="~/assets/plugins/custom/draggable/draggable.bundle.js"></script>

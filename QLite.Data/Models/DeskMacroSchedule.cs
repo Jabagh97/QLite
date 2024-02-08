@@ -70,5 +70,5 @@ public partial class DeskMacroSchedule
 
     public virtual Macro? MacroNavigation { get; set; }
 
-    public virtual ApplicationUser? UserNavigation { get; set; }
+   // public virtual ApplicationUser? UserNavigation { get; set; }
 }

@@ -69,7 +69,7 @@ public partial class Branch
     public virtual ICollection<KappSetting> KappSettings { get; } = new List<KappSetting>();
 
 
-    public virtual ICollection<ApplicationUser> AppUserBranchNavigations { get; } = new List<ApplicationUser>();
+    //public virtual ICollection<ApplicationUser> AppUserBranchNavigations { get; } = new List<ApplicationUser>();
 
     public virtual ICollection<KioskApplication> KioskApplications { get; } = new List<KioskApplication>();
 

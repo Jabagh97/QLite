@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+using QLite.Data.Services;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
@@ -28,6 +29,9 @@ namespace DeskApp
 
         public void ConfigureServices(IServiceCollection Services)
         {
+            Services.AddScoped<IApiService,ApiService>();
+
+
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
             var openIdConnectConfig = Configuration.GetSection("OpenIdConnect");

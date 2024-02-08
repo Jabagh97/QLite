@@ -1,9 +1,5 @@
-﻿
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using QLite.Data;
-using QLite.Data.Models;
-using QLite.Data.Models.Auth;
 
 namespace QLiteDataApi.Context;
 
@@ -21,9 +17,6 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<Account> Accounts { get; set; }
 
     public virtual DbSet<AccountLanguage> AccountLanguages { get; set; }
-
-
-
 
     public virtual DbSet<Branch> Branches { get; set; }
 
@@ -88,14 +81,21 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<UploadBo> UploadBos { get; set; }
 
-  
-    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //{
-    //    if (!optionsBuilder.IsConfigured)
-    //    {
-    //        optionsBuilder.UseSqlLite("Data Source=queue.db");
-    //    }
-    //}
+
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            // Load connection string from configuration
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            optionsBuilder.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
+        }
+    }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -542,11 +542,7 @@ public partial class ApplicationDbContext : DbContext
        
 
 
-        modelBuilder.Entity<AppUser>(entity =>
-        {
-           
-
-        });
+        
 
         modelBuilder.Entity<KappWorkflow>(entity =>
         {
