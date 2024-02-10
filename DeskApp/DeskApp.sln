@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeskApp", "DeskApp.csproj", "{843E315F-074D-4BC5-AB0B-F49BD7A7B827}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QLite.Data", "..\QLite.Data\QLite.Data.csproj", "{57E8429C-6919-40BF-8139-29F74953B679}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QLite.Data", "..\QLite.Data\QLite.Data.csproj", "{912C0163-36D3-4EC4-8457-B4784EF2F5A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{843E315F-074D-4BC5-AB0B-F49BD7A7B827}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{843E315F-074D-4BC5-AB0B-F49BD7A7B827}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{843E315F-074D-4BC5-AB0B-F49BD7A7B827}.Release|Any CPU.Build.0 = Release|Any CPU
-		{57E8429C-6919-40BF-8139-29F74953B679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{57E8429C-6919-40BF-8139-29F74953B679}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{57E8429C-6919-40BF-8139-29F74953B679}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{57E8429C-6919-40BF-8139-29F74953B679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{912C0163-36D3-4EC4-8457-B4784EF2F5A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{912C0163-36D3-4EC4-8457-B4784EF2F5A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{912C0163-36D3-4EC4-8457-B4784EF2F5A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{912C0163-36D3-4EC4-8457-B4784EF2F5A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

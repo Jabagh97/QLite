@@ -70,6 +70,22 @@ namespace QLiteDataApi.Helpers
                 convertedValue = byteArray.Select(b => (byte?)b).ToArray();
                 return true;
             }
+            else if (targetType == typeof(bool) || targetType == typeof(bool?)) // Add support for nullable boolean types
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    convertedValue = targetType == typeof(bool) ? (object)false : (object)(bool?)null;
+                    return true;
+                }
+
+                if (bool.TryParse(value, out var boolValue))
+                {
+                    convertedValue = targetType == typeof(bool) ? (object)boolValue : (object)(bool?)boolValue;
+                    return true;
+                }
+
+                return false;
+            }
 
             return false;
         }

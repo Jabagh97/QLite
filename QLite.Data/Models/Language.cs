@@ -31,7 +31,6 @@ public partial class Language
     public string? CultureInfo { get; set; }
 
     public string? LangCode { get; set; }
-
     public byte[]? Logo { get; set; }
 
     public bool? IsDefault { get; set; }

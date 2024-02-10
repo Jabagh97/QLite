@@ -67,7 +67,7 @@ internal class Program
         //var siteDomain = builder.Configuration.GetValue<string>("SiteDomain");
 
 
-        // app.Run(siteDomain);
+        //app.Run(siteDomain);
 
         app.Run();
 

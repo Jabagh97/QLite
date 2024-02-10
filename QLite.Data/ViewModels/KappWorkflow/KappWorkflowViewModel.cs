@@ -1,7 +1,10 @@
-﻿namespace QLite.Data.ViewModels.KappWorkflow
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace QLite.Data.ViewModels.KappWorkflow
 {
     internal class KappWorkflowViewModel
     {
+        [Required]
 
         public string? Name { get; set; }
 

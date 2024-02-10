@@ -18,13 +18,13 @@ namespace PortalPOC.Controllers
     {
         private readonly IModelTypeMappingService _modelTypeMappingService;
         private readonly IDataTableRequestExtractor _requestExtractor;
-        private readonly HttpClient _httpClient;
+        private readonly IApiService _apiService;
 
-        public GenericTableController(IModelTypeMappingService modelTypeMappingService, IDataTableRequestExtractor requestExtractor)
+        public GenericTableController(IModelTypeMappingService modelTypeMappingService, IDataTableRequestExtractor requestExtractor, IApiService apiService)
         {
             _modelTypeMappingService = modelTypeMappingService;
             _requestExtractor = requestExtractor;
-            _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5169/") };
+            _apiService = apiService;
         }
 
         public IActionResult Index(string modelName)
@@ -46,7 +46,7 @@ namespace PortalPOC.Controllers
             {
                 var parameters = _requestExtractor.ExtractParameters(Request.Form);
 
-                var response = await _httpClient.GetAsync(EndPoints.AdminGetData(modelName, parameters.SearchValue, parameters.SortColumn, parameters.SortColumnDirection, parameters.Skip, parameters.PageSize));
+                var response = await _apiService.GetAsync(EndPoints.AdminGetData(modelName, parameters.SearchValue, parameters.SortColumn, parameters.SortColumnDirection, parameters.Skip, parameters.PageSize));
                 return response.IsSuccessStatusCode
                     ? Ok(await response.Content.ReadAsStringAsync())
                     : StatusCode(500, new { success = false, message = "Internal Server Error" });
@@ -78,7 +78,7 @@ namespace PortalPOC.Controllers
                     return NotFound(Errors.NullModel);
                 }
 
-                var response = await _httpClient.GetAsync(EndPoints.GetdropDowns(modelName));
+                var response = await _apiService.GetAsync(EndPoints.GetdropDowns(modelName));
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -113,10 +113,8 @@ namespace PortalPOC.Controllers
                     kvp => kvp.Key,
                     kvp => Utils.ConvertJsonElementValue((JsonElement)kvp.Value));
 
-                var jsonFormData = JsonConvert.SerializeObject(convertedFormData);
 
-                var content = new StringContent(jsonFormData, Encoding.UTF8, "application/json");
-                var response = _httpClient.PostAsync(apiUrl, content).Result;
+                var response = _apiService.PostAsync(apiUrl, convertedFormData).Result;
 
                 return response.IsSuccessStatusCode
                     ? Ok(new { success = true, message = successMessage })
@@ -133,7 +131,7 @@ namespace PortalPOC.Controllers
         {
             try
             {
-                var response = await _httpClient.GetAsync(EndPoints.AdminGetCollection(tabName,modelName,Oid));
+                var response = await _apiService.GetAsync(EndPoints.AdminGetCollection(tabName, modelName, Oid));
                 return response.IsSuccessStatusCode
                    ? Ok(await response.Content.ReadAsStringAsync())
                    : StatusCode(500, new { success = false, message = "Internal Server Error" });
@@ -153,23 +151,19 @@ namespace PortalPOC.Controllers
                     return BadRequest("Invalid request parameters.");
                 }
 
+                var response = _apiService.PostAsync(EndPoints.AdminDeleteFromCollection, request).Result;
 
-                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = response.Content.ReadAsStringAsync().Result;
+                    var status = JsonConvert.DeserializeAnonymousType(result, new { status = "" });
+                    return Json(status);
+                }
+                else
+                {
+                    return BadRequest("Failed to delete rows.");
+                }
 
-              
-                    var response = _httpClient.PostAsync(EndPoints.AdminDeleteFromCollection, content).Result;
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var result = response.Content.ReadAsStringAsync().Result;
-                        var status = JsonConvert.DeserializeAnonymousType(result, new { status = "" });
-                        return Json(status);
-                    }
-                    else
-                    {
-                        return BadRequest("Failed to delete rows.");
-                    }
-                
             }
             catch (Exception ex)
             {

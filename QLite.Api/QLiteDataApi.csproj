@@ -38,7 +38,6 @@
 
   <ItemGroup>
     <Folder Include="Controllers\Kiosk\" />
-    <Folder Include="Controllers\Desk\" />
   </ItemGroup>
 
 </Project>

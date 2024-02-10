@@ -31,6 +31,7 @@ public partial class Account
 
     public string? Mail { get; set; }
 
+
     public byte[]? LogoS { get; set; }
 
     public int? OptimisticLockField { get; set; }

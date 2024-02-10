@@ -1,9 +1,12 @@
-﻿using System;
+﻿using QLite.Data.CustomAttribute;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace QLite.Data.ViewModels.Desk
 {
     internal class DeskViewModel
-    {   
+    {
+        [Required]
 
         public string? Name { get; set; }
 
@@ -12,6 +15,7 @@ namespace QLite.Data.ViewModels.Desk
         public string? Branch { get; set; }
 
         //public string? Pano { get; set; }
+        [Required]
 
         public string? DisplayNo { get; set; }
 
@@ -20,6 +24,7 @@ namespace QLite.Data.ViewModels.Desk
         public int? CurrentTicketNumber { get; set; }
 
         public DateTime? LastStateTime { get; set; }
+        [Boolean]
 
         public bool? Autocall { get; set; }
 

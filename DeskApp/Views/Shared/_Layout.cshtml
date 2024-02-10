@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="article" />
     <title>@ViewData["Title"] - DeskApp</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/DeskApp.styles.css" asp-append-version="true" />
@@ -13,17 +15,24 @@
     <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
     <link href="~/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
     <link href="~/css/style.bundle.css" rel="stylesheet" type="text/css" />
-    <link href="~/css/site.css" rel="stylesheet" type="text/css" />    <!--end::Global Stylesheets Bundle-->
+    <link href="~/css/site.css" rel="stylesheet" type="text/css" />
 
-    <script>
-        // Frame-busting to prevent site from being loaded within a frame without permission (click-jacking)
+    <link href="~/DataTables/DataTables-1.13.8/css/dataTables.bootstrap5.css" rel="stylesheet">
+    <link href="~/DataTables/datatables.css" rel="stylesheet">
+@*    <link href="~/lib/swal/sweetalert2.css" rel="stylesheet">
+*@@*    <script src="~/lib/popper.min.js"></script>
+*@
+    <!--end::Global Stylesheets Bundle-->
+
+   <script>
+        // Frame-busting to prevent the site from being loaded within a frame without permission (click-jacking)
         if (window.top != window.self) {
             window.top.location.replace(window.self.location.href);
         }
     </script>
 </head>
 <!--begin::Body-->
-<body id="kt_app_body" data-kt-app-header-fixed-mobile="true" data-kt-app-toolbar-enabled="true" class="app-default">
+<body id="kt_app_body" data-kt-app-header-fixed-mobile="true" data-kt-app-toolbar-enabled="false" class="app-default">
     @await Html.PartialAsync("partials/theme-mode/_init")
 
     <!--begin::App-->
@@ -75,22 +84,27 @@
     <!--begin::Modals-->
     <!--end::Modals-->
     <!--begin::Javascript-->
-    <script>
-        var hostUrl = "assets/";</script>
+   
     <!--begin::Global Javascript Bundle(mandatory for all pages)-->
     <script src="~/JQuery/jquery-3.7.1.js"></script>
 
     <script src="~/bootstrap/js/bootstrap.bundle.js"></script>
 
+    <script src="~/DataTables/datatables.js"></script>
 
     <script src="~/js/popper.min.js"></script>
-
+@* <script src="~/lib/swal/sweetalert2.all.js"></script>
+*@
     <script src="~/js/scripts.bundle.js"></script>
     <script src="~/js/site.js"></script>
+
+    <script src="~/js/TableMethods.js"></script>
+
     <!--end::Global Javascript Bundle-->
     <!--begin::Custom Javascript(used for this page only)-->
 
-    <script src="assets/js/custom/apps/chat/chat.js"></script>
+  
+    @await RenderSectionAsync("Scripts", required: false)
 
     <!--end::Custom Javascript-->
     <!--end::Javascript-->

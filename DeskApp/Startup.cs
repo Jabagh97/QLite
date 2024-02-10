@@ -29,7 +29,6 @@ namespace DeskApp
 
         public void ConfigureServices(IServiceCollection Services)
         {
-            Services.AddScoped<IApiService,ApiService>();
 
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -147,6 +146,12 @@ namespace DeskApp
             });
 
             Services.AddControllersWithViews();
+
+            Services.AddHttpClient();
+
+            Services.AddScoped<IApiService, ApiService>();
+
+
         }
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)

@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 
@@ -9,30 +10,33 @@ namespace QLite.Data.Services
 {
     public interface IApiService
     {
-        Task<T> GetAsync<T>(string endpoint);
-        Task<TResponse> PostAsync<TRequest, TResponse>(string endpoint, TRequest requestData);
+        Task<HttpResponseMessage> GetAsync(string endpoint);
+        Task<HttpResponseMessage> PostAsync<TRequest>(string endpoint, TRequest requestData);
     }
 
     public class ApiService : IApiService
     {
         private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
 
-        public ApiService(HttpClient httpClient)
+
+        public ApiService(HttpClient httpClient, IConfiguration configuration)
         {
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _httpClient = httpClient;
+            _configuration = configuration;
+
+            _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
         }
 
-        public async Task<T> GetAsync<T>(string endpoint)
+        public async Task<HttpResponseMessage> GetAsync(string endpoint)
         {
             var response = await _httpClient.GetAsync(endpoint);
             response.EnsureSuccessStatusCode(); // Ensure successful response
 
-            // Deserialize response content to specified type T
-            var responseData = await response.Content.ReadAsAsync<T>();
-            return responseData;
+            return response;
         }
 
-        public async Task<TResponse> PostAsync<TRequest, TResponse>(string endpoint, TRequest requestData)
+        public async Task<HttpResponseMessage> PostAsync<TRequest>(string endpoint, TRequest requestData)
         {
             // Serialize request data
             var content = new StringContent(JsonConvert.SerializeObject(requestData), Encoding.UTF8, "application/json");
@@ -41,9 +45,7 @@ namespace QLite.Data.Services
             var response = await _httpClient.PostAsync(endpoint, content);
             response.EnsureSuccessStatusCode(); // Ensure successful response
 
-            // Deserialize response content to specified type TResponse
-            var responseData = await response.Content.ReadAsAsync<TResponse>();
-            return responseData;
+            return response;
         }
     }
 }

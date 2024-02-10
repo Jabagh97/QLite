@@ -1,7 +1,11 @@
-﻿namespace QLite.Data.ViewModels.MacroRule
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace QLite.Data.ViewModels.MacroRule
 {
     public class MacroRuleViewModel
     {
+        [Required]
+
         public string? Macro { get; set; }
 
         public string? ServiceType { get; set; }

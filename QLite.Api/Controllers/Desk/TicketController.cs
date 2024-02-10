@@ -18,6 +18,7 @@ namespace QLiteDataApi.Controllers.Desk
         }
 
         [HttpGet]
+        [Route("api/Desk/GetWaitingTickets")]
         public IActionResult GetWaitingTickets()
         {
 

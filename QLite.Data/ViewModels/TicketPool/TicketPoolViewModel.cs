@@ -1,4 +1,6 @@
-﻿namespace QLite.Data.ViewModels.TicketPool
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace QLite.Data.ViewModels.TicketPool
 {
     internal class TicketPoolViewModel
     {
@@ -20,12 +22,18 @@
         //public string? KioskApplication { get; set; }
         public string? MaxWaitingTicketCount { get; set; }
 
+        [Required]
 
         public string? RangeStart { get; set; }
+        [Required]
+
         public string? RangeEnd { get; set; }
         public string? NotAvailable { get; set; }
+        [Required]
 
         public string? ServiceCode { get; set; }
+        [Required]
+
         public string? CopyNumber { get; set; }
 
         public string? ServiceStartTime { get; set; }

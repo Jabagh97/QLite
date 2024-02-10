@@ -1,4 +1,6 @@
-﻿namespace QLite.Data.ViewModels.KappSetting
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace QLite.Data.ViewModels.KappSetting
 {
     internal class KappSettingViewModel
     {
@@ -8,8 +10,10 @@
         public string? Branch { get; set; }
 
         public string? KioskApplication { get; set; }
+        [Required]
 
         public string? Parameter { get; set; }
+        [Required]
 
         public string? ParameterValue { get; set; }
 

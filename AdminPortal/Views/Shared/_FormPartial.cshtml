@@ -18,6 +18,9 @@
             var isIcon = viewModelProperty?.GetCustomAttribute<IconAttribute>() != null;
             var isRequired = viewModelProperty?.GetCustomAttribute<RequiredAttribute>() != null;
 
+            var isBoolean = viewModelProperty?.GetCustomAttribute<BooleanAttribute>() != null;
+
+
             @if (!isOidProperty && !(Model.Action == "Add" && isNonEditable))
             {
                 <div class="col-md-6 mb-6">
@@ -32,6 +35,7 @@
                             @if (isJsonInput) { RenderJsonInput(property, value); }
                             else if (isNonEditable) { RenderNonEditableInput(property, value); }
                             else if (isIcon) { RenderIconInput(property, value); }
+                            else if (isBoolean) { RenderCheckBoxInput(property, value); }
                             else
                             {
                                 @if (Model.DropDowns?.ContainsKey(property.Name) == true)
@@ -45,12 +49,12 @@
                                             if (property.Name.Equals("DeviceType"))
                                             {
                                                 isSelected = Model.FormData?.ContainsKey(propertyToLower) == true && item.VirtualComponentName.Equals(Model.FormData[propertyToLower]);
-                                                <option value="@item.Oid" selected="@isSelected">@item.VirtualComponentName</option>
+                                                <option value="@item.oid" selected="@isSelected">@item.VirtualComponentName</option>
                                             }
                                             else
                                             {
                                                 isSelected = Model.FormData?.ContainsKey(propertyToLower) == true && item.Name.Equals(Model.FormData[propertyToLower]);
-                                                <option value="@item.Oid" selected="@isSelected">@item.Name</option>
+                                                <option value="@item.oid" selected="@isSelected">@item.name</option>
                                             }
                                         }
                                     </select>
@@ -75,7 +79,11 @@
     <button type="button" id="submit" class="btn btn-bg-success mt-3">@((Model.Action == "Add" ? "Create" : "Save"))</button>
 </form>
 @functions {
+    void RenderCheckBoxInput(PropertyInfo property, string value)
+    {
+       <input type="checkbox" name="@property.Name" id="@property.Name" class="form-control" value="@value" />
 
+    }
 
     void RenderInput(PropertyInfo property, string value)
     {
