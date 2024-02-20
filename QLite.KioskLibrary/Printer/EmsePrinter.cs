@@ -2,7 +2,7 @@
 {
     using CoreHtmlToImage;
     using Microsoft.Extensions.Configuration;
-    using QLite.Dto;
+    using QLite.Data.Dtos;
     using QLite.Kio;
     using Quavis.QorchLite.Hwlib.Hardware;
     using System;
@@ -12,6 +12,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using static QLite.Data.Models.Enums;
 
     public class EmsePrinter: IPrinter
     {
@@ -67,7 +68,7 @@
         public void Initialize(object settings)
         {
             var prnSettings = settings as VCPrinterEmseSettings;
-           // LoggerAdapter.Debug("emsePrinter initialize");
+           // Log.Debug("emsePrinter initialize");
 
             var vid = "0x10C4";
             var pid = "0x82CD";
@@ -191,7 +192,7 @@
 
         public void Send(string html)
         {
-            //LoggerAdapter.Debug("emsequeprinter Send");
+            //Log.Debug("emsequeprinter Send");
 
 
             byte[] imgData;
@@ -204,7 +205,7 @@
             imgData = converter.FromHtmlString(html, width: 150, format: ImageFormat.Jpg);
 
 
-            //LoggerAdapter.Debug("emsequeprinter image created");
+            //Log.Debug("emsequeprinter image created");
             using (var ms = new MemoryStream(imgData))
             {
                 var bitmap = new Bitmap(ms);

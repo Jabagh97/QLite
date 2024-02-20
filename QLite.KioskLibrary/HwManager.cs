@@ -2,12 +2,13 @@
 using HidSharp;
 using HidSharp.Utility;
 using Microsoft.Extensions.Configuration;
-using QLite.Dto;
+using QLite.Data.CommonContext;
+using QLite.Data.Dtos;
 using QLite.Kio;
-using Quavis.QorchLite.Common;
 using Quavis.QorchLite.Hwlib.Display;
 using Quavis.QorchLite.Hwlib.Hardware;
 using Quavis.QorchLite.Hwlib.Printer;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
@@ -22,9 +23,9 @@ namespace Quavis.QorchLite.Hwlib
         ICallDevice _call;
         IHwHubContext _hc;
 
-        public HwManager()//(IHwHubContext hc)
+        public HwManager(IHwHubContext hc)
         {
-            //_hc = hc;
+            _hc = hc;
         }
 
 
@@ -33,13 +34,13 @@ namespace Quavis.QorchLite.Hwlib
             _printer.Send(html);
         }
 
-        //public void Display(QueNumData data)
-        //{
-        //    if (_display == null)
-        //        return;
+        public void Display(QueNumData data)
+        {
+            if (_display == null)
+                return;
 
-        //    _display.Send(data);
-        //}
+            _display.Send(data);
+        }
 
         void CreateDevices()
         {
@@ -47,7 +48,7 @@ namespace Quavis.QorchLite.Hwlib
             var printerSetting = CommonCtx.Config.GetSection("devices:printer");
             if (printerSetting.Exists())
             {
-                LoggerAdapter.Debug("creating printer device");
+                Log.Debug("creating printer device");
 
                 _printer = CommonCtx.Container.Resolve<IPrinter>();
 
@@ -60,15 +61,15 @@ namespace Quavis.QorchLite.Hwlib
                 if (_printer.Device is EmseUsbPrinterDevice prnRD)
                     prnRD.PrinterErrorEvent += Device_PrinterErrorEvent;
             }
-            else 
+            else
             {
-                LoggerAdapter.Warning("No printer device settings found");
+                Log.Warning("No printer device settings found");
             }
 
             var callSettings = CommonCtx.Config.GetSection("devices:call");
             if (callSettings.Exists())
             {
-                LoggerAdapter.Debug("creating call device");
+                Log.Debug("creating call device");
 
                 _call = CommonCtx.Container.Resolve<ICallDevice>();
 
@@ -78,13 +79,13 @@ namespace Quavis.QorchLite.Hwlib
                 RealDevices.Add(_call.Device);
             }
             else
-                LoggerAdapter.Warning("No call device settings found");
+                Log.Warning("No call device settings found");
 
 
             var dt = CommonCtx.Config.GetValue<string>("devices:display:DType", null);
             if (dt != null)
             {
-                LoggerAdapter.Debug("creating display device");
+                Log.Debug("creating display device");
 
                 _display = CommonCtx.Container.ResolveNamed<IDisplay>(dt);
                 var settings = CommonCtx.Config.GetSection("devices:display").Get(_display.SettingsType);
@@ -94,7 +95,7 @@ namespace Quavis.QorchLite.Hwlib
             }
             else
             {
-                LoggerAdapter.Warning("No display device settings found");
+                Log.Warning("No display device settings found");
             }
         }
 
@@ -103,9 +104,9 @@ namespace Quavis.QorchLite.Hwlib
             _hc.HwEvent(GetKioskHwStatus());
         }
 
-        public void InitHarware()
+        public void InitHardware()
         {
-            LoggerAdapter.Debug($"InitHardware");
+            Log.Debug($"InitHardware");
 
             CreateDevices();
             HidSharpDiagnostics.EnableTracing = true;
@@ -116,7 +117,7 @@ namespace Quavis.QorchLite.Hwlib
             var allDeviceList = list.GetAllDevices().ToList();
             foreach (var item in allDeviceList)
             {
-                LoggerAdapter.Info($"Devices fsName:{item.GetFileSystemName()} name:{item.DevicePath}");
+                Log.Debug($"Devices fsName:{item.GetFileSystemName()} name:{item.DevicePath}");
             }
 
             GetDeviceComStates();
@@ -188,17 +189,17 @@ namespace Quavis.QorchLite.Hwlib
 
         private void GetDeviceComStates()
         {
-            LoggerAdapter.Debug("RealDeviceComManager, Device list changed.");
+            Log.Debug("RealDeviceComManager, Device list changed.");
 
             var allSerials = list.GetSerialDevices().ToList();
             try
             {
-                LoggerAdapter.Debug("SerialDevices:" + string.Join(",", allSerials.Select(x => x.GetFriendlyName())));
-                LoggerAdapter.Debug("HIDDevices:" + string.Join(",", list.GetHidDevices().Select(x => x.GetFriendlyName())));
+                Log.Debug("SerialDevices:" + string.Join(",", allSerials.Select(x => x.GetFriendlyName())));
+                Log.Debug("HIDDevices:" + string.Join(",", list.GetHidDevices().Select(x => x.GetFriendlyName())));
             }
             catch (Exception ex)
             {
-                LoggerAdapter.Debug(ex.Message);
+                Log.Debug(ex.Message);
             }
 
             var searialPorts = SerialPort.GetPortNames();

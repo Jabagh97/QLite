@@ -1,3 +1,4 @@
+using Autofac.Core;
 using Microsoft.EntityFrameworkCore;
 using QLite.Data;
 using QLite.Data.Models.Auth;
@@ -6,6 +7,7 @@ using QLiteDataApi;
 using QLiteDataApi.Context;
 using QLiteDataApi.QueryFactory;
 using QLiteDataApi.Services;
+using QLiteDataApi.SignalR;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 
@@ -15,62 +17,53 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-
-        // AddDbContext
+        // Add services to the container.
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        // Add services to the container.
         builder.Services.AddScoped<IDataService, DataService>();
         builder.Services.AddScoped<IModelTypeMappingService, ModelTypeMappingService>();
         builder.Services.AddScoped<IQueryFactory, QueryFactory>();
 
         builder.Services.AddControllers();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddSignalR();
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowSpecificOrigin", builder =>
+            {
+                builder.WithOrigins("http://localhost:7227", "http://localhost:5144") // Replace with your actual origin
+                       .AllowAnyMethod()
+                       .AllowAnyHeader()
+                       .AllowCredentials();
+            });
+        });
 
         var app = builder.Build();
 
-
-        // Perform warm-up activities
-        using (var scope = app.Services.CreateScope())
-        {
-            var services = scope.ServiceProvider;
-            try
-            {
-                var dbContext = services.GetRequiredService<ApplicationDbContext>();
-                WarmUpEntity<Desk>(dbContext);
-
-                Console.WriteLine("Warming Up Done !!!");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("An error occurred during warm-up.");
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
 
-        //app.UseHttpsRedirection();
+        app.UseRouting(); // Add this line to use routing
 
         app.UseAuthorization();
 
+        app.UseCors("AllowSpecificOrigin"); // Apply CORS policy
+
         app.MapControllers();
 
-        //var siteDomain = builder.Configuration.GetValue<string>("SiteDomain");
-
-
-        //app.Run(siteDomain);
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+            endpoints.MapHub<CommunicationHub>("/communicationHub");
+        });
 
         app.Run();
-
     }
 
     private static void WarmUpEntity<TEntity>(ApplicationDbContext dbContext) where TEntity : class

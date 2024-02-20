@@ -40,8 +40,8 @@ namespace DeskApp.Controllers
             {
                 var response = await _apiService.GetAsync("api/Desk/GetWaitingTickets");
 
-                var x = await response.Content.ReadAsStringAsync();
-                return Ok();
+
+                return Ok(await response.Content.ReadAsStringAsync());
             }
             catch (Exception ex)
             {

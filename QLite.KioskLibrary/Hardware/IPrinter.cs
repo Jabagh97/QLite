@@ -1,4 +1,4 @@
-﻿using QLite.Dto;
+﻿using QLite.Data.Dtos;
 using Quavis.QorchLite.Hwlib.Call;
 using Quavis.QorchLite.Hwlib.Display;
 using Quavis.QorchLite.Hwlib.Hardware;

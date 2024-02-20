@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.12/signalr.min.js"></script>
+
+<script>
+
+
+
+    var huburl = 'http://localhost:7258/communicationHub/?branchId=1111&branchName=IST&clientType=Kiosk&clientName=$TestKIosk&clientId=666&eventId=Waiting;Waiting_T;Service;Park;Final'
+    var connection = new signalR.HubConnectionBuilder().withUrl(huburl).build();
+
+    connection.start().then(function () {
+        console.log("Connected to Communication Hub.");
+
+        sendMessageToDesk("Kiosk is Conncted")
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
+
+    function sendMessageToDesk(message) {
+        connection.invoke("SendMessageToDesk", message).catch(function (err) {
+            return console.error(err.toString());
+        });
+    }
+
+
+    // Define an endpoint to handle incoming messages from the server
+    connection.on("ReceiveMessage", function (message) {
+        // Process the received message here, e.g., update UI
+        console.log("Message received from server:", message);
+    });
+</script>

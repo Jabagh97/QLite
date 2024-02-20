@@ -122,16 +122,7 @@ namespace Quavis.QorchLite.Hwlib.Hardware
             return false;
         }
 
-        //public EnvironmentDevice GetDeviceData()
-        //{
-        //    return new EnvironmentDevice()
-        //    {
-        //        CurrentStateInfo = this.CurrentStateInfo,
-        //        Settings = this.GetSettings(),
-        //        Name = this.DisplayName,
-        //        OsIdInfo = this.Name
-        //    };            
-        //}
+       
 
         public virtual string Name => ""; //OsLevelUniq
         public virtual string DisplayName => "";

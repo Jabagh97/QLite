@@ -1,61 +1,68 @@
+using Autofac.Extensions.DependencyInjection;
+using KioskApp;
 using Quavis.QorchLite.Hwlib;
+using Serilog;
+using QLite.Data.CommonContext;
 
-internal class Program
+public class Program
 {
-    static CancellationTokenSource cts;
 
-    public static void Exit()
-    {
-        cts?.Cancel();
-    }
-
+   
     private static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
-
-        // Register your services
-        ConfigureServices(builder.Services);
-
-        var app = builder.Build();
-
-        Configure(app, builder.Environment);
-
-        cts = new CancellationTokenSource();
-        var t = app.RunAsync(cts.Token);
-
-        // Additional code if needed
-
-        t.Wait();
-    }
-
-    private static void ConfigureServices(IServiceCollection services)
-    {
-        // Add your services to the container
-        services.AddControllersWithViews();
-
-        services.AddScoped<HwManager>();
-
-
-        // Add any other services you may need
-    }
-
-    private static void Configure(WebApplication app, IWebHostEnvironment env)
-    {
-        // Configure the HTTP request pipeline
-        if (!env.IsDevelopment())
+        try
         {
-            // The default HSTS value is 30 days. You may want to change this for production scenarios.
-            app.UseHsts();
+            if (args.Length > 0)
+                CommonCtx.Env = args[0];
+
+
+            ConfigureLogger();
+
+            Log.Information("Kiosk App is starting... " + DateTime.Now.ToString());
+
+            var host = CreateHostBuilder(args).Build();
+
+           // CommonCtx.Container = host.Services.GetAutofacRoot();
+
+          
+
+
+            InitializeKioskHardware(host);
+            host.Run();
         }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Kiosk App terminated unexpectedly");
+        }
+    }
 
-        app.UseHttpsRedirection();
-        app.UseStaticFiles();
-        app.UseRouting();
+    private static void ConfigureLogger()
+    {
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.File(
+                path: "Logs/log-.txt",
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 10)
+            .CreateLogger();
+    }
 
-        app.MapControllerRoute(
-            name: "default",
-            pattern: "{controller}/{action=Index}/{id?}");
+    private static void InitializeKioskHardware(IHost host)
+    {
+        var configuration = host.Services.GetRequiredService<IConfiguration>();
+        CommonCtx.KioskHwId = configuration.GetValue<string>("KioskID");
 
-        app.MapFallbackToFile("index.html");
+      //  var hardwareManager = host.Services.GetRequiredService<HwManager>();
+      //  hardwareManager.InitHardware();
+    }
+
+
+    public static IHostBuilder CreateHostBuilder(string[] args)
+    {
+        return Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+                webBuilder.UseStaticWebAssets();
+            });
     }
 }

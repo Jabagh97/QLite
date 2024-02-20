@@ -8,6 +8,13 @@ namespace QLite.Data.Models
 {
     public class Enums
     {
+        public enum QLDevice
+        {
+            Printer = 0,
+            Display = 1,
+            Terminal = 2,
+        }
+
         public enum QorchErrorCodes
         {
             TicketPoolNotAvailable,
@@ -188,6 +195,75 @@ namespace QLite.Data.Models
             Desktop = 1,
             Mobile = 2,
             Physical = 3
+        }
+
+        public enum KappErrorCodes
+        {
+            ClientError,
+            ServerError,
+            UiTimeout,
+            PlatformDeviceNotFound,
+            WorkflowError,
+            CancelledByUser,
+            UnexpectedError,
+            DataPresentError,
+            EmergencyStop,
+            IntrusionSafety,
+            DeviceTimeout,
+            RetryCountExceed,
+            PrintError,
+            DataMissingError,
+            PlatformDirValError,
+            PlatformDirTimeoutError,
+            DeviceDirError,
+            NetworkError,
+            ServiceSqlAccessError,
+            DeserializingError,
+            HttpError,
+            DirValidationError,
+            CussAppProcessError,
+            UserNotAuthenticated,
+            NotFound,
+            GettingClientSecretError,
+            DbConnManError,
+            MissingConfig,
+            KioskNotFound,
+            WorkflowConfigError,
+            WfEvalError,
+            ServiceTypeNotFound,
+        }
+
+        public enum WebSocketClientType
+        {
+            Display,
+            MainDisplay,
+            Kiosk,
+            User
+        }
+
+        public enum SubStates
+        {
+            IdleStep,
+            Default,
+            EnableFromMediaOutput,
+            DisableFromMediaOutput,
+            OfferFromFeeder,
+
+        }
+
+        public enum PectabSettingsType
+        {
+            Pectab,
+            Template,
+            Logo,
+            DataStream
+        }
+
+        public enum KioskActivityStatus
+        {
+            Active,
+            Available,
+            UnAvailable
         }
     }
 

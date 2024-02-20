@@ -58,6 +58,11 @@
                         <!--begin::Content wrapper-->
                         <div class="d-flex flex-column flex-column-fluid">
 
+                            <div>
+                                <input type="text" id="messageInput" />
+                                <button id="sendButton">Send Message to Kiosk</button>
+                            </div>
+
                             @RenderBody()
 
                             
@@ -96,9 +101,11 @@
 @* <script src="~/lib/swal/sweetalert2.all.js"></script>
 *@
     <script src="~/js/scripts.bundle.js"></script>
-    <script src="~/js/site.js"></script>
 
     <script src="~/js/TableMethods.js"></script>
+    <script src="~/js/signalR.js"></script>
+
+    <script src="~/js/site.js"></script>
 
     <!--end::Global Javascript Bundle-->
     <!--begin::Custom Javascript(used for this page only)-->

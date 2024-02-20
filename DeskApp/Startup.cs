@@ -1,9 +1,7 @@
 ﻿using DeskApp.Helpers;
+using DeskApp.SignalR;
 using IdentityModel;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -34,6 +32,12 @@ namespace DeskApp
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
             var openIdConnectConfig = Configuration.GetSection("OpenIdConnect");
+
+            Services.AddSignalR(hubOptions =>
+            {
+                hubOptions.EnableDetailedErrors = true;
+                hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(20);
+            });
 
 
             Services.AddAuthentication(options =>
@@ -213,9 +217,14 @@ namespace DeskApp
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapDefaultControllerRoute();
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHub<DeskHub>("/deskHub");
             });
 
         }
+
+     
     }
 }

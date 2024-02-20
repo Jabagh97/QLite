@@ -1,6 +1,5 @@
 ﻿namespace Quavis.QorchLite.Hwlib.Printer
 {
-    using Quavis.QorchLite.Common;
     using System;
     using System.Collections.Generic;
     using System.Drawing;
@@ -10,7 +9,6 @@
 
     internal class EmsePrintUtil
     {
-        //EmseUsbPrinterDevice SingleDevice;
         public CuttingType CuttingType { get; set; }
         public PrinterMaxPixel PrinterMaxPixelValue { get; set; }
         private SortedList<PrinterMaxPixel, int> m_TicketImageMaxHeight = new SortedList<PrinterMaxPixel, int>() { { PrinterMaxPixel.Pixel448, 8776 }, { PrinterMaxPixel.Pixel640, 6144 } };
@@ -18,7 +16,6 @@
         public bool OnlyStretchIfMaxWidthExceeded { get; private set; }
         private byte[] bitmapData;
         private const int m_bmpHeaderSize = 53;
-        //private ConcurrentQueue<Bitmap> printJobs = new ConcurrentQueue<Bitmap>();
 
         EmseUsbPrinterDevice Device;
         public EmsePrintUtil(EmseUsbPrinterDevice rd, CuttingType ct, PrinterMaxPixel printerMaxPixelValue)
@@ -47,7 +44,7 @@
                 catch (Exception)
                 {
                     tryCount++;
-                   // LoggerAdapter.Debug("TryToPrint count:" + tryCount);
+                   // Log.Debug("TryToPrint count:" + tryCount);
 
                     if (tryCount == TryCount)
                         throw;
@@ -60,7 +57,7 @@
         public bool Print(Bitmap img)
         {
 
-            //LoggerAdapter.Debug("emsequeprintUtil print...");
+            //Log.Debug("emsequeprintUtil print...");
 
             try
             {
@@ -82,7 +79,7 @@
             }
             catch (Exception ex)
             {
-                //LoggerAdapter.Error(ex, "");
+                //Log.Error(ex, "");
                 throw;
             }
             return true;
@@ -174,7 +171,7 @@
                 ticketImage = ticketImage.Clone(new Rectangle(0, 0, ticketImage.Width, ticketImage.Height), PixelFormat.Format24bppRgb);
             }
 
-            //LoggerAdapter.Debug($"EmptyLineHeight: {emptyLineHeight} -- TicketImageWidth: {ticketImage.Width} -- TicketImagePixelFormat: {ticketImage.PixelFormat}");
+            //Log.Debug($"EmptyLineHeight: {emptyLineHeight} -- TicketImageWidth: {ticketImage.Width} -- TicketImagePixelFormat: {ticketImage.PixelFormat}");
 
             if (emptyLineHeight != 0 || (int)PrinterMaxPixelValue != ticketImage.Width || ticketImage.PixelFormat != PixelFormat.Format24bppRgb)
             {

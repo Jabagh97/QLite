@@ -1,5 +1,4 @@
 ﻿using HidSharp;
-using Quavis.QorchLite.Common;
 using Quavis.QorchLite.Hwlib.Hardware;
 using System;
 using System.Collections.Generic;
@@ -50,7 +49,7 @@ namespace Quavis.QorchLite.Hwlib.Printer
             }
             else if (connected == false)
             {
-                //LoggerAdapter.Warning($"print disconnected {vendorIdStr} {productIdStr}");
+                //Log.Warning($"print disconnected {vendorIdStr} {productIdStr}");
                 
                 DevStream?.Dispose();
                 DevStream = null;
@@ -164,7 +163,7 @@ namespace Quavis.QorchLite.Hwlib.Printer
                 }
                 catch (Exception ex)
                 {
-                    //LoggerAdapter.Error(ex, "");
+                    //Log.Error(ex, "");
                     return false;
                 }
 
