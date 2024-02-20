@@ -8,6 +8,14 @@ namespace QLite.Data.Models
 {
     public class Enums
     {
+
+        public enum KioskType
+        {
+            Kiosk = 0,
+            Display = 1,
+        }
+
+
         public enum QLDevice
         {
             Printer = 0,
