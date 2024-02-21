@@ -10,7 +10,7 @@ namespace QLite.Data.Services
 {
     public interface IApiService
     {
-        Task<HttpResponseMessage> GetAsync(string endpoint);
+        Task<HttpResponseMessage> GetAsync<TRequest>(string endpoint, TRequest requestData = default);
         Task<HttpResponseMessage> PostAsync<TRequest>(string endpoint, TRequest requestData);
     }
 
@@ -28,7 +28,7 @@ namespace QLite.Data.Services
             _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
         }
 
-        public async Task<HttpResponseMessage> GetAsync(string endpoint)
+        public async Task<HttpResponseMessage> GetAsync<TRequest>(string endpoint, TRequest requestData = default)
         {
             var response = await _httpClient.GetAsync(endpoint);
             response.EnsureSuccessStatusCode(); // Ensure successful response

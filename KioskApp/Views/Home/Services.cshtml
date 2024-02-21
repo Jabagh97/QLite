@@ -1,0 +1,16 @@
+﻿@using QLite.Data;
+@{
+    var services = ViewBag.Services as List<ServiceType>;
+}
+<div class="d-flex justify-content-center align-items-center h-100">
+    <div class="row">
+        @foreach (var service in services)
+        {
+                <div class="col-md-12 mb-3">
+                    <div class="text-center">
+                    <button class="btn btn-primary btn-lg" style="font-size: 2rem;" onclick="loadTicketView()">@service.Name</button>
+                    </div>
+                </div>
+        }
+    </div>
+</div>

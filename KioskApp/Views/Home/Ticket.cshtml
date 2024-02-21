@@ -1,5 +1,26 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿    <div id="ticket-container" style="position: relative;">
+        <div id="ticket-body" class="ticket-sliding">
+            <h1>Ticket Information</h1>
+            <p>Segment: </p>
+            <p>Service Type: </p>
+            <p>Ticket Number: </p>
+        </div>
+    </div>
+
+<script>
+    // Wait for the DOM to be fully loaded
+    $(document).ready(function () {
+        var body = document.getElementById("ticket-body");
+
+        // Apply the transition style to the ticket-body
+        body.style.transition = "transform 2s ease-in-out";
+
+        // Animate the ticket-body sliding up
+        body.style.transform = "translateY(+" + 1500 + "px)";
+
+        // After 2 seconds, redirect to the index page
+        setTimeout(function () {
+            window.location.href = '/';
+        }, 2000);
+    });
+</script>

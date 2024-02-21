@@ -1,5 +1,6 @@
 ﻿using AdminPortal.Constants;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.SqlServer.Server;
 using Newtonsoft.Json;
@@ -18,13 +19,19 @@ namespace PortalPOC.Controllers
     {
         private readonly IModelTypeMappingService _modelTypeMappingService;
         private readonly IDataTableRequestExtractor _requestExtractor;
-        private readonly IApiService _apiService;
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
 
-        public GenericTableController(IModelTypeMappingService modelTypeMappingService, IDataTableRequestExtractor requestExtractor, IApiService apiService)
+        public GenericTableController(IModelTypeMappingService modelTypeMappingService, IDataTableRequestExtractor requestExtractor, IConfiguration configuration, HttpClient httpClient)
         {
             _modelTypeMappingService = modelTypeMappingService;
             _requestExtractor = requestExtractor;
-            _apiService = apiService;
+
+            _configuration = configuration;
+
+            _httpClient = httpClient;
+
+            _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
         }
 
         public IActionResult Index(string modelName)
@@ -46,7 +53,7 @@ namespace PortalPOC.Controllers
             {
                 var parameters = _requestExtractor.ExtractParameters(Request.Form);
 
-                var response = await _apiService.GetAsync(EndPoints.AdminGetData(modelName, parameters.SearchValue, parameters.SortColumn, parameters.SortColumnDirection, parameters.Skip, parameters.PageSize));
+                var response = await _httpClient.GetAsync(EndPoints.AdminGetData(modelName, parameters.SearchValue, parameters.SortColumn, parameters.SortColumnDirection, parameters.Skip, parameters.PageSize));
                 return response.IsSuccessStatusCode
                     ? Ok(await response.Content.ReadAsStringAsync())
                     : StatusCode(500, new { success = false, message = "Internal Server Error" });
@@ -78,7 +85,7 @@ namespace PortalPOC.Controllers
                     return NotFound(Errors.NullModel);
                 }
 
-                var response = await _apiService.GetAsync(EndPoints.GetdropDowns(modelName));
+                var response = await _httpClient.GetAsync(EndPoints.GetdropDowns(modelName));
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -113,8 +120,10 @@ namespace PortalPOC.Controllers
                     kvp => kvp.Key,
                     kvp => Utils.ConvertJsonElementValue((JsonElement)kvp.Value));
 
+                var jsonFormData = JsonConvert.SerializeObject(convertedFormData);
 
-                var response = _apiService.PostAsync(apiUrl, convertedFormData).Result;
+                var content = new StringContent(jsonFormData, Encoding.UTF8, "application/json");
+                var response = _httpClient.PostAsync(apiUrl, content).Result;
 
                 return response.IsSuccessStatusCode
                     ? Ok(new { success = true, message = successMessage })
@@ -131,7 +140,7 @@ namespace PortalPOC.Controllers
         {
             try
             {
-                var response = await _apiService.GetAsync(EndPoints.AdminGetCollection(tabName, modelName, Oid));
+                var response = await _httpClient.GetAsync(EndPoints.AdminGetCollection(tabName, modelName, Oid));
                 return response.IsSuccessStatusCode
                    ? Ok(await response.Content.ReadAsStringAsync())
                    : StatusCode(500, new { success = false, message = "Internal Server Error" });
@@ -151,7 +160,11 @@ namespace PortalPOC.Controllers
                     return BadRequest("Invalid request parameters.");
                 }
 
-                var response = _apiService.PostAsync(EndPoints.AdminDeleteFromCollection, request).Result;
+
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+
+
+                var response = _httpClient.PostAsync(EndPoints.AdminDeleteFromCollection, content).Result;
 
                 if (response.IsSuccessStatusCode)
                 {

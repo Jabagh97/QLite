@@ -1,0 +1,17 @@
+﻿@using QLite.Data;
+@{
+    var segments = ViewBag.Segments as List<Segment>;
+}
+<div class="d-flex justify-content-center align-items-center h-100">
+    <div class="row">
+        @foreach (var segment in segments)
+        {
+            <div class="col-md-12 mb-3">
+                <div class="text-center">
+                    <button class="btn btn-primary btn-lg" style="font-size: 2rem;" onclick="loadServiceView('@segment.Oid')">@segment.Name</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
