@@ -151,25 +151,12 @@
                         <!--begin:Menu item-->
                         <div class="menu-item">
                             <!--begin:Menu link-->
-                            @* KIOSK APPLICATION *@
-                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="KioskApplication">
+                            @* KAPP SETTINGS *@
+                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="ServiceType">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Kiosk Application</span>
-                            </a>
-                        </div>
-                        <!--end:Menu item--
-
-                        ><!--begin:Menu item-->
-                        <div class="menu-item">
-                            <!--begin:Menu link-->
-                            @* KIOSK APPLICATION TYPE *@
-                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="KioskApplicationType">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Kiosk Application Type</span>
+                                <span class="menu-title">Service Types</span>
                             </a>
                             <!--end:Menu link-->
                         </div>
@@ -177,31 +164,32 @@
                         <!--begin:Menu item-->
                         <div class="menu-item">
                             <!--begin:Menu link-->
-                            @* KAPP WORKFLOW *@
-                            <a class="menu-link">
+                            @* KAPP SETTINGS *@
+                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="KioskApplication">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Kapp Workflow</span>
+                                <span class="menu-title">Kiosk Applications</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            @* KAPP SETTINGS *@
+                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="KioskApplicationType">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Kiosk Application Types</span>
                             </a>
                             <!--end:Menu link-->
                         </div>
                         <!--end:Menu item-->
                       
                         
-                        <!--begin:Menu item-->
-                        <div class="menu-item">
-                            <!--begin:Menu link-->
-                            @* RESOURCE *@
-                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="Design">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Design</span>
-                            </a>
-                            <!--end:Menu link-->
-                        </div>
-                        <!--end:Menu item-->
+                    
                         <!--end:Menu item-->
                         <!--begin:Menu item-->
                         <div class="menu-item">

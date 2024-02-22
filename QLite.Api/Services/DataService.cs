@@ -140,7 +140,7 @@ namespace QLiteDataApi.Services
         {
             var propertyName = relatedEntityType.Name switch
             {
-                Properties.DeviceType => Properties.VirtualComponentName,
+                Properties.KioskApplication => Properties.KappName,
                 _ => Properties.Name
             };
 

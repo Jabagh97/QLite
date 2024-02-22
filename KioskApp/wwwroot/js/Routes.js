@@ -31,11 +31,11 @@ function loadServiceView(segmentOid) {
     });
 }
 
-function loadTicketView(serviceOid) {
+function loadTicketView(ticket) {
     $.ajax({
         url: '/Ticket/Index',
         type: 'GET',
-        data: { ServiceOid: serviceOid },
+        data: { Ticket: ticket },
 
         success: function (response) {
             console.log("Ticket")
@@ -46,4 +46,46 @@ function loadTicketView(serviceOid) {
             console.error('Error:', error);
         }
     });
+}
+
+async function getHttpReq(url, data) {
+    let temp;
+
+    await $.ajax({
+        url: url,
+        type: 'Get',
+        data: data,
+        contentType: 'application/json; charset=utf-8',
+        async: true,
+        success: function (value) {
+            console.log(url + " response:" + JSON.stringify(value));
+            temp = value;
+            return temp;
+        },
+        error: async function (ex) {
+           
+        }
+    });
+    return temp;
+}
+
+async function postHttpReq(url, data) {
+    let temp;
+
+    await $.ajax({
+        url: url,
+        type: 'Post',
+        data: data,
+        contentType: 'application/json; charset=utf-8',
+        async: true,
+     
+        success: function (value) {
+            temp = value;
+            return temp;
+        },
+        error: async function (ex) {
+        
+        }
+    });
+    return temp;
 }

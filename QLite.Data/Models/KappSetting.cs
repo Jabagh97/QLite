@@ -1,7 +1,11 @@
-﻿using System;
+﻿using QLite.Data.CustomAttribute;
+using QLite.Data.ViewModels.KappSetting;
+using QLite.Data.ViewModels.KioskApplication;
+using System;
 using System.Collections.Generic;
 
 namespace QLite.Data;
+[ModelMapping(typeof(KappSetting), typeof(KappSettingViewModel))]
 
 public partial class KappSetting
 {

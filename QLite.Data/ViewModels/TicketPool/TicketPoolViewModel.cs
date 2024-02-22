@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using QLite.Data.CustomAttribute;
+using System.ComponentModel.DataAnnotations;
 
 namespace QLite.Data.ViewModels.TicketPool
 {
@@ -20,23 +21,28 @@ namespace QLite.Data.ViewModels.TicketPool
 
         public string? Segment { get; set; }
         //public string? KioskApplication { get; set; }
-        public string? MaxWaitingTicketCount { get; set; }
+        [Required]
+
+        public string MaxWaitingTicketCount { get; set; }
 
         [Required]
 
-        public string? RangeStart { get; set; }
+        public string RangeStart { get; set; }
         [Required]
 
-        public string? RangeEnd { get; set; }
-        public string? NotAvailable { get; set; }
+        public string RangeEnd { get; set; }
+
+        [Boolean]
+        public string NotAvailable { get; set; }
         [Required]
 
-        public string? ServiceCode { get; set; }
+        public string ServiceCode { get; set; }
         [Required]
 
-        public string? CopyNumber { get; set; }
-
+        public string CopyNumber { get; set; }
+        [DateAtrribute]
         public string? ServiceStartTime { get; set; }
+        [DateAtrribute]
         public string? ServiceEndTime { get; set; }
 
 

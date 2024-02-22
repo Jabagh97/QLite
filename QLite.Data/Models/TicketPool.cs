@@ -1,7 +1,11 @@
-﻿using System;
+﻿using QLite.Data.CustomAttribute;
+using QLite.Data.ViewModels.KappSetting;
+using QLite.Data.ViewModels.TicketPool;
+using System;
 using System.Collections.Generic;
 
 namespace QLite.Data;
+[ModelMapping(typeof(TicketPool), typeof(TicketPoolViewModel))]
 
 public partial class TicketPool
 {

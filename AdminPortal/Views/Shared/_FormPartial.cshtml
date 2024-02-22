@@ -20,6 +20,10 @@
 
             var isBoolean = viewModelProperty?.GetCustomAttribute<BooleanAttribute>() != null;
 
+            var isDate = viewModelProperty?.GetCustomAttribute<DateAtrribute>() != null;
+
+            string formDataValue = Model.FormData[propertyToLower] != null ? Model.FormData[propertyToLower] : "";
+
 
             @if (!isOidProperty && !(Model.Action == "Add" && isNonEditable))
             {
@@ -36,6 +40,8 @@
                             else if (isNonEditable) { RenderNonEditableInput(property, value); }
                             else if (isIcon) { RenderIconInput(property, value); }
                             else if (isBoolean) { RenderCheckBoxInput(property, value); }
+                            else if (isDate) { RenderDateInput(property, value); }
+
                             else
                             {
                                 @if (Model.DropDowns?.ContainsKey(property.Name) == true)
@@ -46,14 +52,15 @@
                                         @foreach (var item in Model.DropDowns[property.Name])
                                         {
                                             var isSelected = false;
-                                            if (property.Name.Equals("DeviceType"))
+                                            if (property.Name.Equals("KioskApplication"))
                                             {
-                                                isSelected = Model.FormData?.ContainsKey(propertyToLower) == true && item.VirtualComponentName.Equals(Model.FormData[propertyToLower]);
+                                                isSelected = Model.FormData?.ContainsKey(propertyToLower) == true && item.KappName.Equals(Model.FormData[propertyToLower]);
                                                 <option value="@item.oid" selected="@isSelected">@item.VirtualComponentName</option>
                                             }
                                             else
                                             {
-                                                isSelected = Model.FormData?.ContainsKey(propertyToLower) == true && item.Name.Equals(Model.FormData[propertyToLower]);
+                                                isSelected = Model.FormData?.ContainsKey(propertyToLower) == true &&
+                                                item.name.ToString().Trim('{', '}').Equals(formDataValue.Trim('"'));
                                                 <option value="@item.oid" selected="@isSelected">@item.name</option>
                                             }
                                         }
@@ -79,9 +86,17 @@
     <button type="button" id="submit" class="btn btn-bg-success mt-3">@((Model.Action == "Add" ? "Create" : "Save"))</button>
 </form>
 @functions {
+    void RenderDateInput(PropertyInfo property, string value)
+    {
+
+        <input type="datetime-local" name="@property.Name" id="@property.Name" class="form-control" value="@value" />
+
+
+    }
+
     void RenderCheckBoxInput(PropertyInfo property, string value)
     {
-       <input type="checkbox" name="@property.Name" id="@property.Name" class="form-control" value="@value" />
+        <input type="checkbox" name="@property.Name" id="@property.Name" class="form-control" value="@value" />
 
     }
 

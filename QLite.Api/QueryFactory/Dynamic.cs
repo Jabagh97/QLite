@@ -48,7 +48,7 @@ namespace QLiteDataApi.QueryFactory
             {
                 var propertyToJoin = property.Name switch
                 {
-                    Properties.DeviceTypeNavigation => Properties.VirtualComponentName,
+                    Properties.KioskApplication => Properties.KappName,
                     _ => Properties.Name
                 };
                 var navigationProperty = property.Name.Contains(Properties.Navigation)

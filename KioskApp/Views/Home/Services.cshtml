@@ -6,11 +6,22 @@
     <div class="row">
         @foreach (var service in services)
         {
-                <div class="col-md-12 mb-3">
-                    <div class="text-center">
-                    <button class="btn btn-primary btn-lg" style="font-size: 2rem;" onclick="loadTicketView()">@service.Name</button>
-                    </div>
+            <div class="col-md-12 mb-3">
+                <div class="text-center">
+                    <button class="btn btn-primary btn-lg" style="font-size: 2rem;" onclick="svcTypeSelected(@service.Oid)">@service.Name</button>
                 </div>
+            </div>
         }
     </div>
 </div>
+<script>
+    async function svcTypeSelected(svcTypeId) {
+       
+
+        let ticket = await postHttpReq('Service/GetTicket', JSON.stringify({ "TicketPoolId": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "ServiceTypeId": svcTypeId, "CustomerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6" }));
+
+
+        loadTicketView(ticket);
+    }
+
+</script>

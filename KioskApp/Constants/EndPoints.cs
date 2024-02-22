@@ -10,5 +10,11 @@
 
         public static string GetResources = "api/Kiosk/GetResources";
 
+        public static string GetTicket = "api/Kiosk/GetTicket";
+
+        public static string GetSegments = "api/Kiosk/GetSegments";
+
+
+
     }
 }

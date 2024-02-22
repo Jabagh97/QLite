@@ -1,28 +1,49 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using KioskApp.Constants;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using QLite.Data;
 
 namespace KioskApp.Controllers
 {
     public class SegmentController : Controller
     {
-        public IActionResult Index()
-        {
-            var segments = FetchSegmentsFromAPI(); 
-            ViewBag.Segments = segments;
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
 
-         
-            return PartialView("Views/Home/Segments.cshtml");
+        public SegmentController(HttpClient httpClient, IConfiguration configuration)
+        {
+            _httpClient = httpClient;
+            _configuration = configuration;
+
+            _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
         }
 
-        private List<Segment> FetchSegmentsFromAPI()
+        public async Task<IActionResult> Index()
         {
+            try
+            {
+                var segments = await FetchSegmentsFromAPIAsync();
 
-            return new List<Segment>
+                ViewBag.Segments = segments;
+
+                return PartialView("Views/Home/Segments.cshtml");
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception appropriately
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        private async Task<List<Segment>> FetchSegmentsFromAPIAsync()
         {
-            new Segment { Oid = new Guid() , Name = "Segment 1" },
-            new Segment { Oid = new Guid(), Name = "Segment 2" },
-            new Segment { Oid = new Guid(), Name = "Segment 3" },
-        };
+            var response = await _httpClient.GetAsync(EndPoints.GetSegments);
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+            var segments = JsonConvert.DeserializeObject<List<Segment>>(json);
+
+            return segments;
         }
     }
 }
