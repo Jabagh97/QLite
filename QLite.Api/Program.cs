@@ -25,6 +25,9 @@ internal class Program
         builder.Services.AddScoped<IModelTypeMappingService, ModelTypeMappingService>();
         builder.Services.AddScoped<IQueryFactory, QueryFactory>();
 
+        builder.Services.AddScoped<IKioskService, KioskService>();
+
+
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();

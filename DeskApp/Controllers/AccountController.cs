@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using DeskApp.Helpers;
 
 namespace Quavis.KioskAdmin.WebApp.Controllers
 {
@@ -18,7 +19,9 @@ namespace Quavis.KioskAdmin.WebApp.Controllers
 
         public async Task<IActionResult> Login()
         {
-            return View("Views/Home/Index.cshtml");
+            ViewBag.WaitingTickets = 0;
+
+            return RedirectToAction("Index", "Ticket");
 
         }
 

@@ -1,86 +1,72 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DeskApp.Helpers;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using QLite.Data;
 using QLite.Data.Services;
+using System.Data;
 
 namespace DeskApp.Controllers
 {
     public class TicketController : Controller
     {
-        private readonly IApiService _apiService;
-        public TicketController(IApiService apiService)
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
+
+        public TicketController(HttpClient httpClient, IConfiguration configuration)
         {
-            _apiService = apiService;
+            _httpClient = httpClient;
+            _configuration = configuration;
+            _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
         }
 
         public IActionResult Index()
-           => View("Views/Shared/layout/partials/_TicketContent.cshtml");
-
+        {
+            return View("Views/Shared/layout/partials/_TicketContent.cshtml");
+        }
 
         [HttpPost]
-        public async Task<IActionResult> CallTicket()
+        public IActionResult CallTicket()
+        {
+            // This method is not actually doing anything at the moment,
+            // consider adding implementation as needed.
+            return Ok();
+        }
+
+        private async Task<IActionResult> GetTickets(string endpoint, string ticketState)
         {
             try
             {
-                //var response = await _apiService.PostAsync("api/Desk/CallTicket");
+                var response = await _httpClient.GetAsync($"api/Desk/{endpoint}");
 
-                //var x = await response.Content.ReadAsStringAsync();
-                return Ok();
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    TicketResponse ticketResponse = JsonConvert.DeserializeObject<TicketResponse>(responseData);
+
+                    ViewBag.WaitingTickets = ticketResponse.recordsTotal;
+                    ViewData["TicketState"] = ticketState;
+
+                    return Ok(ticketResponse);
+                }
+                else
+                {
+                    return StatusCode((int)response.StatusCode, $"Failed to get {ticketState} tickets");
+                }
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
             }
-
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetWaitingTickets()
-        {
-            try
-            {
-                var response = await _apiService.GetAsync("api/Desk/GetWaitingTickets");
-
-
-                return Ok(await response.Content.ReadAsStringAsync());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
-            }
-
-        }
+        public Task<IActionResult> GetWaitingTickets() => GetTickets("GetWaitingTickets", "Waiting Tickets");
 
         [HttpGet]
-        public async Task<IActionResult> GetParkedTickets()
-        {
-            try
-            {
-                var response = await _apiService.GetAsync("api/Desk/GetParkedTickets");
+        public Task<IActionResult> GetParkedTickets() => GetTickets("GetParkedTickets", "Parked Tickets");
 
-
-                return Ok(await response.Content.ReadAsStringAsync());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
-            }
-
-        }
         [HttpGet]
-        public async Task<IActionResult> GetTransferedTickets()
-        {
-            try
-            {
-                var response = await _apiService.GetAsync("api/Desk/GetTransferedTickets");
-
-
-                return Ok(await response.Content.ReadAsStringAsync());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
-            }
-
-        }
+        public Task<IActionResult> GetTransferedTickets() => GetTickets("GetTransferedTickets", "Transfered Tickets");
     }
+
 }

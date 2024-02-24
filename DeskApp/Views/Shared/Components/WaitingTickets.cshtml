@@ -1,62 +1,78 @@
-﻿<div class="col-md-6 col-xl-12">
+﻿
+@{
+    var x = ViewData["TicketState"];
+}
+
+<div class="col-md-6 col-xl-12">
     <!--begin::Card-->
     <div class="card">
         <div class="card-body">
             <!--begin::Card toolbar-->
             <div class="d-flex justify-content-between align-items-center mb-5">
-                <h3 class="card-title mb-0">Waiting Tickets</h3>
-                <span class="badge badge-light-primary fw-bold px-4 py-2">0</span>
+                <h3 class="card-title mb-0" id="TableTitle"></h3>
             </div>
             <!--end::Card toolbar-->
             <!--begin::Tabs-->
             <div class="d-flex justify-content-between text-decoration-none p-2 mb-2 border-bottom waitinglist-tabs" style="overflow-x: auto;">
-                <div class="">
-                    <button id="Waiting" class="btn btn-primary position-relative waiting-ticket-btn active">
-                        <i class="fas fa-clock mr-1"></i> Waiting
-                    </button>
-                </div>
-                <div class="">
-                    <button id="Parked" class="btn btn-primary position-relative waiting-ticket-btn active">
-                        <i class="fas fa-parking mr-1"></i> Parked
-                    </button>
-                </div>
-                <div class="">
-                    <button id="Transfered" class="btn btn-primary position-relative waiting-ticket-btn active">
-                        <i class="fas fa-exchange-alt mr-1"></i> Transfered
-                    </button>
-                </div>
-            </div>
+    <div class="">
+                    <button id="Waiting" class="btn btn-primary position-relative waiting-ticket-btn active" onclick="fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets','WT')">
+            <i class="fas fa-clock mr-1"></i> Waiting
+        </button>
+    </div>
+    <div class="">
+        <button id="Parked" class="btn btn-primary position-relative waiting-ticket-btn active" onclick="fetchTickets('Ticket/GetParkedTickets', 'Parked Tickets','PT')">
+            <i class="fas fa-parking mr-1"></i> Parked
+        </button>
+    </div>
+    <div class="">
+        <button id="Transfered" class="btn btn-primary position-relative waiting-ticket-btn active" onclick="fetchTickets('Ticket/GetTransferedTickets', 'Transfered Tickets','TT')">
+            <i class="fas fa-exchange-alt mr-1"></i> Transfered
+        </button>
+    </div>
+</div>
+
+
             <!--end::Tabs-->
-            <div id="kt_app_content" class="app-content flex-column-fluid">
+            <div id="kt_app_content" class="app-content flex-column-fluid" style="padding-left :0px;padding-right:0px">
                 <div id="kt_app_content_container" class="app-container container-fluid">
                     <!--begin::Wrapper-->
                     <div class="d-flex flex-stack mb-5">
                         <!-- Your wrapper content goes here if needed -->
                     </div>
                     <!--end::Wrapper-->
-                    <!--begin::Datatable-->
-                    <div class="table-responsive" >
+                    <div class="col-xl-12">
 
-                        <table id="table" class="table " style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                            <thead>
-                                <tr class="fw-semibold fs-7 text-primary border-bottom border-gray-200 py-4">
-                                    <th>Ticket Number</th>
-                                    <th>Service</th>
-                                    <th>Segment </th>
-                                    <th>Action </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Your table body content goes here -->
-                            </tbody>
-                        </table>
+                        <div class="card shadow-sm">
+
+                            <div class="card-body">
+                                <!--begin::Datatable-->
+                                <div class="table-responsive">
+
+                                    <table id="table" class="table " style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                                        <thead>
+                                            <tr class="fw-semibold fs-7 text-primary border-bottom border-gray-200 py-4">
+                                                <th>Ticket Number</th>
+                                                <th>Service</th>
+                                                <th>Segment </th>
+                                                <th>Action </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Your table body content goes here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!--end::Datatable-->
+                            </div>
+
+                        </div>
                     </div>
 
-                    <!--end::Datatable-->
+
                 </div>
             </div>
         </div>
     </div>
     <!--end::Card-->
 </div>
-

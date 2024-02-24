@@ -1,5 +1,6 @@
 ﻿using IdentityServer4.Models;
 using Microsoft.AspNetCore.SignalR;
+using QLite.Data;
 using Serilog;
 
 namespace DeskApp.SignalR
@@ -31,6 +32,12 @@ namespace DeskApp.SignalR
             Console.WriteLine($"Message received from Kiosk App: {message}");
 
         }
+        public async Task NotifyTicketState(string state)
+        {
 
-    }
+            Console.WriteLine(state);
+        }
+
+
+        }
 }

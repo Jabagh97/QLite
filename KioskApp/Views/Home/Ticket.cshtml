@@ -1,19 +1,41 @@
-﻿    <div id="ticket-container" style="position: relative;">
-        <div id="ticket-body" class="ticket-sliding">
-            <h1>Ticket Information</h1>
-            <p>Segment: </p>
-            <p>Service Type: </p>
-            <p>Ticket Number: </p>
+﻿@using QLite.Data;
+@model Ticket
+
+
+<div id="ticket-body" class="card card-dashed">
+    <div class="card-header">
+        <div class="d-flex justify-content-center align-items-center mb-3">
+            <img src="~/media/logos/qlogo.png" class="img-fluid" style="max-height: 40px; object-fit: contain;">
         </div>
+        <h3 class="card-title"> @KioskIndexModel.GetLanguage("TicketInfo")</h3>
+
     </div>
+    <div class="card-body">
+        <div class="font-weight-bold text-center mb-3">@Model?.ServiceTypeName</div>
+        <div class="font-weight-bold text-center mb-3" style="font-size: 40px;"><b>@Model?.Number</b></div>
+        <div class="mb-3">
+            <table class="w-100">
+                <tr class="font-weight-bold">
+                    <td class="text-left pl-2">@DateTime.Now.ToString("dd/MM/yyyy")</td>
+                    <td class="text-right pr-2">@DateTime.Now.ToString("H:mm")</td>
+                </tr>
+            </table>
+        </div>
+           </div>
+    <div class="card-footer">
+        <div class="font-weight-bold text-center mb-3">
+            @KioskIndexModel.GetLanguage("numberOfWaiting") :
+        </div> 
+    </div>
+</div>
 
 <script>
     // Wait for the DOM to be fully loaded
     $(document).ready(function () {
         var body = document.getElementById("ticket-body");
 
-        // Apply the transition style to the ticket-body
-        body.style.transition = "transform 2s ease-in-out";
+         //Apply the transition style to the ticket-body
+        body.style.transition = "transform 4s ease-in-out";
 
         // Animate the ticket-body sliding up
         body.style.transform = "translateY(+" + 1500 + "px)";
@@ -21,6 +43,6 @@
         // After 2 seconds, redirect to the index page
         setTimeout(function () {
             window.location.href = '/';
-        }, 2000);
+        }, 1000000);
     });
 </script>

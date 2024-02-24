@@ -22,9 +22,12 @@
         <div class="d-flex align-items-stretch justify-content-between flex-lg-grow-1" id="kt_app_header_wrapper">
             @if (User != null && User.Identity != null && User.Identity.IsAuthenticated == true)
             {
-                @await Html.PartialAsync("layout/partials/header/_menu")
+                @* @await Html.PartialAsync("layout/partials/header/_menu")*@
+                <partial name="layout/partials/header/_menu" />
+
             }
-            @await Html.PartialAsync("layout/partials/header/_navbar")
+            @*@await Html.PartialAsync("layout/partials/header/_navbar")*@
+            <partial name="layout/partials/header/_navbar" />
 
 
         </div>

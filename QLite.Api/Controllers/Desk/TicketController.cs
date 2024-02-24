@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using QLite.CommonContext;
 using QLiteDataApi.Context;
+using QLiteDataApi.Services;
 using System.Drawing.Printing;
 using static QLite.Data.Models.Enums;
 
@@ -9,36 +10,17 @@ namespace QLiteDataApi.Controllers.Desk
 {
     public class TicketController : Controller
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IDeskService _deskService;
 
-        public TicketController(ApplicationDbContext dbContext)
+
+        public TicketController(IDeskService deskService)
         {
-            _dbContext = dbContext;
+            _deskService = deskService;
         }
 
         private IActionResult GetTicketsByState(TicketStateEnum state)
         {
-            var query = from t in _dbContext.Tickets
-                        join ts in _dbContext.TicketStates on t.Oid equals ts.Ticket
-                        join d in _dbContext.Desks on ts.Desk equals d.Oid into deskJoin
-                        from desk in deskJoin.DefaultIfEmpty()
-                        join tp in _dbContext.TicketPools on t.TicketPool equals tp.Oid into poolJoin
-                        from pool in poolJoin.DefaultIfEmpty()
-                        where t.ModifiedDate >= DateTime.UtcNow.AddHours(-8) &&
-                              t.CurrentState == (int)state &&
-                              t.Branch == UserContext.BranchId
-                        select new
-                        {
-                            Ticket = t,
-                            ServiceCode = pool.ServiceCode,
-                            TicketState = ts,
-                            DeskName = desk.Name
-                        };
-
-            var waitingTickets = query.ToList();
-
-            var recordsTotal = waitingTickets.Count;
-            var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = waitingTickets };
+           var jsonData = _deskService.GetTicketsByState(state);
 
             return Ok(jsonData);
         }
@@ -62,6 +44,16 @@ namespace QLiteDataApi.Controllers.Desk
         public IActionResult GetTransferedTickets()
         {
             return GetTicketsByState(TicketStateEnum.Waiting_T);
+        }
+
+        [HttpGet]
+        [Route("api/Desk/CallTicket")]
+        public IActionResult CallTicket(Guid DeskID, Guid ticketID, Guid user, Guid macroId)
+        {
+            var result = _deskService.CallTicket( DeskID,  ticketID,  user,  macroId);
+
+
+            return Ok(result);
         }
     }
 

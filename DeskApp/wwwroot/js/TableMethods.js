@@ -1,121 +1,81 @@
-﻿    // Initialize DataTable
-    var table = $('#table').DataTable({
-        serverSide: false,
-        paging: true,
-        filter: true,
-        columns: [
-            { data: 'TicketNumber' },
-            { data: 'Service' },
-            { data: 'Segment' },
-            {
-                data: null,
-                render: function (data, type, row) {
-                    return '<button class="btn btn-primary call-ticket" data-oid="' + data.Oid + '">+</button>';
-                }
+﻿// Initialize DataTable
+var table = $('#table').DataTable({
+    serverSide: false,
+    paging: true,
+    filter: true,
+    columns: [
+        { data: 'ticketNumber' },
+        { data: 'service' },
+        { data: 'segment' },
+        {
+            data: 'oid',
+            render: function (data) {
+                return `<button class="btn btn-primary call-ticket" data-oid="${data}">+</button>`;
             }
-        ]
+        }
+    ],
+    lengthMenu: [
+        [5, 10, 25, 50, 1000],
+        ['5 rows', '10 rows', '25 rows', '50 rows', 'Show all']
+    ],
+    pageLength: 5
+});
+
+// Function to fetch tickets by type
+function fetchTickets(url, title,id,justnumber) {
+    // Set the title text
+    $('#TableTitle').text(title);
+
+    $.ajax({
+        url: url,
+        type: 'GET',
+        success: function (response) {
+
+            var x = response.data.length;
+
+            // Update the waiting number
+            $('#' + id).text(response.data.length);
+            if (justnumber) { return }
+            // Clear existing rows
+            table.clear().draw();
+
+            // Add new rows from the received data
+            $.each(response.data, function (index, item) {
+                table.row.add({
+                    ticketNumber: item.ticketNumber,
+                    service: item.service,
+                    segment: item.segment,
+                    oid: item.oid
+                }).draw();
+            });
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+        }
     });
+}
 
-    // Function to fetch waiting tickets
-    function getWaitingTickets() {
-        $.ajax({
-            url: '/Ticket/GetWaitingTickets',
-            type: 'GET',
-            success: function (data) {
-                // Clear existing rows
-                table.clear().draw();
-                // Add new rows
-                $.each(data, function (index, item) {
-                    table.row.add({
-                        TicketNumber: item.TicketNumber,
-                        Service: item.Service,
-                        Segment: item.Segment,
-                        Oid: item.Oid
-                    }).draw();
-                });
-            },
-            error: function (xhr, status, error) {
-                console.error(xhr.responseText);
-            }
-        });
-    }
 
-    // Function to fetch parked tickets
-    function getParkedTickets() {
-        $.ajax({
-            url: '/Ticket/GetParkedTickets',
-            type: 'GET',
-            success: function (data) {
-                // Clear existing rows
-                table.clear().draw();
-                // Add new rows
-                $.each(data, function (index, item) {
-                    table.row.add({
-                        TicketNumber: item.TicketNumber,
-                        Service: item.Service,
-                        Segment: item.Segment,
-                        Oid: item.Oid
-                    }).draw();
-                });
-            },
-            error: function (xhr, status, error) {
-                console.error(xhr.responseText);
-            }
-        });
-    }
+fetchTickets('Ticket/GetParkedTickets', 'Parked Tickets', 'PT',true);
 
-    // Function to fetch transferred tickets
-    function getTransferedTickets() {
-        $.ajax({
-            url: '/Ticket/GetTransferedTickets',
-            type: 'GET',
-            success: function (data) {
-                // Clear existing rows
-                table.clear().draw();
-                // Add new rows
-                $.each(data, function (index, item) {
-                    table.row.add({
-                        TicketNumber: item.TicketNumber,
-                        Service: item.Service,
-                        Segment: item.Segment,
-                        Oid: item.Oid
-                    }).draw();
-                });
-            },
-            error: function (xhr, status, error) {
-                console.error(xhr.responseText);
-            }
-        });
-    }
+fetchTickets('Ticket/GetTransferedTickets', 'Transfered Tickets', 'TT',true);
 
-    // Initial load - Get waiting tickets
-    getWaitingTickets();
+fetchTickets('Ticket/GetWaitingTickets','Waiting Tickets','WT');
 
-    // Button click handlers
-    $('#Waiting').click(function () {
-        getWaitingTickets();
+
+
+// Call ticket button click handler
+$('#table').on('click', '.call-ticket', function () {
+    var oid = $(this).data('oid');
+    $.ajax({
+        url: '/Ticket/CallTicket',
+        type: 'POST',
+        data: { oid: oid },
+        success: function (data) {
+            // Handle success if needed
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+        }
     });
-
-    $('#Parked').click(function () {
-        getParkedTickets();
-    });
-
-    $('#Transfered').click(function () {
-        getTransferedTickets();
-    });
-
-    // Call ticket button click handler
-    $('#table').on('click', '.call-ticket', function () {
-        var oid = $(this).data('oid');
-        $.ajax({
-            url: '/Ticket/CallTicket',
-            type: 'POST',
-            data: { oid: oid },
-            success: function (data) {
-                // Handle success if needed
-            },
-            error: function (xhr, status, error) {
-                console.error(xhr.responseText);
-            }
-        });
-    });
+});

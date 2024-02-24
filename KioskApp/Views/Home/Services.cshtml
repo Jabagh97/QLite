@@ -8,7 +8,7 @@
         {
             <div class="col-md-12 mb-3">
                 <div class="text-center">
-                    <button class="btn btn-primary btn-lg" style="font-size: 2rem;" onclick="svcTypeSelected(@service.Oid)">@service.Name</button>
+                    <button class="btn btn-primary btn-lg" style="font-size: 2rem;" onclick="svcTypeSelected('@service.Oid')">@service.Name</button>
                 </div>
             </div>
         }
@@ -18,10 +18,11 @@
     async function svcTypeSelected(svcTypeId) {
        
 
-        let ticket = await postHttpReq('Service/GetTicket', JSON.stringify({ "TicketPoolId": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "ServiceTypeId": svcTypeId, "CustomerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6" }));
+        let ticket = await postHttpReq('Service/GetTicket', JSON.stringify({ "ServiceTypeId": svcTypeId}));
 
+        $('#content').html(ticket);
 
-        loadTicketView(ticket);
+        //loadTicketView(ticket);
     }
 
 </script>

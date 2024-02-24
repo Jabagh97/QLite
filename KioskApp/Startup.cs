@@ -9,6 +9,7 @@ using Serilog;
 using Microsoft.IdentityModel.Logging;
 using QLite.Data.CommonContext;
 using QLite.Kio;
+using QLite.Data;
 
 namespace KioskApp
 {
@@ -31,11 +32,15 @@ namespace KioskApp
                 hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(20);
             });
 
+            services.AddSession();
 
             services.AddControllersWithViews();
             services.AddHttpClient();
 
             services.AddScoped<IApiService, ApiService>();
+
+        
+
 
         }
 
@@ -66,7 +71,7 @@ namespace KioskApp
 
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseSession();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

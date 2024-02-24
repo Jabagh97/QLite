@@ -35,12 +35,11 @@ function loadTicketView(ticket) {
     $.ajax({
         url: '/Ticket/Index',
         type: 'GET',
-        data: { Ticket: ticket },
+        data: { ticketJson: JSON.stringify(ticket) }, 
 
         success: function (response) {
-            console.log("Ticket")
+            console.log("Ticket");
             $('#content').html(response);
-
         },
         error: function (error) {
             console.error('Error:', error);

@@ -1,4 +1,5 @@
-﻿using QLite.Data.CustomAttribute;
+﻿using NPoco;
+using QLite.Data.CustomAttribute;
 using QLite.Data.ViewModels.Resource;
 using QLite.Data.ViewModels.ServiceType;
 using System;
@@ -70,4 +71,6 @@ public partial class ServiceType
     public virtual ICollection<TicketState> TicketStates { get; } = new List<TicketState>();
 
     public virtual ICollection<Ticket> TicketToServiceTypeNavigations { get; } = new List<Ticket>();
+
+
 }

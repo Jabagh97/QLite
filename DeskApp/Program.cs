@@ -1,15 +1,5 @@
 ﻿using DeskApp;
-using DeskApp.Helpers;
-using IdentityModel;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Cryptography;
-using System.Text;
 
 internal class Program
 {

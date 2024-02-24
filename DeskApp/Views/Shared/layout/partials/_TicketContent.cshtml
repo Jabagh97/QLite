@@ -1,25 +1,40 @@
-﻿@if (User != null && User.Identity != null && User.Identity.IsAuthenticated == true)
+﻿@if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
 {
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-6">
-                @await Html.PartialAsync("Components/WaitingTickets")
-                </div>
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-12 mb-4">
-                        @await Html.PartialAsync("Components/MainPanel")
-                        </div>
-                        <div class="col-md-12 mb-4">
-                        @await Html.PartialAsync("Components/CompletedTickets")
-                        </div>
-                    </div>
-                </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                @*@await Html.PartialAsync("Components/WaitingTickets")*@
+                <partial name="Components/WaitingTickets" />
 
             </div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-12 mb-4">
+                        @*@await Html.PartialAsync("Components/MainPanel")*@
+                        <partial name="Components/MainPanel" />
+                    </div>
+                    <div class="col-md-12 mb-4">
+                        @*@await Html.PartialAsync("Components/CompletedTickets")*@
+                        <partial name="Components/CompletedTickets" />
+
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+    <script src="~/js/signalR.js"></script>
+    <script src="~/js/site.js"></script>
+
+    <script src="~/JQuery/jquery-3.7.1.js"></script>
+    <script src="~/DataTables/datatables.js"></script>
+    <script src="~/js/TableMethods.js"></script>
+
+    <script>
+        connectToHub("User", "123", "DeskGroup")
+    </script>
+
 }
 else
 {
-        <span> LogIn Please </span>
+    <span> Log in, please </span>
 }

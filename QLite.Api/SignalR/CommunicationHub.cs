@@ -1,5 +1,7 @@
 ﻿using IdentityServer4.Models;
 using Microsoft.AspNetCore.SignalR;
+using QLite.Data;
+using QLite.Data.Dtos;
 using Serilog;
 using static QLite.Data.Models.Enums;
 
@@ -21,18 +23,15 @@ namespace QLiteDataApi.SignalR
                 string clientId = Context.GetHttpContext().Request.Query["clientId"];
                 string clientType = Context.GetHttpContext().Request.Query["clientType"];
                 string clientName = Context.GetHttpContext().Request.Query["clientName"];
-                string branchId = Context.GetHttpContext().Request.Query["branchId"];
-                string branchName = Context.GetHttpContext().Request.Query["branchName"];
-                string eventId = Context.GetHttpContext().Request.Query["eventId"];
-
+             
                 if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientType) /*|| string.IsNullOrWhiteSpace(branchId)*/)
                 {
                     throw new ArgumentNullException("clientId or clientType or branchId");
                 }
 
-                Log.Debug($"ws connection with clientId:{clientId} clientType:{clientType} branchId:{branchId}");
+                Log.Debug($"ws connection with clientId:{clientId} clientType:{clientType}");
 
-                RegisterToGroups(clientId, clientType, clientName, branchId, branchName, eventId);
+                RegisterToGroups(clientId, clientType, clientName);
             }
             catch (Exception ex)
             {
@@ -43,7 +42,7 @@ namespace QLiteDataApi.SignalR
             return base.OnConnectedAsync();
         }
 
-        private void RegisterToGroups(string clientId, string clientType, string clientName, string branchId, string branchName, string eventId)
+        private void RegisterToGroups(string clientId, string clientType, string clientName)
         {
             if (string.IsNullOrEmpty(clientId))
                 return;
@@ -53,36 +52,13 @@ namespace QLiteDataApi.SignalR
             {
                 var groupId = WebSocketClientType.Display.ToString() + "_" + clientId;
                 Groups.AddToGroupAsync(Context.ConnectionId, groupId);
-                Log.Debug($"WSGROUP {clientType} {branchName}/{clientName} {clientId}, -> {groupId} ");
+                Log.Debug($"WSGROUP {clientType} /{clientName} {clientId}, -> {groupId} ");
             }
-            //else if (clientType == WebSocketClientType.MainDisplay.ToString())
-            //{
-            //    var mp = _kda.GetDisplay(clientId, true);
-            //    LoggerAdapter.Debug($"WSGROUP {clientType} {branchName}/{clientName} {clientId}");
-            //    foreach (var cp in mp.Children)
-            //    {
-            //        var groupId = WebSocketClientType.Display + "_" + cp.KioskId.ToString();
-            //        Groups.AddToGroupAsync(Context.ConnectionId, groupId);
-            //        LoggerAdapter.Debug($"-WSGROUP child disp no: {cp.DisplayNo}, desk:{cp.DeskName} -> {groupId} ");
-            //    }
-            //}
+           
             else if (clientType == WebSocketClientType.User.ToString())
             {
-                Groups.AddToGroupAsync(Context.ConnectionId, "ALL_" + branchId);
+                Groups.AddToGroupAsync(Context.ConnectionId, "ALL_" );
                 Groups.AddToGroupAsync(Context.ConnectionId, clientId);
-            }
-
-            if (!string.IsNullOrEmpty(eventId))
-            {
-                string[] events = eventId.Split(';');
-                foreach (var ev in events)
-                {
-                    string groupId = ev;
-                    if (!string.IsNullOrEmpty(branchId))
-                        groupId += "_" + branchId;
-
-                    Groups.AddToGroupAsync(Context.ConnectionId, groupId);
-                }
             }
         }
 
@@ -95,7 +71,7 @@ namespace QLiteDataApi.SignalR
         {
             await Clients.All.SendAsync("ReceiveMessage", message);
         }
-
+        
 
     }
 }

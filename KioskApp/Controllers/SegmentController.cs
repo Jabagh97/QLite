@@ -1,4 +1,5 @@
 ﻿using KioskApp.Constants;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using QLite.Data;
@@ -9,19 +10,25 @@ namespace KioskApp.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SegmentController(HttpClient httpClient, IConfiguration configuration)
+        public SegmentController(HttpClient httpClient, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
             _configuration = configuration;
 
             _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IActionResult> Index()
         {
             try
             {
+                ISession session = _httpContextAccessor.HttpContext.Session;
+
+                session.SetString("StartTime", DateTime.Now.ToString());
+
                 var segments = await FetchSegmentsFromAPIAsync();
 
                 ViewBag.Segments = segments;

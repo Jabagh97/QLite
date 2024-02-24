@@ -39,9 +39,11 @@
         </div>
         @if (User.Identity.IsAuthenticated)
         {
-            @await Html.PartialAsync("partials/menus/_user-account-menu")
+            @*@await Html.PartialAsync("partials/menus/_user-account-menu")*@
+            <partial name="partials/menus/_user-account-menu" />
 
-            
+
+
         }
         else
         {

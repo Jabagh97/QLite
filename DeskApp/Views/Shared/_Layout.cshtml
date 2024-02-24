@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="article" />
     <title>@ViewData["Title"] - DeskApp</title>
@@ -19,12 +19,12 @@
 
     <link href="~/DataTables/DataTables-1.13.8/css/dataTables.bootstrap5.css" rel="stylesheet">
     <link href="~/DataTables/datatables.css" rel="stylesheet">
-@*    <link href="~/lib/swal/sweetalert2.css" rel="stylesheet">
-*@@*    <script src="~/lib/popper.min.js"></script>
-*@
+        <link href="~/lib/swal/sweetalert2.css" rel="stylesheet">
+        <script src="~/js/popper.min.js"></script>
+    
     <!--end::Global Stylesheets Bundle-->
 
-   <script>
+    <script>
         // Frame-busting to prevent the site from being loaded within a frame without permission (click-jacking)
         if (window.top != window.self) {
             window.top.location.replace(window.self.location.href);
@@ -33,23 +33,25 @@
 </head>
 <!--begin::Body-->
 <body id="kt_app_body" data-kt-app-header-fixed-mobile="true" data-kt-app-toolbar-enabled="false" class="app-default">
-    @await Html.PartialAsync("partials/theme-mode/_init")
+    @*@await Html.PartialAsync("partials/theme-mode/_init")*@
+    <partial name="partials/theme-mode/_init" />
 
     <!--begin::App-->
     <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
         <!--begin::Page-->
         <div class="app-page  flex-column flex-column-fluid " id="kt_app_page">
-          
-                @await Html.PartialAsync("layout/partials/_header")
 
-            
+            @*@await Html.PartialAsync("layout/partials/_header")*@
+            <partial name="layout/partials/_header" />
+
+
 
             <!--begin::Wrapper-->
             <div class="app-wrapper  flex-column flex-row-fluid " id="kt_app_wrapper">
                 @if (User != null && User.Identity != null && User.Identity.IsAuthenticated == true)
                 {
-                    @await Html.PartialAsync("layout/partials/_hero")
-
+                    @*@await Html.PartialAsync("layout/partials/_hero")*@
+                    <partial name="layout/partials/_hero" />
                 }
                 <!--begin::Wrapper container-->
                 <div class="app-container  container-xxl ">
@@ -58,19 +60,18 @@
                         <!--begin::Content wrapper-->
                         <div class="d-flex flex-column flex-column-fluid">
 
-                            <div>
-                                <input type="text" id="messageInput" />
-                                <button id="sendButton">Send Message to Kiosk</button>
-                            </div>
+
 
                             @RenderBody()
 
-                            
+
                         </div>
                         <!--end::Content wrapper-->
                         @if (User != null && User.Identity != null && User.Identity.IsAuthenticated == true)
                         {
-                            @await Html.PartialAsync("layout/partials/_footer")
+                            @*@await Html.PartialAsync("layout/partials/_footer")*@
+                            <partial name="layout/partials/_footer" />
+
                         }
 
                     </div>
@@ -84,36 +85,33 @@
     </div>
     <!--end::App-->
     <!--layout-partial:partials/_drawers.html-->
-    @await Html.PartialAsync("partials/_scrolltop")
+    @*@await Html.PartialAsync("partials/_scrolltop")*@
+    <partial name="partials/_scrolltop" />
+
 
     <!--begin::Modals-->
     <!--end::Modals-->
     <!--begin::Javascript-->
-   
     <!--begin::Global Javascript Bundle(mandatory for all pages)-->
     <script src="~/JQuery/jquery-3.7.1.js"></script>
-
-    <script src="~/bootstrap/js/bootstrap.bundle.js"></script>
-
     <script src="~/DataTables/datatables.js"></script>
-
-    <script src="~/js/popper.min.js"></script>
-@* <script src="~/lib/swal/sweetalert2.all.js"></script>
-*@
+    <script src="~/bootstrap/js/bootstrap.bundle.js"></script>
     <script src="~/js/scripts.bundle.js"></script>
-
-    <script src="~/js/TableMethods.js"></script>
-    <script src="~/js/signalR.js"></script>
-
-    <script src="~/js/site.js"></script>
-
-    <!--end::Global Javascript Bundle-->
-    <!--begin::Custom Javascript(used for this page only)-->
-
   
+    <script src="~/js/popper.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
-    <!--end::Custom Javascript-->
+
+     <script src="~/lib/swal/sweetalert2.all.js"></script>
+    
+
+
+
+    <!--end::Global Javascript Bundle-->
+   
+    
+
+
     <!--end::Javascript-->
 </body>
 <!--end::Body-->

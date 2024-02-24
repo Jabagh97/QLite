@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace QLite.Data;
@@ -58,14 +59,18 @@ public partial class TicketState
     public int? Gcrecord { get; set; }
 
     public Guid? KioskAppId { get; set; }
-
+    [JsonIgnore]
     public virtual Branch? BranchNavigation { get; set; }
+    [JsonIgnore]
 
     public virtual Desk? DeskNavigation { get; set; }
+    [JsonIgnore]
 
     public virtual Segment? SegmentNavigation { get; set; }
+    [JsonIgnore]
 
     public virtual ServiceType? ServiceTypeNavigation { get; set; }
+    [JsonIgnore]
 
     public virtual Ticket? TicketNavigation { get; set; }
 }

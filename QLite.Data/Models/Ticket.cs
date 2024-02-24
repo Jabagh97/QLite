@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace QLite.Data;
@@ -70,20 +71,28 @@ public partial class Ticket
     public int? Gcrecord { get; set; }
 
     public Guid? CreatedByKiosk { get; set; }
+    [JsonIgnore]
 
     public virtual Branch? BranchNavigation { get; set; }
+    [JsonIgnore]
 
     public virtual Desk? CurrentDeskNavigation { get; set; }
+    [JsonIgnore]
 
     public virtual Desk? DeskNavigation { get; set; }
+    [JsonIgnore]
 
     public virtual Segment? SegmentNavigation { get; set; }
+    [JsonIgnore]
 
     public virtual ServiceType? ServiceTypeNavigation { get; set; }
+    [JsonIgnore]
 
     public virtual ICollection<TicketState> TicketStates { get; } = new List<TicketState>();
+    [JsonIgnore]
 
     public virtual Desk? ToDeskNavigation { get; set; }
+    [JsonIgnore]
 
     public virtual ServiceType? ToServiceTypeNavigation { get; set; }
 }

@@ -153,7 +153,6 @@ namespace DeskApp
 
             Services.AddHttpClient();
 
-            Services.AddScoped<IApiService, ApiService>();
 
 
         }
