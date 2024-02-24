@@ -7,12 +7,14 @@ namespace QLiteDataApi.Services
 {
     public interface IDeskService
     {
-        public object GetTicketsByState(TicketStateEnum state);
-        TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, Guid macroId, bool autocall = false);
+        object GetTicketsByState(TicketStateEnum state);
+        TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, bool autocall = false);
+        TicketState GetMyCurrentService(Guid DeskID);
+        TicketState EndCurrentService(Guid DeskID);
 
     }
 
-    public class DeskService: IDeskService
+    public class DeskService : IDeskService
     {
 
         private readonly ApplicationDbContext _context;
@@ -23,7 +25,7 @@ namespace QLiteDataApi.Services
         }
 
 
-        public object GetTicketsByState(TicketStateEnum state) 
+        public object GetTicketsByState(TicketStateEnum state)
         {
 
             var query = from t in _context.Tickets
@@ -45,11 +47,11 @@ namespace QLiteDataApi.Services
         }
 
 
-        public TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, Guid macroId, bool autocall = false)
+        public TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, bool autocall = false)
         {
 
             Desk? d = _context.Desks.Find(DeskID);
-            EndCurrentService(DeskID, ticketID);
+            EndCurrentService(DeskID);
 
             d.CurrentTicketNumber = null;
             d.LastStateTime = DateTime.Now;
@@ -80,8 +82,10 @@ namespace QLiteDataApi.Services
                 _context.Tickets.Update(t);
 
 
-                TicketState currentState = t.TicketStates.Last();
-                currentState.TicketOprValue = (int)TicketOprEnum.Call;
+                TicketState currentState = _context.TicketStates
+                    .Where(ts => ts.Ticket == ticketID)
+                    .OrderByDescending(ts => ts.ModifiedDate)
+                    .FirstOrDefault();
                 currentState.Desk = DeskID;
                 currentState.User = user;
                 currentState.EndTime = tm;
@@ -117,6 +121,8 @@ namespace QLiteDataApi.Services
 
 
                 svc.TicketNavigation = t;
+
+                _context.SaveChanges();
             }
 
 
@@ -124,7 +130,7 @@ namespace QLiteDataApi.Services
 
         }
 
-        public TicketState EndCurrentService(Guid DeskID, Guid ticketID)
+        public TicketState EndCurrentService(Guid DeskID)
         {
             TicketState current = GetMyCurrentService(DeskID);
 
@@ -178,6 +184,7 @@ namespace QLiteDataApi.Services
                 };
 
                 _context.TicketStates.Add(fin);
+
             }
             else
             {
@@ -199,11 +206,42 @@ namespace QLiteDataApi.Services
                            where tOpr.Desk == DeskID
                                && tOpr.TicketStateValue == (int)TicketStateEnum.Service
                                && tOpr.TicketOprValue == null
-                           select tOpr)
+                           select new TicketState
+                           {
+                               Oid = tOpr.Oid,
+                               CreatedBy = tOpr.CreatedBy,
+                               ModifiedBy = tOpr.ModifiedBy,
+                               CreatedDate = tOpr.CreatedDate,
+                               CreatedDateUtc = tOpr.CreatedDateUtc,
+                               ModifiedDate = tOpr.ModifiedDate,
+                               ModifiedDateUtc = tOpr.ModifiedDateUtc,
+                               Desk = tOpr.Desk,
+                               User = tOpr.User,
+                               Ticket = tOpr.Ticket,
+                               Branch = tOpr.Branch,
+                               TicketNumber = tOpr.TicketNumber,
+                               TicketStateValue = tOpr.TicketStateValue,
+                               TicketOprValue = tOpr.TicketOprValue,
+                               StartTime = tOpr.StartTime,
+                               EndTime = tOpr.EndTime,
+                               ServiceType = tOpr.ServiceType,
+                               Segment = tOpr.Segment,
+                               ServiceTypeName = tOpr.ServiceTypeName,
+                               SegmentName = tOpr.SegmentName,
+                               Macro = tOpr.Macro,
+                               CallingRuleDescription = tOpr.CallingRuleDescription,
+                               DeskAppType = tOpr.DeskAppType,
+                               TicketCallType = tOpr.TicketCallType,
+                               OptimisticLockField = tOpr.OptimisticLockField,
+                               Gcrecord = tOpr.Gcrecord,
+                               KioskAppId = tOpr.KioskAppId,
+                               TicketNavigation = t // Set TicketNavigation to t
+                           })
                           .SingleOrDefault();
 
             return current;
         }
+
 
         public Ticket GetTicket(Guid ticketId)
         {
@@ -218,5 +256,7 @@ namespace QLiteDataApi.Services
 
             return ticket;
         }
+
+
     }
 }

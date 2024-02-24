@@ -154,7 +154,7 @@ namespace DeskApp
             Services.AddHttpClient();
 
 
-
+            Services.AddHttpContextAccessor();
         }
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)

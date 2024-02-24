@@ -26,6 +26,7 @@ internal class Program
         builder.Services.AddScoped<IQueryFactory, QueryFactory>();
 
         builder.Services.AddScoped<IKioskService, KioskService>();
+        builder.Services.AddScoped<IDeskService, DeskService>();
 
 
         builder.Services.AddControllers();

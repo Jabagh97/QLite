@@ -1,4 +1,9 @@
-﻿@if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+﻿<div id="connectionError" class="alert alert-danger mb-4" style="display: none;" role="alert">
+    Server is currently down. Please wait while we try to reconnect...
+</div>
+
+<div id="content">
+@if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
 {
     <div class="container-fluid">
         <div class="row">
@@ -38,3 +43,4 @@ else
 {
     <span> Log in, please </span>
 }
+</div>
