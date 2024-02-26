@@ -53,6 +53,9 @@ function fetchTickets(url, title,id,justnumber) {
             console.error(xhr.responseText);
         }
     });
+
+    fetchCompletedTickets('Ticket/GetCompletedTickets');
+    updateMainPanel();
 }
 
 
@@ -64,21 +67,6 @@ fetchTickets('Ticket/GetWaitingTickets','Waiting Tickets','WT');
 
 
 
-// Call ticket button click handler
-$('#table').on('click', '.call-ticket', function () {
-    var oid = $(this).data('oid');
-    $.ajax({
-        url: '/Ticket/CallTicket',
-        type: 'POST',
-        data: { TicketID: oid },
-        success: function (data) {
-            // Handle success if needed
-        },
-        error: function (xhr, status, error) {
-            console.error(xhr.responseText);
-        }
-    });
-});
 
 
 var CompletedTable = $('#CompletedTable').DataTable({
@@ -143,7 +131,9 @@ function updateMainPanel()
         type: 'GET',
         success: function (response) {
 
-            $('#TNumber').text(response.ticketNumber);
+            $('#mainPanelContent').html(response);
+
+
 
         },
         error: function (xhr, status, error) {
@@ -161,12 +151,59 @@ function EndTicket()
         url: 'Ticket/EndTicket',
         type: 'GET',
         success: function (response) {
-
-          
-
+           
         },
         error: function (xhr, status, error) {
             console.error(xhr.responseText);
         }
     });
 }
+
+function ParkTicket(ticket) {
+
+    $.ajax({
+        url: 'Ticket/ParkTicket',
+        type: 'POST',
+        data: { TicketId: ticket },
+        success: function (response) {
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+        }
+    });
+}
+
+// Call ticket button click handler
+$('#table').on('click', '.call-ticket', function () {
+    var oid = $(this).data('oid');
+    $.ajax({
+        url: '/Ticket/CallTicket',
+        type: 'POST',
+        data: { TicketID: oid },
+        success: function (data) {
+            // Handle success if needed
+
+
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+        }
+    });
+});
+// Call ticket button click handler
+$('#CompletedTable').on('click', '.call-ticket', function () {
+    var oid = $(this).data('oid');
+    $.ajax({
+        url: '/Ticket/CallTicket',
+        type: 'POST',
+        data: { TicketID: oid },
+        success: function (data) {
+            // Handle success if needed
+
+
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+        }
+    });
+});

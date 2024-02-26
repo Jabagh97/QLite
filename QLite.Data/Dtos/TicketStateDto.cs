@@ -9,19 +9,19 @@ namespace QLite.Data.Dtos
 {
     public class TicketStateDto : KappBaseDto
     {
-        public string Branch { get; set; }
+        public Guid Branch { get; set; }
 
-        public string Ticket { get; set; }
+        public Guid Ticket { get; set; }
 
-        public string Desk { get; set; }
+        public Guid? Desk { get; set; }
 
-        public string User { get; set; }
+        public Guid? User { get; set; }
 
         public string DeskName { get; set; }
 
-        public string ServiceType { get; set; }
+        public Guid? ServiceType { get; set; }
 
-        public string Macro { get; set; }
+        public Guid? Macro { get; set; }
 
         public string DisplayNo { get; set; }
 
@@ -37,7 +37,7 @@ namespace QLite.Data.Dtos
 
         public TicketOprEnum? TicketOprValue { get; set; }
 
-        public string Segment { get; set; }
+        public Guid Segment { get; set; }
 
         public DateTime? StartTime { get; set; }
 
@@ -61,18 +61,17 @@ namespace QLite.Data.Dtos
 
         public string TotalDuration { get; set; }
 
-        public DeskAppType DeskAppType { get; set; }
 
         public TicketCallType? TicketCallType { get; set; }
+        public string ServiceCode
+        {
+            get;
+            set;
+        }
 
-        //[Ignore]
-        //public string EndTimeDisplay
-        //{
-        //    get
-        //    {
-        //        return EndTime == null ? "-" : EndTime.Value.TimeOfDay.ToString();
-        //    }
-        //}
+       
+
+      
 
     }
 

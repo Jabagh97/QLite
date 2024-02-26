@@ -20,7 +20,6 @@ namespace QLiteDataApi.Services
         Ticket GetNewTicket(TicketRequestDto req);
 
         List<ServiceType> GetServiceTypes(Guid segmentId);
-
         List<Segment> GetSegments();
 
     }
@@ -163,6 +162,8 @@ namespace QLiteDataApi.Services
                 LastOprTime = DateTime.Now,
                 CreatedDate = DateTime.Now,
                 CreatedDateUtc = DateTime.UtcNow,
+                ModifiedDate = DateTime.Now,
+                ModifiedDateUtc= DateTime.UtcNow,
                 TicketPool = ticketPool.Oid
             };
         }
@@ -196,20 +197,32 @@ namespace QLiteDataApi.Services
 
         public List<ServiceType> GetServiceTypes(Guid segmentId)
         {
-            var lst = (from st in _context.ServiceTypes
-                       join tp in _context.TicketPools on st.Oid equals tp.ServiceType
-                       where st.Gcrecord == null
-                       select st).ToList();
+            var currentTime = DateTime.Now.TimeOfDay;
+
+            var serviceTypes = _context.ServiceTypes
+        .Where(st => st.Gcrecord == null && st.Parent == null)
+        .Include(st => st.TicketPools)
+        .Where(st => st.TicketPools.Any(tp => tp.Segment == segmentId  &&
+                                               tp.NotAvailable != true ))
+        .OrderBy(st => st.SeqNo)
+        .ToList();
 
 
-            // TODO : Filter further based on time conditions in memory
-            //lst = lst.Where(x => x.ServiceStartTime.TimeOfDay < DateTime.Now.TimeOfDay &&
-            //                     x.ServiceEndTime.AddSeconds(-1).TimeOfDay > DateTime.Now.TimeOfDay &&
-            //                     !(x.BreakStartTime.TimeOfDay < DateTime.Now.TimeOfDay &&
-            //                     x.BreakEndTime.TimeOfDay > DateTime.Now.TimeOfDay)).ToList();
+            // Apply time-based filtering in memory
+            serviceTypes = serviceTypes.Where(st =>
+                st.TicketPools.All(tp =>
+                    tp.ServiceStartTime == null ||
+                    (tp.ServiceStartTime.Value.TimeOfDay < currentTime &&
+                     (tp.ServiceEndTime == null || tp.ServiceEndTime.Value.TimeOfDay > currentTime) &&
+                     (tp.BreakStartTime == null || !(tp.BreakStartTime.Value.TimeOfDay < currentTime && tp.BreakEndTime.Value.TimeOfDay > currentTime)))))
+                .ToList();
 
-            return lst;
+            return serviceTypes;
         }
+
+
+
+
         public List<Segment> GetSegments()
         {
             var segments = _context.Segments.Where(seg => seg.Gcrecord == null)
@@ -219,7 +232,7 @@ namespace QLiteDataApi.Services
         }
 
 
-     
+
 
 
     }

@@ -1,61 +1,81 @@
-﻿<div class="col-md-6 col-xl-12">
-    <!--begin::Card-->
-    <div class="card bg-light shadow-sm">
-        <div class="card-header">
-            <h3 class="card-title">Main Panel</h3>
-            <div class="card-toolbar">
-                <ul class="nav nav-tabs">
-                    <li class="nav-item">
-                        <button class="nav-link" data-toggle="tab">
-                            <i class="fas fa-phone"></i>
-                            AutoCall
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" data-toggle="tab">
-                            <i class="fas fa-plus"></i>
-                            Create Ticket
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" data-toggle="tab">
-                            <i class="fas fa-bell"></i>
-                            Busy
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" data-toggle="tab">
-                            <i class="fas fa-coffee"></i>
-                            Coffee Break
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-       <div class="card-body card-scroll h-200px">
-    <h4>Ticket State Information</h4>
-    
-       <h3 id="TNumber"></h3>
-  
-</div>
+﻿@using QLite.Data;
+@model TicketState
 
-        <div class="card-footer">
-            <button class="btn btn-secondary btn-md">
-                <i class="fas fa-phone"></i> Call Ticket
-            </button>
-            <button class="btn btn-secondary btn-md">
-                <i class="fas fa-exchange-alt"></i> Transfer Ticket
-            </button>
-            <button class="btn btn-secondary btn-md">
-                <i class="fas fa-parking"></i> Park Ticket
-            </button>
-            <button class="btn btn-secondary btn-md" onclick="EndTicket()">
-                <i class="fas fa-times"></i> End Ticket
-            </button>
-            <button class="btn btn-secondary btn-md" >
-                <i class="fas fa-pause"></i> Pause/Hold Ticket
-            </button>
+<div id="mainPanelContent">
+    <div class="col-md-6 col-xl-12">
+        <!--begin::Card-->
+        <div class="card bg-light shadow-sm">
+            <div class="card-header">
+                <h3 class="card-title">Main Panel</h3>
+                <div class="card-toolbar">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <button class="nav-link" data-toggle="tab">
+                                <i class="fas fa-phone"></i>
+                                AutoCall
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-toggle="tab">
+                                <i class="fas fa-plus"></i>
+                                Create Ticket
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-toggle="tab">
+                                <i class="fas fa-bell"></i>
+                                Busy
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-toggle="tab">
+                                <i class="fas fa-coffee"></i>
+                                Coffee Break
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body card-scroll h-200px">
+                <h4>Ticket State Information</h4>
+                @if (Model != null)
+                {
+                    <h3>Ticket Number : @Model.TicketNumber</h3>
+
+                    <h3>Service Type  : @Model.ServiceTypeName</h3>
+                    <h3>Segment       : @Model.SegmentName</h3>
+
+                    <h3>Note          : </h3>
+
+
+                }
+                else
+                {
+                    <p>No ticket in progress</p>
+                }
+
+            </div>
+            @if (Model != null)
+            {
+                <div class="card-footer">
+                    <button class="btn btn-secondary btn-md">
+                        <i class="fas fa-phone"></i> Call Ticket
+                    </button>
+                    <button class="btn btn-secondary btn-md">
+                        <i class="fas fa-exchange-alt"></i> Transfer Ticket
+                    </button>
+                    <button class="btn btn-secondary btn-md" onclick="ParkTicket('@Model.Ticket')">
+                        <i class="fas fa-parking"></i> Park Ticket
+                    </button>
+                    <button class="btn btn-secondary btn-md" onclick="EndTicket()">
+                        <i class="fas fa-times"></i> End Ticket
+                    </button>
+                    <button class="btn btn-secondary btn-md">
+                        <i class="fas fa-pause"></i> Pause/Hold Ticket
+                    </button>
+                </div>
+            }
         </div>
+        <!--end::Card-->
     </div>
-    <!--end::Card-->
 </div>

@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QLite.Data;
+using QLite.Data.Dtos;
+using QLite.Data.Models;
 using QLiteDataApi.Context;
 using static QLite.Data.Models.Enums;
 
@@ -11,6 +13,11 @@ namespace QLiteDataApi.Services
         TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, bool autocall = false);
         TicketState GetMyCurrentService(Guid DeskID);
         TicketState EndCurrentService(Guid DeskID);
+        int GetTicketDuration(Guid ticketid);
+        public TicketState TransferOperation(TransferTicketDto transferTicketDto);
+
+        public TicketState ParkOperation(ParkTicketDto parkTicketDto);
+
 
     }
 
@@ -28,14 +35,17 @@ namespace QLiteDataApi.Services
         public object GetTicketsByState(TicketStateEnum state)
         {
 
+            //TODO: Filter By Desk
             var query = from t in _context.Tickets
-                        where t.CurrentState == (int)state
+                        where t.CurrentState == (int)state && t.ModifiedDate >= DateTime.UtcNow.AddMinutes(-480)
+                        join tp in _context.TicketPools on t.TicketPool equals tp.Oid into tpJoin
+                        from tp in tpJoin.DefaultIfEmpty() 
                         select new
                         {
-                            TicketNumber = t.Number,
+                            TicketNumber =  tp.ServiceCode + t.Number,
                             Service = t.ServiceTypeName,
                             Segment = t.SegmentName,
-                            Oid = t.Oid
+                            Oid = t.Oid,
                         };
 
             var waitingTickets = query.ToList();
@@ -45,6 +55,7 @@ namespace QLiteDataApi.Services
 
             return jsonData;
         }
+
 
 
         public TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, bool autocall = false)
@@ -59,6 +70,8 @@ namespace QLiteDataApi.Services
             Ticket t;
             TicketState svc = null;
             if (ticketID == null)
+
+                //TODO: AutoCall
                 //t = FindTicketToCall(branchId, macroId);
 
                 t = null;
@@ -89,6 +102,8 @@ namespace QLiteDataApi.Services
                 currentState.Desk = DeskID;
                 currentState.User = user;
                 currentState.EndTime = tm;
+                currentState.ModifiedDate= DateTime.Now;
+                currentState.ModifiedDateUtc= DateTime.UtcNow;
 
                 _context.TicketStates.Update(currentState);
 
@@ -113,6 +128,7 @@ namespace QLiteDataApi.Services
                     // Macro = t.StateObj.Macro,
                     // MacroObj = t.StateObj.MacroObj,
                     TicketCallType = (int?)(autocall ? TicketCallType.Autocall : ticketID == Guid.Empty ? TicketCallType.Definitive : TicketCallType.Normal)
+
                 };
 
                 if (autocall)
@@ -151,7 +167,8 @@ namespace QLiteDataApi.Services
                     currentTicket.LastOprTime = t;
                     currentTicket.LastOpr = (int)TicketOprEnum.ServiceEnd;
                     currentTicket.CurrentState = (int)TicketStateEnum.Final;
-
+                    currentTicket.ModifiedDate = DateTime.Now;
+                    currentTicket.ModifiedDateUtc = DateTime.UtcNow;
                     // Update the Ticket entity
                     _context.Tickets.Update(currentTicket);
                 }
@@ -257,6 +274,85 @@ namespace QLiteDataApi.Services
             return ticket;
         }
 
+        public int GetTicketDuration(Guid ticketId)
+        {
+            int duration = 1;
 
+            return duration;
+        }
+
+        public TicketState ParkOperation(ParkTicketDto parkTicketDto)
+        {
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                Ticket parkTicket = GetTicket(parkTicketDto.TicketId);
+
+                if (parkTicket.CurrentState != (int)Enums.TicketStateEnum.Service)
+                    throw new Exception("Park Operation is not allowed for this ticket");
+
+                DateTime currentTime = DateTime.Now;
+
+
+                TicketState svc = _context.TicketStates
+                   .Where(ts => ts.Ticket == parkTicket.Oid)
+                   .OrderByDescending(ts => ts.ModifiedDate)
+                   .FirstOrDefault();
+
+                svc.EndTime = currentTime;
+                svc.TicketOprValue = (int)TicketOprEnum.Park;
+                _context.TicketStates.Update(svc);
+
+                parkTicket.CurrentState = (int)TicketStateEnum.Park;
+                parkTicket.LastOpr = (int)TicketOprEnum.Park;
+                parkTicket.LastOprTime = currentTime;
+                parkTicket.TicketNote = parkTicketDto.TicketNote;
+
+                // Set CurrentDesk to null if necessary
+                // parkTicket.CurrentDesk = null;
+
+                _context.Tickets.Update(parkTicket);
+
+                Desk desk = _context.Desks.SingleOrDefault(d => d.Oid == parkTicketDto.DeskID);
+
+
+                TicketState parkTicketOpr = new TicketState
+                {
+                    //User = QorchUserContext.UserId,
+                    Desk = desk.Oid,
+                    Oid = Guid.NewGuid(),
+                    Ticket = parkTicket.Oid,
+                    TicketStateValue = (int)TicketStateEnum.Park,
+                    StartTime = currentTime,
+                    ServiceType = parkTicket.ToServiceType == Guid.Empty ? svc.ServiceType : parkTicket.ToServiceType,
+                    ServiceTypeName = string.IsNullOrEmpty(parkTicket.ServiceTypeName) ? svc.ServiceTypeName : parkTicket.ServiceTypeName,
+                    Segment = parkTicket.Segment,
+                    SegmentName = parkTicket.SegmentName,
+                    //Branch = QorchUserContext.BranchId.Value,
+                    //Macro = parkTicket.StateObj.Macro,
+                    //MacroObj = parkTicket.StateObj.MacroObj,
+                    TicketNumber = parkTicket.Number,
+                    //ServiceCode = parkTicket.ServiceCode
+                };
+                _context.TicketStates.Add(parkTicketOpr);
+                parkTicketOpr.TicketNavigation = parkTicket;
+
+                if (desk != null)
+                {
+                    desk.CurrentTicketNumber = null;
+                    desk.LastStateTime = DateTime.Now;
+                    _context.Desks.Update(desk);
+                }
+
+                _context.SaveChanges();
+                transaction.Commit();
+
+                return parkTicketOpr;
+            }
+        }
+
+        public TicketState TransferOperation(TransferTicketDto transferTicketDto)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

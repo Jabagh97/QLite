@@ -57,28 +57,30 @@
             //TODO: Handle Ticket Update in a better way 
 
             switch (ticketStateValue) {
-                case 0:
+                case 0://waiting
                     fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
                     state = 'in Waiting List ';
+                    showPopup(state, messageObject.TicketNumber, messageObject.SegmentName, messageObject.ServiceTypeName)
                     break;
-                case 1:
+                case 1://transfer
                     fetchTickets('Ticket/GetTransferedTickets', 'Transfered Tickets', 'TT');
                     state = 'Transfered';
+                    showPopup(state, messageObject.TicketNumber, messageObject.SegmentName, messageObject.ServiceTypeName)
 
-                case 2:
+
+                case 2://service
                     fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
                     updateMainPanel();
 
 
                     break;
-                case 3:
+                case 3://park
                     fetchTickets('Ticket/GetParkedTickets', 'Parked Tickets', 'PT');
                     state = 'Parked';
 
-                case 4:
+                case 4://done
                     fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
-                    fetchCompletedTickets('Ticket/GetCompletedTickets');
-                    updateMainPanel();
+                    
 
 
                     break;
@@ -90,22 +92,6 @@
             }
 
             // Show a notification using SweetAlert
-            Swal.fire({
-                position: 'top-end',
-                icon: 'info', // Set icon to "info"
-                title: '<span style="font-size: 20px;">New Ticket</span>',
-                html: `
-        <div style="font-size: 16px; line-height: 1.5;">
-            New ticket ${state}:<br>
-            Number: ${messageObject.TicketNumber}<br>
-            Segment: ${messageObject.SegmentName}<br>
-            Service: ${messageObject.ServiceTypeName}
-        </div>
-    `,
-                showConfirmButton: false,
-                timer: 3000, // 3 seconds
-                backdrop: false // Disable backdrop
-            });
 
         } catch (error) {
             console.error("Error processing NotifyTicketState message:", error);
@@ -113,5 +99,28 @@
     });
 
     connection.onclose(startConnection);
+
+}
+
+
+function showPopup(state, TicketNumber, SegmentName, ServiceTypeName)
+{
+
+    Swal.fire({
+        position: 'top-end',
+        icon: 'info', 
+        title: '<span style="font-size: 20px;">New Ticket state</span>',
+        html: `
+        <div style="font-size: 16px; line-height: 1.5;">
+            New ticket ${state}:<br>
+            Number: ${TicketNumber}<br>
+            Segment: ${SegmentName}<br>
+            Service: ${ServiceTypeName}
+        </div>
+    `,
+        showConfirmButton: false,
+        timer: 3000, // 3 seconds
+        backdrop: false // Disable backdrop
+    });
 
 }

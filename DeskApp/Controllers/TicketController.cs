@@ -1,11 +1,16 @@
 ﻿using DeskApp.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using QLite.Data;
+using QLite.Data.Dtos;
 using QLite.Data.Services;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Net.Http;
 using System.Security.Claims;
+using System.Text;
 
 namespace DeskApp.Controllers
 {
@@ -114,7 +119,10 @@ namespace DeskApp.Controllers
                     var responseData = await response.Content.ReadAsStringAsync();
                     TicketState ticketResponse = JsonConvert.DeserializeObject<TicketState>(responseData);
 
-                    return Ok(ticketResponse);
+
+                     return PartialView("Components/MainPanel", ticketResponse);
+                   // return ViewComponent("Components/MainPanel", ticketResponse);
+                    // return Ok(ticketResponse);
                 }
                 else
                 {
@@ -149,6 +157,40 @@ namespace DeskApp.Controllers
             {
                 return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ParkTicket([Required] ParkTicketDto parkTicket)
+
+        {
+            try
+            {
+                Guid deskId;
+
+                Guid.TryParse("D07426D4-C92A-46E4-AD29-26F4CB1111B1", out deskId);
+                parkTicket.DeskID = deskId;
+                parkTicket.TicketNote = "TEST";
+
+                var content = new StringContent(JsonConvert.SerializeObject(parkTicket), Encoding.UTF8, "application/json");
+
+
+                var response = await _httpClient.PostAsync($"api/Desk/ParkTicket", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                  
+                    return Ok();
+                }
+                else
+                {
+                    return StatusCode((int)response.StatusCode, $"Failed to call ticket");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
+            }
+
         }
 
     }

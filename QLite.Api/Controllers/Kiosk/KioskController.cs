@@ -57,14 +57,12 @@ namespace QLiteDataApi.Controllers.Kiosk
 
         [HttpGet]
         [Route("api/Kiosk/GetServiceTypeList")]
-        public IActionResult GetServiceTypeList(Guid segmentId)
+        public  IActionResult GetServiceTypeList(Guid segmentId)
         {
+            var ServiceList =  _KioskService.GetServiceTypes(segmentId);
+            string serializedList = JsonConvert.SerializeObject(ServiceList);
 
-            var ServiceList = _KioskService.GetServiceTypes(segmentId);
-
-
-            return Ok(ServiceList);
-
+            return Ok(serializedList);
         }
 
         [HttpGet]

@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using QLite.CommonContext;
 using QLite.Data;
+using QLite.Data.Dtos;
 using QLiteDataApi.Context;
 using QLiteDataApi.Services;
 using QLiteDataApi.SignalR;
+using System.ComponentModel.DataAnnotations;
 using System.Drawing.Printing;
 using static QLite.Data.Models.Enums;
 
@@ -88,6 +90,28 @@ namespace QLiteDataApi.Controllers.Desk
         public IActionResult EndTicket(Guid DeskID)
         {
             var ticketState = _deskService.EndCurrentService(DeskID);
+
+            string serializedTicketState = JsonConvert.SerializeObject(ticketState);
+
+            _communicationHubContext.Clients.Group("ALL_").SendAsync("NotifyTicketState", serializedTicketState);
+
+            return Ok(serializedTicketState);
+        }
+
+
+        [HttpGet]
+        [Route("/getticketduration/{ticketid}")]
+        public ActionResult GetTicketDuration([FromRoute] Guid ticketid)
+        {
+            int duration = _deskService.GetTicketDuration(ticketid);
+            return Ok(duration);
+        }
+
+        [HttpPost]
+        [Route("api/Desk/ParkTicket")]
+        public ActionResult ParkOperation([FromBody][Required] ParkTicketDto parkTicket)
+        {
+            TicketState ticketState = _deskService.ParkOperation(parkTicket);
 
             string serializedTicketState = JsonConvert.SerializeObject(ticketState);
 

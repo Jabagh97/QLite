@@ -10,12 +10,8 @@ namespace QLite.Data.Dtos
     public class TicketDto : KappBaseDto
     {
         public int Number { get; set; }
-        public string Branch { get; set; }
         public string BranchName { get; set; }
-        public string ServiceType { get; set; }
-        public string Desk { get; set; }
         public string DeskName { get; set; }
-        public string Segment { get; set; }
         public string ServiceTypeName { get; set; }
         public string SegmentName { get; set; }
         public string CurrentDesk { get; set; }
@@ -37,6 +33,15 @@ namespace QLite.Data.Dtos
 
         public string ImageBase64 { get; set; }
         public string TicketFooterMsg { get; set; }
+        public string ServiceCode
+        {
+            get;
+            set;
+        }
+        public int CopyNumber
+        {
+            get; set;
+        }
     }
 
 }

@@ -10,7 +10,7 @@
 
     public class TicketData
     {
-        public int ticketNumber { get; set; }
+        public string ticketNumber { get; set; }
         public string service { get; set; }
         public string segment { get; set; }
         public string oid { get; set; }
