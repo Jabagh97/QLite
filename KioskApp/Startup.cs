@@ -36,12 +36,7 @@ namespace KioskApp
 
             services.AddControllersWithViews();
             services.AddHttpClient();
-
-            services.AddScoped<IApiService, ApiService>();
-
-        
-
-
+          
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -84,14 +79,18 @@ namespace KioskApp
 
 
 
-        //public void ConfigureContainer(ContainerBuilder builder)
-        //{
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
 
-        //    builder.RegisterType<HwManager>().AsSelf().SingleInstance();
-        //    builder.RegisterType<EmseUsbPrinterDevice>().AsSelf().SingleInstance();
-        //    builder.RegisterType<EmsePrinter>().As<IPrinter>().SingleInstance();
+            builder.RegisterType<HwManager>().AsSelf().SingleInstance();
+            builder.RegisterType<KioskHubContext>().As<IHwHubContext>().SingleInstance();
+            builder.RegisterType<EmsePrinter>().As<IPrinter>().SingleInstance();
 
-        //}
+            builder.RegisterType<EmseUsbPrinterDevice>().AsSelf().SingleInstance();
+
+
+
+        }
 
     }
 

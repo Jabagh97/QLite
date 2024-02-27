@@ -2,19 +2,25 @@
 using Newtonsoft.Json;
 using QLite.Data;
 using QLite.Data.Dtos;
+using Quavis.QorchLite.Hwlib;
+using Quavis.QorchLite.Hwlib.Printer;
+using System.Security.Cryptography;
 
 namespace KioskApp.Controllers
 {
     public class TicketController : Controller
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        HwManager _hwman;
 
-        public TicketController(IHttpContextAccessor httpContextAccessor) 
+        public TicketController(IHttpContextAccessor httpContextAccessor, HwManager hwman)
         {
             _httpContextAccessor = httpContextAccessor;
+            _hwman = hwman;
+
 
         }
-        public IActionResult Index(string ticketJson) 
+        public IActionResult Index(string ticketJson)
         {
             try
             {
@@ -40,5 +46,23 @@ namespace KioskApp.Controllers
             }
         }
 
+        [HttpPost]
+        public IActionResult PrintTicket([FromBody] TicketViewModel viewModel)
+        {
+            try
+            {
+                _hwman.Print(viewModel.Html);
+
+                return Ok("Print successful");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Printing failed: {ex.Message}");
+            }
+        }
     }
+}
+public class TicketViewModel
+{
+    public string Html { get; set; }
 }

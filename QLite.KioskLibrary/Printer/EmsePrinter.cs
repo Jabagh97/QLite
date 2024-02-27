@@ -2,9 +2,11 @@
 {
     using CoreHtmlToImage;
     using Microsoft.Extensions.Configuration;
+    using QLite.Data.CommonContext;
     using QLite.Data.Dtos;
     using QLite.Kio;
     using Quavis.QorchLite.Hwlib.Hardware;
+    using Serilog;
     using System;
     using System.Collections.Generic;
     using System.Drawing;
@@ -14,7 +16,7 @@
     using System.Threading.Tasks;
     using static QLite.Data.Models.Enums;
 
-    public class EmsePrinter: IPrinter
+    public class EmsePrinter : IPrinter
     {
 
         public EmseUsbPrinterDevice Device;
@@ -48,7 +50,7 @@
                 Status = Device.errorCodeList.Select(x => x.ToString()).ToList(),
                 Ok = !notok
             };
-            
+
         }
 
         IConfiguration _config;
@@ -56,7 +58,6 @@
         {
             _config = config;
             Device = dev;
-            //RealDeviceComManager.RealDevices.Add(Device);
         }
 
         public CuttingType CuttingType { get; set; } = CuttingType.FullCut;
@@ -68,7 +69,7 @@
         public void Initialize(object settings)
         {
             var prnSettings = settings as VCPrinterEmseSettings;
-           // Log.Debug("emsePrinter initialize");
+            Log.Debug("initializing emsePrinter");
 
             var vid = "0x10C4";
             var pid = "0x82CD";
@@ -117,53 +118,6 @@
 
 
 
-       
-
-        #region overrides
-
-        //protected override Type SettingsType => typeof(VCPrinterEmseSettings);
-
-        //public override Dictionary<string, string> GetSettings()
-        //{
-        //    var dic = base.GetSettings();
-
-        //    dic.Add("Cutting Type", CuttingType.ToString());
-        //    dic.Add("Max Pixel", PrinterMaxPixelValue.ToString());
-        //    return dic;
-        //}
-
-
-
-        //protected override bool InitializeRealDevice(string realDeviceName, object settingsObj)
-        //{
-        //    var res = base.InitializeRealDevice(realDeviceName, settingsObj);
-        //    if (res)
-        //        PrinterRd.PrinterErrorEvent += this.Printer_PrinterErrorEvent;
-        //    _epu = new EmsePrintUtil(SingleDevice, CuttingType, PrinterMaxPixelValue);
-        //    return res;
-        //}
-
-        //protected override VCBaseSettings ConfigVCForAddionalSettings(VCBaseSettings settings)
-        //{
-        //    var settings2 = settings as VCPrinterEmseSettings;
-        //    CuttingType = settings2?.CuttingType ?? CuttingType.FullCut;
-        //    PrinterMaxPixelValue = settings2?.PrinterMaxPixel ?? PrinterMaxPixel.Pixel448;
-        //    if (settings2 != null)
-        //    {
-        //        SaveImage = settings2.SaveImage;
-        //    }
-        //    return settings2;
-        //}
-        #endregion
-
-        private void Printer_PrinterErrorEvent(object sender, List<ErrorCodes> e)
-        {
-            //SetCussDeviceStatusByCustomStatusList(StatusCodes.OK);
-        }
-
-
-
-
         #region read status
 
         public void CheckPrinterStatus()
@@ -173,26 +127,15 @@
             Device.ReadPrinterStatus();
         }
 
-        //protected override void SetCussDeviceStatusByCustomStatusList(StatusCodes defStatus)
-        //{
-        //    if (PrinterRd.errorCodeList.Contains(ErrorCodes.PrinterHeadOpenMechanical) || PrinterRd.errorCodeList.Contains(ErrorCodes.PaperJam))
-        //        SetHardwareStatus(StatusCodes.HARDWAREERROR);
-        //    else if (PrinterRd.errorCodeList.Contains(ErrorCodes.RollPaperEmpty))
-        //        SetHardwareStatus(StatusCodes.MEDIAEMPTY);
-        //    else if (PrinterRd.errorCodeList.Contains(ErrorCodes.RollPaperDecreased))
-        //        SetHardwareStatus(StatusCodes.MEDIALOW);
-        //    else
-        //        SetHardwareStatus(defStatus);
-        //}
+
 
         #endregion
 
 
 
-
         public void Send(string html)
         {
-            //Log.Debug("emsequeprinter Send");
+            Log.Debug("emsequeprinter Send");
 
 
             byte[] imgData;
@@ -205,7 +148,7 @@
             imgData = converter.FromHtmlString(html, width: 150, format: ImageFormat.Jpg);
 
 
-            //Log.Debug("emsequeprinter image created");
+            Log.Debug("emsequeprinter image created");
             using (var ms = new MemoryStream(imgData))
             {
                 var bitmap = new Bitmap(ms);
@@ -219,5 +162,26 @@
                 }
             }
         }
+
+        public void InitializeIfNeeded()
+        {
+            VCPrinterEmseSettings settings = new VCPrinterEmseSettings()
+
+            {
+                VendorId = "0x10c4",
+                ProductId = "0x82CD",
+                SaveImage = false,
+                TestMode = false,
+                PrinterMaxPixel = PrinterMaxPixel.Pixel448,
+                CuttingType = CuttingType.HalfCut
+
+            };
+
+            if (_epu == null)
+            {
+                Initialize(settings);
+            }
+        }
+
     }
 }

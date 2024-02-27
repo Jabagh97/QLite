@@ -3,32 +3,37 @@ using KioskApp;
 using Quavis.QorchLite.Hwlib;
 using Serilog;
 using QLite.Data.CommonContext;
+using System.Reflection;
 
 public class Program
 {
+    static CancellationTokenSource cts;
 
-   
+    public static void Exit()
+    {
+        cts?.Cancel();
+    }
+
     private static void Main(string[] args)
     {
         try
         {
             if (args.Length > 0)
                 CommonCtx.Env = args[0];
+            var host = CreateHostBuilder(args)
+                   .UseEnvironment(CommonCtx.Env)
+                   .Build();
 
+            CommonCtx.Container = host.Services.GetAutofacRoot();
 
             ConfigureLogger();
 
             Log.Information("Kiosk App is starting... " + DateTime.Now.ToString());
-
-            var host = CreateHostBuilder(args).Build();
-
-           // CommonCtx.Container = host.Services.GetAutofacRoot();
-
-          
-
+            cts = new CancellationTokenSource();
+            var t = host.RunAsync(cts.Token);
 
             InitializeKioskHardware(host);
-            host.Run();
+            t.Wait();
         }
         catch (Exception ex)
         {
@@ -51,8 +56,8 @@ public class Program
         var configuration = host.Services.GetRequiredService<IConfiguration>();
         CommonCtx.KioskHwId = configuration.GetValue<string>("KioskID");
 
-      //  var hardwareManager = host.Services.GetRequiredService<HwManager>();
-      //  hardwareManager.InitHardware();
+        var hardwareManager = host.Services.GetRequiredService<HwManager>();
+        hardwareManager.InitHardware();
     }
 
 
@@ -63,6 +68,19 @@ public class Program
             {
                 webBuilder.UseStartup<Startup>();
                 webBuilder.UseStaticWebAssets();
-            });
+                webBuilder.UseContentRoot(Path.GetDirectoryName(typeof(Program).Assembly.Location));
+                webBuilder.UseKestrel();
+                webBuilder.UseIIS();
+
+            })
+             .ConfigureAppConfiguration(ConfigureAppConfig)
+             .UseServiceProviderFactory(new AutofacServiceProviderFactory());
+
+    }
+    private static void ConfigureAppConfig(HostBuilderContext h, IConfigurationBuilder arg2)
+    {
+        var a = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        arg2.SetBasePath(a);
+        //arg2.AddJsonFile("appsettings.json");
     }
 }

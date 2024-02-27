@@ -1,5 +1,6 @@
 ﻿using KioskApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Quavis.QorchLite.Hwlib;
 using System.Diagnostics;
 
 namespace KioskApp.Controllers
@@ -8,11 +9,13 @@ namespace KioskApp.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IConfiguration _configuration;
+        HwManager _hwman;
 
-        public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
+        public HomeController(ILogger<HomeController> logger, IConfiguration configuration, HwManager hwman)
         {
             _logger = logger;
             _configuration = configuration;
+            _hwman = hwman;
 
         }
 
@@ -23,7 +26,11 @@ namespace KioskApp.Controllers
 
             return View();
         }
-
+       
+        public virtual IActionResult CheckKiosk()
+        {
+            return Ok(_hwman.GetKioskHwStatus());
+        }
         public IActionResult Privacy()
         {
             return View();
