@@ -12,7 +12,6 @@ namespace Quavis.QorchLite.Hwlib.Hardware
 
         public event EventHandler<bool?> DeviceConnectionEvent;
 
-        //connectted bilgisinin N/A olduğu durumlarda null bırakalım
         public bool? Connected = false; 
         public virtual string CurrentStateInfo => Connected == null ? "-" : (Connected.Value ? "Connected" : "Disconnected");
         public void OnDeviceConnectionEvent(bool? connected)

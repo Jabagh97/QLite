@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Logging;
 using QLite.Data.CommonContext;
 using QLite.Kio;
 using QLite.Data;
+using KioskApp.Services;
 
 namespace KioskApp
 {
@@ -88,6 +89,8 @@ namespace KioskApp
 
             builder.RegisterType<EmseUsbPrinterDevice>().AsSelf().SingleInstance();
 
+            builder.RegisterType<TimerUtil>().AsSelf().SingleInstance();
+            builder.RegisterType<BrowserUtil>().AsSelf().SingleInstance();
 
 
         }

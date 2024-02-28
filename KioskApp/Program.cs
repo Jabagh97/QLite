@@ -4,6 +4,8 @@ using Quavis.QorchLite.Hwlib;
 using Serilog;
 using QLite.Data.CommonContext;
 using System.Reflection;
+using KioskApp.Services;
+using Microsoft.Extensions.Configuration;
 
 public class Program
 {
@@ -14,15 +16,12 @@ public class Program
         cts?.Cancel();
     }
 
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         try
         {
-            if (args.Length > 0)
-                CommonCtx.Env = args[0];
             var host = CreateHostBuilder(args)
-                   .UseEnvironment(CommonCtx.Env)
-                   .Build();
+                .Build();
 
             CommonCtx.Container = host.Services.GetAutofacRoot();
 
@@ -33,7 +32,14 @@ public class Program
             var t = host.RunAsync(cts.Token);
 
             InitializeKioskHardware(host);
-            t.Wait();
+
+            var chromeUtil = host.Services.GetRequiredService<BrowserUtil>();
+            var configuration = host.Services.GetRequiredService<IConfiguration>();
+
+            string url = configuration.GetValue<string>("KioskAppURl") ?? "http://localhost:5144";
+            chromeUtil.StartChrome(url);
+
+            await t;
         }
         catch (Exception ex)
         {
@@ -60,27 +66,27 @@ public class Program
         hardwareManager.InitHardware();
     }
 
-
-    public static IHostBuilder CreateHostBuilder(string[] args)
-    {
-        return Host.CreateDefaultBuilder(args)
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>();
                 webBuilder.UseStaticWebAssets();
-                webBuilder.UseContentRoot(Path.GetDirectoryName(typeof(Program).Assembly.Location));
+                webBuilder.UseContentRoot(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
                 webBuilder.UseKestrel();
                 webBuilder.UseIIS();
+                var config = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json")
+                    .Build();
+                var ipAddress = config["KioskAppURl"];
+                webBuilder.UseUrls(ipAddress);
 
             })
-             .ConfigureAppConfiguration(ConfigureAppConfig)
-             .UseServiceProviderFactory(new AutofacServiceProviderFactory());
-
-    }
-    private static void ConfigureAppConfig(HostBuilderContext h, IConfigurationBuilder arg2)
-    {
-        var a = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-        arg2.SetBasePath(a);
-        //arg2.AddJsonFile("appsettings.json");
-    }
+            .ConfigureAppConfiguration((hostingContext, config) =>
+            {
+                var assemblyLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                config.SetBasePath(assemblyLocation);
+            })
+            .UseServiceProviderFactory(new AutofacServiceProviderFactory());
 }

@@ -31,6 +31,9 @@ namespace Quavis.QorchLite.Hwlib
 
         public void Print(string html)
         {
+            if (_printer == null)
+                return;
+
             _printer.Send(html);
         }
 
@@ -130,13 +133,18 @@ namespace Quavis.QorchLite.Hwlib
         {
             var hws = new KioskHwStatusDto();
             hws.Ok = true;
+            if (_printer != null)
 
-            var printerHwStatus = _printer.GetHwStatus();
-            if (!printerHwStatus.Ok)
             {
-                hws.Ok = false;
-                hws.AddHwStatus(printerHwStatus);
+                var printerHwStatus = _printer.GetHwStatus();
+                if (!printerHwStatus.Ok)
+                {
+                    hws.Ok = false;
+                    hws.AddHwStatus(printerHwStatus);
+                }
             }
+
+
 
             if (_display != null)
             {

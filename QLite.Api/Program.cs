@@ -34,11 +34,14 @@ internal class Program
         builder.Services.AddSwaggerGen();
         builder.Services.AddSignalR();
 
+     
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowSpecificOrigin", builder =>
             {
-                builder.WithOrigins("http://localhost:7227", "http://localhost:5144") // Replace with your actual origin
+                builder.WithOrigins(allowedOrigins)
                        .AllowAnyMethod()
                        .AllowAnyHeader()
                        .AllowCredentials();
@@ -53,11 +56,11 @@ internal class Program
             app.UseSwaggerUI();
         }
 
-        app.UseRouting(); // Add this line to use routing
+        app.UseRouting(); 
 
         app.UseAuthorization();
 
-        app.UseCors("AllowSpecificOrigin"); // Apply CORS policy
+        app.UseCors("AllowSpecificOrigin"); 
 
         app.MapControllers();
 
@@ -67,7 +70,35 @@ internal class Program
             endpoints.MapHub<CommunicationHub>("/communicationHub");
         });
 
+
+        //Call Site Cache Warmup 
+        using (var scope = app.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            try
+            {
+                var dbContext = services.GetRequiredService<ApplicationDbContext>();
+                // Use LINQ dynamic to perform a query on the DbSet<TEntity>
+                var query = dbContext.Set<Country>().AsQueryable();
+
+                // Example: Retrieve the first record
+                var firstRecord = query.FirstOrDefault();
+
+                var filteredData = query.Where("Gcrecord == 1").ToList();
+
+                Console.WriteLine("Warming Up Done !!!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred during warm-up.");
+                Console.WriteLine(ex.Message);
+            }
+        }
         app.Run();
+
+        var siteDomain = builder.Configuration["SiteDomain"];
+
+        // app.Run(siteDomain);
     }
 
     private static void WarmUpEntity<TEntity>(ApplicationDbContext dbContext) where TEntity : class
