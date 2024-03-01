@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QLite.Data;
 
@@ -73,4 +74,7 @@ public partial class TicketState
     [JsonIgnore]
 
     public virtual Ticket? TicketNavigation { get; set; }
+
+    [NotMapped]
+    public string? ServiceCode { get; set; }
 }

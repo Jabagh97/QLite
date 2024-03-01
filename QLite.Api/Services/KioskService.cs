@@ -164,7 +164,8 @@ namespace QLiteDataApi.Services
                 CreatedDateUtc = DateTime.UtcNow,
                 ModifiedDate = DateTime.Now,
                 ModifiedDateUtc= DateTime.UtcNow,
-                TicketPool = ticketPool.Oid
+                TicketPool = ticketPool.Oid,
+                ServiceCode = ticketPool.ServiceCode,
             };
         }
 
@@ -180,7 +181,13 @@ namespace QLiteDataApi.Services
                 ServiceType = svcType?.Oid,
                 Segment = segment.Oid,
                 SegmentName = segment.Name,
-                ServiceTypeName = svcType?.Name
+                ServiceTypeName = svcType?.Name,
+                Branch= newTicket.Branch,
+                CreatedDate = DateTime.Now,
+                CreatedDateUtc = DateTime.UtcNow,
+                ModifiedDate = DateTime.Now,
+                ModifiedDateUtc = DateTime.UtcNow,
+                TicketNavigation=newTicket
             };
         }
 

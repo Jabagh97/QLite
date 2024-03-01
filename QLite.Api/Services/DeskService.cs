@@ -39,10 +39,10 @@ namespace QLiteDataApi.Services
             var query = from t in _context.Tickets
                         where t.CurrentState == (int)state && t.ModifiedDate >= DateTime.UtcNow.AddMinutes(-480)
                         join tp in _context.TicketPools on t.TicketPool equals tp.Oid into tpJoin
-                        from tp in tpJoin.DefaultIfEmpty() 
+                        from tp in tpJoin.DefaultIfEmpty()
                         select new
                         {
-                            TicketNumber =  tp.ServiceCode + t.Number,
+                            TicketNumber = tp.ServiceCode + t.Number,
                             Service = t.ServiceTypeName,
                             Segment = t.SegmentName,
                             Oid = t.Oid,
@@ -95,15 +95,13 @@ namespace QLiteDataApi.Services
                 _context.Tickets.Update(t);
 
 
-                TicketState currentState = _context.TicketStates
-                    .Where(ts => ts.Ticket == ticketID)
-                    .OrderByDescending(ts => ts.ModifiedDate)
-                    .FirstOrDefault();
+                TicketState currentState = t.TicketState;
+
                 currentState.Desk = DeskID;
                 currentState.User = user;
                 currentState.EndTime = tm;
-                currentState.ModifiedDate= DateTime.Now;
-                currentState.ModifiedDateUtc= DateTime.UtcNow;
+                currentState.ModifiedDate = DateTime.Now;
+                currentState.ModifiedDateUtc = DateTime.UtcNow;
 
                 _context.TicketStates.Update(currentState);
 
@@ -124,6 +122,12 @@ namespace QLiteDataApi.Services
                     ServiceType = t.ServiceType,
                     ServiceTypeName = t.ServiceTypeName,
                     StartTime = tm,
+                    ServiceCode= t.ServiceCode,
+                    CreatedDate = DateTime.Now,
+                    CreatedDateUtc = DateTime.UtcNow,
+                    ModifiedDate = DateTime.Now,
+                    ModifiedDateUtc = DateTime.UtcNow,
+
                     //CallingRuleDescription = t.CallingRuleDescription,
                     // Macro = t.StateObj.Macro,
                     // MacroObj = t.StateObj.MacroObj,
@@ -133,10 +137,14 @@ namespace QLiteDataApi.Services
 
                 if (autocall)
                     svc.CallingRuleDescription += " (autocall)";
+
                 _context.TicketStates.Add(svc);
 
 
                 svc.TicketNavigation = t;
+
+
+
 
                 _context.SaveChanges();
             }
@@ -169,6 +177,7 @@ namespace QLiteDataApi.Services
                     currentTicket.CurrentState = (int)TicketStateEnum.Final;
                     currentTicket.ModifiedDate = DateTime.Now;
                     currentTicket.ModifiedDateUtc = DateTime.UtcNow;
+
                     // Update the Ticket entity
                     _context.Tickets.Update(currentTicket);
                 }
@@ -190,7 +199,12 @@ namespace QLiteDataApi.Services
                     TicketNumber = currentTicket.Number,
                     TicketStateValue = (int)TicketStateEnum.Final,
                     StartTime = t,
+                    ServiceCode= currentTicket.ServiceCode,
 
+                    CreatedDate = DateTime.Now,
+                    CreatedDateUtc = DateTime.UtcNow,
+                    ModifiedDate = DateTime.Now,
+                    ModifiedDateUtc = DateTime.UtcNow,
 
                     // User = QorchUserContext.UserId,
 
@@ -219,10 +233,10 @@ namespace QLiteDataApi.Services
             var current = (from tOpr in _context.TicketStates
                            join t in _context.Tickets on tOpr.Ticket equals t.Oid
                            join tp in _context.TicketPools on t.TicketPool equals tp.Oid into poolJoin
-                           from pool in poolJoin.DefaultIfEmpty()
-                           where tOpr.Desk == DeskID
-                               && tOpr.TicketStateValue == (int)TicketStateEnum.Service
-                               && tOpr.TicketOprValue == null
+                           from tp in poolJoin.DefaultIfEmpty()
+                           where t.CurrentState == 2 && tOpr.Desk == DeskID
+                                && tOpr.TicketStateValue == (int)TicketStateEnum.Service
+                                && tOpr.TicketOprValue == null
                            select new TicketState
                            {
                                Oid = tOpr.Oid,
@@ -252,9 +266,10 @@ namespace QLiteDataApi.Services
                                OptimisticLockField = tOpr.OptimisticLockField,
                                Gcrecord = tOpr.Gcrecord,
                                KioskAppId = tOpr.KioskAppId,
-                               TicketNavigation = t // Set TicketNavigation to t
+                               TicketNavigation = t,
+                               ServiceCode = tp.ServiceCode,
                            })
-                          .SingleOrDefault();
+                          .FirstOrDefault();
 
             return current;
         }
@@ -262,14 +277,37 @@ namespace QLiteDataApi.Services
 
         public Ticket GetTicket(Guid ticketId)
         {
-            var ticket = _context.Tickets
-                         .Where(t => t.Oid == ticketId)
-                         .Join(
-                             _context.TicketStates.Where(ts => ts.TicketOprValue == null),
-                             t => t.Oid,
-                             ts => ts.Ticket,
-                             (t, ts) => t)
-                         .FirstOrDefault();
+            var ticket = (from t in _context.Tickets
+                          join ts in _context.TicketStates on t.Oid equals ts.Ticket into ticketStates
+                          from ts in ticketStates.Where(ts => ts.TicketOprValue == null).DefaultIfEmpty()
+                          join tp in _context.TicketPools on t.TicketPool equals tp.Oid into ticketPools
+                          from tp in ticketPools.Where(tp=>tp.Gcrecord == null).DefaultIfEmpty()
+                          where t.Oid == ticketId
+                          select new Ticket
+                          {
+                              Oid = t.Oid,
+                              CreatedBy = t.CreatedBy,
+                              ModifiedBy = t.ModifiedBy,
+                              CreatedDate = t.CreatedDate,
+                              CreatedDateUtc = t.CreatedDateUtc,
+                              ModifiedDate = t.ModifiedDate,
+                              ModifiedDateUtc = t.ModifiedDateUtc,
+                              CurrentDesk = t.Desk,
+                              CurrentState = (int)TicketStateEnum.Service,
+                              LastOpr = (int)TicketOprEnum.Call,
+                              TicketState =ts,
+                              Number = t.Number,
+                              Branch = t.Branch,
+                              Segment = t.Segment,
+                              SegmentName = t.SegmentName,
+                              ServiceType = t.ServiceType,
+                              ServiceTypeName = t.ServiceTypeName,
+                              ServiceCode = tp.ServiceCode,
+                              TicketPool = tp.Oid
+                          }
+                          ).FirstOrDefault();
+
+
 
             return ticket;
         }
@@ -292,11 +330,8 @@ namespace QLiteDataApi.Services
 
                 DateTime currentTime = DateTime.Now;
 
-
-                TicketState svc = _context.TicketStates
-                   .Where(ts => ts.Ticket == parkTicket.Oid)
-                   .OrderByDescending(ts => ts.ModifiedDate)
-                   .FirstOrDefault();
+                //TODO: Something is wrong here svc is not changed
+                TicketState svc = parkTicket.TicketState;
 
                 svc.EndTime = currentTime;
                 svc.TicketOprValue = (int)TicketOprEnum.Park;
@@ -307,18 +342,15 @@ namespace QLiteDataApi.Services
                 parkTicket.LastOprTime = currentTime;
                 parkTicket.TicketNote = parkTicketDto.TicketNote;
 
-                // Set CurrentDesk to null if necessary
-                // parkTicket.CurrentDesk = null;
-
                 _context.Tickets.Update(parkTicket);
 
-                Desk desk = _context.Desks.SingleOrDefault(d => d.Oid == parkTicketDto.DeskID);
 
 
                 TicketState parkTicketOpr = new TicketState
                 {
                     //User = QorchUserContext.UserId,
-                    Desk = desk.Oid,
+                    Desk = parkTicketDto.DeskID,
+                   
                     Oid = Guid.NewGuid(),
                     Ticket = parkTicket.Oid,
                     TicketStateValue = (int)TicketStateEnum.Park,
@@ -331,10 +363,15 @@ namespace QLiteDataApi.Services
                     //Macro = parkTicket.StateObj.Macro,
                     //MacroObj = parkTicket.StateObj.MacroObj,
                     TicketNumber = parkTicket.Number,
-                    //ServiceCode = parkTicket.ServiceCode
+                    ServiceCode = parkTicket.ServiceCode,
+                    CreatedDate = DateTime.Now,
+                    CreatedDateUtc = DateTime.UtcNow,
+                    ModifiedDate = DateTime.Now,
+                    ModifiedDateUtc = DateTime.UtcNow,
                 };
                 _context.TicketStates.Add(parkTicketOpr);
                 parkTicketOpr.TicketNavigation = parkTicket;
+                Desk desk = _context.Desks.SingleOrDefault(d => d.Oid == parkTicketDto.DeskID);
 
                 if (desk != null)
                 {

@@ -94,23 +94,12 @@ internal class Program
                 Console.WriteLine(ex.Message);
             }
         }
-        app.Run();
+       // app.Run();
 
         var siteDomain = builder.Configuration["SiteDomain"];
 
-        // app.Run(siteDomain);
+         app.Run(siteDomain);
     }
 
-    private static void WarmUpEntity<TEntity>(ApplicationDbContext dbContext) where TEntity : class
-    {
-        // Use LINQ dynamic to perform a query on the DbSet<TEntity>
-        var query = dbContext.Set<TEntity>().AsQueryable();
-
-        // Example: Retrieve the first record
-        var firstRecord = query.FirstOrDefault();
-
-        var filteredData = query.Where("Gcrecord == 1").ToList();
-
-       
-    }
+   
 }

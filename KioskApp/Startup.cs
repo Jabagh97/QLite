@@ -27,6 +27,7 @@ namespace KioskApp
         {
             services.AddHttpContextAccessor();
 
+
             services.AddSignalR(hubOptions =>
             {
                 hubOptions.EnableDetailedErrors = true;

@@ -19,10 +19,14 @@
             var isRequired = viewModelProperty?.GetCustomAttribute<RequiredAttribute>() != null;
 
             var isBoolean = viewModelProperty?.GetCustomAttribute<BooleanAttribute>() != null;
-
+            string formDataValue = "";
             var isDate = viewModelProperty?.GetCustomAttribute<DateAtrribute>() != null;
+            if (Model.Action == "Edit")
+            {
+                 formDataValue = Model.FormData[propertyToLower] != null ? Model.FormData[propertyToLower] : "";
 
-            string formDataValue = Model.FormData[propertyToLower] != null ? Model.FormData[propertyToLower] : "";
+            }
+
 
 
             @if (!isOidProperty && !(Model.Action == "Add" && isNonEditable))

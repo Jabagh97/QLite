@@ -1,5 +1,5 @@
-﻿function connectToHub(clientType, clientName, clientID) {
-    var huburl = `http://localhost:7258/communicationHub/?clientType=${clientType}&clientName=${clientName}&clientId=${clientID}`;
+﻿function connectToHub(clientType, clientName, clientID, apiUrl) {
+    var huburl = apiUrl + `/communicationHub/?clientType=${clientType}&clientName=${clientName}&clientId=${clientID}`;
     var connection = new signalR.HubConnectionBuilder().withUrl(huburl).build();
 
     var retryInterval = 5000; // Retry connection every 5 seconds
@@ -70,13 +70,13 @@
 
                 case 2://service
                     fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
-                    updateMainPanel();
 
 
                     break;
                 case 3://park
                     fetchTickets('Ticket/GetParkedTickets', 'Parked Tickets', 'PT');
                     state = 'Parked';
+
 
                 case 4://done
                     fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');

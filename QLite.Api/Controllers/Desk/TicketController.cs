@@ -100,7 +100,7 @@ namespace QLiteDataApi.Controllers.Desk
 
 
         [HttpGet]
-        [Route("/getticketduration/{ticketid}")]
+        [Route("api/GetTicketDuration/{ticketid}")]
         public ActionResult GetTicketDuration([FromRoute] Guid ticketid)
         {
             int duration = _deskService.GetTicketDuration(ticketid);

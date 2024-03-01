@@ -40,7 +40,7 @@
                 <h4>Ticket State Information</h4>
                 @if (Model != null)
                 {
-                    <h3>Ticket Number : @Model.TicketNumber</h3>
+                    <h3>Ticket Number : @Model.ServiceCode@Model.TicketNumber</h3>
 
                     <h3>Service Type  : @Model.ServiceTypeName</h3>
                     <h3>Segment       : @Model.SegmentName</h3>

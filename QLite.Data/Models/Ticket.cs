@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QLite.Data;
 
@@ -88,11 +89,18 @@ public partial class Ticket
     public virtual ServiceType? ServiceTypeNavigation { get; set; }
     [JsonIgnore]
 
-    public virtual ICollection<TicketState> TicketStates { get; } = new List<TicketState>();
+    public virtual ICollection<TicketState> TicketStates { get; set; } = new List<TicketState>();
     [JsonIgnore]
 
     public virtual Desk? ToDeskNavigation { get; set; }
     [JsonIgnore]
 
     public virtual ServiceType? ToServiceTypeNavigation { get; set; }
+
+    [NotMapped]
+    public string? ServiceCode { get; set; }
+    [NotMapped]
+    public TicketState? TicketState { get; set; }
+
+
 }

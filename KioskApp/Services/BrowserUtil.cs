@@ -37,14 +37,18 @@ namespace KioskApp.Services
 
             var kioskMode = _Cfg.GetValue("KioskMode", false);
 
-           
+
 
             // Additional command line arguments for Chrome
-            string additionalArguments = " --disable-features=InfiniteSessionRestore --disable-session-crashed-bubble --no-first-run --allow-insecure-localhost";
+            string additionalArguments;
 
             if (kioskMode)
             {
-                additionalArguments += "--kiosk";
+                additionalArguments = "--kiosk --disable-features=InfiniteSessionRestore --disable-session-crashed-bubble --no-first-run --allow-insecure-localhost";
+            }
+            else 
+            {
+                additionalArguments = " --disable-features=InfiniteSessionRestore --disable-session-crashed-bubble --no-first-run --allow-insecure-localhost";
             }
 
             // Command line arguments for Chrome

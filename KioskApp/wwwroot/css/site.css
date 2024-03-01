@@ -20,3 +20,13 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.btn-custom {
+    font-size: 2rem;
+    background-color: dodgerblue; /* Blue color */
+    color: #fff; /* White text */
+    border: none;
+    border-radius: 0.5rem; /* Adjust border radius as needed */
+}
+
+   

@@ -1,4 +1,6 @@
-﻿<div id="connectionError" class="alert alert-danger mb-4" style="display: none;" role="alert">
+﻿@inject IConfiguration Configuration
+
+<div id="connectionError" class="alert alert-danger mb-4" style="display: none;" role="alert">
     Server is currently down. Please wait while we try to reconnect...
 </div>
 
@@ -35,7 +37,9 @@
     <script src="~/js/TableMethods.js"></script>
 
     <script>
-        connectToHub("User", "123", "DeskGroup")
+            var apiUrl = '@Configuration["APIBase"]';
+
+            connectToHub("User", "123", "DeskGroup", apiUrl)
     </script>
 
 }

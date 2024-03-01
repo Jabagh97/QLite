@@ -3461,8 +3461,8 @@ fieldset:disabled .btn {
 
 .btn-primary {
     --bs-btn-color: #ffffff;
-    --bs-btn-bg: #7239EA;
-    --bs-btn-border-color: #7239EA;
+    --bs-btn-bg: #1b84ff;
+    --bs-btn-border-color: #1b84ff;
     --bs-btn-hover-color: #ffffff;
     --bs-btn-hover-bg: #6130c7;
     --bs-btn-hover-border-color: #5b2ebb;
@@ -54691,7 +54691,7 @@ body {
 }
 
 body.app-default {
-    background-image: url(../media/misc/page-bg.png)
+    background-image: url(../media/misc/BG.jpg.webp)
 }
 
 [data-bs-theme=dark] body.app-default {

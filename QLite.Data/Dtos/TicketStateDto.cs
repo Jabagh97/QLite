@@ -9,7 +9,7 @@ namespace QLite.Data.Dtos
 {
     public class TicketStateDto : KappBaseDto
     {
-        public Guid Branch { get; set; }
+        public Guid? Branch { get; set; }
 
         public Guid Ticket { get; set; }
 
@@ -25,7 +25,7 @@ namespace QLite.Data.Dtos
 
         public string DisplayNo { get; set; }
 
-        public int TicketNumber { get; set; }
+        public int? TicketNumber { get; set; }
 
         public TicketDto TicketObj { get; set; }
 

@@ -142,7 +142,6 @@ function updateMainPanel()
     });
 
 }
-updateMainPanel();
 
 function EndTicket()
 {

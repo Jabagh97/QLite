@@ -53,12 +53,7 @@ namespace DeskApp.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var responseData = await response.Content.ReadAsStringAsync();
-
-                    TicketState ticketResponse = JsonConvert.DeserializeObject<TicketState>(responseData);
-
-
-                    return Ok(ticketResponse);
+                    return Ok();
                 }
                 else
                 {
@@ -121,8 +116,7 @@ namespace DeskApp.Controllers
 
 
                      return PartialView("Components/MainPanel", ticketResponse);
-                   // return ViewComponent("Components/MainPanel", ticketResponse);
-                    // return Ok(ticketResponse);
+                 
                 }
                 else
                 {
