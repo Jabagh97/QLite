@@ -77,4 +77,7 @@ public partial class TicketState
 
     [NotMapped]
     public string? ServiceCode { get; set; }
+
+    [NotMapped]
+    public Macro? MacroObject { get; set; }
 }

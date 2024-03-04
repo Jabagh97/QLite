@@ -231,10 +231,19 @@ namespace QLiteDataApi.Controllers.Admin
                 return Json(new { status = "error", error = ex.Message });
             }
         }
+        [HttpGet]
 
-        #region Helpers
+        [Route("api/Admin/GetAllDesks")]
 
-        private IActionResult ProcessModelOperation(Dictionary<string, object> formData, bool isCreateOperation)
+        public  IActionResult GetAllDesks()
+        {
+            var DeskList = _dataService.GetAllDesks();
+
+            return Ok(DeskList);
+        }
+            #region Helpers
+
+            private IActionResult ProcessModelOperation(Dictionary<string, object> formData, bool isCreateOperation)
         {
             // Validate formData and create/update a model instance
             if (!formData.ContainsKey("modelType"))

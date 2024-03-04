@@ -35,6 +35,7 @@ namespace QLiteAuthenticationServer.Migrations
                     TwoFactorSecret = table.Column<string>(type: "TEXT", nullable: true),
                     TwoFactorConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
                     QRless = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Desk = table.Column<Guid>(type: "TEXT", nullable: false),
                     UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),

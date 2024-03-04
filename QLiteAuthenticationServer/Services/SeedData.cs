@@ -55,7 +55,7 @@ namespace QLiteAuthenticationServer.Services
                         }
 
                         result = userMgr.AddClaimsAsync(baykus, new Claim[]{
-                                    new Claim("asBaykus", "asBaykus")
+                                    new Claim("AccountType", baykus.AccountType.ToString())
                                 }).Result;
                         if (!result.Succeeded)
                         {

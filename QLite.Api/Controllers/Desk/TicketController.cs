@@ -73,9 +73,9 @@ namespace QLiteDataApi.Controllers.Desk
 
         [HttpGet]
         [Route("api/Desk/CallTicket")]
-        public IActionResult CallTicket(Guid DeskID, Guid ticketID, Guid user)
+        public IActionResult CallTicket(Guid DeskID, Guid ticketID, Guid user, Guid Macro)
         {
-            var ticketState = _deskService.CallTicket( DeskID,  ticketID,  user);
+            var ticketState = _deskService.CallTicket( DeskID,  ticketID,  user,  Macro);
 
             string serializedTicketState = JsonConvert.SerializeObject(ticketState);
 
@@ -118,6 +118,15 @@ namespace QLiteDataApi.Controllers.Desk
             _communicationHubContext.Clients.Group("ALL_").SendAsync("NotifyTicketState", serializedTicketState);
 
             return Ok(serializedTicketState);
+        }
+
+
+        [HttpGet]
+        [Route("api/Desk/GetDesk/{DeskID}")]
+        public ActionResult GetDesk([FromRoute] Guid DeskID)
+        {
+            var desk = _deskService.GetDesk(DeskID);
+            return Ok(desk);
         }
     }
 

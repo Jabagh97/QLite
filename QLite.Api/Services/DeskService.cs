@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NPoco;
 using QLite.Data;
 using QLite.Data.Dtos;
 using QLite.Data.Models;
@@ -10,15 +11,15 @@ namespace QLiteDataApi.Services
     public interface IDeskService
     {
         object GetTicketsByState(TicketStateEnum state);
-        TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, bool autocall = false);
+        TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, Guid Macro, bool autocall = false);
         TicketState GetMyCurrentService(Guid DeskID);
         TicketState EndCurrentService(Guid DeskID);
         int GetTicketDuration(Guid ticketid);
-        public TicketState TransferOperation(TransferTicketDto transferTicketDto);
+         TicketState TransferOperation(TransferTicketDto transferTicketDto);
 
-        public TicketState ParkOperation(ParkTicketDto parkTicketDto);
+         TicketState ParkOperation(ParkTicketDto parkTicketDto);
 
-
+         Desk GetDesk(Guid DeskID);
     }
 
     public class DeskService : IDeskService
@@ -56,9 +57,81 @@ namespace QLiteDataApi.Services
             return jsonData;
         }
 
+        private Ticket FindTicketToCall(Guid branchId, Guid macroId,Guid DeskId)
+        {
+            Macro macro = new Macro();
+            if (macroId != Guid.Empty)
+                macro = _context.Macros.Where(m => m.Oid == macroId && m.Gcrecord == null).FirstOrDefault();
+            
+
+            Ticket t = new Ticket();
+            if (macro != null)
+            {
+                t = FindTicketByMacro(macroId, branchId, DeskId);
+                if (t != null)
+                {
+                    t.TicketState.Macro = macro?.Oid;
+                    t.TicketState.MacroObject = macro;
+                }
+            }
+            
+            return t;
+        }
+        public Ticket FindTicketByMacro(Guid macroId, Guid branchId, Guid DeskId)
+        {
+            var ticketQuery = _context.Tickets
+                .Where(t => t.Branch == branchId && (t.CurrentState == (int)TicketStateEnum.Waiting || t.CurrentState == (int)TicketStateEnum.Waiting_T))
+                .Where(t => _context.MacroRules.Any(mr =>
+                    (mr.ServiceType == t.ServiceType || mr.ServiceType == null) &&
+                    (mr.Segment == t.Segment || mr.Segment == null) &&
+                    (t.Desk != DeskId || t.Desk == null) &&
+                    (mr.Transfer != true || t.CurrentState == (int)TicketStateEnum.Waiting) &&
+                    (mr.ToThisDesk == (int)MeNotothersAll.AllTerminals ||
+                        (mr.ToThisDesk == (int)MeNotothersAll.OnlyForSelectedDesk && t.ToDesk == DeskId) ||
+                        (mr.ToThisDesk == (int)MeNotothersAll.NotSpecified && (t.ToDesk == DeskId || t.ToDesk == null))))
+                )
+                .OrderBy(t => (DateTime.Now - t.LastOprTime).TotalMinutes < _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault() ?
+                    _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.Sequence).FirstOrDefault() :
+                    0)
+                .Select(t => new
+                {
+                    Ticket = t,
+                    Seq = (DateTime.Now - t.LastOprTime).TotalMinutes < _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault() ?
+                        _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.Sequence).FirstOrDefault() :
+                        0,
+                    CallingRuleDescription = (DateTime.Now - t.LastOprTime).TotalMinutes < _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault() ?
+                        $"Maksimum bekleme süresi olan {_context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault()} dk lık süreyi tamamlamıştır." :
+                        _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.Description).FirstOrDefault()
+                })
+                .FirstOrDefault();
+
+            if (ticketQuery != null && ticketQuery.Ticket.Desk == DeskId)
+            {
+                var ticket2Try = _context.Tickets
+                    .Where(t => t.Branch == branchId && t.CurrentState == (int)TicketStateEnum.Waiting)
+                    .OrderBy(t => (DateTime.Now - t.LastOprTime).TotalMinutes < _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault() ?
+                        _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.Sequence).FirstOrDefault() :
+                        0)
+                    .Select(t => new
+                    {
+                        Ticket = t,
+                        Seq = (DateTime.Now - t.LastOprTime).TotalMinutes < _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault() ?
+                            _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.Sequence).FirstOrDefault() :
+                            0,
+                        CallingRuleDescription = (DateTime.Now - t.LastOprTime).TotalMinutes < _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault() ?
+                            $"Maksimum bekleme süresi olan {_context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault()} dk lık süreyi tamamlamıştır." :
+                            _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.Description).FirstOrDefault()
+                    })
+                    .FirstOrDefault();
+
+                return ticket2Try?.Ticket;
+            }
+
+            return ticketQuery?.Ticket;
+        }
 
 
-        public TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, bool autocall = false)
+        public TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, Guid Macro, bool autocall = false)
         {
 
             Desk? d = _context.Desks.Find(DeskID);
@@ -69,12 +142,10 @@ namespace QLiteDataApi.Services
 
             Ticket t;
             TicketState svc = null;
-            if (ticketID == null)
+            if (ticketID == Guid.Empty)
 
-                //TODO: AutoCall
-                //t = FindTicketToCall(branchId, macroId);
+                t = FindTicketToCall(d.Oid, Macro,DeskID);
 
-                t = null;
             else
                 t = GetTicket(ticketID);
 
@@ -122,7 +193,7 @@ namespace QLiteDataApi.Services
                     ServiceType = t.ServiceType,
                     ServiceTypeName = t.ServiceTypeName,
                     StartTime = tm,
-                    ServiceCode= t.ServiceCode,
+                    ServiceCode = t.ServiceCode,
                     CreatedDate = DateTime.Now,
                     CreatedDateUtc = DateTime.UtcNow,
                     ModifiedDate = DateTime.Now,
@@ -199,7 +270,7 @@ namespace QLiteDataApi.Services
                     TicketNumber = currentTicket.Number,
                     TicketStateValue = (int)TicketStateEnum.Final,
                     StartTime = t,
-                    ServiceCode= currentTicket.ServiceCode,
+                    ServiceCode = currentTicket.ServiceCode,
 
                     CreatedDate = DateTime.Now,
                     CreatedDateUtc = DateTime.UtcNow,
@@ -281,7 +352,7 @@ namespace QLiteDataApi.Services
                           join ts in _context.TicketStates on t.Oid equals ts.Ticket into ticketStates
                           from ts in ticketStates.Where(ts => ts.TicketOprValue == null).DefaultIfEmpty()
                           join tp in _context.TicketPools on t.TicketPool equals tp.Oid into ticketPools
-                          from tp in ticketPools.Where(tp=>tp.Gcrecord == null).DefaultIfEmpty()
+                          from tp in ticketPools.Where(tp => tp.Gcrecord == null).DefaultIfEmpty()
                           where t.Oid == ticketId
                           select new Ticket
                           {
@@ -295,7 +366,7 @@ namespace QLiteDataApi.Services
                               CurrentDesk = t.Desk,
                               CurrentState = (int)TicketStateEnum.Service,
                               LastOpr = (int)TicketOprEnum.Call,
-                              TicketState =ts,
+                              TicketState = ts,
                               Number = t.Number,
                               Branch = t.Branch,
                               Segment = t.Segment,
@@ -350,7 +421,7 @@ namespace QLiteDataApi.Services
                 {
                     //User = QorchUserContext.UserId,
                     Desk = parkTicketDto.DeskID,
-                   
+
                     Oid = Guid.NewGuid(),
                     Ticket = parkTicket.Oid,
                     TicketStateValue = (int)TicketStateEnum.Park,
@@ -390,6 +461,16 @@ namespace QLiteDataApi.Services
         public TicketState TransferOperation(TransferTicketDto transferTicketDto)
         {
             throw new NotImplementedException();
+        }
+
+
+        public Desk GetDesk(Guid DeskID) 
+        
+        {
+            var desk = _context.Desks.Where(d => d.Oid == DeskID && d.Gcrecord == null).First();
+
+
+            return desk;
         }
     }
 }

@@ -39,7 +39,7 @@ public partial class Ticket
 
     public int? LastOpr { get; set; }
 
-    public DateTime? LastOprTime { get; set; }
+    public DateTime LastOprTime { get; set; }
 
     public Guid? ToServiceType { get; set; }
 

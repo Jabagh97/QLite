@@ -1,3 +1,16 @@
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+
+@{
+    // Get the user's claims
+    var identity = User.Identity as ClaimsIdentity;
+    var deskIdClaim = identity?.FindFirst("DeskId");
+
+    // Check if the claim exists and get its value
+    var deskId = deskIdClaim?.Value;
+}
+
+
 
 <!--begin::Hero-->
 <div id="kt_app_hero" class="app-hero  py-6 ">
@@ -58,7 +71,7 @@
                     <span class="text-white fw-bold fs-3 mb-1">Desk</span>
                     <!--end::Number-->
                     <!--begin::Section-->
-                    <div class="text-white opacity-50 fw-bold">11</div>
+                    <div id="deskName" class="text-white opacity-50 fw-bold" data-desk-id="@deskId">Loading...</div>
                     <!--end::Section-->
                 </div>
                 <!--end::Item-->

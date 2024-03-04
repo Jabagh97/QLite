@@ -520,18 +520,19 @@ namespace QLiteAuthenticationServer.Controllers.Account
                     }
                 }
                 #endregion
+                var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberLogin, lockoutOnFailure: true);
 
-                //var claims = new List<Claim>();
-                //claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+                if (!result.Succeeded)
+                {
 
-                //var user2 = new IdentityServerUser("unique_id_for_your_user")
-                //{
-                //	DisplayName = user.UserName
-                //};
+                    await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "Invalid credentials", clientId: context?.Client.ClientId));
+                    ModelState.AddModelError(string.Empty, "Invalid credentials");
 
-                //var result = await HttpContext.SignInAsync(user2);
+                    // something went wrong, show form with error
+                    var vm2 = await BuildLoginViewModelAsync(model);
+                    return View(vm2);
 
-
+                }
                 #region INITIALIZE OR UPDATE FINGERPRINT CLAIM
                 var existingFingerprint = _context.UserClaims
                     .FirstOrDefault(x => x.UserId == user.Id && x.ClaimType == "Fingerprint");
@@ -553,41 +554,7 @@ namespace QLiteAuthenticationServer.Controllers.Account
                 #endregion
 
 
-                var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberLogin, lockoutOnFailure: true);
-                //var result2 = _signInManager.SignInWithClaimsAsync(user: user, isPersistent: model.RememberLogin, additionalClaims: claims);
-
-                if (!result.Succeeded)
-                {
-                    //await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId: context?.Client.ClientId));
-                    //ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
-
-                    await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "Invalid credentials", clientId: context?.Client.ClientId));
-                    ModelState.AddModelError(string.Empty, "Invalid credentials");
-
-                    // something went wrong, show form with error
-                    var vm2 = await BuildLoginViewModelAsync(model);
-                    return View(vm2);
-
-                }
-
-                //var claims = _context.UserClaims
-                //                .Where(x => x.UserId == user.Id)
-                //                .Select(x => new Claim(x.ClaimType, x.ClaimValue))
-                //                .ToList();
-
-                //if (claims != null)
-                //{
-                //	var appIdentity = new ClaimsIdentity(claims);
-                //	User.AddIdentity(appIdentity);
-                //}
-
-                // profile service does not have acess to http context with user IP. user info endpoint gets called by client app, where it is not possible to redirect user IP.
-                //string fingerprint = Utils.GenerateFingerprint(HttpContext); // Generate Fingerprint
-                //var claim = new Claim("Fingerprint", fingerprint); // Create the claim
-                //await _userManager.AddClaimAsync(user, claim); // Add claim to user
-                //await _signInManager.RefreshSignInAsync(user); // refresh login to reflect changes to cookie
-
-
+               
 
                 await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName, clientId: context?.Client.ClientId));
 

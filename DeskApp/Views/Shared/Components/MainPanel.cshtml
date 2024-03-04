@@ -10,7 +10,7 @@
                 <div class="card-toolbar">
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
-                            <button class="nav-link" data-toggle="tab">
+                            <button class="nav-link" data-toggle="tab" onclick="autocall()">
                                 <i class="fas fa-phone"></i>
                                 AutoCall
                             </button>
@@ -58,9 +58,9 @@
             @if (Model != null)
             {
                 <div class="card-footer">
-                    <button class="btn btn-secondary btn-md">
+                  @*  <button class="btn btn-secondary btn-md">
                         <i class="fas fa-phone"></i> Call Ticket
-                    </button>
+                    </button>*@
                     <button class="btn btn-secondary btn-md">
                         <i class="fas fa-exchange-alt"></i> Transfer Ticket
                     </button>
@@ -70,9 +70,9 @@
                     <button class="btn btn-secondary btn-md" onclick="EndTicket()">
                         <i class="fas fa-times"></i> End Ticket
                     </button>
-                    <button class="btn btn-secondary btn-md">
+                  @*  <button class="btn btn-secondary btn-md">
                         <i class="fas fa-pause"></i> Pause/Hold Ticket
-                    </button>
+                    </button>*@
                 </div>
             }
         </div>

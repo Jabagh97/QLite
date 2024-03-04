@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Authorization;
+@inject IAuthorizationService AuthorizationService
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -48,6 +51,7 @@
 
             <!--begin::Wrapper-->
             <div class="app-wrapper  flex-column flex-row-fluid " id="kt_app_wrapper">
+
                 @if (User != null && User.Identity != null && User.Identity.IsAuthenticated == true)
                 {
                     @*@await Html.PartialAsync("layout/partials/_hero")*@

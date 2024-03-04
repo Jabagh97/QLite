@@ -42,14 +42,14 @@ namespace DeskApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CallTicketAsync(string TicketID)
+        public async Task<IActionResult> CallTicketAsync(Guid TicketID,Guid DeskID)
         {
             try
             {
 
                 var userId = await GetUserIdAsync();
 
-                var response = await _httpClient.GetAsync($"api/Desk/CallTicket?DeskID=D07426D4-C92A-46E4-AD29-26F4CB1111B1&ticketID={TicketID}&user={userId}");
+                var response = await _httpClient.GetAsync($"api/Desk/CallTicket?DeskID={DeskID}&ticketID={TicketID}&user={userId}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -186,6 +186,31 @@ namespace DeskApp.Controllers
             }
 
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDesk([Required] Guid DeskID)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"api/Desk/GetDesk/{DeskID}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    Desk desk = JsonConvert.DeserializeObject<Desk>(responseData);
+                    return Ok(desk.Name);
+                }
+                else
+                {
+                    return StatusCode((int)response.StatusCode, $"Failed to Get Desk");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
+            }
+        }
+
 
     }
 

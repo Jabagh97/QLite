@@ -26,6 +26,8 @@ namespace QLiteDataApi.Services
         IQueryable GetTabData(Type innerType, Type innerViewType, string Oid, Type mainModelType);
 
         bool RemoveFromSubList(string tabName, Type modelType, string modelOid, List<string> Oids);
+
+        List<Desk> GetAllDesks();
     }
     public class DataService : IDataService
     {
@@ -309,8 +311,15 @@ namespace QLiteDataApi.Services
 
 
 
-        #endregion
 
+
+        #endregion
+        public List<Desk> GetAllDesks()
+        {
+            var DeskList = _dbContext.Desks.Where(d=>d.Gcrecord==null).ToList();
+
+            return DeskList;
+        }
     }
 
 }

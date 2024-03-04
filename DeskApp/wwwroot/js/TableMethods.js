@@ -172,13 +172,32 @@ function ParkTicket(ticket) {
     });
 }
 
-// Call ticket button click handler
-$('#table').on('click', '.call-ticket', function () {
-    var oid = $(this).data('oid');
+function autocall()
+{
     $.ajax({
         url: '/Ticket/CallTicket',
         type: 'POST',
-        data: { TicketID: oid },
+      
+        success: function (data) {
+            // Handle success if needed
+
+
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+        }
+    });
+}
+
+// Call ticket button click handler
+$('#table').on('click', '.call-ticket', function () {
+    var oid = $(this).data('oid');
+    var deskId = $('#deskName').data('desk-id');
+
+    $.ajax({
+        url: '/Ticket/CallTicket',
+        type: 'POST',
+        data: { TicketID: oid, DeskID: deskId },
         success: function (data) {
             // Handle success if needed
 
@@ -192,10 +211,12 @@ $('#table').on('click', '.call-ticket', function () {
 // Call ticket button click handler
 $('#CompletedTable').on('click', '.call-ticket', function () {
     var oid = $(this).data('oid');
+    var deskId = $('#deskName').data('desk-id');
+
     $.ajax({
         url: '/Ticket/CallTicket',
         type: 'POST',
-        data: { TicketID: oid },
+        data: { TicketID: oid, DeskID: deskId },
         success: function (data) {
             // Handle success if needed
 
@@ -206,3 +227,18 @@ $('#CompletedTable').on('click', '.call-ticket', function () {
         }
     });
 });
+function GetDesk()
+{
+    var deskId = $('#deskName').data('desk-id');
+    $.ajax({
+        url: '/Ticket/GetDesk?deskId=' + deskId,
+        type: 'GET',
+        success: function (data) {
+            $('#deskName').text(data); // Update the content with the fetched desk name
+        },
+        error: function () {
+            $('#deskName').text('Error fetching desk name'); // Display error message if request fails
+        }
+    });
+}
+GetDesk();

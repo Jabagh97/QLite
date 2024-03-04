@@ -11,7 +11,7 @@ using QLiteAuthenticationServer.Context;
 namespace QLiteAuthenticationServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240206114630_InitialCreate")]
+    [Migration("20240304125514_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -178,6 +178,9 @@ namespace QLiteAuthenticationServer.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Desk")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")

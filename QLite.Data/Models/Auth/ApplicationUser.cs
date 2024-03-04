@@ -18,6 +18,10 @@ namespace QLite.Data.Models.Auth
         public bool TwoFactorConfirmed { get; set; } = false;
         public bool QRless { get; set; } = false;
 
+        public Guid Desk { get; set; }
+
+
+      
     }
 
     public enum AccountType
