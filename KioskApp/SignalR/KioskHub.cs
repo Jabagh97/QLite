@@ -26,6 +26,14 @@ namespace KioskApp.SignalR
 
             // You can perform any additional logic here, such as processing the message or broadcasting it to other clients
         }
+
+        public async Task NotifyTicketState(string ticket)
+        {
+            // Log the received message
+            Log.Debug($"Ticket received from server: {ticket}");
+
+            // You can perform any additional logic here, such as processing the message or broadcasting it to other clients
+        }
         public async Task SendMessage(string message)
         {
             await Clients.All.SendAsync("ReceiveMessage", message);

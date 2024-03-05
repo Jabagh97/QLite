@@ -103,11 +103,11 @@ namespace DeskApp.Controllers
         public Task<IActionResult> GetCompletedTickets() => GetTickets("GetCompletedTickets");
 
         [HttpGet]
-        public async Task<IActionResult> GetCurrentTicket() 
+        public async Task<IActionResult> GetCurrentTicket(Guid DeskID) 
         {
             try
             {
-                var response = await _httpClient.GetAsync($"api/Desk/GetCurrentTicket?DeskID=D07426D4-C92A-46E4-AD29-26F4CB1111B1");
+                var response = await _httpClient.GetAsync($"api/Desk/GetCurrentTicket?DeskID={DeskID}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -159,11 +159,8 @@ namespace DeskApp.Controllers
         {
             try
             {
-                Guid deskId;
-
-                Guid.TryParse("D07426D4-C92A-46E4-AD29-26F4CB1111B1", out deskId);
-                parkTicket.DeskID = deskId;
-                parkTicket.TicketNote = "TEST";
+              
+                
 
                 var content = new StringContent(JsonConvert.SerializeObject(parkTicket), Encoding.UTF8, "application/json");
 

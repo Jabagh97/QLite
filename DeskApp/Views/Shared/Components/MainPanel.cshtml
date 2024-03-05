@@ -27,12 +27,7 @@
                                 Busy
                             </button>
                         </li>
-                        <li class="nav-item">
-                            <button class="nav-link" data-toggle="tab">
-                                <i class="fas fa-coffee"></i>
-                                Coffee Break
-                            </button>
-                        </li>
+
                     </ul>
                 </div>
             </div>
@@ -40,12 +35,12 @@
                 <h4>Ticket State Information</h4>
                 @if (Model != null)
                 {
-                    <h3>Ticket Number : @Model.ServiceCode@Model.TicketNumber</h3>
+                    <h3 id="ticketNumber" data-ticket-id="@Model.Ticket">Ticket Number : @Model.ServiceCode@Model.TicketNumber</h3>
 
                     <h3>Service Type  : @Model.ServiceTypeName</h3>
                     <h3>Segment       : @Model.SegmentName</h3>
 
-                    <h3>Note          : </h3>
+                    <h3>Note          :@Model.Note </h3>
 
 
                 }
@@ -58,24 +53,46 @@
             @if (Model != null)
             {
                 <div class="card-footer">
-                  @*  <button class="btn btn-secondary btn-md">
-                        <i class="fas fa-phone"></i> Call Ticket
-                    </button>*@
-                    <button class="btn btn-secondary btn-md">
+                    @*  <button class="btn btn-secondary btn-md">
+                <i class="fas fa-phone"></i> Call Ticket
+                </button>*@
+                    <button class="btn btn-secondary btn-md" onclick="TransferTicket('@Model.Ticket')">
                         <i class="fas fa-exchange-alt"></i> Transfer Ticket
                     </button>
-                    <button class="btn btn-secondary btn-md" onclick="ParkTicket('@Model.Ticket')">
+                    <button class="btn btn-secondary btn-md" onclick="showParkTicketModal()">
                         <i class="fas fa-parking"></i> Park Ticket
                     </button>
+
                     <button class="btn btn-secondary btn-md" onclick="EndTicket()">
                         <i class="fas fa-times"></i> End Ticket
                     </button>
-                  @*  <button class="btn btn-secondary btn-md">
-                        <i class="fas fa-pause"></i> Pause/Hold Ticket
-                    </button>*@
+                    @*  <button class="btn btn-secondary btn-md">
+                <i class="fas fa-pause"></i> Pause/Hold Ticket
+                </button>*@
                 </div>
             }
         </div>
         <!--end::Card-->
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="parkTicketModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Park Ticket</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="ticketNote" class="form-control" placeholder="Enter Note">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="ParkTicket()">OK</button>
+            </div>
+        </div>
     </div>
 </div>

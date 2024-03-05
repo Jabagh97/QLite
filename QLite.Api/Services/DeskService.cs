@@ -198,12 +198,13 @@ namespace QLiteDataApi.Services
                     CreatedDateUtc = DateTime.UtcNow,
                     ModifiedDate = DateTime.Now,
                     ModifiedDateUtc = DateTime.UtcNow,
-
+                    DisplayNo = d.DisplayNo,
+                    
                     //CallingRuleDescription = t.CallingRuleDescription,
                     // Macro = t.StateObj.Macro,
                     // MacroObj = t.StateObj.MacroObj,
                     TicketCallType = (int?)(autocall ? TicketCallType.Autocall : ticketID == Guid.Empty ? TicketCallType.Definitive : TicketCallType.Normal)
-
+                    
                 };
 
                 if (autocall)
@@ -339,6 +340,7 @@ namespace QLiteDataApi.Services
                                KioskAppId = tOpr.KioskAppId,
                                TicketNavigation = t,
                                ServiceCode = tp.ServiceCode,
+                               Note = t.TicketNote
                            })
                           .FirstOrDefault();
 
@@ -439,6 +441,7 @@ namespace QLiteDataApi.Services
                     CreatedDateUtc = DateTime.UtcNow,
                     ModifiedDate = DateTime.Now,
                     ModifiedDateUtc = DateTime.UtcNow,
+                   
                 };
                 _context.TicketStates.Add(parkTicketOpr);
                 parkTicketOpr.TicketNavigation = parkTicket;

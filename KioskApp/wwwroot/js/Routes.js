@@ -63,6 +63,22 @@ function PrintTicket(ticket) {
     });
 }
 
+function DisplayTicket(ticket) {
+    $.ajax({
+        url: '/Ticket/DisplayTicket', 
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ DisplayNo: ticket.DisplayNo, TicketNo: ticket.ServiceCode + ticket.TicketNumber, SendToMain: false }), // Convert data to JSON string
+        success: function (response) {
+            console.log("Ticket displayed successfully");
+        },
+        error: function (xhr, status, error) {
+            console.error("Error displaying ticket:", xhr.responseText);
+        }
+    });
+}
+
+
 async function getHttpReq(url, data) {
     let temp;
 

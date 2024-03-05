@@ -48,6 +48,7 @@ function fetchTickets(url, title,id,justnumber) {
                     oid: item.oid
                 }).draw();
             });
+
         },
         error: function (xhr, status, error) {
             console.error(xhr.responseText);
@@ -126,9 +127,13 @@ fetchCompletedTickets('Ticket/GetCompletedTickets');
 
 function updateMainPanel()
 {
+    var deskId = $('#deskName').data('desk-id');
+
     $.ajax({
         url: 'Ticket/GetCurrentTicket',
         type: 'GET',
+        data: { DeskID: deskId},
+
         success: function (response) {
 
             $('#mainPanelContent').html(response);
@@ -158,16 +163,25 @@ function EndTicket()
     });
 }
 
-function ParkTicket(ticket) {
-
+function showParkTicketModal() {
+    $('#parkTicketModal').modal('show');
+}
+function ParkTicket() {
+    var deskId = $('#deskName').data('desk-id');
+    var note = $('#ticketNote').val();
+    var ticket = $('#ticketNumber').data('ticket-id');
     $.ajax({
         url: 'Ticket/ParkTicket',
         type: 'POST',
-        data: { TicketId: ticket },
+        data: { TicketId: ticket, DeskID: deskId, TicketNote: note },
         success: function (response) {
+            $('#parkTicketModal').modal('hide');
+
         },
         error: function (xhr, status, error) {
             console.error(xhr.responseText);
+            $('#parkTicketModal').modal('hide');
+
         }
     });
 }

@@ -86,8 +86,9 @@
 
 
     var apiUrl = '@Configuration["APIBase"]';
+    var kioskID = '@Configuration["KioskID"]';
 
-    var hubUrl = apiUrl + '/communicationHub/?branchId=1111&branchName=IST&clientType=Kiosk&clientName=$TestKIosk&clientId=666&eventId=Waiting;Waiting_T;Service;Park;Final';
+    var hubUrl = apiUrl + '/communicationHub/?branchId=1111&branchName=IST&clientType=Kiosk&clientName=$TestKIosk&clientId=' + kioskID;
     var connection = new signalR.HubConnectionBuilder().withUrl(hubUrl).build();
 
     var retryInterval = 5000; // Retry connection every 5 seconds
@@ -115,7 +116,7 @@
             setTimeout(startConnection, retryInterval);
         });
     }
-    //setInterval(queryHw, 3000); // Call every 3 seconds (3000 milliseconds)
+    setInterval(queryHw, 5000); // Call every 5 seconds 
 
     function sendMessageToDesk(message) {
         connection.invoke("SendMessageToDesk", message).catch(function (err) {
@@ -130,6 +131,21 @@
     connection.on("ReceiveMessage", function (message) {
         // Process the received message here, e.g., update UI
         console.log("Message received from server:", message);
+    });
+
+    connection.on("NotifyTicketState", function (ticket) {
+        try{
+            var messageObject = JSON.parse(ticket);
+
+            DisplayTicket(messageObject);
+
+
+            console.log("Ticket received from server:", messageObject);
+        }
+        catch (error) {
+            console.error("Error processing NotifyTicketState message:", error);
+        }
+        
     });
 
     // Reconnect if the connection is lost

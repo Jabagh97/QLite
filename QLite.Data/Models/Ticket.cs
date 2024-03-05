@@ -102,5 +102,7 @@ public partial class Ticket
     [NotMapped]
     public TicketState? TicketState { get; set; }
 
+    [NotMapped]
+    public int? WaitingTickets { get; set; }
 
 }

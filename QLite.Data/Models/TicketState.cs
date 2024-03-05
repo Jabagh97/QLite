@@ -80,4 +80,12 @@ public partial class TicketState
 
     [NotMapped]
     public Macro? MacroObject { get; set; }
+
+    [NotMapped]
+    public string? Note { get; set; }
+
+    [NotMapped]
+    public string DisplayNo { get; set; }
+
+   
 }

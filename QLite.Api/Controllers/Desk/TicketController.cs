@@ -18,13 +18,14 @@ namespace QLiteDataApi.Controllers.Desk
     {
         private readonly IDeskService _deskService;
         private readonly IHubContext<CommunicationHub> _communicationHubContext;
+        private readonly IConfiguration _configuration;
 
 
-        public TicketController(IDeskService deskService, IHubContext<CommunicationHub> communicationHubContext)
+        public TicketController(IDeskService deskService, IHubContext<CommunicationHub> communicationHubContext, IConfiguration configuration)
         {
             _deskService = deskService;
             _communicationHubContext = communicationHubContext;
-
+            _configuration = configuration;
         }
 
         private IActionResult GetTicketsByState(TicketStateEnum state)
@@ -78,8 +79,11 @@ namespace QLiteDataApi.Controllers.Desk
             var ticketState = _deskService.CallTicket( DeskID,  ticketID,  user,  Macro);
 
             string serializedTicketState = JsonConvert.SerializeObject(ticketState);
+            string kioskId = _configuration.GetValue<string>("DisplayID");
 
             _communicationHubContext.Clients.Group("ALL_").SendAsync("NotifyTicketState", serializedTicketState);
+            _communicationHubContext.Clients.Group("Display_"+ kioskId).SendAsync("NotifyTicketState", serializedTicketState);
+
 
             return Ok(serializedTicketState);
         }

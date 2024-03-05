@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Operations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using NPoco;
+using NuGet.Protocol;
 using QLite.Data;
 using QLite.Data.Dtos;
 using QLiteDataApi.Context;
@@ -54,6 +55,10 @@ namespace QLiteDataApi.Services
             var newTicket = CreateNewTicket(svcType, segment, ticketPool, retNumber);
 
             var newTicketState = CreateNewTicketState(newTicket, svcType, segment);
+
+            var waiting = GetNumberOfWaitingTickets(req.ServiceTypeId, req.SegmentId);
+
+            newTicket.WaitingTickets= waiting;
 
             SaveTicketAsync(newTicket, newTicketState);
 
@@ -145,7 +150,9 @@ namespace QLiteDataApi.Services
             return (int)retNumber;
         }
 
-        private Ticket CreateNewTicket(ServiceType svcType, Segment segment, TicketPool ticketPool, int retNumber)
+
+
+    private Ticket CreateNewTicket(ServiceType svcType, Segment segment, TicketPool ticketPool, int retNumber)
         {
             return new Ticket
             {
@@ -166,6 +173,7 @@ namespace QLiteDataApi.Services
                 ModifiedDateUtc= DateTime.UtcNow,
                 TicketPool = ticketPool.Oid,
                 ServiceCode = ticketPool.ServiceCode,
+
             };
         }
 

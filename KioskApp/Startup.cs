@@ -11,6 +11,8 @@ using QLite.Data.CommonContext;
 using QLite.Kio;
 using QLite.Data;
 using KioskApp.Services;
+using QLite.KioskLibrary.Display;
+using QLite.KioskLibrary.Hardware;
 
 namespace KioskApp
 {
@@ -89,6 +91,11 @@ namespace KioskApp
             builder.RegisterType<EmsePrinter>().As<IPrinter>().SingleInstance();
 
             builder.RegisterType<EmseUsbPrinterDevice>().AsSelf().SingleInstance();
+
+            builder.RegisterType<EmseDisplayGHid>().Named<IDisplay>("sgm").SingleInstance();
+            builder.RegisterType<EmseDisplayHDot>().Named<IDisplay>("dot").SingleInstance();
+            builder.RegisterType<EmseUsbQueNumDevice>().AsSelf().SingleInstance();
+
 
             builder.RegisterType<TimerUtil>().AsSelf().SingleInstance();
             builder.RegisterType<BrowserUtil>().AsSelf().SingleInstance();
