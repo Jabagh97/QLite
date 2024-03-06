@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using QLite.Data.CustomAttribute;
+using System.ComponentModel.DataAnnotations;
 
 namespace QLite.Data.ViewModels.MacroRule
 {
@@ -11,14 +12,15 @@ namespace QLite.Data.ViewModels.MacroRule
         public string? ServiceType { get; set; }
 
         public string? Segment { get; set; }
+        [Boolean]
 
         public bool? Transfer { get; set; }
+        [Enum]
 
         public int? ToThisDesk { get; set; }
 
-        //public int? MaxWaitingTime { get; set; }
 
-        //public int? MinWaitingTime { get; set; }
+        [Required]
 
         public int? Sequence { get; set; }
 

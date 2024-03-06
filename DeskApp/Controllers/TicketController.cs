@@ -208,7 +208,29 @@ namespace DeskApp.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetMacros([Required] Guid DeskID)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"api/Desk/GetMacros/{DeskID}");
 
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    List<DeskMacroSchedule> macros = JsonConvert.DeserializeObject<List<DeskMacroSchedule>>(responseData);
+                    return Ok(macros);
+                }
+                else
+                {
+                    return StatusCode((int)response.StatusCode, $"Failed to Get macros");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
+            }
+        }
     }
 
 }

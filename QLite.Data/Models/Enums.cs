@@ -105,7 +105,19 @@ namespace QLite.Data.Models
             CardNo,
         }
 
+        public enum ToDesk
+        {
+            NotSpecified = 0,
+            OnlyForSelectedDesk = 1,
+            AllDesks = 2
+        }
 
+        public enum MacroType
+        {
+            Sequential = 0,
+            //TestColor = 1,
+            //WaitingTime = 1, //waitingTime iptal sequence la yapılabiliyormuş. enum dursun oransal falan yaparız sonra.
+        }
         public enum DeskActivityStatus
         {
             Closed = 0,
@@ -133,11 +145,7 @@ namespace QLite.Data.Models
             SendToWaiting = 5
         }
 
-        public enum MacroType
-        {
-            Sequential = 0,
-         
-        }
+        
         public enum Parameter
         {
             PrimaryColor = 0,

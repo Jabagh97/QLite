@@ -132,6 +132,14 @@ namespace QLiteDataApi.Controllers.Desk
             var desk = _deskService.GetDesk(DeskID);
             return Ok(desk);
         }
+
+        [HttpGet]
+        [Route("api/Desk/GetMacros/{DeskID}")]
+        public ActionResult GetMacros([FromRoute] Guid DeskID)
+        {
+            var macroSchedules = _deskService.GetMacros(DeskID);
+            return Ok(macroSchedules);
+        }
     }
 
 }

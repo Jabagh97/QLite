@@ -256,3 +256,27 @@ function GetDesk()
     });
 }
 GetDesk();
+
+function fetchAndPopulateMacros() {
+    var deskId = $('#deskName').data('desk-id');
+
+    // Send a GET request to fetch macros with the deskId
+    $.get('Ticket/GetMacros', { DeskID: deskId }, function (macros) {
+        // Get the macroMenu element
+        var macroMenu = document.getElementById('macroMenu');
+
+        // Clear existing menu items
+        macroMenu.innerHTML = '';
+
+        // Iterate over the macros array and add dropdown items
+        macros.forEach(function (macro) {
+            var menuItem = document.createElement('div');
+            menuItem.className = 'menu-item';
+            menuItem.innerHTML = '<a class="menu-link" href="#" data-macro-id="' + macro.id + '">' + macro.name + '</a>';
+            macroMenu.appendChild(menuItem);
+        });
+    });
+}
+
+
+fetchAndPopulateMacros();

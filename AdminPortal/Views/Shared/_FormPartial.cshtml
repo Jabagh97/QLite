@@ -21,9 +21,12 @@
             var isBoolean = viewModelProperty?.GetCustomAttribute<BooleanAttribute>() != null;
             string formDataValue = "";
             var isDate = viewModelProperty?.GetCustomAttribute<DateAtrribute>() != null;
+
+
+            var isEnum = viewModelProperty?.GetCustomAttribute<EnumAttribute>() != null;
             if (Model.Action == "Edit")
             {
-                 formDataValue = Model.FormData[propertyToLower] != null ? Model.FormData[propertyToLower] : "";
+                formDataValue = Model.FormData[propertyToLower] != null ? Model.FormData[propertyToLower] : "";
 
             }
 
@@ -45,6 +48,23 @@
                             else if (isIcon) { RenderIconInput(property, value); }
                             else if (isBoolean) { RenderCheckBoxInput(property, value); }
                             else if (isDate) { RenderDateInput(property, value); }
+                            else if (isEnum)
+                            {
+                                var enumType = viewModelProperty.PropertyType;
+                                var enumValues = Enum.GetValues(enumType);
+
+                                <select name="@property.Name" id="@property.Name" class="form-select form-select-lg form-select-solid">
+                                    <option value="">Select @property.Name</option>
+                                    @foreach (var enumValue in enumValues)
+                                    {
+                                        var enumIntValue = Convert.ToInt32(enumValue);
+                                        <option value="@enumIntValue" >
+                                            @enumValue
+                                        </option>
+                                    }
+                                </select>
+                            }
+
 
                             else
                             {
@@ -90,6 +110,14 @@
     <button type="button" id="submit" class="btn btn-bg-success mt-3">@((Model.Action == "Add" ? "Create" : "Save"))</button>
 </form>
 @functions {
+
+    void RenderEnumInput(PropertyInfo property, string value)
+    {
+
+
+    }
+
+
     void RenderDateInput(PropertyInfo property, string value)
     {
 

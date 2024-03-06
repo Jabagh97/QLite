@@ -40,7 +40,7 @@
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Accounts</span>
+                                <span class="menu-title">Users</span>
                             </a>
 
                             <!--end:Menu link-->
@@ -203,31 +203,18 @@
                         <div class="menu-item">
                             <!--begin:Menu link-->
                             @* KAPP SETTINGS *@
-                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="KioskApplication">
+                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="Kiosk">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Kiosk Applications</span>
+                                <span class="menu-title">Kiosks</span>
                             </a>
                             <!--end:Menu link-->
                         </div>
                         <!--end:Menu item-->
-                        <!--begin:Menu item-->
-                        <div class="menu-item">
-                            <!--begin:Menu link-->
-                            @* KAPP SETTINGS *@
-                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="KioskApplicationType">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Kiosk Application Types</span>
-                            </a>
-                            <!--end:Menu link-->
-                        </div>
-                        <!--end:Menu item-->
+                       
                       
-                        
-                    
+                      
                         <!--end:Menu item-->
                         <!--begin:Menu item-->
                         <div class="menu-item">
@@ -298,6 +285,18 @@
                             <!--end:Menu link-->
                         </div>
                         <!--end:Menu item-->
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            @* RESOURCE *@
+                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="DeskMacroSchedule">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Desk Macro Schedule</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
                         <!--end:Menu item-->
 
 
@@ -324,6 +323,21 @@
                     <!--end:Menu link-->
                     <!--begin:Menu sub-->
                     <div class="menu-sub menu-sub-accordion">
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            @* RESOURCE *@
+                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="TicketPoolProfile">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Ticket Pool Profile</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+
+
                        
                         <!--begin:Menu item-->
                         <div class="menu-item">
@@ -333,7 +347,7 @@
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">TicketPool</span>
+                                <span class="menu-title">Ticket Pool</span>
                             </a>
                             <!--end:Menu link-->
                         </div>
@@ -363,7 +377,7 @@
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">TicketState</span>
+                                <span class="menu-title">Ticket States</span>
                             </a>
                             <!--end:Menu link-->
                         </div>
@@ -377,7 +391,7 @@
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Segment</span>
+                                <span class="menu-title">Segments</span>
                             </a>
                             <!--end:Menu link-->
                         </div>

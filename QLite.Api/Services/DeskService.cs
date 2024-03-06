@@ -20,6 +20,9 @@ namespace QLiteDataApi.Services
          TicketState ParkOperation(ParkTicketDto parkTicketDto);
 
          Desk GetDesk(Guid DeskID);
+
+        List<DeskMacroSchedule> GetMacros(Guid DeskID);
+
     }
 
     public class DeskService : IDeskService
@@ -474,6 +477,15 @@ namespace QLiteDataApi.Services
 
 
             return desk;
+        }
+
+        public List<DeskMacroSchedule> GetMacros(Guid DeskID)
+
+        {
+            var macros = _context.DeskMacroSchedules.Where(dms => dms.Desk == DeskID && dms.Gcrecord == null).ToList();
+
+
+            return macros;
         }
     }
 }

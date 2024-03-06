@@ -1,7 +1,11 @@
-﻿using System;
+﻿using QLite.Data.CustomAttribute;
+using QLite.Data.ViewModels.TicketPool;
+using QLite.Data.ViewModels.TicketPoolProfile;
+using System;
 using System.Collections.Generic;
 
 namespace QLite.Data;
+[ModelMapping(typeof(TicketPoolProfile), typeof(TicketPoolProfileViewModel))]
 
 public partial class TicketPoolProfile
 {

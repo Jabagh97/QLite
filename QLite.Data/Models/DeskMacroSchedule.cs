@@ -2,11 +2,12 @@
 using QLite.Data.Models;
 using QLite.Data.Models.Auth;
 using QLite.Data.ViewModels.DeskCreatableService;
+using QLite.Data.ViewModels.DeskMacroSchedule;
 using System;
 using System.Collections.Generic;
 
 namespace QLite.Data;
-//[ModelMapping(typeof(DeskMacroSchedule), typeof(DeskMacroScheduleViewModel))]
+[ModelMapping(typeof(DeskMacroSchedule), typeof(DeskMacroScheduleViewModel))]
 
 public partial class DeskMacroSchedule
 {
