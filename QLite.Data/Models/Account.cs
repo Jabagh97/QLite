@@ -63,4 +63,11 @@ public partial class Account
     public virtual ICollection<TicketPoolProfile> TicketPoolProfiles { get; } = new List<TicketPoolProfile>();
 
     public virtual ICollection<TicketPool> TicketPools { get; } = new List<TicketPool>();
+
+    public virtual ICollection<DeskMacroSchedule> DeskMacroSchedules { get; } = new List<DeskMacroSchedule>();
+
+
+    public virtual ICollection<Desk> Desks { get; } = new List<Desk>();
+
+
 }

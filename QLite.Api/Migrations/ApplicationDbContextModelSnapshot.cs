@@ -249,7 +249,6 @@ namespace QLiteDataApi.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
@@ -450,6 +449,8 @@ namespace QLiteDataApi.Migrations
 
                     b.HasKey("Oid");
 
+                    b.HasIndex(new[] { "Account" }, "iAccount_Desk");
+
                     b.HasIndex(new[] { "Branch" }, "iBranch_Desk");
 
                     b.HasIndex(new[] { "Gcrecord" }, "iGCRecord_Desk");
@@ -603,6 +604,8 @@ namespace QLiteDataApi.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
+
+                    b.HasIndex(new[] { "Account" }, "iAccount_DeskMacroSchedule");
 
                     b.HasIndex(new[] { "Branch" }, "iBranch_DeskMacroSchedule");
 
@@ -1796,7 +1799,7 @@ namespace QLiteDataApi.Migrations
                     b.Property<int?>("LastOpr")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("LastOprTime")
+                    b.Property<DateTime>("LastOprTime")
                         .HasColumnType("datetime");
 
                     b.Property<string>("ModifiedBy")
@@ -2217,6 +2220,11 @@ namespace QLiteDataApi.Migrations
 
             modelBuilder.Entity("QLite.Data.Desk", b =>
                 {
+                    b.HasOne("QLite.Data.Account", "AccountNavigation")
+                        .WithMany("Desks")
+                        .HasForeignKey("Account")
+                        .HasConstraintName("FK_Desk_Account");
+
                     b.HasOne("QLite.Data.Branch", "BranchNavigation")
                         .WithMany("Desks")
                         .HasForeignKey("Branch")
@@ -2226,6 +2234,8 @@ namespace QLiteDataApi.Migrations
                         .WithMany("Desks")
                         .HasForeignKey("Pano")
                         .HasConstraintName("FK_Desk_Pano");
+
+                    b.Navigation("AccountNavigation");
 
                     b.Navigation("BranchNavigation");
 
@@ -2258,6 +2268,11 @@ namespace QLiteDataApi.Migrations
 
             modelBuilder.Entity("QLite.Data.DeskMacroSchedule", b =>
                 {
+                    b.HasOne("QLite.Data.Account", "AccountNavigation")
+                        .WithMany("DeskMacroSchedules")
+                        .HasForeignKey("Account")
+                        .HasConstraintName("FK_DeskMacroSchedule_Account");
+
                     b.HasOne("QLite.Data.Branch", "BranchNavigation")
                         .WithMany("DeskMacroSchedules")
                         .HasForeignKey("Branch")
@@ -2272,6 +2287,8 @@ namespace QLiteDataApi.Migrations
                         .WithMany("DeskMacroSchedules")
                         .HasForeignKey("Macro")
                         .HasConstraintName("FK_DeskMacroSchedule_Macro");
+
+                    b.Navigation("AccountNavigation");
 
                     b.Navigation("BranchNavigation");
 
@@ -2679,6 +2696,10 @@ namespace QLiteDataApi.Migrations
                     b.Navigation("AccountLanguages");
 
                     b.Navigation("Branches");
+
+                    b.Navigation("DeskMacroSchedules");
+
+                    b.Navigation("Desks");
 
                     b.Navigation("KappSettings");
 

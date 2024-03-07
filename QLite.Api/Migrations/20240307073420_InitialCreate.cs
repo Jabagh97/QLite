@@ -45,7 +45,7 @@ namespace QLiteDataApi.Migrations
                     CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     Mask = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     Sequence = table.Column<int>(type: "INTEGER", nullable: true),
                     PhoneCode = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
@@ -699,6 +699,11 @@ namespace QLiteDataApi.Migrations
                 {
                     table.PrimaryKey("PK_Desk", x => x.Oid);
                     table.ForeignKey(
+                        name: "FK_Desk_Account",
+                        column: x => x.Account,
+                        principalTable: "Account",
+                        principalColumn: "Oid");
+                    table.ForeignKey(
                         name: "FK_Desk_Branch",
                         column: x => x.Branch,
                         principalTable: "Branch",
@@ -978,6 +983,11 @@ namespace QLiteDataApi.Migrations
                 {
                     table.PrimaryKey("PK_DeskMacroSchedule", x => x.Oid);
                     table.ForeignKey(
+                        name: "FK_DeskMacroSchedule_Account",
+                        column: x => x.Account,
+                        principalTable: "Account",
+                        principalColumn: "Oid");
+                    table.ForeignKey(
                         name: "FK_DeskMacroSchedule_Branch",
                         column: x => x.Branch,
                         principalTable: "Branch",
@@ -1052,7 +1062,7 @@ namespace QLiteDataApi.Migrations
                     LangCode = table.Column<string>(type: "TEXT", maxLength: 4, nullable: true),
                     CurrentState = table.Column<int>(type: "INTEGER", nullable: true),
                     LastOpr = table.Column<int>(type: "INTEGER", nullable: true),
-                    LastOprTime = table.Column<DateTime>(type: "datetime", nullable: true),
+                    LastOprTime = table.Column<DateTime>(type: "datetime", nullable: false),
                     ToServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
                     ToDesk = table.Column<Guid>(type: "TEXT", nullable: true),
                     CurrentDesk = table.Column<Guid>(type: "TEXT", nullable: true),
@@ -1243,6 +1253,11 @@ namespace QLiteDataApi.Migrations
                 column: "GCRecord");
 
             migrationBuilder.CreateIndex(
+                name: "iAccount_Desk",
+                table: "Desk",
+                column: "Account");
+
+            migrationBuilder.CreateIndex(
                 name: "iBranch_Desk",
                 table: "Desk",
                 column: "Branch");
@@ -1276,6 +1291,11 @@ namespace QLiteDataApi.Migrations
                 name: "iServiceType_DeskCreatableServices",
                 table: "DeskCreatableServices",
                 column: "ServiceType");
+
+            migrationBuilder.CreateIndex(
+                name: "iAccount_DeskMacroSchedule",
+                table: "DeskMacroSchedule",
+                column: "Account");
 
             migrationBuilder.CreateIndex(
                 name: "iBranch_DeskMacroSchedule",

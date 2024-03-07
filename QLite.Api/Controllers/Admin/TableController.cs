@@ -167,8 +167,8 @@ namespace QLiteDataApi.Controllers.Admin
 
                     if (tabViewModelType != null)
                     {
-                        var data = _dataService.GetTabData(innerType, tabViewModelType, Oid, modelType);
-                        return Json(new { status = "success", data });
+                        var data = _dataService.GetTabData(innerType, tabViewModelType, Oid, modelType).ToDynamicList();
+                        return Ok(new { data });
                     }
                     else
                     {

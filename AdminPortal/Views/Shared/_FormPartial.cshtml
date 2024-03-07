@@ -22,6 +22,7 @@
             string formDataValue = "";
             var isDate = viewModelProperty?.GetCustomAttribute<DateAtrribute>() != null;
 
+            var isHidden = viewModelProperty?.GetCustomAttribute<NotForTableAttribute>() != null;
 
             var isEnum = viewModelProperty?.GetCustomAttribute<EnumAttribute>() != null;
             if (Model.Action == "Edit")
@@ -44,6 +45,11 @@
                             @propertyName
 
                             @if (isJsonInput) { RenderJsonInput(property, value); }
+                            else if (isHidden) 
+                            {
+                                continue;
+                            }
+
                             else if (isNonEditable) { RenderNonEditableInput(property, value); }
                             else if (isIcon) { RenderIconInput(property, value); }
                             else if (isBoolean) { RenderCheckBoxInput(property, value); }

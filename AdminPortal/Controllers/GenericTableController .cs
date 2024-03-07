@@ -141,15 +141,24 @@ namespace PortalPOC.Controllers
             try
             {
                 var response = await _httpClient.GetAsync(EndPoints.AdminGetCollection(tabName, modelName, Oid));
-                return response.IsSuccessStatusCode
-                   ? Ok(await response.Content.ReadAsStringAsync())
-                   : StatusCode(500, new { success = false, message = "Internal Server Error" });
+
+                if (response.IsSuccessStatusCode)
+                {
+                  
+
+                    return Ok(new { status = "success", data = await response.Content.ReadAsStringAsync() });
+                }
+                else
+                {
+                    return StatusCode(500, new { success = false, message = "Internal Server Error" });
+                }
             }
             catch (Exception ex)
             {
                 return Json(new { status = "error", message = ex.Message });
             }
         }
+
         [HttpPost]
         public ActionResult DeleteSelectedRows([FromBody] DeleteRowsRequest request)
         {

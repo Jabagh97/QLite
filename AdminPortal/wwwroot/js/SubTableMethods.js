@@ -4,71 +4,85 @@
         $('#dynamicTabTable').DataTable().destroy();
     }
 
-    $.post("/GenericCollection/LoadTabData", { tabName: tabName, modelName: modelName, Oid: Oid }, function (response) {
-        // Handle the response from the server if needed
-        if (response.status === "success") {
-            var data = response.data;
+    $.ajax({
+        type: "POST",
+        url: "/GenericTable/LoadTabData",
+        data: { tabName: tabName, modelName: modelName, Oid: Oid },
+        dataType: "json", // specify dataType as 'json' to automatically parse the JSON response
+        success: function (response) {
+            // Handle the response from the server if needed
+            if (response.status === "success") {
+                var innerData = JSON.parse(response.data);
 
-            if (data.length < 1) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No Data Found '
-                });
-                return;
-            }
-
-            // Update the table header
-            var tableHead = $('#dynamicTabTable thead');
-            tableHead.empty();
-            var headerRow = $('<tr>');
-            for (var prop in data[0]) {
-                // Skip "oid" property
-                if (prop !== "oid") {
-                    headerRow.append('<th>' + prop + '</th>');
+                if (innerData.data.length < 1) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Data Found '
+                    });
+                    return;
                 }
-            }
-            tableHead.append(headerRow);
 
-            // Update the table body
-            var tableBody = $('#dynamicTabTable tbody');
-            tableBody.empty();
-            for (var i = 0; i < data.length; i++) {
-                var row = $('<tr data-oid="' + data[i].oid + '">'); // Add data-oid attribute
-                for (var prop in data[i]) {
+
+                // Update the table header
+                var tableHead = $('#dynamicTabTable thead');
+                tableHead.empty();
+                var headerRow = $('<tr>');
+                for (var prop in innerData.data[0]) {
                     // Skip "oid" property
                     if (prop !== "oid") {
-                        row.append('<td>' + data[i][prop] + '</td>');
+                        headerRow.append('<th>' + prop + '</th>');
                     }
                 }
-                tableBody.append(row);
-            }
+                tableHead.append(headerRow);
 
-            // Initialize DataTables with pagination
-            $('#dynamicTabTable').DataTable({
-                select: true,
-                dom: 'Bfrtilp',
-                columnDefs: [
-                    { targets: '_all', "defaultContent": "" },
-                    {
-                        targets: '_all',
-                        "render": function (data, type, row, meta) {
-                            if (String(data).length <= 20) {
-                                return data
-                            } else {
-                                return data.substring(0, 20) + ".....";
-                            }
+                // Update the table body
+                var tableBody = $('#dynamicTabTable tbody');
+                tableBody.empty();
+                for (var i = 0; i < innerData.data.length; i++) {
+                    var row = $('<tr data-oid="' + innerData.data[i].oid + '">'); // Add data-oid attribute
+                    for (var prop in innerData.data[i]) {
+                        // Skip "oid" property
+                        if (prop !== "oid") {
+                            row.append('<td>' + innerData.data[i][prop] + '</td>');
                         }
                     }
-                ],
-                lengthMenu: [5, 10, 25, 50, 100],
-                pageLength: 5,
-                buttons: generateTabButtons(tabName, modelName)
-            });
-        } else {
-            // Handle the case where the server response is not success
+                    tableBody.append(row);
+                }
+
+                // Initialize DataTables with pagination
+                $('#dynamicTabTable').DataTable({
+                    select: true,
+                    dom: 'Bfrtilp',
+                    columnDefs: [
+                        { targets: '_all', "defaultContent": "" },
+                        {
+                            targets: '_all',
+                            "render": function (data, type, row, meta) {
+                                if (String(data).length <= 20) {
+                                    return data
+                                } else {
+                                    return data.substring(0, 20) + ".....";
+                                }
+                            }
+                        }
+                    ],
+                    lengthMenu: [5, 10, 25, 50, 100],
+                    pageLength: 5,
+                    buttons: generateTabButtons(tabName, modelName)
+                });
+            } else {
+                // Handle the case where the server response is not success
+                Swal.fire({
+                    icon: 'error',
+                    title: 'An unexpected error occurred'
+                });
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle errors
             Swal.fire({
                 icon: 'error',
-                title: 'An unexpected error occurred: ' + error
+                title: 'An error occurred while processing the request'
             });
         }
     });
@@ -99,7 +113,7 @@ function deleteSelectedRows(tabName, modelName) {
         type: 'POST',
         contentType: 'application/json',
 
-        url: '/GenericCollection/DeleteSelectedRows',
+        url: '/GenericTable/DeleteSelectedRows',
         data: JSON.stringify({
             selectedOids: selectedOids,
             tabName: tabName,

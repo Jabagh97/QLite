@@ -10,24 +10,28 @@ namespace QLite.Data.ViewModels.DeskMacroSchedule
 {
     public class DeskMacroScheduleViewModel
     {
-        [Required]
+        //[Required]
 
-        public string Name { get; set; }
+        //public string Name { get; set; }
 
         [Required]
 
         public string Account { get; set; }
         [Required]
 
-        public int Desk { get; set; }
+        public string Desk { get; set; }
+
+        [Required]
+
+        public string Macro { get; set; }
 
         [Boolean]
 
-        public int HaftalikRutin { get; set; }
+        public bool HaftalikRutin { get; set; }
 
         [Boolean]
 
-        public int Pasif { get; set; }
+        public bool Pasif { get; set; }
 
         [Boolean]
 

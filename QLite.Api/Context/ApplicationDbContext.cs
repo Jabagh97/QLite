@@ -290,6 +290,9 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => e.Pano, "iPano_Desk");
 
+            entity.HasIndex(e => e.Account, "iAccount_Desk");
+
+
             entity.Property(e => e.Oid).ValueGeneratedNever();
             entity.Property(e => e.ActiveUser).HasMaxLength(100);
             entity.Property(e => e.CreatedBy).HasMaxLength(100);
@@ -302,6 +305,11 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             entity.Property(e => e.ModifiedDateUtc).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
+
+
+            entity.HasOne(d => d.AccountNavigation).WithMany(p => p.Desks)
+              .HasForeignKey(d => d.Account)
+              .HasConstraintName("FK_Desk_Account");
 
             entity.HasOne(d => d.BranchNavigation).WithMany(p => p.Desks)
                 .HasForeignKey(d => d.Branch)
@@ -361,6 +369,7 @@ public partial class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.Macro, "iMacro_DeskMacroSchedule");
 
             entity.HasIndex(e => e.User, "iUser_DeskMacroSchedule");
+            entity.HasIndex(e => e.Account, "iAccount_DeskMacroSchedule");
 
             entity.Property(e => e.Oid).ValueGeneratedNever();
             entity.Property(e => e.CreatedBy).HasMaxLength(100);
@@ -374,6 +383,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.ModifiedDateUtc).HasColumnType("datetime");
             entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.StartTime).HasColumnType("datetime");
+
+            entity.HasOne(d => d.AccountNavigation).WithMany(p => p.DeskMacroSchedules)
+               .HasForeignKey(d => d.Account)
+               .HasConstraintName("FK_DeskMacroSchedule_Account");
 
             entity.HasOne(d => d.BranchNavigation).WithMany(p => p.DeskMacroSchedules)
                 .HasForeignKey(d => d.Branch)
