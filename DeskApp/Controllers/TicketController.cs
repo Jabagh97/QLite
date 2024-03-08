@@ -42,14 +42,14 @@ namespace DeskApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CallTicketAsync(Guid TicketID,Guid DeskID)
+        public async Task<IActionResult> CallTicketAsync(Guid TicketID,Guid DeskID, Guid MacroID)
         {
             try
             {
 
                 var userId = await GetUserIdAsync();
 
-                var response = await _httpClient.GetAsync($"api/Desk/CallTicket?DeskID={DeskID}&ticketID={TicketID}&user={userId}");
+                var response = await _httpClient.GetAsync($"api/Desk/CallTicket?DeskID={DeskID}&ticketID={TicketID}&user={userId}&macroID={MacroID}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -131,11 +131,11 @@ namespace DeskApp.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> EndTicket() 
+        public async Task<IActionResult> EndTicket(Guid DeskID)
         {
             try
             {
-                var response = await _httpClient.GetAsync($"api/Desk/EndTicket?DeskID=D07426D4-C92A-46E4-AD29-26F4CB1111B1");
+                var response = await _httpClient.GetAsync($"api/Desk/EndTicket?DeskID={DeskID}");
 
                 if (response.IsSuccessStatusCode)
                 {

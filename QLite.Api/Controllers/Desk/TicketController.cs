@@ -74,9 +74,9 @@ namespace QLiteDataApi.Controllers.Desk
 
         [HttpGet]
         [Route("api/Desk/CallTicket")]
-        public IActionResult CallTicket(Guid DeskID, Guid ticketID, Guid user, Guid Macro)
+        public IActionResult CallTicket(Guid DeskID, Guid ticketID, Guid user, Guid MacroID)
         {
-            var ticketState = _deskService.CallTicket( DeskID,  ticketID,  user,  Macro);
+            var ticketState = _deskService.CallTicket( DeskID,  ticketID,  user,  MacroID);
 
             string serializedTicketState = JsonConvert.SerializeObject(ticketState);
             string kioskId = _configuration.GetValue<string>("DisplayID");

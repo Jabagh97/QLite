@@ -173,6 +173,8 @@ namespace QLiteDataApi.Services
                 ModifiedDateUtc= DateTime.UtcNow,
                 TicketPool = ticketPool.Oid,
                 ServiceCode = ticketPool.ServiceCode,
+                Branch= ticketPool.Branch,
+                CopyNumber= ticketPool.CopyNumber,
 
             };
         }
@@ -195,7 +197,7 @@ namespace QLiteDataApi.Services
                 CreatedDateUtc = DateTime.UtcNow,
                 ModifiedDate = DateTime.Now,
                 ModifiedDateUtc = DateTime.UtcNow,
-                TicketNavigation=newTicket
+                TicketNavigation=newTicket,
             };
         }
 
@@ -215,12 +217,12 @@ namespace QLiteDataApi.Services
             var currentTime = DateTime.Now.TimeOfDay;
 
             var serviceTypes = _context.ServiceTypes
-        .Where(st => st.Gcrecord == null && st.Parent == null)
-        .Include(st => st.TicketPools)
-        .Where(st => st.TicketPools.Any(tp => tp.Segment == segmentId  &&
-                                               tp.NotAvailable != true ))
-        .OrderBy(st => st.SeqNo)
-        .ToList();
+                            .Where(st => st.Gcrecord == null && st.Parent == null)
+                            .Include(st => st.TicketPools)
+                            .Where(st => st.TicketPools.Any(tp => tp.Segment == segmentId  &&
+                                                                   tp.NotAvailable != true ))
+                            .OrderBy(st => st.SeqNo)
+                            .ToList();
 
 
             // Apply time-based filtering in memory

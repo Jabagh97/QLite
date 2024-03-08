@@ -150,10 +150,12 @@ function updateMainPanel()
 
 function EndTicket()
 {
+    var deskId = $('#deskName').data('desk-id');
 
     $.ajax({
         url: 'Ticket/EndTicket',
         type: 'GET',
+        data: { DeskID: deskId },
         success: function (response) {
            
         },
@@ -186,23 +188,23 @@ function ParkTicket() {
     });
 }
 
-function autocall()
-{
+function autocall() {
+    var deskId = $('#deskName').data('desk-id');
+    var macroId = currentMacroId; // Get the currentMacroId
+
     $.ajax({
         url: '/Ticket/CallTicket',
         type: 'POST',
-      
+        data: { DeskID: deskId, MacroID: macroId },
+
         success: function (data) {
             // Handle success if needed
-
-
         },
         error: function (xhr, status, error) {
             console.error(xhr.responseText);
         }
     });
 }
-
 // Call ticket button click handler
 $('#table').on('click', '.call-ticket', function () {
     var oid = $(this).data('oid');
@@ -257,6 +259,8 @@ function GetDesk()
 }
 GetDesk();
 
+var currentMacroId = null;
+
 function fetchAndPopulateMacros() {
     var deskId = $('#deskName').data('desk-id');
 
@@ -272,7 +276,16 @@ function fetchAndPopulateMacros() {
         macros.forEach(function (macro) {
             var menuItem = document.createElement('div');
             menuItem.className = 'menu-item';
-            menuItem.innerHTML = '<a class="menu-link" href="#" data-macro-id="' + macro.id + '">' + macro.name + '</a>';
+            menuItem.innerHTML = '<a class="menu-link" >' + macro.macroName + '</a>';
+
+            menuItem.addEventListener('click', function () {
+                // Set data-macro-id attribute to macro.oid for macroMenu element
+                var macroElement = document.getElementById('macroName');
+                $('#macroName').text(macro.macroName);
+                macroElement.setAttribute('data-macro-id', macro.macro);
+                currentMacroId = macro.macro; // Update the currentMacroId variable
+            });
+
             macroMenu.appendChild(menuItem);
         });
     });

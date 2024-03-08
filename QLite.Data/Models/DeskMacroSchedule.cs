@@ -1,6 +1,7 @@
 ﻿using QLite.Data.CustomAttribute;
 using QLite.Data.ViewModels.DeskMacroSchedule;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QLite.Data;
 [ModelMapping(typeof(DeskMacroSchedule), typeof(DeskMacroScheduleViewModel))]
@@ -69,5 +70,10 @@ public partial class DeskMacroSchedule
 
     public virtual Macro? MacroNavigation { get; set; }
 
-   // public virtual ApplicationUser? UserNavigation { get; set; }
+    // public virtual ApplicationUser? UserNavigation { get; set; }
+
+
+    [NotMapped]
+    public string? MacroName { get; set; }
+
 }

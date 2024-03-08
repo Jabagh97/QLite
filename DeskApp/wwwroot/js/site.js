@@ -95,6 +95,17 @@
 
         } catch (error) {
             console.error("Error processing NotifyTicketState message:", error);
+            fetchCompletedTickets('Ticket/GetCompletedTickets');
+            updateMainPanel();
+            Swal.fire({
+                position: 'center',
+                icon: 'error',
+                title: '<span style="font-size: 20px;color :aliceblue;">No eligible tickets found to call from this Macro.</span>',
+                showConfirmButton: false,
+                timer: 3000, // 3 seconds
+                backdrop: true // Disable backdrop
+            });
+
         }
     });
 

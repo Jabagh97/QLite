@@ -104,5 +104,9 @@ public partial class Ticket
 
     [NotMapped]
     public int? WaitingTickets { get; set; }
+    [NotMapped]
+    public int? CopyNumber { get; set; }
 
+    [NotMapped]
+    public string? CallingRuleDescription { get; set; }
 }

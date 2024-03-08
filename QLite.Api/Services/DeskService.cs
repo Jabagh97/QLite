@@ -15,11 +15,11 @@ namespace QLiteDataApi.Services
         TicketState GetMyCurrentService(Guid DeskID);
         TicketState EndCurrentService(Guid DeskID);
         int GetTicketDuration(Guid ticketid);
-         TicketState TransferOperation(TransferTicketDto transferTicketDto);
+        TicketState TransferOperation(TransferTicketDto transferTicketDto);
 
-         TicketState ParkOperation(ParkTicketDto parkTicketDto);
+        TicketState ParkOperation(ParkTicketDto parkTicketDto);
 
-         Desk GetDesk(Guid DeskID);
+        Desk GetDesk(Guid DeskID);
 
         List<DeskMacroSchedule> GetMacros(Guid DeskID);
 
@@ -60,12 +60,12 @@ namespace QLiteDataApi.Services
             return jsonData;
         }
 
-        private Ticket FindTicketToCall(Guid branchId, Guid macroId,Guid DeskId)
+        private Ticket FindTicketToCall(Guid? branchId, Guid macroId, Guid DeskId)
         {
             Macro macro = new Macro();
             if (macroId != Guid.Empty)
-                macro = _context.Macros.Where(m => m.Oid == macroId && m.Gcrecord == null).FirstOrDefault();
-            
+                macro = _context.Macros.Where(m => m.Oid == macroId && m.Gcrecord == null).First();
+            //TODO:if Macro is null find Macro or force desk user to choose macro before showing the view 
 
             Ticket t = new Ticket();
             if (macro != null)
@@ -73,65 +73,86 @@ namespace QLiteDataApi.Services
                 t = FindTicketByMacro(macroId, branchId, DeskId);
                 if (t != null)
                 {
-                    t.TicketState.Macro = macro?.Oid;
-                    t.TicketState.MacroObject = macro;
+                    //t.TicketState.Macro = macro?.Oid;
+                    //t.TicketState.MacroObject = macro;
+
+                    var ticketPool = _context.TicketPools.Where(tp=>tp.Oid == t.TicketPool).FirstOrDefault();
+                    if (ticketPool != null)
+                    {
+                        t.ServiceCode = ticketPool.ServiceCode;
+                    }
                 }
             }
-            
+            //TODO:find ticket anyway even if no macro found ???????
+
             return t;
         }
-        public Ticket FindTicketByMacro(Guid macroId, Guid branchId, Guid DeskId)
+
+        public Ticket FindTicketByMacro(Guid macroId, Guid? branchId, Guid deskId)
         {
-            var ticketQuery = _context.Tickets
-                .Where(t => t.Branch == branchId && (t.CurrentState == (int)TicketStateEnum.Waiting || t.CurrentState == (int)TicketStateEnum.Waiting_T))
-                .Where(t => _context.MacroRules.Any(mr =>
-                    (mr.ServiceType == t.ServiceType || mr.ServiceType == null) &&
-                    (mr.Segment == t.Segment || mr.Segment == null) &&
-                    (t.Desk != DeskId || t.Desk == null) &&
-                    (mr.Transfer != true || t.CurrentState == (int)TicketStateEnum.Waiting) &&
-                    (mr.ToThisDesk == (int)MeNotothersAll.AllTerminals ||
-                        (mr.ToThisDesk == (int)MeNotothersAll.OnlyForSelectedDesk && t.ToDesk == DeskId) ||
-                        (mr.ToThisDesk == (int)MeNotothersAll.NotSpecified && (t.ToDesk == DeskId || t.ToDesk == null))))
-                )
-                .OrderBy(t => (DateTime.Now - t.LastOprTime).TotalMinutes < _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault() ?
-                    _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.Sequence).FirstOrDefault() :
-                    0)
-                .Select(t => new
-                {
-                    Ticket = t,
-                    Seq = (DateTime.Now - t.LastOprTime).TotalMinutes < _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault() ?
-                        _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.Sequence).FirstOrDefault() :
-                        0,
-                    CallingRuleDescription = (DateTime.Now - t.LastOprTime).TotalMinutes < _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault() ?
-                        $"Maksimum bekleme süresi olan {_context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault()} dk lık süreyi tamamlamıştır." :
-                        _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.Description).FirstOrDefault()
-                })
-                .FirstOrDefault();
+            var currentTime = DateTime.Now;
+            var oldestPossibleTicketTime = currentTime.AddHours(-8);
 
-            if (ticketQuery != null && ticketQuery.Ticket.Desk == DeskId)
+            var query = from mr in _context.MacroRules
+                        join t in _context.Tickets on new { mr.ServiceType, mr.Segment } equals new { t.ServiceType, t.Segment } into tickets
+                        from ticket in tickets.DefaultIfEmpty() 
+                        join ts in _context.TicketStates on ticket.Oid equals ts.Ticket
+                        where mr.Macro == macroId &&
+                              (ticket.Branch == branchId) &&
+                              (ticket.CurrentState == (int)TicketStateEnum.Waiting || ticket.CurrentState == (int)TicketStateEnum.Waiting_T) &&
+                              (ticket.Desk != deskId || ticket.Desk == null) &&
+                              (mr.Transfer != true || ticket.CurrentState == (int)TicketStateEnum.Waiting_T) &&
+                              (mr.ToThisDesk == (int)MeNotothersAll.AllTerminals ||
+                              (mr.ToThisDesk == (int)MeNotothersAll.OnlyForSelectedDesk && ticket.ToDesk == deskId) ||
+                              (mr.ToThisDesk == (int)MeNotothersAll.NotSpecified && (ticket.ToDesk == deskId || ticket.ToDesk == null))) &&
+                              ticket.CreatedDate >= oldestPossibleTicketTime &&
+                              mr.Gcrecord == null
+                        orderby mr.Sequence, ticket.LastOprTime
+                        select new
+                        {
+                           
+                            Ticket = new Ticket
+                            {
+                                Oid = ticket.Oid,
+                                CreatedBy = ticket.CreatedBy,
+                                ModifiedBy = ticket.ModifiedBy,
+                                CreatedDate = ticket.CreatedDate,
+                                CreatedDateUtc = ticket.CreatedDateUtc,
+                                ModifiedDate = ticket.ModifiedDate,
+                                ModifiedDateUtc = ticket.ModifiedDateUtc,
+                                CurrentDesk = ticket.Desk,
+                                CurrentState = (int)TicketStateEnum.Service,
+                                LastOpr = (int)TicketOprEnum.Call,
+                                TicketState = ts,
+                                Number = ticket.Number,
+                                Branch = ticket.Branch,
+                                Segment = ticket.Segment,
+                                SegmentName = ticket.SegmentName,
+                                ServiceType = ticket.ServiceType,
+                                ServiceTypeName = ticket.ServiceTypeName,
+                                TicketPool = ticket.TicketPool
+                                
+                            },
+                          
+                        };
+
+
+            var result = query.FirstOrDefault();
+
+            if (result != null)
             {
-                var ticket2Try = _context.Tickets
-                    .Where(t => t.Branch == branchId && t.CurrentState == (int)TicketStateEnum.Waiting)
-                    .OrderBy(t => (DateTime.Now - t.LastOprTime).TotalMinutes < _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault() ?
-                        _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.Sequence).FirstOrDefault() :
-                        0)
-                    .Select(t => new
-                    {
-                        Ticket = t,
-                        Seq = (DateTime.Now - t.LastOprTime).TotalMinutes < _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault() ?
-                            _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.Sequence).FirstOrDefault() :
-                            0,
-                        CallingRuleDescription = (DateTime.Now - t.LastOprTime).TotalMinutes < _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault() ?
-                            $"Maksimum bekleme süresi olan {_context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.MaxWaitingTime).FirstOrDefault()} dk lık süreyi tamamlamıştır." :
-                            _context.MacroRules.Where(mr => mr.Macro == macroId).Select(mr => mr.Description).FirstOrDefault()
-                    })
-                    .FirstOrDefault();
+                // Map properties to Ticket entity
+                var mappedTicket = result.Ticket;
 
-                return ticket2Try?.Ticket;
+
+                return mappedTicket;
             }
 
-            return ticketQuery?.Ticket;
+            // Handle case when no matching records found
+            return null;
         }
+
+
 
 
         public TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, Guid Macro, bool autocall = false)
@@ -147,7 +168,7 @@ namespace QLiteDataApi.Services
             TicketState svc = null;
             if (ticketID == Guid.Empty)
 
-                t = FindTicketToCall(d.Oid, Macro,DeskID);
+                t = FindTicketToCall(d.Branch, Macro, DeskID);
 
             else
                 t = GetTicket(ticketID);
@@ -202,12 +223,11 @@ namespace QLiteDataApi.Services
                     ModifiedDate = DateTime.Now,
                     ModifiedDateUtc = DateTime.UtcNow,
                     DisplayNo = d.DisplayNo,
-                    
-                    //CallingRuleDescription = t.CallingRuleDescription,
-                    // Macro = t.StateObj.Macro,
-                    // MacroObj = t.StateObj.MacroObj,
+
+
+                    CallingRuleDescription = t.CallingRuleDescription,
+                    Macro = Macro,
                     TicketCallType = (int?)(autocall ? TicketCallType.Autocall : ticketID == Guid.Empty ? TicketCallType.Definitive : TicketCallType.Normal)
-                    
                 };
 
                 if (autocall)
@@ -444,7 +464,7 @@ namespace QLiteDataApi.Services
                     CreatedDateUtc = DateTime.UtcNow,
                     ModifiedDate = DateTime.Now,
                     ModifiedDateUtc = DateTime.UtcNow,
-                   
+
                 };
                 _context.TicketStates.Add(parkTicketOpr);
                 parkTicketOpr.TicketNavigation = parkTicket;
@@ -470,8 +490,8 @@ namespace QLiteDataApi.Services
         }
 
 
-        public Desk GetDesk(Guid DeskID) 
-        
+        public Desk GetDesk(Guid DeskID)
+
         {
             var desk = _context.Desks.Where(d => d.Oid == DeskID && d.Gcrecord == null).First();
 
@@ -482,7 +502,25 @@ namespace QLiteDataApi.Services
         public List<DeskMacroSchedule> GetMacros(Guid DeskID)
 
         {
-            var macros = _context.DeskMacroSchedules.Where(dms => dms.Desk == DeskID && dms.Gcrecord == null).ToList();
+            // Fetch the corresponding MacroName for each DeskMacroSchedule
+            var macrosWithMacroNames = _context.DeskMacroSchedules
+                .Where(dms => dms.Desk == DeskID && dms.Gcrecord == null)
+                .Join(
+                    _context.Macros,
+                    dms => dms.Macro, // DeskMacroSchedule.Macro
+                    macro => macro.Oid, // Macro.Oid
+                    (dms, macro) => new { DeskMacroSchedule = dms, MacroName = macro.Name }
+                )
+                .ToList();
+
+            // Update the MacroName property for each DeskMacroSchedule
+            foreach (var item in macrosWithMacroNames)
+            {
+                item.DeskMacroSchedule.MacroName = item.MacroName;
+            }
+
+            // Now macrosWithMacroNames contains DeskMacroSchedule objects with updated MacroName property
+            var macros = macrosWithMacroNames.Select(item => item.DeskMacroSchedule).ToList();
 
 
             return macros;

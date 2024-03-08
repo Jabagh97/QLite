@@ -103,7 +103,7 @@
             $("#connectionError").hide();
             $("#loadingAnimation").hide();
             $("#content").show();
-            queryHw();
+            setInterval(queryHw, 5000); // Call every 5 seconds
 
         }).catch(function (err) {
             console.error(err.toString());
@@ -116,7 +116,7 @@
             setTimeout(startConnection, retryInterval);
         });
     }
-    setInterval(queryHw, 5000); // Call every 5 seconds 
+    
 
     function sendMessageToDesk(message) {
         connection.invoke("SendMessageToDesk", message).catch(function (err) {
