@@ -127,6 +127,7 @@ fetchCompletedTickets('Ticket/GetCompletedTickets');
 
 function updateMainPanel()
 {
+
     var deskId = $('#deskName').data('desk-id');
 
     $.ajax({
@@ -138,7 +139,18 @@ function updateMainPanel()
 
             $('#mainPanelContent').html(response);
 
+            var selectedMacroName = localStorage.getItem('selectedMacroName');
 
+            // If there is a selectedMacroName, set the text of the element with id macroName
+            if (selectedMacroName != null && selectedMacroName.trim() !== '') {
+                $('#macroName').text(selectedMacroName);
+
+                // Remove the 'hidden' attribute to show the button
+                $("#autoCallBtn").removeAttr('hidden');
+            } else {
+                // If selectedMacroName is null or empty, hide the button
+                $("#autoCallBtn").attr('hidden', 'hidden');
+            }
 
         },
         error: function (xhr, status, error) {
@@ -190,7 +202,7 @@ function ParkTicket() {
 
 function autocall() {
     var deskId = $('#deskName').data('desk-id');
-    var macroId = currentMacroId; // Get the currentMacroId
+    var macroId = localStorage.getItem('selectedMacroId'); 
 
     $.ajax({
         url: '/Ticket/CallTicket',
@@ -259,7 +271,6 @@ function GetDesk()
 }
 GetDesk();
 
-var currentMacroId = null;
 
 function fetchAndPopulateMacros() {
     var deskId = $('#deskName').data('desk-id');
@@ -283,13 +294,19 @@ function fetchAndPopulateMacros() {
                 var macroElement = document.getElementById('macroName');
                 $('#macroName').text(macro.macroName);
                 macroElement.setAttribute('data-macro-id', macro.macro);
-                currentMacroId = macro.macro; // Update the currentMacroId variable
+
+                localStorage.setItem('selectedMacroId', macro.macro);
+                localStorage.setItem('selectedMacroName', macro.macroName);
+
+                // Remove the 'hidden' attribute to show the button
+                $("#autoCallBtn").removeAttr('hidden');
             });
 
             macroMenu.appendChild(menuItem);
         });
     });
 }
+
 
 
 fetchAndPopulateMacros();
