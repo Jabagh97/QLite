@@ -20,3 +20,12 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.drag-icon {
+    background-image: url("../media/icons/duotune/layouts/lay001.svg");
+    width: 17px;
+    height: 17px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}

@@ -1,211 +1,243 @@
 ﻿@using QLite.Data.Models.ViewModels;
+@using System.Text;
 @model FormPartialViewModel
 
 <form asp-controller="GenericTable" asp-action="@(Model.Action == "Add" ? "Create" : "Edit")" method="post" id="@(Model.Action == "Add" ? "createForm" : "editForm")">
     <div class="row">
         @foreach (var property in Model.FilteredProperties)
         {
-            var propertyName = property.Name;
-            var isOidProperty = propertyName.Contains("Oid");
-            var value = Model.FormData?.ContainsKey(Char.ToLower(propertyName[0]) + propertyName.Substring(1)) == true
-            ? Model.FormData[Char.ToLower(propertyName[0]) + propertyName.Substring(1)]
-            : "";
+            var value = GetValue(property);
 
-            var propertyToLower = Char.ToLower(propertyName[0]) + propertyName.Substring(1);
-            var viewModelProperty = Model.ViewModelProperties?.FirstOrDefault(vp => vp.Name == propertyName);
-            var isJsonInput = viewModelProperty?.GetCustomAttribute<JsonInputAttribute>() != null;
-            var isNonEditable = viewModelProperty?.GetCustomAttribute<NonEditableAttribute>() != null;
-            var isIcon = viewModelProperty?.GetCustomAttribute<IconAttribute>() != null;
-            var isRequired = viewModelProperty?.GetCustomAttribute<RequiredAttribute>() != null;
-
-            var isBoolean = viewModelProperty?.GetCustomAttribute<BooleanAttribute>() != null;
-            string formDataValue = "";
-            var isDate = viewModelProperty?.GetCustomAttribute<DateAtrribute>() != null;
-
-            var isHidden = viewModelProperty?.GetCustomAttribute<NotForTableAttribute>() != null;
-
-            var isEnum = viewModelProperty?.GetCustomAttribute<EnumAttribute>() != null;
-            if (Model.Action == "Edit")
-            {
-                formDataValue = Model.FormData[propertyToLower] != null ? Model.FormData[propertyToLower] : "";
-
-            }
-
-
-
-            @if (!isOidProperty && !(Model.Action == "Add" && isNonEditable))
+            @if (!ShouldSkipProperty(property))
             {
                 <div class="col-md-6 mb-6">
                     <div class="form-group">
-                        <label for="@propertyName">
-                            @if (isRequired)
-                            {
-                                <span style="color: red;">*</span>
-                            }
-                            @propertyName
+                        <label for="@property.Name">
 
-                            @if (isJsonInput) { RenderJsonInput(property, value); }
-                            else if (isHidden) 
-                            {
-                                continue;
-                            }
+                            @Html.Raw(RenderLabel(property))
+                            @Html.Raw(RenderInput(property))
 
-                            else if (isNonEditable) { RenderNonEditableInput(property, value); }
-                            else if (isIcon) { RenderIconInput(property, value); }
-                            else if (isBoolean) { RenderCheckBoxInput(property, value); }
-                            else if (isDate) { RenderDateInput(property, value); }
-                            else if (isEnum)
-                            {
-                                var enumType = viewModelProperty.PropertyType;
-                                var enumValues = Enum.GetValues(enumType);
-
-                                <select name="@property.Name" id="@property.Name" class="form-select form-select-lg form-select-solid">
-                                    <option value="">Select @property.Name</option>
-                                    @foreach (var enumValue in enumValues)
-                                    {
-                                        var enumIntValue = Convert.ToInt32(enumValue);
-                                        <option value="@enumIntValue" >
-                                            @enumValue
-                                        </option>
-                                    }
-                                </select>
-                            }
-
-
-                            else
-                            {
-                                @if (Model.DropDowns?.ContainsKey(property.Name) == true)
-                                {
-
-                                    <select name="@property.Name" id="@property.Name" class="form-select form-select-lg form-select-solid">
-                                        <option value="">-- None --</option>
-                                        @foreach (var item in Model.DropDowns[property.Name])
-                                        {
-                                            var isSelected = false;
-                                            if (property.Name.Equals("KioskApplication"))
-                                            {
-                                                isSelected = Model.FormData?.ContainsKey(propertyToLower) == true && item.KappName.Equals(Model.FormData[propertyToLower]);
-                                                <option value="@item.oid" selected="@isSelected">@item.VirtualComponentName</option>
-                                            }
-                                            else
-                                            {
-                                                isSelected = Model.FormData?.ContainsKey(propertyToLower) == true &&
-                                                item.name.ToString().Trim('{', '}').Equals(formDataValue.Trim('"'));
-                                                <option value="@item.oid" selected="@isSelected">@item.name</option>
-                                            }
-                                        }
-                                    </select>
-                                }
-                                else
-                                {
-                                    RenderInput(property, value);
-                                }
-                            }
                         </label>
+
                     </div>
                 </div>
             }
-            else if (isOidProperty)
+            //Render a hidden Oid property to be included in the submitted form
+            else
             {
-                <!-- Render hidden input for Oid property -->
                 <input hidden type="text" name="@property.Name" id="@property.Name" value="@value" />
+
             }
         }
     </div>
 
     <button type="button" id="submit" class="btn btn-bg-success mt-3">@((Model.Action == "Add" ? "Create" : "Save"))</button>
 </form>
+
 @functions {
 
-    void RenderEnumInput(PropertyInfo property, string value)
+    string RenderLabel(PropertyInfo property)
     {
+        var propertyName = property.Name;
+        var viewModelProperty = Model.ViewModelProperties?.FirstOrDefault(vp => vp.Name == propertyName);
+        var isRequired = viewModelProperty?.GetCustomAttribute<RequiredAttribute>() != null;
 
+        if (isRequired)
+        {
+            return $"<span style=\"color: red;\">*</span><h5>{propertyName}</h5>";
+        }
 
+        return $"<h5>{propertyName}</h5>";
     }
 
 
-    void RenderDateInput(PropertyInfo property, string value)
+    bool ShouldSkipProperty(PropertyInfo property)
     {
+        var propertyName = property.Name;
+        var isOidProperty = propertyName.Contains("Oid");
+        var viewModelProperty = Model.ViewModelProperties?.FirstOrDefault(vp => vp.Name == propertyName);
+        var isNonEditable = viewModelProperty?.GetCustomAttribute<NonEditableAttribute>() != null;
 
-        <input type="datetime-local" name="@property.Name" id="@property.Name" class="form-control" value="@value" />
-
-
-    }
-
-    void RenderCheckBoxInput(PropertyInfo property, string value)
-    {
-        <input type="checkbox" name="@property.Name" id="@property.Name" class="form-control" value="@value" />
-
-    }
-
-    void RenderInput(PropertyInfo property, string value)
-    {
-
-        <input type="text" name="@property.Name" id="@property.Name" class="form-control" value="@value" />
+        return isOidProperty || (Model.Action == "Add" && isNonEditable);
     }
 
 
-    void RenderIconInput(PropertyInfo property, string value)
+    string RenderInput(PropertyInfo property)
+    {
+        var propertyName = property.Name;
+        var value = GetValue(property);
+        var viewModelProperty = Model.ViewModelProperties?.FirstOrDefault(vp => vp.Name == propertyName);
+        var isJsonInput = viewModelProperty?.GetCustomAttribute<JsonInputAttribute>() != null;
+        var isBoolean = viewModelProperty?.GetCustomAttribute<BooleanAttribute>() != null;
+        var isDate = viewModelProperty?.GetCustomAttribute<DateAtrribute>() != null;
+        var isEnum = viewModelProperty?.GetCustomAttribute<EnumAttribute>() != null;
+        var isIcon = viewModelProperty?.GetCustomAttribute<IconAttribute>() != null;
+        var isNonEditable = viewModelProperty?.GetCustomAttribute<NonEditableAttribute>() != null;
+        var isHidden = viewModelProperty?.GetCustomAttribute<NotForTableAttribute>() != null;
+        var isDropDown = (Model.DropDowns?.ContainsKey(property.Name) ?? false);
+
+        var propertyToLower = Char.ToLower(propertyName[0]) + propertyName.Substring(1);
+
+        string formDataValue = "";
+
+        if (Model.Action == "Edit")
+        {
+            formDataValue = Model.FormData[propertyToLower] != null ? Model.FormData[propertyToLower] : "";
+
+        }
+
+        if (isJsonInput)
+        {
+            return $"<textarea name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" rows=\"5\">{value}</textarea>";
+        }
+        else if (isBoolean)
+        {
+            return $"<input type=\"checkbox\" name=\"{propertyName}\" id=\"{propertyName}\" {(value == "true" ? "checked" : "")} />";
+        }
+        else if (isDate)
+        {
+            return $"<input type=\"time\" name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" value=\"{GetTimeValue(value)}\" />";
+        }
+        else if (isNonEditable)
+        {
+            return $"<input type=\"text\" name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" value=\"{value}\" disabled />";
+        }
+        else if (isIcon)
+        {
+            return RenderIconInput(property, value);
+        }
+        else if (isEnum)
+        {
+            return RenderEnumInput(property, viewModelProperty, formDataValue, propertyToLower);
+
+        }
+        else if (isHidden)
+        {
+            return"";
+        }
+        else if(isDropDown)
+        {
+            return RenderDropDown(property, propertyToLower, formDataValue);
+
+        }
+        else
+        {
+            return $"<input type=\"text\" name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" value=\"{value}\" />";
+        }
+
+    }
+
+    string RenderDropDown(PropertyInfo property, string propertyToLower, string formDataValue)
+    {
+        var propertyName = property.Name;
+        var sb = new StringBuilder();
+
+        sb.AppendLine($"<select name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-select form-select-lg form-select-solid\">");
+        sb.AppendLine("<option value=\"\">-- None --</option>");
+
+        foreach (var item in Model.DropDowns[property.Name])
+        {
+            var isSelected = false;
+            isSelected = Model.FormData?.ContainsKey(propertyToLower) == true &&
+                         item.name.ToString().Trim('{', '}').Equals(formDataValue.Trim('"'));
+            sb.AppendLine($"<option value=\"{item.oid}\" {(isSelected ? "selected" : "")}>{item.name}</option>");
+
+        }
+
+        sb.AppendLine("</select>");
+
+        return sb.ToString();
+    }
+
+
+    string RenderEnumInput(PropertyInfo property, PropertyInfo viewModelProperty, string formDataValue, string propertyToLower)
+    {
+
+        var enumType = viewModelProperty.PropertyType;
+        var enumValues = Enum.GetValues(enumType);
+
+        var sb = new StringBuilder();
+        sb.Append($"<select name=\"{property.Name}\" id=\"{property.Name}\" class=\"form-select form-select-lg form-select-solid\">");
+        sb.Append($"<option value=\"\">Select {property.Name}</option>");
+
+        foreach (var enumValue in enumValues)
+        {
+            var isSelected = false;
+
+            var enumIntValue = Convert.ToInt32(enumValue);
+           isSelected = Model.FormData?.ContainsKey(propertyToLower) == true &&
+                    enumIntValue.ToString() == formDataValue;
+            sb.Append($"<option value=\"{enumIntValue}\" {(isSelected ? "selected" : "")}>");
+            sb.Append($"{enumValue}</option>");
+        }
+
+        sb.Append("</select>");
+
+        return sb.ToString();
+    }
+
+    string RenderIconInput(PropertyInfo property, string value)
     {
         var propertyName = property.Name;
         var fileInputId = $"{propertyName}FileInput";
         var previewId = $"{propertyName}Preview";
         var hiddenInputId = $"{propertyName}HiddenInput";
 
-        <div class="custom-file">
-            <input type="file" class="custom-file-input" id="@fileInputId" accept="image/*" onchange="handleFileSelect('@propertyName', '@fileInputId')">
-        </div>
+        var sb = new StringBuilder();
+        sb.AppendLine("<div class=\"custom-file\">");
+        sb.AppendLine($"<input type=\"file\" class=\"custom-file-input\" id=\"{fileInputId}\" accept=\"image/*\" onchange=\"handleFileSelect('{propertyName}', '{fileInputId}')\">");
+        sb.AppendLine("</div>");
 
-        @if (!string.IsNullOrEmpty(value))
+        if (!string.IsNullOrEmpty(value))
         {
-            <img id="@previewId" style="width: 50%; max-height: 10rem; margin-top: 5px;" src="data:image/jpg;base64,@value" alt="@propertyName" />
+            sb.AppendLine($"<img id=\"{previewId}\" style=\"width: 50%; max-height: 10rem; margin-top: 5px;\" src=\"data:image/jpg;base64,{value}\" alt=\"{propertyName}\" />");
         }
         else
         {
-            <img id="@previewId" style="width: 50%; max-height: 10rem; margin-top: 5px;" src="/img/noImage.jpg" alt="@propertyName" />
+            sb.AppendLine($"<img id=\"{previewId}\" style=\"width: 50%; max-height: 10rem; margin-top: 5px;\" src=\"/img/noImage.jpg\" alt=\"{propertyName}\" />");
         }
 
-        <!-- Add the hidden input field -->
-        <input type="hidden" id="@hiddenInputId" name="@propertyName" value="@value" />
+        sb.AppendLine($"<input type=\"hidden\" id=\"{hiddenInputId}\" name=\"{propertyName}\" value=\"{value}\" />");
 
-
+        return sb.ToString();
     }
 
 
-
-    void RenderJsonInput(PropertyInfo property, string value)
+    string GetValue(PropertyInfo property)
     {
-        <textarea name="@property.Name" id="@property.Name" class="form-control" rows="5">@value</textarea>
-    }
+        var propertyName = property.Name;
+        var propertyToLower = Char.ToLower(propertyName[0]) + propertyName.Substring(1);
 
-    void RenderNonEditableInput(PropertyInfo property, string value)
-    {
-        <input type="text" name="@property.Name" id="@property.Name" class="form-control" value="@value" disabled />
-    }
-
-
-
-    private string GetInputType(Type propertyType)
-    {
-        if (IsNullableType(propertyType, out var underlyingType))
+        if (Model.FormData?.ContainsKey(propertyToLower) == true)
         {
-            propertyType = underlyingType;
+            return Model.FormData[propertyToLower];
         }
 
-        return propertyType switch
+        return "";
+    }
+    string GetTimeValue(string value)
+    {
+        if (!string.IsNullOrEmpty(value))
         {
-            Type t when t == typeof(int) || t == typeof(decimal) => "number",
-            Type t when t == typeof(DateTime) => "datetime-local",
-            _ => "text",
-        };
+            DateTime dateTime = DateTime.Parse(value);
+            return dateTime.ToString("HH:mm");
+        }
+
+        return "";
     }
 
-    private bool IsNullableType(Type type, out Type underlyingType)
-    {
-        underlyingType = Nullable.GetUnderlyingType(type);
-        return underlyingType != null;
-    }
+
 
 
 
 }
+<script>
+    function handleCheckbox(name) {
+        var checkbox = document.getElementById(name);
+        if (checkbox.checked) {
+            checkbox.value = "true";
+        } else {
+            checkbox.value = "false";
+        }
+    }
+</script>

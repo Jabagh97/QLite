@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using QLite.Data;
 using QLite.Data.Models.Auth;
 
 namespace AdminPortal.Controllers
 {
+    [Authorize]
+
     public class UserController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;

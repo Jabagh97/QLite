@@ -142,7 +142,7 @@ function handleFormSubmissionSuccess(response, viewModel, buttonName) {
         $('#table').DataTable().ajax.reload();
         Swal.fire({
             icon: 'success',
-            title: 'New entry saved',
+            title: 'Entry saved',
             showConfirmButton: false,
             timer: 1000
         });

@@ -12,7 +12,8 @@
         property = property,
         title = Html.DisplayName(property.Name).ToString(),
         isBool = property.GetCustomAttribute<BooleanAttribute>() != null,
-        isEnum = property.GetCustomAttribute<EnumAttribute>() != null
+        isEnum = property.GetCustomAttribute<EnumAttribute>() != null,
+        isDate =property.GetCustomAttribute<DateAtrribute>() != null
     })
     .ToList();
 
@@ -89,18 +90,33 @@ $(document).ready(function () {
                         }
                       @if (column.isEnum)
                         {
-                            <text>"render": function (data, type, row, meta) {
-                                // Retrieve enum values as an array of strings
-                                var enumValues = @Html.Raw(Json.Serialize(Enum.GetNames(column.property.PropertyType)));
-        
-                                // Convert data to integer if needed (assuming it represents enum index)
-                                var enumIndex = parseInt(data);
-        
-                                // Return the corresponding enum value
-                                return enumValues[enumIndex];
-                            }</text>                       
-                        }
-                        },
+                        <text>"render": function (data, type, row, meta) {
+                            // Retrieve enum values as an array of strings
+                            var enumValues = @Html.Raw(Json.Serialize(Enum.GetNames(column.property.PropertyType)));
+
+                            // Convert data to integer if needed (assuming it represents enum index)
+                            var enumIndex = parseInt(data);
+
+                            // Return the corresponding enum value
+                            return enumValues[enumIndex];
+                            }</text>
+                    }
+                    else if (column.isDate)
+                    {
+                         <text>
+                            "render": function (data, type, row, meta) {
+                                // Parse the date string into a JavaScript Date object
+                                var date = new Date(data);
+
+                                // Format the date to display only the time part
+                                var formattedTime = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+
+                                // Return the formatted time
+                                return formattedTime;
+                            }
+                        </text>
+                    }
+                    },
                 </text>
             }
         }

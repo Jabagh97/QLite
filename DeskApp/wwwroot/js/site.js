@@ -135,3 +135,53 @@ function showPopup(state, TicketNumber, SegmentName, ServiceTypeName)
     });
 
 }
+
+// Define initial positions for draggables
+const positions = {
+    draggable1: { x: 0, y: 0 },
+    draggable2: { x: 0, y: 0 },
+    draggable3: { x: 0, y: 0 }
+};
+
+// Function to initialize draggables
+function initializeDraggable(selector, position) {
+    interact(selector).draggable({
+        listeners: {
+            start(event) {
+                event.target.style.zIndex = '1000'; // Bring dragged element to the front
+            },
+            move(event) {
+                position.x += event.dx;
+                position.y += event.dy;
+
+                event.target.style.transform = `translate(${position.x}px, ${position.y}px)`;
+            }
+        },
+        modifiers: [
+            interact.modifiers.restrictRect({
+                restriction: document.querySelector('#BodyContainer'),
+                endOnly: true,
+            })
+        ],
+        inertia: true
+    });
+}
+
+document.addEventListener('mouseover', function (event) {
+    const element = event.target;
+    if (element.classList.contains('drag-icon')) {
+        initializeDraggable('.draggable', positions.draggable1);
+        initializeDraggable('.draggable2', positions.draggable2);
+        initializeDraggable('.draggable3', positions.draggable3);
+    } else {
+        interact('.draggable').draggable({
+            enabled: false  // explicitly disable dragging
+        });
+        interact('.draggable2').draggable({
+            enabled: false  // explicitly disable dragging
+        });
+        interact('.draggable3').draggable({
+            enabled: false  // explicitly disable dragging
+        });
+    }
+});

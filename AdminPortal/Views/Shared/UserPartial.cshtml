@@ -2,18 +2,34 @@
 @model ApplicationUser
 
 
+<div id="kt_app_content" class="app-content flex-column-fluid">
+    <div id="kt_app_content_container" class="app-container container-fluid">
+        <!--begin::Wrapper-->
+        <div class="d-flex flex-stack mb-5">
+            <!-- Your wrapper content goes here if needed -->
+        </div>
+        <!--end::Wrapper-->
+        <!--begin::Datatable-->
+
+        <div id="Wrapper">
+            <table id="userTable" class="table table-hover table-rounded border gy-7 gs-7" style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                <thead>
+                    <tr class="fw-semibold fs-7 text-primary border-bottom border-gray-200 py-4">
+                     
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Account Type</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <!--end::Datatable-->
+    </div>
+</div>
+
 <div>
-    <table id="userTable" class="display" style="width:100%">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Account Type</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-    </table>
+  
 </div>
 
 <!-- Create user button -->
@@ -149,14 +165,18 @@
 
             // Initialize DataTable
             $('#userTable').DataTable({
-                "processing": true,
-                "serverSide": true,
-                "ajax": {
+                processing: true,
+               // serverSide: true,
+                paging: true,
+                filter: true,
+                dom: 'Bfrtilp',
+                select: true,
+                ajax: {
                     "url": "User/GetUsers",
                     "type": "GET"
                 },
-                "columns": [
-                    { "data": "id" },
+                columns: [
+                   
                     { "data": "userName" },
                     { "data": "email" },
                     { "data": "accountType" }, // Display account type
@@ -166,7 +186,15 @@
                                 '&nbsp;<button class="btn btn-danger delete-btn" data-id="' + full.id + '">Delete</button>';
                         }
                     }
-                ]
+                ],
+                lengthMenu: [
+                    [5, 10, 25, 50, 1000],
+                    ['5 rows', '10 rows', '25 rows', '50 rows', 'Show all']
+                ],
+                pageLength: 10,
+               
+
+
             });
 
             // Handle edit and delete actions

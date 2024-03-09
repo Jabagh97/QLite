@@ -1,4 +1,5 @@
 ﻿using AdminPortal.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -15,6 +16,8 @@ using System.Text.Json;
 
 namespace PortalPOC.Controllers
 {
+    [Authorize]
+
     public class GenericTableController : Controller
     {
         private readonly IModelTypeMappingService _modelTypeMappingService;

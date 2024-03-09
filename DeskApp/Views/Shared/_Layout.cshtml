@@ -22,9 +22,9 @@
 
     <link href="~/DataTables/DataTables-1.13.8/css/dataTables.bootstrap5.css" rel="stylesheet">
     <link href="~/DataTables/datatables.css" rel="stylesheet">
-        <link href="~/lib/swal/sweetalert2.css" rel="stylesheet">
-        <script src="~/js/popper.min.js"></script>
-    
+    <link href="~/lib/swal/sweetalert2.css" rel="stylesheet">
+    <script src="~/js/popper.min.js"></script>
+
     <!--end::Global Stylesheets Bundle-->
 
     <script>
@@ -58,7 +58,7 @@
                     <partial name="layout/partials/_hero" />
                 }
                 <!--begin::Wrapper container-->
-                <div class="app-container  container-xxl ">
+                <div class="app-container  container-xxl " id="BodyContainer">
                     <!--begin::Main-->
                     <div class="app-main flex-column flex-row-fluid " id="kt_app_main">
                         <!--begin::Content wrapper-->
@@ -101,21 +101,18 @@
     <script src="~/DataTables/datatables.js"></script>
     <script src="~/bootstrap/js/bootstrap.bundle.js"></script>
     <script src="~/js/scripts.bundle.js"></script>
-  
+
     <script src="~/js/popper.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
 
-     <script src="~/lib/swal/sweetalert2.all.js"></script>
-    
+    <script src="~/lib/swal/sweetalert2.all.js"></script>
+    <script src="~/plugins/custom/draggable/draggable.bundle.js"></script>
+
 
 
 
     <!--end::Global Javascript Bundle-->
-   
-    
-
-
     <!--end::Javascript-->
 </body>
 <!--end::Body-->
