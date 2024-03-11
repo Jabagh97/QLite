@@ -21,15 +21,33 @@ namespace KioskApp.Controllers
 
             _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
         }
+        [HttpGet]
 
-        [AllowAnonymous]
-        [HttpPost("/authenticate")]
-        public async Task<IActionResult> AuthenticateAsync([FromBody] string KioskID)
+        public async Task<IActionResult> AuthenticateAsync()
         {
-            var restClient = await _httpClient.GetAsync("api/Kiosk/GetKioskByID");
+            try
+            {
+                var kioskId = _configuration.GetValue<string>("KioskID");
 
-            return Ok(restClient);
+                var response = await _httpClient.GetAsync($"api/Kiosk/GetKioskByHwID?HwId={kioskId}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var kioskData = await response.Content.ReadAsStringAsync();
+                    return Ok(kioskData);
+                }
+                else
+                {
+                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    return StatusCode((int)response.StatusCode, errorMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing the request."); // Handle unexpected errors
+            }
         }
+
 
     }
 }

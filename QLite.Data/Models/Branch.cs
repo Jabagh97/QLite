@@ -71,7 +71,7 @@ public partial class Branch
 
     //public virtual ICollection<ApplicationUser> AppUserBranchNavigations { get; } = new List<ApplicationUser>();
 
-    public virtual ICollection<KioskApplication> KioskApplications { get; } = new List<KioskApplication>();
+    public virtual ICollection<Kiosk> Kiosks { get; } = new List<Kiosk>();
 
     public virtual Province? ProvinceNavigation { get; set; }
 

@@ -33,7 +33,7 @@ public partial class Design
 
     public string? DesignTag { get; set; }
 
-    public string? WfStep { get; set; }
+    public int? WfStep { get; set; }
 
     public int? OptimisticLockField { get; set; }
 

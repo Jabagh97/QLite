@@ -33,7 +33,8 @@ namespace QLiteDataApi.Controllers.Admin
                 }
 
                 var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, searchValue, sortColumn, sortColumnDirection);
-                var paginatedData = filteredData.Skip(skip).Take(pageSize).ToDynamicList();
+                //var paginatedData = filteredData.Skip(skip).Take(pageSize).ToDynamicList();
+                var paginatedData = filteredData.ToDynamicList();
                 var recordsTotal = filteredData.Count();
                 var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };
 

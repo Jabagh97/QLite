@@ -7,8 +7,8 @@ function initializeDataTable(modelName, columnDefinitions) {
     function initializeDatatable() {
         dt = $('#table').DataTable({
             searchDelay: 500,
-            serverSide: true,
-            processing: true,
+            //serverSide: true,
+            //processing: true,
             //stateSave: true,
             paging: true,
             filter: true,

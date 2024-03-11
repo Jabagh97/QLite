@@ -11,6 +11,12 @@
         @KioskIndexModel.GetLanguage("Server is currently down. Please wait while we try to reconnect...")
     </div>
 
+
+
+    <div id="AuthError" class="alert alert-danger mb-4" style="display: none;" role="alert">
+        @KioskIndexModel.GetLanguage("Kiosk is Not Registered to the system")
+    </div>
+
     <div id="loadingAnimation" class="text-center mb-4" style="display: none;">
         <div class="spinner-border" role="status">
             <span class="sr-only">Loading...</span>
@@ -68,6 +74,33 @@
 <script>
 
 
+    function ValidateKiosk() {
+        $.ajax({
+            url: '/KioskAuth/Authenticate',
+            type: 'GET',
+            contentType: 'application/json',
+
+            success: function (response) {
+
+                console.log("Kiosk Authenticated successfully");
+
+                setInterval(queryHw, 5000); // Call every 5 seconds
+
+
+
+            },
+            error: function (xhr, status, error) {
+                console.error("Error :", xhr.responseText);
+                $("#AuthError").show();
+                $("#loadingAnimation").hide();
+                $("#content").hide();
+            }
+        });
+
+    }
+
+
+
     function touch() {
         $("body").unbind("click");
         loadSegmentView();
@@ -103,7 +136,7 @@
             $("#connectionError").hide();
             $("#loadingAnimation").hide();
             $("#content").show();
-            setInterval(queryHw, 5000); // Call every 5 seconds
+            ValidateKiosk();
 
         }).catch(function (err) {
             console.error(err.toString());
@@ -116,7 +149,7 @@
             setTimeout(startConnection, retryInterval);
         });
     }
-    
+
 
     function sendMessageToDesk(message) {
         connection.invoke("SendMessageToDesk", message).catch(function (err) {
@@ -134,7 +167,7 @@
     });
 
     connection.on("NotifyTicketState", function (ticket) {
-        try{
+        try {
             var messageObject = JSON.parse(ticket);
 
             DisplayTicket(messageObject);
@@ -145,11 +178,14 @@
         catch (error) {
             console.error("Error processing NotifyTicketState message:", error);
         }
-        
+
     });
 
     // Reconnect if the connection is lost
     connection.onclose(startConnection);
+
+
+
 
 
 </script>

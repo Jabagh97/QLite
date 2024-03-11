@@ -31,7 +31,7 @@ public partial class TicketPool
 
     public Guid? Segment { get; set; }
 
-    public Guid? KioskApplication { get; set; }
+    public Guid? Kiosk { get; set; }
 
     public int? MaxWaitingTicketCount { get; set; }
 
@@ -65,7 +65,7 @@ public partial class TicketPool
 
     public virtual Branch? BranchNavigation { get; set; }
 
-    public virtual KioskApplication? KioskApplicationNavigation { get; set; }
+    public virtual Kiosk? KioskNavigation { get; set; }
 
     public virtual Segment? SegmentNavigation { get; set; }
 

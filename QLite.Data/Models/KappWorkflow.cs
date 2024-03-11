@@ -31,5 +31,5 @@ public partial class KappWorkflow
 
     public int? Gcrecord { get; set; }
 
-    public virtual ICollection<KioskApplication> KioskApplications { get; } = new List<KioskApplication>();
+    public virtual ICollection<Kiosk> Kiosks { get; } = new List<Kiosk>();
 }

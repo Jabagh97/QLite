@@ -11,8 +11,8 @@ namespace QLite.Data.Models
 
         public enum KioskType
         {
-            Kiosk = 0,
-            Display = 1,
+            Kiosk ,
+            Display ,
         }
 
 

@@ -92,6 +92,7 @@ $(document).ready(function () {
                         {
                         <text>"render": function (data, type, row, meta) {
                             // Retrieve enum values as an array of strings
+
                             var enumValues = @Html.Raw(Json.Serialize(Enum.GetNames(column.property.PropertyType)));
 
                             // Convert data to integer if needed (assuming it represents enum index)

@@ -74,5 +74,20 @@ namespace QLiteDataApi.Controllers.Kiosk
             return Ok(segments);
 
         }
+
+        [HttpGet]
+        [Route("api/Kiosk/GetKioskByHwID")]
+        public IActionResult GetKioskByHwID(string HwId)
+        {
+            var kiosk = _KioskService.GetKioskByHwID(HwId);
+
+            if (kiosk.Count() == 0 || kiosk.Count() > 1) // Check if kiosk is null or empty
+            {
+                return NotFound("Kiosk not found for the provided Hardware ID.");
+            }
+
+            return Ok(kiosk);
+        }
+
     }
 }

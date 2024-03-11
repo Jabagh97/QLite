@@ -23,6 +23,8 @@ namespace QLiteDataApi.Services
         List<ServiceType> GetServiceTypes(Guid segmentId);
         List<Segment> GetSegments();
 
+        List<Kiosk> GetKioskByHwID(string HwId);
+
     }
     public class KioskService : IKioskService
     {
@@ -249,7 +251,15 @@ namespace QLiteDataApi.Services
         }
 
 
+        public List<Kiosk> GetKioskByHwID(string HwId)
+        {
+            var kiosk = _context.Kiosks.Where(k => k.Gcrecord == null && k.Active ==true && k.HwId == HwId)
+                 .ToList();
 
+            return kiosk;
+        }
+
+        
 
 
     }

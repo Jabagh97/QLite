@@ -83,48 +83,55 @@
         if (Model.Action == "Edit")
         {
             formDataValue = Model.FormData[propertyToLower] != null ? Model.FormData[propertyToLower] : "";
-
         }
 
-        if (isJsonInput)
-        {
-            return $"<textarea name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" rows=\"5\">{value}</textarea>";
-        }
-        else if (isBoolean)
-        {
-            return $"<input type=\"checkbox\" name=\"{propertyName}\" id=\"{propertyName}\" {(value == "true" ? "checked" : "")} />";
-        }
-        else if (isDate)
-        {
-            return $"<input type=\"time\" name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" value=\"{GetTimeValue(value)}\" />";
-        }
-        else if (isNonEditable)
-        {
-            return $"<input type=\"text\" name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" value=\"{value}\" disabled />";
-        }
-        else if (isIcon)
-        {
-            return RenderIconInput(property, value);
-        }
-        else if (isEnum)
-        {
-            return RenderEnumInput(property, viewModelProperty, formDataValue, propertyToLower);
+      
 
-        }
-        else if (isHidden)
+        switch (true)
         {
-            return"";
-        }
-        else if(isDropDown)
-        {
-            return RenderDropDown(property, propertyToLower, formDataValue);
+            case bool _ when isJsonInput:
+                return $"<textarea name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" rows=\"5\">{value}</textarea>";
 
-        }
-        else
-        {
-            return $"<input type=\"text\" name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" value=\"{value}\" />";
-        }
+            case bool _ when isBoolean:
+                return RenderCheckBoxInput(property, value);
 
+            case bool _ when isDate:
+                return $"<input type=\"time\" name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" value=\"{GetTimeValue(value)}\" />";
+
+            case bool _ when isNonEditable:
+                return $"<input type=\"text\" name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" value=\"{value}\" disabled />";
+
+            case bool _ when isIcon:
+                return RenderIconInput(property, value);
+
+            case bool _ when isEnum:
+                return RenderEnumInput(property, viewModelProperty, formDataValue, propertyToLower);
+
+            case bool _ when isHidden:
+                return "";
+
+            case bool _ when isDropDown:
+                return RenderDropDown(property, propertyToLower, formDataValue);
+
+            default:
+                return $"<input type=\"text\" name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" value=\"{value}\" />";
+        }
+    }
+
+    string RenderCheckBoxInput(PropertyInfo property, string value)
+    {
+        var propertyName = property.Name;
+        var isChecked = value != null && value.Equals("true", StringComparison.OrdinalIgnoreCase);
+
+        var sb = new StringBuilder();
+
+        // Render the hidden input field to ensure the value is included in the form submission
+        sb.AppendLine($"<input type=\"hidden\" name=\"{propertyName}\" value=\"false\" />");
+
+        // Render the checkbox input field
+        sb.AppendLine($"<input type=\"checkbox\" name=\"{propertyName}\" id=\"{propertyName}\" {(isChecked ? "checked" : "")} onclick=\"handleCheckbox('{propertyName}')\" />");
+
+        return sb.ToString();
     }
 
     string RenderDropDown(PropertyInfo property, string propertyToLower, string formDataValue)

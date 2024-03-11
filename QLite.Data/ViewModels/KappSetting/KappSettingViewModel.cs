@@ -9,7 +9,7 @@ namespace QLite.Data.ViewModels.KappSetting
 
         public string? Branch { get; set; }
 
-        public string? KioskApplication { get; set; }
+        public string? Kiosk { get; set; }
         [Required]
 
         public string? Parameter { get; set; }

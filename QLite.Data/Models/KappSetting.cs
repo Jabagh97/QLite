@@ -1,6 +1,6 @@
 ﻿using QLite.Data.CustomAttribute;
 using QLite.Data.ViewModels.KappSetting;
-using QLite.Data.ViewModels.KioskApplication;
+using QLite.Data.ViewModels.Kiosk;
 using System;
 using System.Collections.Generic;
 
@@ -27,7 +27,7 @@ public partial class KappSetting
 
     public Guid? Branch { get; set; }
 
-    public Guid? KioskApplication { get; set; }
+    public Guid? Kiosk { get; set; }
 
     public string? Parameter { get; set; }
 
@@ -45,5 +45,5 @@ public partial class KappSetting
 
     public virtual Branch? BranchNavigation { get; set; }
 
-    public virtual KioskApplication? KioskApplicationNavigation { get; set; }
+    public virtual Kiosk? KioskNavigation { get; set; }
 }

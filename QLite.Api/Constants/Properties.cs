@@ -12,7 +12,7 @@
 
         public const string Oid = "Oid";
         public const string Gcrecord = "Gcrecord";
-        public const string KioskApplication = "KioskApplication";
+        public const string Kiosk = "Kiosk";
 
     }
 }

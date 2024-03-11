@@ -75,7 +75,7 @@ namespace QLiteDataApi.Migrations
                     Account = table.Column<Guid>(type: "TEXT", nullable: true),
                     KioskApplicationType = table.Column<Guid>(type: "TEXT", nullable: true),
                     DesignTag = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    WfStep = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    WfStep = table.Column<int>(type: "INTEGER", maxLength: 100, nullable: true),
                     OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
                     GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
@@ -213,34 +213,6 @@ namespace QLiteDataApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UploadBO", x => x.Oid);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "KioskApplicationType",
-                columns: table => new
-                {
-                    Oid = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    ModifiedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true),
-                    CreatedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
-                    ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    Code = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    QorchAppType = table.Column<int>(type: "INTEGER", nullable: true),
-                    Account = table.Column<Guid>(type: "TEXT", nullable: true),
-                    OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
-                    GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_KioskApplicationType", x => x.Oid);
-                    table.ForeignKey(
-                        name: "FK_KioskApplicationType_Account",
-                        column: x => x.Account,
-                        principalTable: "Account",
-                        principalColumn: "Oid");
                 });
 
             migrationBuilder.CreateTable(
@@ -412,7 +384,7 @@ namespace QLiteDataApi.Migrations
                     Design = table.Column<Guid>(type: "TEXT", nullable: true),
                     Account = table.Column<Guid>(type: "TEXT", nullable: true),
                     Branch = table.Column<Guid>(type: "TEXT", nullable: true),
-                    KioskApplication = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Kiosk = table.Column<Guid>(type: "TEXT", nullable: true),
                     OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
                     GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
@@ -622,7 +594,7 @@ namespace QLiteDataApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "KioskApplication",
+                name: "Kiosk",
                 columns: table => new
                 {
                     Oid = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -634,40 +606,32 @@ namespace QLiteDataApi.Migrations
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     Account = table.Column<Guid>(type: "TEXT", nullable: true),
                     Branch = table.Column<Guid>(type: "TEXT", nullable: true),
-                    KioskApplicationType = table.Column<Guid>(type: "TEXT", nullable: true),
+                    KioskType = table.Column<int>(type: "INTEGER", nullable: true),
                     KappWorkflow = table.Column<Guid>(type: "TEXT", nullable: true),
-                    KappName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     HwId = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     DesignTag = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    PlatformAuthClientId = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    PlatformAuthClientSecret = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     Active = table.Column<bool>(type: "INTEGER", nullable: true),
-                    HasDigitalDisplay = table.Column<bool>(type: "INTEGER", nullable: true),
                     OptimisticLockField = table.Column<int>(type: "INTEGER", nullable: true),
                     GCRecord = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_KioskApplication", x => x.Oid);
+                    table.PrimaryKey("PK_Kiosk", x => x.Oid);
                     table.ForeignKey(
-                        name: "FK_KioskApplication_Account",
+                        name: "FK_Kiosk_Account",
                         column: x => x.Account,
                         principalTable: "Account",
                         principalColumn: "Oid");
                     table.ForeignKey(
-                        name: "FK_KioskApplication_Branch",
+                        name: "FK_Kiosk_Branch",
                         column: x => x.Branch,
                         principalTable: "Branch",
                         principalColumn: "Oid");
                     table.ForeignKey(
-                        name: "FK_KioskApplication_KappWorkflow",
+                        name: "FK_Kiosk_KappWorkflow",
                         column: x => x.KappWorkflow,
                         principalTable: "KappWorkflow",
-                        principalColumn: "Oid");
-                    table.ForeignKey(
-                        name: "FK_KioskApplication_KioskApplicationType",
-                        column: x => x.KioskApplicationType,
-                        principalTable: "KioskApplicationType",
                         principalColumn: "Oid");
                 });
 
@@ -711,7 +675,7 @@ namespace QLiteDataApi.Migrations
                     table.ForeignKey(
                         name: "FK_Desk_Pano",
                         column: x => x.Pano,
-                        principalTable: "KioskApplication",
+                        principalTable: "Kiosk",
                         principalColumn: "Oid");
                 });
 
@@ -738,12 +702,12 @@ namespace QLiteDataApi.Migrations
                     table.ForeignKey(
                         name: "FK_KappRelation_Child",
                         column: x => x.Child,
-                        principalTable: "KioskApplication",
+                        principalTable: "Kiosk",
                         principalColumn: "Oid");
                     table.ForeignKey(
                         name: "FK_KappRelation_Parent",
                         column: x => x.Parent,
-                        principalTable: "KioskApplication",
+                        principalTable: "Kiosk",
                         principalColumn: "Oid");
                 });
 
@@ -760,7 +724,7 @@ namespace QLiteDataApi.Migrations
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     Account = table.Column<Guid>(type: "TEXT", nullable: true),
                     Branch = table.Column<Guid>(type: "TEXT", nullable: true),
-                    KioskApplication = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Kiosk = table.Column<Guid>(type: "TEXT", nullable: true),
                     Parameter = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     ParameterValue = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
                     Description = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
@@ -782,9 +746,9 @@ namespace QLiteDataApi.Migrations
                         principalTable: "Branch",
                         principalColumn: "Oid");
                     table.ForeignKey(
-                        name: "FK_KappSettings_KioskApplication",
-                        column: x => x.KioskApplication,
-                        principalTable: "KioskApplication",
+                        name: "FK_KappSettings_Kiosk",
+                        column: x => x.Kiosk,
+                        principalTable: "Kiosk",
                         principalColumn: "Oid");
                 });
 
@@ -800,7 +764,7 @@ namespace QLiteDataApi.Migrations
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     ModifiedDateUtc = table.Column<DateTime>(type: "datetime", nullable: true),
                     Account = table.Column<Guid>(type: "TEXT", nullable: true),
-                    KioskApplication = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Kiosk = table.Column<Guid>(type: "TEXT", nullable: true),
                     Segment = table.Column<Guid>(type: "TEXT", nullable: true),
                     ServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
                     Success = table.Column<bool>(type: "INTEGER", nullable: true),
@@ -826,9 +790,9 @@ namespace QLiteDataApi.Migrations
                         principalTable: "Account",
                         principalColumn: "Oid");
                     table.ForeignKey(
-                        name: "FK_QorchSession_KioskApplication",
-                        column: x => x.KioskApplication,
-                        principalTable: "KioskApplication",
+                        name: "FK_QorchSession_Kiosk",
+                        column: x => x.Kiosk,
+                        principalTable: "Kiosk",
                         principalColumn: "Oid");
                     table.ForeignKey(
                         name: "FK_QorchSession_Segment",
@@ -858,7 +822,7 @@ namespace QLiteDataApi.Migrations
                     TicketPoolProfile = table.Column<Guid>(type: "TEXT", nullable: true),
                     ServiceType = table.Column<Guid>(type: "TEXT", nullable: true),
                     Segment = table.Column<Guid>(type: "TEXT", nullable: true),
-                    KioskApplication = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Kiosk = table.Column<Guid>(type: "TEXT", nullable: true),
                     MaxWaitingTicketCount = table.Column<int>(type: "INTEGER", nullable: true),
                     MaxWaitingTicketCountControlTime = table.Column<DateTime>(type: "datetime", nullable: true),
                     ServiceStartTime = table.Column<DateTime>(type: "datetime", nullable: true),
@@ -888,9 +852,9 @@ namespace QLiteDataApi.Migrations
                         principalTable: "Branch",
                         principalColumn: "Oid");
                     table.ForeignKey(
-                        name: "FK_TicketPool_KioskApplication",
-                        column: x => x.KioskApplication,
-                        principalTable: "KioskApplication",
+                        name: "FK_TicketPool_Kiosk",
+                        column: x => x.Kiosk,
+                        principalTable: "Kiosk",
                         principalColumn: "Oid");
                     table.ForeignKey(
                         name: "FK_TicketPool_Segment",
@@ -1393,9 +1357,9 @@ namespace QLiteDataApi.Migrations
                 column: "GCRecord");
 
             migrationBuilder.CreateIndex(
-                name: "iKioskApplication_KappSettings",
+                name: "iKiosk_KappSettings",
                 table: "KappSettings",
-                column: "KioskApplication");
+                column: "Kiosk");
 
             migrationBuilder.CreateIndex(
                 name: "iGCRecord_KappWorkflow",
@@ -1403,39 +1367,24 @@ namespace QLiteDataApi.Migrations
                 column: "GCRecord");
 
             migrationBuilder.CreateIndex(
-                name: "iAccount_KioskApplication",
-                table: "KioskApplication",
+                name: "iAccount_Kiosk",
+                table: "Kiosk",
                 column: "Account");
 
             migrationBuilder.CreateIndex(
-                name: "iBranch_KioskApplication",
-                table: "KioskApplication",
+                name: "iBranch_Kiosk",
+                table: "Kiosk",
                 column: "Branch");
 
             migrationBuilder.CreateIndex(
-                name: "iGCRecord_KioskApplication",
-                table: "KioskApplication",
+                name: "iGCRecord_Kiosk",
+                table: "Kiosk",
                 column: "GCRecord");
 
             migrationBuilder.CreateIndex(
-                name: "iKappWorkflow_KioskApplication",
-                table: "KioskApplication",
+                name: "iKappWorkflow_Kiosk",
+                table: "Kiosk",
                 column: "KappWorkflow");
-
-            migrationBuilder.CreateIndex(
-                name: "iKioskApplicationType_KioskApplication",
-                table: "KioskApplication",
-                column: "KioskApplicationType");
-
-            migrationBuilder.CreateIndex(
-                name: "iAccount_KioskApplicationType",
-                table: "KioskApplicationType",
-                column: "Account");
-
-            migrationBuilder.CreateIndex(
-                name: "iGCRecord_KioskApplicationType",
-                table: "KioskApplicationType",
-                column: "GCRecord");
 
             migrationBuilder.CreateIndex(
                 name: "iGCRecord_Language",
@@ -1493,9 +1442,9 @@ namespace QLiteDataApi.Migrations
                 column: "GCRecord");
 
             migrationBuilder.CreateIndex(
-                name: "iKioskApplication_QorchSession",
+                name: "iKiosk_QorchSession",
                 table: "QorchSession",
-                column: "KioskApplication");
+                column: "Kiosk");
 
             migrationBuilder.CreateIndex(
                 name: "iSegment_QorchSession",
@@ -1628,9 +1577,9 @@ namespace QLiteDataApi.Migrations
                 column: "GCRecord");
 
             migrationBuilder.CreateIndex(
-                name: "iKioskApplication_TicketPool",
+                name: "iKiosk_TicketPool",
                 table: "TicketPool",
-                column: "KioskApplication");
+                column: "Kiosk");
 
             migrationBuilder.CreateIndex(
                 name: "iSegment_TicketPool",
@@ -1766,16 +1715,13 @@ namespace QLiteDataApi.Migrations
                 name: "ServiceType");
 
             migrationBuilder.DropTable(
-                name: "KioskApplication");
+                name: "Kiosk");
 
             migrationBuilder.DropTable(
                 name: "Branch");
 
             migrationBuilder.DropTable(
                 name: "KappWorkflow");
-
-            migrationBuilder.DropTable(
-                name: "KioskApplicationType");
 
             migrationBuilder.DropTable(
                 name: "SubProvince");

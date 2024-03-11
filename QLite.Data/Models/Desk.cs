@@ -61,7 +61,7 @@ public partial class Desk
 
     public virtual Account? AccountNavigation { get; set; }
 
-    public virtual KioskApplication? PanoNavigation { get; set; }
+    public virtual Kiosk? PanoNavigation { get; set; }
 
     public virtual ICollection<Ticket> TicketCurrentDeskNavigations { get; } = new List<Ticket>();
 

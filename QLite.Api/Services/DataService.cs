@@ -157,11 +157,7 @@ namespace QLiteDataApi.Services
 
         private List<dynamic> GetRelatedEntityNames(Type relatedEntityType)
         {
-            var propertyName = relatedEntityType.Name switch
-            {
-                Properties.KioskApplication => Properties.KappName,
-                _ => Properties.Name
-            };
+            var propertyName = Properties.Name;
 
             var relatedEntities = GetTypedDbSet(relatedEntityType);
             return relatedEntities?.Where($"{Properties.Gcrecord} == null").Select($"new ({propertyName} as {propertyName}, {Properties.Oid} as {Properties.Oid})").ToDynamicList()

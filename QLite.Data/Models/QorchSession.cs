@@ -21,7 +21,7 @@ public partial class QorchSession
 
     public Guid? Account { get; set; }
 
-    public Guid? KioskApplication { get; set; }
+    public Guid? Kiosk { get; set; }
 
     public Guid? Segment { get; set; }
 
@@ -55,7 +55,7 @@ public partial class QorchSession
 
     public virtual Account? AccountNavigation { get; set; }
 
-    public virtual KioskApplication? KioskApplicationNavigation { get; set; }
+    public virtual Kiosk? KioskNavigation { get; set; }
 
     public virtual Segment? SegmentNavigation { get; set; }
 

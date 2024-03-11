@@ -1,12 +1,12 @@
 ﻿using QLite.Data.CustomAttribute;
-using QLite.Data.ViewModels.KioskApplication;
+using QLite.Data.ViewModels.Kiosk;
 using System;
 using System.Collections.Generic;
 
 namespace QLite.Data;
-[ModelMapping(typeof(KioskApplication), typeof(KioskApplicationViewModel))]
+[ModelMapping(typeof(Kiosk), typeof(KioskViewModel))]
 
-public partial class KioskApplication
+public partial class Kiosk
 {
     public Guid Oid { get; set; }
 
@@ -26,24 +26,21 @@ public partial class KioskApplication
 
     public Guid? Branch { get; set; }
 
-    public Guid? KioskApplicationType { get; set; }
+    public int? KioskType { get; set; }
 
     public Guid? KappWorkflow { get; set; }
 
-    public string? KappName { get; set; }
+    public string? Name { get; set; }
 
     public string? HwId { get; set; }
 
     public string? DesignTag { get; set; }
 
-    public string? PlatformAuthClientId { get; set; }
-
-    public string? PlatformAuthClientSecret { get; set; }
+    
 
     public bool? Active { get; set; }
 
-    public bool? HasDigitalDisplay { get; set; }
-
+  
     public int? OptimisticLockField { get; set; }
 
     public int? Gcrecord { get; set; }
@@ -62,7 +59,6 @@ public partial class KioskApplication
 
     public virtual KappWorkflow? KappWorkflowNavigation { get; set; }
 
-    public virtual KioskApplicationType? KioskApplicationTypeNavigation { get; set; }
 
     public virtual ICollection<QorchSession> QorchSessions { get; } = new List<QorchSession>();
 

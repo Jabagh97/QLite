@@ -47,9 +47,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<KappWorkflow> KappWorkflows { get; set; }
 
-    public virtual DbSet<KioskApplication> KioskApplications { get; set; }
+    public virtual DbSet<Kiosk> Kiosks { get; set; }
 
-    public virtual DbSet<KioskApplicationType> KioskApplicationTypes { get; set; }
 
     public virtual DbSet<Language> Languages { get; set; }
 
@@ -525,7 +524,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => e.Gcrecord, "iGCRecord_KappSettings");
 
-            entity.HasIndex(e => e.KioskApplication, "iKioskApplication_KappSettings");
+            entity.HasIndex(e => e.Kiosk, "iKiosk_KappSettings");
 
             entity.Property(e => e.Oid).ValueGeneratedNever();
             entity.Property(e => e.CreatedBy).HasMaxLength(100);
@@ -547,9 +546,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.Branch)
                 .HasConstraintName("FK_KappSettings_Branch");
 
-            entity.HasOne(d => d.KioskApplicationNavigation).WithMany(p => p.KappSettings)
-                .HasForeignKey(d => d.KioskApplication)
-                .HasConstraintName("FK_KappSettings_KioskApplication");
+            entity.HasOne(d => d.KioskNavigation).WithMany(p => p.KappSettings)
+                .HasForeignKey(d => d.Kiosk)
+                .HasConstraintName("FK_KappSettings_Kiosk");
         });
 
        
@@ -576,21 +575,20 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(100);
         });
 
-        modelBuilder.Entity<KioskApplication>(entity =>
+        modelBuilder.Entity<Kiosk>(entity =>
         {
             entity.HasKey(e => e.Oid);
 
-            entity.ToTable("KioskApplication");
+            entity.ToTable("Kiosk");
 
-            entity.HasIndex(e => e.Account, "iAccount_KioskApplication");
+            entity.HasIndex(e => e.Account, "iAccount_Kiosk");
 
-            entity.HasIndex(e => e.Branch, "iBranch_KioskApplication");
+            entity.HasIndex(e => e.Branch, "iBranch_Kiosk");
 
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_KioskApplication");
+            entity.HasIndex(e => e.Gcrecord, "iGCRecord_Kiosk");
 
-            entity.HasIndex(e => e.KappWorkflow, "iKappWorkflow_KioskApplication");
+            entity.HasIndex(e => e.KappWorkflow, "iKappWorkflow_Kiosk");
 
-            entity.HasIndex(e => e.KioskApplicationType, "iKioskApplicationType_KioskApplication");
 
             entity.Property(e => e.Oid).ValueGeneratedNever();
             entity.Property(e => e.CreatedBy).HasMaxLength(100);
@@ -599,55 +597,27 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.DesignTag).HasMaxLength(100);
             entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
             entity.Property(e => e.HwId).HasMaxLength(100);
-            entity.Property(e => e.KappName).HasMaxLength(100);
-            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
-            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
-            entity.Property(e => e.ModifiedDateUtc).HasColumnType("datetime");
-            entity.Property(e => e.PlatformAuthClientId).HasMaxLength(100);
-            entity.Property(e => e.PlatformAuthClientSecret).HasMaxLength(100);
-
-            entity.HasOne(d => d.AccountNavigation).WithMany(p => p.KioskApplications)
-                .HasForeignKey(d => d.Account)
-                .HasConstraintName("FK_KioskApplication_Account");
-
-            entity.HasOne(d => d.BranchNavigation).WithMany(p => p.KioskApplications)
-                .HasForeignKey(d => d.Branch)
-                .HasConstraintName("FK_KioskApplication_Branch");
-
-            entity.HasOne(d => d.KappWorkflowNavigation).WithMany(p => p.KioskApplications)
-                .HasForeignKey(d => d.KappWorkflow)
-                .HasConstraintName("FK_KioskApplication_KappWorkflow");
-
-            entity.HasOne(d => d.KioskApplicationTypeNavigation).WithMany(p => p.KioskApplications)
-                .HasForeignKey(d => d.KioskApplicationType)
-                .HasConstraintName("FK_KioskApplication_KioskApplicationType");
-        });
-
-        modelBuilder.Entity<KioskApplicationType>(entity =>
-        {
-            entity.HasKey(e => e.Oid);
-
-            entity.ToTable("KioskApplicationType");
-
-            entity.HasIndex(e => e.Account, "iAccount_KioskApplicationType");
-
-            entity.HasIndex(e => e.Gcrecord, "iGCRecord_KioskApplicationType");
-
-            entity.Property(e => e.Oid).ValueGeneratedNever();
-            entity.Property(e => e.Code).HasMaxLength(100);
-            entity.Property(e => e.CreatedBy).HasMaxLength(100);
-            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-            entity.Property(e => e.CreatedDateUtc).HasColumnType("datetime");
-            entity.Property(e => e.Gcrecord).HasColumnName("GCRecord");
-            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
-            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
-            entity.Property(e => e.ModifiedDateUtc).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
-
-            entity.HasOne(d => d.AccountNavigation).WithMany(p => p.KioskApplicationTypes)
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.ModifiedDateUtc).HasColumnType("datetime");
+       
+            entity.HasOne(d => d.AccountNavigation).WithMany(p => p.Kiosks)
                 .HasForeignKey(d => d.Account)
-                .HasConstraintName("FK_KioskApplicationType_Account");
+                .HasConstraintName("FK_Kiosk_Account");
+
+            entity.HasOne(d => d.BranchNavigation).WithMany(p => p.Kiosks)
+                .HasForeignKey(d => d.Branch)
+                .HasConstraintName("FK_Kiosk_Branch");
+
+            entity.HasOne(d => d.KappWorkflowNavigation).WithMany(p => p.Kiosks)
+                .HasForeignKey(d => d.KappWorkflow)
+                .HasConstraintName("FK_Kiosk_KappWorkflow");
+
+        
         });
+
+ 
 
         modelBuilder.Entity<Language>(entity =>
         {
@@ -772,7 +742,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => e.Gcrecord, "iGCRecord_QorchSession");
 
-            entity.HasIndex(e => e.KioskApplication, "iKioskApplication_QorchSession");
+            entity.HasIndex(e => e.Kiosk, "iKiosk_QorchSession");
 
             entity.HasIndex(e => e.Segment, "iSegment_QorchSession");
 
@@ -800,9 +770,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.Account)
                 .HasConstraintName("FK_QorchSession_Account");
 
-            entity.HasOne(d => d.KioskApplicationNavigation).WithMany(p => p.QorchSessions)
-                .HasForeignKey(d => d.KioskApplication)
-                .HasConstraintName("FK_QorchSession_KioskApplication");
+            entity.HasOne(d => d.KioskNavigation).WithMany(p => p.QorchSessions)
+                .HasForeignKey(d => d.Kiosk)
+                .HasConstraintName("FK_QorchSession_Kiosk");
 
             entity.HasOne(d => d.SegmentNavigation).WithMany(p => p.QorchSessions)
                 .HasForeignKey(d => d.Segment)
@@ -1040,7 +1010,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => e.Gcrecord, "iGCRecord_TicketPool");
 
-            entity.HasIndex(e => e.KioskApplication, "iKioskApplication_TicketPool");
+            entity.HasIndex(e => e.Kiosk, "iKiosk_TicketPool");
 
             entity.HasIndex(e => e.Segment, "iSegment_TicketPool");
 
@@ -1071,9 +1041,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.Branch)
                 .HasConstraintName("FK_TicketPool_Branch");
 
-            entity.HasOne(d => d.KioskApplicationNavigation).WithMany(p => p.TicketPools)
-                .HasForeignKey(d => d.KioskApplication)
-                .HasConstraintName("FK_TicketPool_KioskApplication");
+            entity.HasOne(d => d.KioskNavigation).WithMany(p => p.TicketPools)
+                .HasForeignKey(d => d.Kiosk)
+                .HasConstraintName("FK_TicketPool_Kiosk");
 
             entity.HasOne(d => d.SegmentNavigation).WithMany(p => p.TicketPools)
                 .HasForeignKey(d => d.Segment)

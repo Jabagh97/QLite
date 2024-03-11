@@ -29,7 +29,7 @@ public partial class KappRelation
 
     public int? Gcrecord { get; set; }
 
-    public virtual KioskApplication? ChildNavigation { get; set; }
+    public virtual Kiosk? ChildNavigation { get; set; }
 
-    public virtual KioskApplication? ParentNavigation { get; set; }
+    public virtual Kiosk? ParentNavigation { get; set; }
 }

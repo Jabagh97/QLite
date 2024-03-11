@@ -318,9 +318,9 @@ namespace QLiteDataApi.Migrations
                     b.Property<int?>("OptimisticLockField")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("WfStep")
+                    b.Property<int?>("WfStep")
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
 
@@ -357,7 +357,7 @@ namespace QLiteDataApi.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
-                    b.Property<Guid?>("KioskApplication")
+                    b.Property<Guid?>("Kiosk")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
@@ -869,7 +869,7 @@ namespace QLiteDataApi.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
-                    b.Property<Guid?>("KioskApplication")
+                    b.Property<Guid?>("Kiosk")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
@@ -901,7 +901,7 @@ namespace QLiteDataApi.Migrations
 
                     b.HasIndex(new[] { "Gcrecord" }, "iGCRecord_KappSettings");
 
-                    b.HasIndex(new[] { "KioskApplication" }, "iKioskApplication_KappSettings");
+                    b.HasIndex(new[] { "Kiosk" }, "iKiosk_KappSettings");
 
                     b.ToTable("KappSettings");
                 });
@@ -958,7 +958,7 @@ namespace QLiteDataApi.Migrations
                     b.ToTable("KappWorkflow", (string)null);
                 });
 
-            modelBuilder.Entity("QLite.Data.KioskApplication", b =>
+            modelBuilder.Entity("QLite.Data.Kiosk", b =>
                 {
                     b.Property<Guid>("Oid")
                         .HasColumnType("TEXT");
@@ -990,84 +990,15 @@ namespace QLiteDataApi.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
-                    b.Property<bool?>("HasDigitalDisplay")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("HwId")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("KappName")
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("KappWorkflow")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("KioskApplicationType")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<DateTime?>("ModifiedDateUtc")
-                        .HasColumnType("datetime");
-
-                    b.Property<int?>("OptimisticLockField")
+                    b.Property<int?>("KioskType")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("PlatformAuthClientId")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PlatformAuthClientSecret")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Oid");
-
-                    b.HasIndex(new[] { "Account" }, "iAccount_KioskApplication");
-
-                    b.HasIndex(new[] { "Branch" }, "iBranch_KioskApplication");
-
-                    b.HasIndex(new[] { "Gcrecord" }, "iGCRecord_KioskApplication");
-
-                    b.HasIndex(new[] { "KappWorkflow" }, "iKappWorkflow_KioskApplication");
-
-                    b.HasIndex(new[] { "KioskApplicationType" }, "iKioskApplicationType_KioskApplication");
-
-                    b.ToTable("KioskApplication", (string)null);
-                });
-
-            modelBuilder.Entity("QLite.Data.KioskApplicationType", b =>
-                {
-                    b.Property<Guid>("Oid")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("Account")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Code")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<DateTime?>("CreatedDateUtc")
-                        .HasColumnType("datetime");
-
-                    b.Property<int?>("Gcrecord")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("GCRecord");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -1086,16 +1017,17 @@ namespace QLiteDataApi.Migrations
                     b.Property<int?>("OptimisticLockField")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("QorchAppType")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Oid");
 
-                    b.HasIndex(new[] { "Account" }, "iAccount_KioskApplicationType");
+                    b.HasIndex(new[] { "Account" }, "iAccount_Kiosk");
 
-                    b.HasIndex(new[] { "Gcrecord" }, "iGCRecord_KioskApplicationType");
+                    b.HasIndex(new[] { "Branch" }, "iBranch_Kiosk");
 
-                    b.ToTable("KioskApplicationType", (string)null);
+                    b.HasIndex(new[] { "Gcrecord" }, "iGCRecord_Kiosk");
+
+                    b.HasIndex(new[] { "KappWorkflow" }, "iKappWorkflow_Kiosk");
+
+                    b.ToTable("Kiosk", (string)null);
                 });
 
             modelBuilder.Entity("QLite.Data.Language", b =>
@@ -1389,7 +1321,7 @@ namespace QLiteDataApi.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("KioskApplication")
+                    b.Property<Guid?>("Kiosk")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ModifiedBy")
@@ -1429,7 +1361,7 @@ namespace QLiteDataApi.Migrations
 
                     b.HasIndex(new[] { "Gcrecord" }, "iGCRecord_QorchSession");
 
-                    b.HasIndex(new[] { "KioskApplication" }, "iKioskApplication_QorchSession");
+                    b.HasIndex(new[] { "Kiosk" }, "iKiosk_QorchSession");
 
                     b.HasIndex(new[] { "Segment" }, "iSegment_QorchSession");
 
@@ -1907,7 +1839,7 @@ namespace QLiteDataApi.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
-                    b.Property<Guid?>("KioskApplication")
+                    b.Property<Guid?>("Kiosk")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("MaxWaitingTicketCount")
@@ -1968,7 +1900,7 @@ namespace QLiteDataApi.Migrations
 
                     b.HasIndex(new[] { "Gcrecord" }, "iGCRecord_TicketPool");
 
-                    b.HasIndex(new[] { "KioskApplication" }, "iKioskApplication_TicketPool");
+                    b.HasIndex(new[] { "Kiosk" }, "iKiosk_TicketPool");
 
                     b.HasIndex(new[] { "Segment" }, "iSegment_TicketPool");
 
@@ -2230,7 +2162,7 @@ namespace QLiteDataApi.Migrations
                         .HasForeignKey("Branch")
                         .HasConstraintName("FK_Desk_Branch");
 
-                    b.HasOne("QLite.Data.KioskApplication", "PanoNavigation")
+                    b.HasOne("QLite.Data.Kiosk", "PanoNavigation")
                         .WithMany("Desks")
                         .HasForeignKey("Pano")
                         .HasConstraintName("FK_Desk_Pano");
@@ -2323,12 +2255,12 @@ namespace QLiteDataApi.Migrations
 
             modelBuilder.Entity("QLite.Data.KappRelation", b =>
                 {
-                    b.HasOne("QLite.Data.KioskApplication", "ChildNavigation")
+                    b.HasOne("QLite.Data.Kiosk", "ChildNavigation")
                         .WithMany("KappRelationChildNavigations")
                         .HasForeignKey("Child")
                         .HasConstraintName("FK_KappRelation_Child");
 
-                    b.HasOne("QLite.Data.KioskApplication", "ParentNavigation")
+                    b.HasOne("QLite.Data.Kiosk", "ParentNavigation")
                         .WithMany("KappRelationParentNavigations")
                         .HasForeignKey("Parent")
                         .HasConstraintName("FK_KappRelation_Parent");
@@ -2350,57 +2282,40 @@ namespace QLiteDataApi.Migrations
                         .HasForeignKey("Branch")
                         .HasConstraintName("FK_KappSettings_Branch");
 
-                    b.HasOne("QLite.Data.KioskApplication", "KioskApplicationNavigation")
+                    b.HasOne("QLite.Data.Kiosk", "KioskNavigation")
                         .WithMany("KappSettings")
-                        .HasForeignKey("KioskApplication")
-                        .HasConstraintName("FK_KappSettings_KioskApplication");
+                        .HasForeignKey("Kiosk")
+                        .HasConstraintName("FK_KappSettings_Kiosk");
 
                     b.Navigation("AccountNavigation");
 
                     b.Navigation("BranchNavigation");
 
-                    b.Navigation("KioskApplicationNavigation");
+                    b.Navigation("KioskNavigation");
                 });
 
-            modelBuilder.Entity("QLite.Data.KioskApplication", b =>
+            modelBuilder.Entity("QLite.Data.Kiosk", b =>
                 {
                     b.HasOne("QLite.Data.Account", "AccountNavigation")
-                        .WithMany("KioskApplications")
+                        .WithMany("Kiosks")
                         .HasForeignKey("Account")
-                        .HasConstraintName("FK_KioskApplication_Account");
+                        .HasConstraintName("FK_Kiosk_Account");
 
                     b.HasOne("QLite.Data.Branch", "BranchNavigation")
-                        .WithMany("KioskApplications")
+                        .WithMany("Kiosks")
                         .HasForeignKey("Branch")
-                        .HasConstraintName("FK_KioskApplication_Branch");
+                        .HasConstraintName("FK_Kiosk_Branch");
 
                     b.HasOne("QLite.Data.KappWorkflow", "KappWorkflowNavigation")
-                        .WithMany("KioskApplications")
+                        .WithMany("Kiosks")
                         .HasForeignKey("KappWorkflow")
-                        .HasConstraintName("FK_KioskApplication_KappWorkflow");
-
-                    b.HasOne("QLite.Data.KioskApplicationType", "KioskApplicationTypeNavigation")
-                        .WithMany("KioskApplications")
-                        .HasForeignKey("KioskApplicationType")
-                        .HasConstraintName("FK_KioskApplication_KioskApplicationType");
+                        .HasConstraintName("FK_Kiosk_KappWorkflow");
 
                     b.Navigation("AccountNavigation");
 
                     b.Navigation("BranchNavigation");
 
                     b.Navigation("KappWorkflowNavigation");
-
-                    b.Navigation("KioskApplicationTypeNavigation");
-                });
-
-            modelBuilder.Entity("QLite.Data.KioskApplicationType", b =>
-                {
-                    b.HasOne("QLite.Data.Account", "AccountNavigation")
-                        .WithMany("KioskApplicationTypes")
-                        .HasForeignKey("Account")
-                        .HasConstraintName("FK_KioskApplicationType_Account");
-
-                    b.Navigation("AccountNavigation");
                 });
 
             modelBuilder.Entity("QLite.Data.Macro", b =>
@@ -2454,10 +2369,10 @@ namespace QLiteDataApi.Migrations
                         .HasForeignKey("Account")
                         .HasConstraintName("FK_QorchSession_Account");
 
-                    b.HasOne("QLite.Data.KioskApplication", "KioskApplicationNavigation")
+                    b.HasOne("QLite.Data.Kiosk", "KioskNavigation")
                         .WithMany("QorchSessions")
-                        .HasForeignKey("KioskApplication")
-                        .HasConstraintName("FK_QorchSession_KioskApplication");
+                        .HasForeignKey("Kiosk")
+                        .HasConstraintName("FK_QorchSession_Kiosk");
 
                     b.HasOne("QLite.Data.Segment", "SegmentNavigation")
                         .WithMany("QorchSessions")
@@ -2471,7 +2386,7 @@ namespace QLiteDataApi.Migrations
 
                     b.Navigation("AccountNavigation");
 
-                    b.Navigation("KioskApplicationNavigation");
+                    b.Navigation("KioskNavigation");
 
                     b.Navigation("SegmentNavigation");
 
@@ -2610,10 +2525,10 @@ namespace QLiteDataApi.Migrations
                         .HasForeignKey("Branch")
                         .HasConstraintName("FK_TicketPool_Branch");
 
-                    b.HasOne("QLite.Data.KioskApplication", "KioskApplicationNavigation")
+                    b.HasOne("QLite.Data.Kiosk", "KioskNavigation")
                         .WithMany("TicketPools")
-                        .HasForeignKey("KioskApplication")
-                        .HasConstraintName("FK_TicketPool_KioskApplication");
+                        .HasForeignKey("Kiosk")
+                        .HasConstraintName("FK_TicketPool_Kiosk");
 
                     b.HasOne("QLite.Data.Segment", "SegmentNavigation")
                         .WithMany("TicketPools")
@@ -2634,7 +2549,7 @@ namespace QLiteDataApi.Migrations
 
                     b.Navigation("BranchNavigation");
 
-                    b.Navigation("KioskApplicationNavigation");
+                    b.Navigation("KioskNavigation");
 
                     b.Navigation("SegmentNavigation");
 
@@ -2703,9 +2618,7 @@ namespace QLiteDataApi.Migrations
 
                     b.Navigation("KappSettings");
 
-                    b.Navigation("KioskApplicationTypes");
-
-                    b.Navigation("KioskApplications");
+                    b.Navigation("Kiosks");
 
                     b.Navigation("Macros");
 
@@ -2734,7 +2647,7 @@ namespace QLiteDataApi.Migrations
 
                     b.Navigation("KappSettings");
 
-                    b.Navigation("KioskApplications");
+                    b.Navigation("Kiosks");
 
                     b.Navigation("TicketPools");
 
@@ -2776,10 +2689,10 @@ namespace QLiteDataApi.Migrations
 
             modelBuilder.Entity("QLite.Data.KappWorkflow", b =>
                 {
-                    b.Navigation("KioskApplications");
+                    b.Navigation("Kiosks");
                 });
 
-            modelBuilder.Entity("QLite.Data.KioskApplication", b =>
+            modelBuilder.Entity("QLite.Data.Kiosk", b =>
                 {
                     b.Navigation("Desks");
 
@@ -2792,11 +2705,6 @@ namespace QLiteDataApi.Migrations
                     b.Navigation("QorchSessions");
 
                     b.Navigation("TicketPools");
-                });
-
-            modelBuilder.Entity("QLite.Data.KioskApplicationType", b =>
-                {
-                    b.Navigation("KioskApplications");
                 });
 
             modelBuilder.Entity("QLite.Data.Language", b =>

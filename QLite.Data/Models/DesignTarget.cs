@@ -29,7 +29,7 @@ public partial class DesignTarget
 
     public Guid? Branch { get; set; }
 
-    public Guid? KioskApplication { get; set; }
+    public Guid? Kiosk { get; set; }
 
     public int? OptimisticLockField { get; set; }
 

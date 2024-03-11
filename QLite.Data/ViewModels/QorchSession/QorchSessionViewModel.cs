@@ -7,7 +7,7 @@ namespace QLite.Data.ViewModels.QorchSession
 
         public string? Account { get; set; }
 
-        public string? KioskApplication { get; set; }
+        public string? Kiosk { get; set; }
 
         public string? Segment { get; set; }
 
