@@ -38,5 +38,7 @@ namespace KioskApp.SignalR
         {
             await Clients.All.SendAsync("ReceiveMessage", message);
         }
+
+
     }
 }

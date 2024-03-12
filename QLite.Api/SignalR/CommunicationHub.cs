@@ -23,7 +23,7 @@ namespace QLiteDataApi.SignalR
                 string clientId = Context.GetHttpContext().Request.Query["clientId"];
                 string clientType = Context.GetHttpContext().Request.Query["clientType"];
                 string clientName = Context.GetHttpContext().Request.Query["clientName"];
-             
+
                 if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientType) /*|| string.IsNullOrWhiteSpace(branchId)*/)
                 {
                     throw new ArgumentNullException("clientId or clientType or branchId");
@@ -54,10 +54,10 @@ namespace QLiteDataApi.SignalR
                 Groups.AddToGroupAsync(Context.ConnectionId, groupId);
                 Log.Debug($"WSGROUP {clientType} /{clientName} {clientId}, -> {groupId} ");
             }
-           
+
             else if (clientType == WebSocketClientType.User.ToString())
             {
-                Groups.AddToGroupAsync(Context.ConnectionId, "ALL_" );
+                Groups.AddToGroupAsync(Context.ConnectionId, "ALL_");
                 Groups.AddToGroupAsync(Context.ConnectionId, clientId);
             }
         }
@@ -71,7 +71,10 @@ namespace QLiteDataApi.SignalR
         {
             await Clients.All.SendAsync("ReceiveMessage", message);
         }
-        
 
+        public void HwEvent()
+        {
+            Console.WriteLine("asdasd");
+        }
     }
 }

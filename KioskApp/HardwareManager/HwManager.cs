@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using HidSharp;
 using HidSharp.Utility;
-using Microsoft.Extensions.Configuration;
 using QLite.Data.CommonContext;
 using QLite.Data.Dtos;
 using QLite.Kio;
@@ -9,10 +8,7 @@ using Quavis.QorchLite.Hwlib.Display;
 using Quavis.QorchLite.Hwlib.Hardware;
 using Quavis.QorchLite.Hwlib.Printer;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
 
 namespace Quavis.QorchLite.Hwlib
 {
@@ -31,6 +27,7 @@ namespace Quavis.QorchLite.Hwlib
 
         public void Print(string html)
         {
+                       
             if (_printer == null)
                 return;
 
@@ -92,7 +89,7 @@ namespace Quavis.QorchLite.Hwlib
 
                 _display = CommonCtx.Container.ResolveNamed<IDisplay>(dt);
                 var settings = CommonCtx.Config.GetSection("devices:display").Get(_display.SettingsType);
-                _display.Device.DeviceConnectionEvent += Device_DeviceConnectionEvent; ;
+                _display.Device.DeviceConnectionEvent += Device_DeviceConnectionEvent; 
                 _display.Initialize(settings);
                 RealDevices.Add(_display.Device);
             }
@@ -104,7 +101,7 @@ namespace Quavis.QorchLite.Hwlib
 
         private void Device_DeviceConnectionEvent(object sender, bool? e)
         {
-            _hc.HwEvent(GetKioskHwStatus());
+            _hc.HwEvent();
         }
 
         public void InitHardware()
@@ -180,7 +177,7 @@ namespace Quavis.QorchLite.Hwlib
 
         private void Device_PrinterErrorEvent(object sender, List<ErrorCodes> e)
         {
-            _hc.HwEvent(GetKioskHwStatus());
+            _hc.HwEvent();
 
         }
 

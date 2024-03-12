@@ -14,7 +14,7 @@ namespace DeskApp.SignalR
             _hubContext = hubContext;
         }
 
-        public void HwEvent(KioskHwStatusDto hwStatus)
+        public void HwEvent()
         {
             throw new NotImplementedException();
         }

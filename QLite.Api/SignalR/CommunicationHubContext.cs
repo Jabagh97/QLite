@@ -14,9 +14,9 @@ namespace QLiteDataApi.SignalR
             _hubContext = hubContext;
         }
 
-        public void HwEvent(KioskHwStatusDto hwStatus)
+        public void HwEvent()
         {
-            _hubContext.Clients.All.SendAsync("hwevent", hwStatus);
+            _hubContext.Clients.All.SendAsync("hwevent");
         }
 
       

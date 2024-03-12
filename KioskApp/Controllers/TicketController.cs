@@ -54,6 +54,7 @@ namespace KioskApp.Controllers
             {
                 var html = Helpers.Helpers.PrepareTicket(viewModel.Html);
 
+             
                 _hwman.Print(html);
 
                 return Ok("Print successful");
