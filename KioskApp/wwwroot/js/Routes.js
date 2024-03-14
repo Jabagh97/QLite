@@ -68,7 +68,7 @@ function DisplayTicket(ticket) {
         url: '/Ticket/DisplayTicket', 
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ DisplayNo: ticket.DisplayNo, TicketNo: ticket.ServiceCode + ticket.TicketNumber, SendToMain: false }), // Convert data to JSON string
+        data: JSON.stringify({ DisplayNo: ticket.DisplayNo, TicketNo: ticket.ServiceCode + ticket.TicketNumber, SendToMain: true }), // Convert data to JSON string
         success: function (response) {
             console.log("Ticket displayed successfully");
         },

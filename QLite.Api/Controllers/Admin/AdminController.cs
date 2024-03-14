@@ -10,12 +10,12 @@ using System.Reflection;
 
 namespace QLiteDataApi.Controllers.Admin
 {
-    public class TableController : Controller
+    public class AdminController : Controller
     {
         private readonly IModelTypeMappingService _modelTypeMappingService;
         private readonly IDataService _dataService;
 
-        public TableController(IDataService dataService, IModelTypeMappingService modelTypeMappingService)
+        public AdminController(IDataService dataService, IModelTypeMappingService modelTypeMappingService)
         {
             _dataService = dataService;
             _modelTypeMappingService = modelTypeMappingService;

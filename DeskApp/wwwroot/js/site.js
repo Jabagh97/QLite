@@ -1,4 +1,7 @@
 ﻿function connectToHub(clientType, clientName, clientID, apiUrl) {
+
+    clientID = $('#deskName').data('desk-id');
+
     var huburl = apiUrl + `/communicationHub/?clientType=${clientType}&clientName=${clientName}&clientId=${clientID}`;
     var connection = new signalR.HubConnectionBuilder().withUrl(huburl).build();
 
@@ -13,6 +16,7 @@
             $("#connectionError").hide();
             $("#loadingAnimation").hide();
             $("#content").show();
+
         }).catch(function (err) {
             console.error(err.toString());
 
@@ -52,35 +56,74 @@
 
             var state = '';
 
-            // Determine which fetchTickets function to call based on ticketStateValue
+            var tableTitleText = document.getElementById('TableTitle')?.textContent ?? '';
 
-            //TODO: Handle Ticket Update in a better way 
 
             switch (ticketStateValue) {
                 case 0://waiting
-                    fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
+                    if (tableTitleText !== 'Waiting Tickets') {
+                        fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT', true);
+
+                    }
+                    else {
+                        fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
+                    }
                     state = 'in Waiting List ';
+
                     showPopup(state, messageObject.TicketNumber, messageObject.SegmentName, messageObject.ServiceTypeName)
                     break;
                 case 1://transfer
-                    fetchTickets('Ticket/GetTransferedTickets', 'Transfered Tickets', 'TT');
-                    state = 'Transfered';
-                    showPopup(state, messageObject.TicketNumber, messageObject.SegmentName, messageObject.ServiceTypeName)
 
+                    if (tableTitleText !== 'Transferred Tickets') {
+
+                        fetchTickets('Ticket/GetTransferedTickets?deskId=' + deskId, 'Transfered Tickets', 'TT', true);
+
+                    }
+                    else {
+
+                        fetchTickets('Ticket/GetTransferedTickets?deskId=' + deskId, 'Transfered Tickets', 'TT');
+                    }
+                    state = 'Transfered';
+
+                    showPopup(state, messageObject.TicketNumber, messageObject.SegmentName, messageObject.ServiceTypeName)
+                    break;
 
                 case 2://service
-                    fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
+                    if (tableTitleText === 'Waiting Tickets') {
+                        fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
+                        fetchTickets('Ticket/GetTransferedTickets?deskId=' + deskId, 'Transfered Tickets', 'TT', true);
+                        fetchTickets('Ticket/GetParkedTickets?deskId=' + deskId, 'Parked Tickets', 'PT', true);
+                    }
+                    else if (tableTitleText === 'Transferred Tickets') {
+                        fetchTickets('Ticket/GetTransferedTickets?deskId=' + deskId, 'Transfered Tickets', 'TT');
+                        fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT', true);
+                        fetchTickets('Ticket/GetParkedTickets?deskId=' + deskId, 'Parked Tickets', 'PT', true);
+                    }
+                    else if (tableTitleText === 'Parked Tickets') {
+                        fetchTickets('Ticket/GetTransferedTickets?deskId=' + deskId, 'Transfered Tickets', 'TT',true);
+                        fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT', true);
+                        fetchTickets('Ticket/GetParkedTickets?deskId=' + deskId, 'Parked Tickets', 'PT');
 
+                    }
 
                     break;
                 case 3://park
-                    fetchTickets('Ticket/GetParkedTickets', 'Parked Tickets', 'PT');
-                    state = 'Parked';
 
+                    if (tableTitleText !== 'Transferred Tickets') {
+                        fetchTickets('Ticket/GetParkedTickets?deskId=' + deskId, 'Parked Tickets', 'PT', true);
 
+                    }
+                    else {
+
+                        fetchTickets('Ticket/GetParkedTickets?deskId=' + deskId, 'Parked Tickets', 'PT');
+
+                    }
+
+                    break;
                 case 4://done
-                    fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
-                    
+                    //fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
+                    fetchCompletedTickets('Ticket/GetCompletedTickets?deskId=' + deskId);
+                    updateMainPanel();
 
 
                     break;
@@ -95,7 +138,7 @@
 
         } catch (error) {
             console.error("Error processing NotifyTicketState message:", error);
-            fetchCompletedTickets('Ticket/GetCompletedTickets');
+            fetchCompletedTickets('Ticket/GetCompletedTickets?deskId=' + deskId);
             updateMainPanel();
             Swal.fire({
                 position: 'center',
@@ -114,12 +157,11 @@
 }
 
 
-function showPopup(state, TicketNumber, SegmentName, ServiceTypeName)
-{
+function showPopup(state, TicketNumber, SegmentName, ServiceTypeName) {
 
     Swal.fire({
         position: 'top-end',
-        icon: 'info', 
+        icon: 'info',
         title: '<span style="font-size: 20px;">New Ticket state</span>',
         html: `
         <div style="font-size: 16px; line-height: 1.5;">

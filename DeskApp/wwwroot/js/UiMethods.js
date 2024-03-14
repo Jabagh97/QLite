@@ -1,4 +1,7 @@
-﻿// Initialize DataTable
+﻿var deskId = $('#deskName').data('desk-id');
+
+
+// Initialize DataTable
 var table = $('#table').DataTable({
     serverSide: false,
     paging: true,
@@ -24,7 +27,6 @@ var table = $('#table').DataTable({
 // Function to fetch tickets by type
 function fetchTickets(url, title,id,justnumber) {
     // Set the title text
-    $('#TableTitle').text(title);
 
     $.ajax({
         url: url,
@@ -32,12 +34,16 @@ function fetchTickets(url, title,id,justnumber) {
         success: function (response) {
 
             var x = response.data.length;
-
             // Update the waiting number
             $('#' + id).text(response.data.length);
+
+            //return if only the number of tickets is requested
             if (justnumber) { return }
+
             // Clear existing rows
             table.clear().draw();
+
+            $('#TableTitle').text(title);
 
             // Add new rows from the received data
             $.each(response.data, function (index, item) {
@@ -55,20 +61,9 @@ function fetchTickets(url, title,id,justnumber) {
         }
     });
 
-    fetchCompletedTickets('Ticket/GetCompletedTickets');
+    fetchCompletedTickets('Ticket/GetCompletedTickets?deskId=' + deskId);
     updateMainPanel();
 }
-
-
-fetchTickets('Ticket/GetParkedTickets', 'Parked Tickets', 'PT',true);
-
-fetchTickets('Ticket/GetTransferedTickets', 'Transfered Tickets', 'TT',true);
-
-fetchTickets('Ticket/GetWaitingTickets','Waiting Tickets','WT');
-
-
-
-
 
 var CompletedTable = $('#CompletedTable').DataTable({
     paging: true,
@@ -120,15 +115,8 @@ function fetchCompletedTickets(url) {
     });
 }
 
-// Call the function to fetch completed tickets on page load
-fetchCompletedTickets('Ticket/GetCompletedTickets');
-
-
-
 function updateMainPanel()
 {
-
-    var deskId = $('#deskName').data('desk-id');
 
     $.ajax({
         url: 'Ticket/GetCurrentTicket',
@@ -162,7 +150,6 @@ function updateMainPanel()
 
 function EndTicket()
 {
-    var deskId = $('#deskName').data('desk-id');
 
     $.ajax({
         url: 'Ticket/EndTicket',
@@ -181,7 +168,6 @@ function showParkTicketModal() {
     $('#parkTicketModal').modal('show');
 }
 function ParkTicket() {
-    var deskId = $('#deskName').data('desk-id');
     var note = $('#ticketNote').val();
     var ticket = $('#ticketNumber').data('ticket-id');
     $.ajax({
@@ -199,9 +185,111 @@ function ParkTicket() {
         }
     });
 }
+function showTransferTicketModal() {
+    $('#transferTicketModal').modal('show');
+}
+
+function TransferTicket() {
+    var note = $('#ticketNote').val();
+    var ticket = $('#ticketNumber').data('ticket-id');
+    var transferServiceType = $('#serviceDropdown').val(); // Get selected value from service dropdown
+    var transferToDesk = $('#deskDropdown').val(); // Get selected value from desk dropdown
+
+    $.ajax({
+        url: 'Ticket/TransferTicket',
+        type: 'POST',
+        data:
+        {
+            TicketId: ticket,
+            TransferServiceType: transferServiceType,
+            TransferToDesk: transferToDesk,
+            TransferFromDesk: deskId,
+            TicketNote: note
+        },
+        success: function (response) {
+            $('#transferTicketModal').modal('hide');
+            updateMainPanel();
+
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+            $('#transferTicketModal').modal('hide');
+
+        }
+    });
+}
+function GetDeskListAndServices() {
+    GetDeskList();
+    GetTransferableServices(deskId);
+}
+
+function GetDeskList() {
+    $.ajax({
+        url: 'Ticket/GetDeskList',
+        type: 'GET',
+        success: function (response) {
+            // Clear any existing dropdown options
+            $('#deskDropdown').empty();
+
+            // Populate dropdown with desks from the response
+            response.forEach(function (desk) {
+                $('#deskDropdown').append('<option value="' + desk.oid + '">' + desk.name + '</option>');
+            });
+            // Show the modal once the dropdown is populated
+            $('#transferTicketModal').modal('show');
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+            // Handle error
+        }
+    });
+}
+
+function GetTransferableServices(DeskID) {
+    $.ajax({
+        url: 'Ticket/GetTransferableServiceList?DeskID=' + DeskID,
+        type: 'GET',
+        success: function (response) {
+            // Append dropdown options with desks from the response
+            response.forEach(function (service) {
+                $('#serviceDropdown').append('<option value="' + service.serviceType + '">' + service.serviceTypeNavigation.name + '</option>');
+            });
+
+            // No need to show the modal again here, as it's already shown by GetDeskList
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+            // Handle error
+        }
+    });
+}
+
+
+function GetCreatableServices(DeskID) {
+    $.ajax({
+        url: 'Ticket/GetCreatableServicesList?DeskID=' + DeskID,
+        type: 'GET',
+        success: function (response) {
+            // Clear any existing dropdown options
+            $('#serviceDropdown').empty();
+
+            // Populate dropdown with desks from the response
+            response.forEach(function (desk) {
+                $('#serviceDropdown').append('<option value="' + desk.oid + '">' + desk.name + '</option>');
+            });
+
+            
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+            // Handle error
+        }
+    });
+}
+
+
 
 function autocall() {
-    var deskId = $('#deskName').data('desk-id');
     var macroId = localStorage.getItem('selectedMacroId'); 
 
     $.ajax({
@@ -220,7 +308,6 @@ function autocall() {
 // Call ticket button click handler
 $('#table').on('click', '.call-ticket', function () {
     var oid = $(this).data('oid');
-    var deskId = $('#deskName').data('desk-id');
 
     $.ajax({
         url: '/Ticket/CallTicket',
@@ -239,7 +326,6 @@ $('#table').on('click', '.call-ticket', function () {
 // Call ticket button click handler
 $('#CompletedTable').on('click', '.call-ticket', function () {
     var oid = $(this).data('oid');
-    var deskId = $('#deskName').data('desk-id');
 
     $.ajax({
         url: '/Ticket/CallTicket',
@@ -257,23 +343,20 @@ $('#CompletedTable').on('click', '.call-ticket', function () {
 });
 function GetDesk()
 {
-    var deskId = $('#deskName').data('desk-id');
     $.ajax({
         url: '/Ticket/GetDesk?deskId=' + deskId,
         type: 'GET',
         success: function (data) {
-            $('#deskName').text(data); // Update the content with the fetched desk name
+            $('#deskName').text(data.name); // Update the content with the fetched desk name
         },
         error: function () {
             $('#deskName').text('Error fetching desk name'); // Display error message if request fails
         }
     });
 }
-GetDesk();
 
 
 function fetchAndPopulateMacros() {
-    var deskId = $('#deskName').data('desk-id');
 
     // Send a GET request to fetch macros with the deskId
     $.get('Ticket/GetMacros', { DeskID: deskId }, function (macros) {
@@ -307,6 +390,16 @@ function fetchAndPopulateMacros() {
     });
 }
 
+fetchTickets('Ticket/GetParkedTickets?deskId=' + deskId, 'Parked Tickets', 'PT', true);
 
+fetchTickets('Ticket/GetTransferedTickets?deskId=' + deskId, 'Transfered Tickets', 'TT', true);
+
+
+fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
+
+// Call the function to fetch completed tickets on page load
+fetchCompletedTickets('Ticket/GetCompletedTickets?deskId=' + deskId);
+
+GetDesk();
 
 fetchAndPopulateMacros();

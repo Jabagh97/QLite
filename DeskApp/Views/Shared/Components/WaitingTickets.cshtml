@@ -18,12 +18,12 @@
                     </button>
                 </div>
                 <div class="">
-                    <button id="Parked" class="btn btn-primary position-relative waiting-ticket-btn" onclick="fetchTickets('Ticket/GetParkedTickets', 'Parked Tickets','PT')">
+                    <button id="Parked" class="btn btn-primary position-relative waiting-ticket-btn" onclick="fetchTickets('Ticket/GetParkedTickets?deskId=' + deskId, 'Parked Tickets','PT')">
                         <i class="fas fa-parking mr-1"></i> Parked
                     </button>
                 </div>
                 <div class="">
-                    <button id="Transferred" class="btn btn-primary position-relative waiting-ticket-btn" onclick="fetchTickets('Ticket/GetTransferredTickets', 'Transferred Tickets','TT')">
+                    <button id="Transferred" class="btn btn-primary position-relative waiting-ticket-btn" onclick="fetchTickets('Ticket/GetTransferedTickets?deskId=' + deskId, 'Transferred Tickets','TT')">
                         <i class="fas fa-exchange-alt mr-1"></i> Transferred
                     </button>
                 </div>

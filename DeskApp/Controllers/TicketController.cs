@@ -18,219 +18,124 @@ namespace DeskApp.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public TicketController(HttpClient httpClient, IConfiguration configuration,IHttpContextAccessor httpContextAccessor)
-        { 
+        public TicketController(HttpClient httpClient, IConfiguration configuration)
+        {
             _httpClient = httpClient;
             _configuration = configuration;
             _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
-
-            _httpContextAccessor = httpContextAccessor;
-
         }
+
+       
 
         public IActionResult Index()
         {
             return View("Views/Shared/layout/partials/_TicketContent.cshtml");
         }
+        [HttpPost]
+        public Task<IActionResult> CallTicketAsync(Guid TicketID, Guid DeskID, Guid MacroID) =>
+            HandleHttpRequest(async () => await _httpClient.GetAsync($"api/Desk/CallTicket?DeskID={DeskID}&ticketID={TicketID}&user={Guid.Empty}&macroID={MacroID}"));
 
-        public async Task<string> GetUserIdAsync()
-        {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userId;
-        }
+        [HttpGet]
+        public Task<IActionResult> GetCurrentTicket(Guid DeskID) =>
+            GetJsonResponse<TicketState>($"api/Desk/GetCurrentTicket/{DeskID}");
+
+        [HttpGet]
+        public Task<IActionResult> EndTicket(Guid DeskID) =>
+            HandleHttpRequest(async () => await _httpClient.GetAsync($"api/Desk/EndTicket/{DeskID}"));
+
+        [HttpGet]
+        public Task<IActionResult> GetDesk(Guid DeskID) =>
+            GetJsonResponse<Desk>($"api/Desk/GetDesk/{DeskID}");
+
+        [HttpGet]
+        public Task<IActionResult> GetMacros(Guid DeskID) =>
+            GetJsonResponse<List<DeskMacroSchedule>>($"api/Desk/GetMacros/{DeskID}");
+
+        [HttpGet]
+        public Task<IActionResult> GetDeskList() =>
+            GetJsonResponse<List<Desk>>($"api/Desk/GetDeskList");
+
+        [HttpGet]
+        public Task<IActionResult> GetTransferableServiceList(Guid DeskID) =>
+            GetJsonResponse<List<DeskTransferableService>>($"api/Desk/GetTransferableServiceList/{DeskID}");
+
+        [HttpGet]
+        public Task<IActionResult> GetCreatableServicesList(Guid DeskID) =>
+            GetJsonResponse<List<DeskCreatableService>>($"api/Desk/GetCreatableServicesList/{DeskID}");
+
+        [HttpGet]
+        public Task<IActionResult> GetWaitingTickets() =>
+            GetJsonResponse<TicketResponse>("api/Desk/GetWaitingTickets");
+
+        [HttpGet]
+        public Task<IActionResult> GetParkedTickets([Required] Guid DeskID) =>
+            GetJsonResponse<TicketResponse>($"api/Desk/GetParkedTickets/{DeskID}");
+
+        [HttpGet]
+        public Task<IActionResult> GetTransferedTickets([Required] Guid DeskID) =>
+            GetJsonResponse<TicketResponse>($"api/Desk/GetTransferedTickets/{DeskID}");
+
+        [HttpGet]
+        public Task<IActionResult> GetCompletedTickets([Required] Guid DeskID) =>
+            GetJsonResponse<TicketResponse>($"api/Desk/GetCompletedTickets/{DeskID}");
 
         [HttpPost]
-        public async Task<IActionResult> CallTicketAsync(Guid TicketID,Guid DeskID, Guid MacroID)
-        {
-            try
-            {
-
-                var userId = await GetUserIdAsync();
-
-                var response = await _httpClient.GetAsync($"api/Desk/CallTicket?DeskID={DeskID}&ticketID={TicketID}&user={userId}&macroID={MacroID}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    return Ok();
-                }
-                else
-                {
-                    return StatusCode((int)response.StatusCode, $"Failed to call ticket");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
-            }
-        }
-
-        private async Task<IActionResult> GetTickets(string endpoint)
-        {
-            try
-            {
-                var response = await _httpClient.GetAsync($"api/Desk/{endpoint}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseData = await response.Content.ReadAsStringAsync();
-                    TicketResponse ticketResponse = JsonConvert.DeserializeObject<TicketResponse>(responseData);
-                   
-                    return Ok(ticketResponse);
-                }
-                else
-                {
-                    return StatusCode((int)response.StatusCode, $"Failed to get tickets");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
-            }
-        }
-
-        [HttpGet]
-        public Task<IActionResult> GetWaitingTickets() => GetTickets("GetWaitingTickets");
-
-        [HttpGet]
-        public Task<IActionResult> GetParkedTickets() => GetTickets("GetParkedTickets");
-
-        [HttpGet]
-        public Task<IActionResult> GetTransferedTickets() => GetTickets("GetTransferedTickets");
-
-        [HttpGet]
-        public Task<IActionResult> GetCompletedTickets() => GetTickets("GetCompletedTickets");
-
-        [HttpGet]
-        public async Task<IActionResult> GetCurrentTicket(Guid DeskID) 
-        {
-            try
-            {
-                var response = await _httpClient.GetAsync($"api/Desk/GetCurrentTicket?DeskID={DeskID}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseData = await response.Content.ReadAsStringAsync();
-                    TicketState ticketResponse = JsonConvert.DeserializeObject<TicketState>(responseData);
-
-
-                     return PartialView("Components/MainPanel", ticketResponse);
-                 
-                }
-                else
-                {
-                    return StatusCode((int)response.StatusCode, $"Failed to get tickets");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
-            }
-        }
-
-
-        [HttpGet]
-        public async Task<IActionResult> EndTicket(Guid DeskID)
-        {
-            try
-            {
-                var response = await _httpClient.GetAsync($"api/Desk/EndTicket?DeskID={DeskID}");
-
-                if (response.IsSuccessStatusCode)
-                {
-
-                    return Ok();
-                }
-                else
-                {
-                    return StatusCode((int)response.StatusCode, $"Failed to get tickets");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
-            }
-        }
+        public Task<IActionResult> ParkTicket([Required] ParkTicketDto parkTicket) =>
+            PostJsonRequest($"api/Desk/ParkTicket", parkTicket);
 
         [HttpPost]
-        public async Task<IActionResult> ParkTicket([Required] ParkTicketDto parkTicket)
+        public Task<IActionResult> TransferTicket([Required] TransferTicketDto transferTicket) =>
+            PostJsonRequest($"api/Desk/TransferTicket", transferTicket);
 
+
+        #region Helpers
+
+        private async Task<IActionResult> HandleHttpRequest(Func<Task<HttpResponseMessage>> request)
         {
             try
             {
-              
-                
-
-                var content = new StringContent(JsonConvert.SerializeObject(parkTicket), Encoding.UTF8, "application/json");
-
-
-                var response = await _httpClient.PostAsync($"api/Desk/ParkTicket", content);
+                var response = await request();
 
                 if (response.IsSuccessStatusCode)
                 {
-                  
                     return Ok();
                 }
                 else
                 {
-                    return StatusCode((int)response.StatusCode, $"Failed to call ticket");
+                    return StatusCode((int)response.StatusCode, $"Failed to complete the operation");
                 }
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
             }
-
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetDesk([Required] Guid DeskID)
+        private async Task<IActionResult> GetJsonResponse<T>(string endpoint)
         {
-            try
+            var response = await _httpClient.GetAsync(endpoint);
+            if (response.IsSuccessStatusCode)
             {
-                var response = await _httpClient.GetAsync($"api/Desk/GetDesk/{DeskID}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseData = await response.Content.ReadAsStringAsync();
-                    Desk desk = JsonConvert.DeserializeObject<Desk>(responseData);
-                    return Ok(desk.Name);
-                }
-                else
-                {
-                    return StatusCode((int)response.StatusCode, $"Failed to Get Desk");
-                }
+                var responseData = await response.Content.ReadAsStringAsync();
+                T deserializedData = JsonConvert.DeserializeObject<T>(responseData);
+                return Ok(deserializedData);
             }
-            catch (Exception ex)
+            else
             {
-                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
+                return StatusCode((int)response.StatusCode, $"Failed to retrieve data");
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetMacros([Required] Guid DeskID)
+
+        private async Task<IActionResult> PostJsonRequest(string endpoint, object data)
         {
-            try
-            {
-                var response = await _httpClient.GetAsync($"api/Desk/GetMacros/{DeskID}");
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(endpoint, content);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseData = await response.Content.ReadAsStringAsync();
-                    List<DeskMacroSchedule> macros = JsonConvert.DeserializeObject<List<DeskMacroSchedule>>(responseData);
-                    return Ok(macros);
-                }
-                else
-                {
-                    return StatusCode((int)response.StatusCode, $"Failed to Get macros");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
-            }
+            return await HandleHttpRequest(async () => response);
         }
+        #endregion
+
     }
-
 }

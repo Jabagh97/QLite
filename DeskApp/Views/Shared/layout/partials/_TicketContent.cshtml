@@ -1,59 +1,82 @@
 ﻿@inject IConfiguration Configuration
+@using System.Security.Claims;
 
-<div id="connectionError" class="alert alert-danger mb-4" style="display: none;" role="alert">
-    Server is currently down. Please wait while we try to reconnect...
-</div>
 
-<div id="content">
-    @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
-    {
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-6">
-                    @*@await Html.PartialAsync("Components/WaitingTickets")*@
-                    <div class="draggable">
-                        <partial name="Components/WaitingTickets" />
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-12 mb-4">
-                            @*@await Html.PartialAsync("Components/MainPanel")*@
-                            <div class="draggable2">
-                                <partial name="Components/MainPanel" />
-                            </div>
+@{
+    // Get the user's claims
+    var identity = User.Identity as ClaimsIdentity;
+    var AccountTypeClaim = identity?.FindFirst("AccountType");
 
+    // Check if the claim exists and get its value
+    var AccountType = AccountTypeClaim?.Value;
+
+}
+@if (AccountType == "DeskApp")
+{
+    <div id="connectionError" class="alert alert-danger mb-4" style="display: none;" role="alert">
+        Server is currently down. Please wait while we try to reconnect...
+    </div>
+
+    <div id="content">
+        @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6">
+                        @*@await Html.PartialAsync("Components/WaitingTickets")*@
+                        <div class="draggable">
+                            <partial name="Components/WaitingTickets" />
                         </div>
-                        <div class="col-md-12 mb-4">
-                            @*@await Html.PartialAsync("Components/CompletedTickets")*@
-                            <div class="draggable3">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-12 mb-4">
+                                @*@await Html.PartialAsync("Components/MainPanel")*@
+                                <div class="draggable2">
+                                    <partial name="Components/MainPanel" />
+                                </div>
 
-                                <partial name="Components/CompletedTickets" />
                             </div>
+                            <div class="col-md-12 mb-4">
+                                @*@await Html.PartialAsync("Components/CompletedTickets")*@
+                                <div class="draggable3">
 
+                                    <partial name="Components/CompletedTickets" />
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <script src="https://unpkg.com/interactjs/dist/interact.min.js"></script>
+            <script src="https://unpkg.com/interactjs/dist/interact.min.js"></script>
 
-        <script src="~/js/signalR.js"></script>
-        <script src="~/js/site.js"></script>
+            <script src="~/js/signalR.js"></script>
+            <script src="~/js/site.js"></script>
 
-        <script src="~/JQuery/jquery-3.7.1.js"></script>
-        <script src="~/DataTables/datatables.js"></script>
-        <script src="~/js/TableMethods.js"></script>
+            <script src="~/JQuery/jquery-3.7.1.js"></script>
+            <script src="~/DataTables/datatables.js"></script>
+            <script src="~/js/UiMethods.js"></script>
 
-        <script>
-            var apiUrl = '@Configuration["APIBase"]';
+            <script>
+                var apiUrl = '@Configuration["APIBase"]';
 
-            connectToHub("User", "123", "DeskGroup", apiUrl)
-        </script>
+                connectToHub("User", "Desk", "DeskGroup", apiUrl)
+            </script>
 
-    }
-    else
-    {
-        <span> Log in, please </span>
-    }
-</div>
+        }
+        else
+        {
+            <span> Log in, please </span>
+        }
+    </div>
+}
+
+else
+{
+    <div style="text-align: center; margin-top: 50px;">
+        <h3 style="color: red; font-weight: bold;">You are not authorized to access the Desk App with admin User. Please Log In As a Desk User.</h3>
+    </div>
+}
+
+

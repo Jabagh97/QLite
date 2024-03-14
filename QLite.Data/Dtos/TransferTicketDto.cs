@@ -8,13 +8,14 @@ namespace QLite.Data.Dtos
 {
     public class TransferTicketDto 
     {
-        public string TicketId { get; set; }
-        public int? TicketNumber { get; set; }
-        public string TransferServiceType { get; set; }
-        public int? ServiceNo { get; set; }
-        public string TransferDesk { get; set; }
-        public int? TransferDeskNo { get; set; }
-        public string TransferServiceTypeName { get; set; }
+        public Guid TicketId { get; set; }
+       
+        public Guid TransferServiceType { get; set; }
+       
+        public Guid TransferToDesk { get; set; }
+
+        public Guid TransferFromDesk { get; set; }
+
         public string TicketNote { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Humanizer;
+using Microsoft.EntityFrameworkCore;
 using NPoco;
 using QLite.Data;
 using QLite.Data.Dtos;
@@ -10,20 +11,20 @@ namespace QLiteDataApi.Services
 {
     public interface IDeskService
     {
-        object GetTicketsByState(TicketStateEnum state);
-        TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, Guid Macro, bool autocall = false);
-        TicketState GetMyCurrentService(Guid DeskID);
-        TicketState EndCurrentService(Guid DeskID);
-        int GetTicketDuration(Guid ticketid);
-        TicketState TransferOperation(TransferTicketDto transferTicketDto);
-
-        TicketState ParkOperation(ParkTicketDto parkTicketDto);
-
-        Desk GetDesk(Guid DeskID);
-
-        List<DeskMacroSchedule> GetMacros(Guid DeskID);
-
+        Task<object> GetTicketsByStateAsync(TicketStateEnum state, Guid DeskID = default);
+        Task<TicketState> CallTicketAsync(CallTicketDto callTicketDto, bool autocall = false);
+        Task<TicketState> GetMyCurrentServiceAsync(Guid DeskID);
+        Task<TicketState> EndCurrentServiceAsync(Guid DeskID);
+        Task<int> GetTicketDurationAsync(Guid ticketid);
+        Task<TicketState> TransferOperationAsync(TransferTicketDto transferTicketDto);
+        Task<TicketState> ParkOperationAsync(ParkTicketDto parkTicketDto);
+        Task<Desk> GetDeskAsync(Guid DeskID);
+        Task<List<DeskMacroSchedule>> GetMacrosAsync(Guid DeskID);
+        Task<List<Desk>> GetDeskListAsync();
+        Task<List<DeskTransferableService>> GetTransferableServiceListAsync(Guid DeskID);
+        Task<List<DeskCreatableService>> GetCreatableServiceListAsync(Guid DeskID);
     }
+
 
     public class DeskService : IDeskService
     {
@@ -36,47 +37,57 @@ namespace QLiteDataApi.Services
         }
 
 
-        public object GetTicketsByState(TicketStateEnum state)
+        public async Task<object> GetTicketsByStateAsync(TicketStateEnum state, Guid DeskID = default)
         {
+            IQueryable<Ticket> query = _context.Tickets
+                .Where(t => t.CurrentState == (int)state && t.ModifiedDate >= DateTime.UtcNow.AddMinutes(-480));
 
-            //TODO: Filter By Desk
-            var query = from t in _context.Tickets
-                        where t.CurrentState == (int)state && t.ModifiedDate >= DateTime.UtcNow.AddMinutes(-480)
-                        join tp in _context.TicketPools on t.TicketPool equals tp.Oid into tpJoin
-                        from tp in tpJoin.DefaultIfEmpty()
-                        select new
-                        {
-                            TicketNumber = tp.ServiceCode + t.Number,
-                            Service = t.ServiceTypeName,
-                            Segment = t.SegmentName,
-                            Oid = t.Oid,
-                        };
+            if (DeskID != Guid.Empty)
+            {
+                if ((int)state == 1)
+                    query = query.Where(t => t.ToDesk == DeskID);
+                else
+                    query = query.Where(t => t.Desk == DeskID);
+            }
 
-            var waitingTickets = query.ToList();
+            var waitingTickets = await query.Join(
+                _context.TicketPools,
+                t => t.TicketPool,
+                tp => tp.Oid,
+                (t, tp) => new
+                {
+                    TicketNumber = tp.ServiceCode + t.Number,
+                    Service = t.ServiceTypeName,
+                    Segment = t.SegmentName,
+                    Oid = t.Oid,
+                }).ToListAsync();
 
-            var recordsTotal = waitingTickets.Count;
+            // Get the total count asynchronously
+            var recordsTotal = await query.CountAsync();
+
+            // Combine the results into JSON data
             var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = waitingTickets };
 
             return jsonData;
         }
 
-        private Ticket FindTicketToCall(Guid? branchId, Guid macroId, Guid DeskId)
+        private async Task<Ticket> FindTicketToCallAsync(Guid? branchId, Guid macroId, Guid DeskId)
         {
             Macro macro = new Macro();
             if (macroId != Guid.Empty)
-                macro = _context.Macros.Where(m => m.Oid == macroId && m.Gcrecord == null).First();
+                macro = await _context.Macros.FirstAsync(m => m.Oid == macroId && m.Gcrecord == null);
             //TODO:if Macro is null find Macro or force desk user to choose macro before showing the view 
 
             Ticket t = new Ticket();
             if (macro != null)
             {
-                t = FindTicketByMacro(macroId, branchId, DeskId);
+                t = await FindTicketByMacroAsync(macroId, branchId, DeskId);
                 if (t != null)
                 {
                     //t.TicketState.Macro = macro?.Oid;
                     //t.TicketState.MacroObject = macro;
 
-                    var ticketPool = _context.TicketPools.Where(tp=>tp.Oid == t.TicketPool).FirstOrDefault();
+                    var ticketPool = await _context.TicketPools.FirstOrDefaultAsync(tp => tp.Oid == t.TicketPool);
                     if (ticketPool != null)
                     {
                         t.ServiceCode = ticketPool.ServiceCode;
@@ -88,14 +99,14 @@ namespace QLiteDataApi.Services
             return t;
         }
 
-        public Ticket FindTicketByMacro(Guid macroId, Guid? branchId, Guid deskId)
+        public async Task<Ticket> FindTicketByMacroAsync(Guid macroId, Guid? branchId, Guid deskId)
         {
             var currentTime = DateTime.Now;
             var oldestPossibleTicketTime = currentTime.AddHours(-8);
 
             var query = from mr in _context.MacroRules
                         join t in _context.Tickets on new { mr.ServiceType, mr.Segment } equals new { t.ServiceType, t.Segment } into tickets
-                        from ticket in tickets.DefaultIfEmpty() 
+                        from ticket in tickets.DefaultIfEmpty()
                         join ts in _context.TicketStates on ticket.Oid equals ts.Ticket
                         where mr.Macro == macroId &&
                               (ticket.Branch == branchId) &&
@@ -110,7 +121,6 @@ namespace QLiteDataApi.Services
                         orderby mr.Sequence, ticket.LastOprTime
                         select new
                         {
-                           
                             Ticket = new Ticket
                             {
                                 Oid = ticket.Oid,
@@ -131,19 +141,15 @@ namespace QLiteDataApi.Services
                                 ServiceType = ticket.ServiceType,
                                 ServiceTypeName = ticket.ServiceTypeName,
                                 TicketPool = ticket.TicketPool
-                                
-                            },
-                          
+                            }
                         };
 
-
-            var result = query.FirstOrDefault();
+            var result = await query.FirstOrDefaultAsync(); // Execute the query asynchronously
 
             if (result != null)
             {
                 // Map properties to Ticket entity
                 var mappedTicket = result.Ticket;
-
 
                 return mappedTicket;
             }
@@ -152,64 +158,51 @@ namespace QLiteDataApi.Services
             return null;
         }
 
-
-
-
-        public TicketState CallTicket(Guid DeskID, Guid ticketID, Guid user, Guid Macro, bool autocall = false)
+        public async Task<TicketState> CallTicketAsync(CallTicketDto callTicketDto, bool autocall = false)
         {
-
-            Desk? d = _context.Desks.Find(DeskID);
-            EndCurrentService(DeskID);
+            Desk? d = await _context.Desks.FindAsync(callTicketDto.DeskID);
+            await EndCurrentServiceAsync(callTicketDto.DeskID);
 
             d.CurrentTicketNumber = null;
             d.LastStateTime = DateTime.Now;
 
             Ticket t;
             TicketState svc = null;
-            if (ticketID == Guid.Empty)
-
-                t = FindTicketToCall(d.Branch, Macro, DeskID);
-
+            if (callTicketDto.TicketID == Guid.Empty)
+                t = await FindTicketToCallAsync(d.Branch, callTicketDto.MacroID, callTicketDto.DeskID);
             else
-                t = GetTicket(ticketID);
+                t = await GetTicketAsync(callTicketDto.TicketID);
 
             if (t != null)
             {
-
                 d.CurrentTicketNumber = t.Number;
                 d.LastStateTime = DateTime.Now;
                 _context.Desks.Update(d);
 
-
                 DateTime tm = DateTime.Now;
-                t.CurrentDesk = DeskID;
+                t.CurrentDesk = callTicketDto.DeskID;
                 t.CurrentState = (int)TicketStateEnum.Service;
                 t.LastOpr = (int)TicketOprEnum.Call;
                 t.LastOprTime = tm;
-
+                t.Desk = callTicketDto.DeskID;
                 _context.Tickets.Update(t);
-
 
                 TicketState currentState = t.TicketState;
 
-                currentState.Desk = DeskID;
-                currentState.User = user;
+                currentState.Desk = callTicketDto.DeskID;
+                currentState.User = callTicketDto.User;
                 currentState.EndTime = tm;
                 currentState.ModifiedDate = DateTime.Now;
                 currentState.ModifiedDateUtc = DateTime.UtcNow;
-
                 _context.TicketStates.Update(currentState);
-
-
 
                 svc = new()
                 {
                     TicketStateValue = (int)TicketStateEnum.Service,
                     Oid = Guid.NewGuid(),
                     Ticket = t.Oid,
-                    Desk = DeskID,
-                    // DeskName = QorchUserContext.DeskName,
-                    User = user,
+                    Desk = callTicketDto.DeskID,
+                    User = callTicketDto.User,
                     TicketNumber = t.Number,
                     Branch = t.Branch,
                     Segment = t.Segment,
@@ -223,36 +216,27 @@ namespace QLiteDataApi.Services
                     ModifiedDate = DateTime.Now,
                     ModifiedDateUtc = DateTime.UtcNow,
                     DisplayNo = d.DisplayNo,
-
-
                     CallingRuleDescription = t.CallingRuleDescription,
-                    Macro = Macro,
-                    TicketCallType = (int?)(autocall ? TicketCallType.Autocall : ticketID == Guid.Empty ? TicketCallType.Definitive : TicketCallType.Normal)
+                    Macro = callTicketDto.MacroID,
+                    TicketCallType = (int?)(autocall ? TicketCallType.Autocall : callTicketDto.TicketID == Guid.Empty ? TicketCallType.Definitive : TicketCallType.Normal)
                 };
 
                 if (autocall)
                     svc.CallingRuleDescription += " (autocall)";
 
                 _context.TicketStates.Add(svc);
-
-
                 svc.TicketNavigation = t;
 
-
-
-
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
-
             return svc;
-
         }
-
-        public TicketState EndCurrentService(Guid DeskID)
+        public async Task<TicketState> EndCurrentServiceAsync(Guid DeskID)
         {
-            TicketState current = GetMyCurrentService(DeskID);
+            TicketState current = await GetMyCurrentServiceAsync(DeskID);
 
+            TicketState final = new TicketState();
             if (current != null)
             {
                 DateTime t = DateTime.Now;
@@ -272,6 +256,7 @@ namespace QLiteDataApi.Services
                     currentTicket.CurrentState = (int)TicketStateEnum.Final;
                     currentTicket.ModifiedDate = DateTime.Now;
                     currentTicket.ModifiedDateUtc = DateTime.UtcNow;
+                    currentTicket.Desk = DeskID;
 
                     // Update the Ticket entity
                     _context.Tickets.Update(currentTicket);
@@ -308,7 +293,7 @@ namespace QLiteDataApi.Services
 
 
                 };
-
+                final =fin;
                 _context.TicketStates.Add(fin);
 
             }
@@ -318,108 +303,98 @@ namespace QLiteDataApi.Services
             }
 
             // Save changes to the database
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+
+            return final;
+        }
+
+        public async Task<TicketState> GetMyCurrentServiceAsync(Guid DeskID)
+        {
+            var current = await (from tOpr in _context.TicketStates
+                                 join t in _context.Tickets on tOpr.Ticket equals t.Oid
+                                 join tp in _context.TicketPools on t.TicketPool equals tp.Oid into poolJoin
+                                 from tp in poolJoin.DefaultIfEmpty()
+                                 where t.CurrentState == 2 && tOpr.Desk == DeskID && t.Desk == DeskID
+                                     && tOpr.TicketStateValue == (int)TicketStateEnum.Service
+                                     && tOpr.TicketOprValue == null
+                                 select new TicketState
+                                 {
+                                     Oid = tOpr.Oid,
+                                     CreatedBy = tOpr.CreatedBy,
+                                     ModifiedBy = tOpr.ModifiedBy,
+                                     CreatedDate = tOpr.CreatedDate,
+                                     CreatedDateUtc = tOpr.CreatedDateUtc,
+                                     ModifiedDate = tOpr.ModifiedDate,
+                                     ModifiedDateUtc = tOpr.ModifiedDateUtc,
+                                     Desk = tOpr.Desk,
+                                     User = tOpr.User,
+                                     Ticket = tOpr.Ticket,
+                                     Branch = tOpr.Branch,
+                                     TicketNumber = tOpr.TicketNumber,
+                                     TicketStateValue = tOpr.TicketStateValue,
+                                     TicketOprValue = tOpr.TicketOprValue,
+                                     StartTime = tOpr.StartTime,
+                                     EndTime = tOpr.EndTime,
+                                     ServiceType = tOpr.ServiceType,
+                                     Segment = tOpr.Segment,
+                                     ServiceTypeName = tOpr.ServiceTypeName,
+                                     SegmentName = tOpr.SegmentName,
+                                     Macro = tOpr.Macro,
+                                     CallingRuleDescription = tOpr.CallingRuleDescription,
+                                     DeskAppType = tOpr.DeskAppType,
+                                     TicketCallType = tOpr.TicketCallType,
+                                     OptimisticLockField = tOpr.OptimisticLockField,
+                                     Gcrecord = tOpr.Gcrecord,
+                                     KioskAppId = tOpr.KioskAppId,
+                                     TicketNavigation = t,
+                                     ServiceCode = tp.ServiceCode,
+                                     Note = t.TicketNote
+                                 })
+                                .FirstOrDefaultAsync();
 
             return current;
         }
 
-        public TicketState GetMyCurrentService(Guid DeskID)
+        public async Task<Ticket> GetTicketAsync(Guid ticketId)
         {
-            var current = (from tOpr in _context.TicketStates
-                           join t in _context.Tickets on tOpr.Ticket equals t.Oid
-                           join tp in _context.TicketPools on t.TicketPool equals tp.Oid into poolJoin
-                           from tp in poolJoin.DefaultIfEmpty()
-                           where t.CurrentState == 2 && tOpr.Desk == DeskID
-                                && tOpr.TicketStateValue == (int)TicketStateEnum.Service
-                                && tOpr.TicketOprValue == null
-                           select new TicketState
-                           {
-                               Oid = tOpr.Oid,
-                               CreatedBy = tOpr.CreatedBy,
-                               ModifiedBy = tOpr.ModifiedBy,
-                               CreatedDate = tOpr.CreatedDate,
-                               CreatedDateUtc = tOpr.CreatedDateUtc,
-                               ModifiedDate = tOpr.ModifiedDate,
-                               ModifiedDateUtc = tOpr.ModifiedDateUtc,
-                               Desk = tOpr.Desk,
-                               User = tOpr.User,
-                               Ticket = tOpr.Ticket,
-                               Branch = tOpr.Branch,
-                               TicketNumber = tOpr.TicketNumber,
-                               TicketStateValue = tOpr.TicketStateValue,
-                               TicketOprValue = tOpr.TicketOprValue,
-                               StartTime = tOpr.StartTime,
-                               EndTime = tOpr.EndTime,
-                               ServiceType = tOpr.ServiceType,
-                               Segment = tOpr.Segment,
-                               ServiceTypeName = tOpr.ServiceTypeName,
-                               SegmentName = tOpr.SegmentName,
-                               Macro = tOpr.Macro,
-                               CallingRuleDescription = tOpr.CallingRuleDescription,
-                               DeskAppType = tOpr.DeskAppType,
-                               TicketCallType = tOpr.TicketCallType,
-                               OptimisticLockField = tOpr.OptimisticLockField,
-                               Gcrecord = tOpr.Gcrecord,
-                               KioskAppId = tOpr.KioskAppId,
-                               TicketNavigation = t,
-                               ServiceCode = tp.ServiceCode,
-                               Note = t.TicketNote
-                           })
-                          .FirstOrDefault();
-
-            return current;
-        }
-
-
-        public Ticket GetTicket(Guid ticketId)
-        {
-            var ticket = (from t in _context.Tickets
-                          join ts in _context.TicketStates on t.Oid equals ts.Ticket into ticketStates
-                          from ts in ticketStates.Where(ts => ts.TicketOprValue == null).DefaultIfEmpty()
-                          join tp in _context.TicketPools on t.TicketPool equals tp.Oid into ticketPools
-                          from tp in ticketPools.Where(tp => tp.Gcrecord == null).DefaultIfEmpty()
-                          where t.Oid == ticketId
-                          select new Ticket
-                          {
-                              Oid = t.Oid,
-                              CreatedBy = t.CreatedBy,
-                              ModifiedBy = t.ModifiedBy,
-                              CreatedDate = t.CreatedDate,
-                              CreatedDateUtc = t.CreatedDateUtc,
-                              ModifiedDate = t.ModifiedDate,
-                              ModifiedDateUtc = t.ModifiedDateUtc,
-                              CurrentDesk = t.Desk,
-                              CurrentState = (int)TicketStateEnum.Service,
-                              LastOpr = (int)TicketOprEnum.Call,
-                              TicketState = ts,
-                              Number = t.Number,
-                              Branch = t.Branch,
-                              Segment = t.Segment,
-                              SegmentName = t.SegmentName,
-                              ServiceType = t.ServiceType,
-                              ServiceTypeName = t.ServiceTypeName,
-                              ServiceCode = tp.ServiceCode,
-                              TicketPool = tp.Oid
-                          }
-                          ).FirstOrDefault();
-
-
+            var ticket = await (from t in _context.Tickets
+                                join ts in _context.TicketStates on t.Oid equals ts.Ticket into ticketStates
+                                from ts in ticketStates.Where(ts => ts.TicketOprValue == null).DefaultIfEmpty()
+                                join tp in _context.TicketPools on t.TicketPool equals tp.Oid into ticketPools
+                                from tp in ticketPools.Where(tp => tp.Gcrecord == null).DefaultIfEmpty()
+                                where t.Oid == ticketId
+                                select new Ticket
+                                {
+                                    Oid = t.Oid,
+                                    CreatedBy = t.CreatedBy,
+                                    ModifiedBy = t.ModifiedBy,
+                                    CreatedDate = t.CreatedDate,
+                                    CreatedDateUtc = t.CreatedDateUtc,
+                                    ModifiedDate = t.ModifiedDate,
+                                    ModifiedDateUtc = t.ModifiedDateUtc,
+                                    CurrentDesk = t.Desk,
+                                    CurrentState = (int)TicketStateEnum.Service,
+                                    LastOpr = (int)TicketOprEnum.Call,
+                                    TicketState = ts,
+                                    Number = t.Number,
+                                    Branch = t.Branch,
+                                    Segment = t.Segment,
+                                    SegmentName = t.SegmentName,
+                                    ServiceType = t.ServiceType,
+                                    ServiceTypeName = t.ServiceTypeName,
+                                    ServiceCode = tp.ServiceCode,
+                                    TicketPool = tp.Oid
+                                }).FirstOrDefaultAsync();
 
             return ticket;
         }
+      
 
-        public int GetTicketDuration(Guid ticketId)
+        public async Task<TicketState> ParkOperationAsync(ParkTicketDto parkTicketDto)
         {
-            int duration = 1;
-
-            return duration;
-        }
-
-        public TicketState ParkOperation(ParkTicketDto parkTicketDto)
-        {
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
-                Ticket parkTicket = GetTicket(parkTicketDto.TicketId);
+                Ticket parkTicket = await GetTicketAsync(parkTicketDto.TicketId);
 
                 if (parkTicket.CurrentState != (int)Enums.TicketStateEnum.Service)
                     throw new Exception("Park Operation is not allowed for this ticket");
@@ -437,10 +412,9 @@ namespace QLiteDataApi.Services
                 parkTicket.LastOpr = (int)TicketOprEnum.Park;
                 parkTicket.LastOprTime = currentTime;
                 parkTicket.TicketNote = parkTicketDto.TicketNote;
+                parkTicket.Desk = parkTicketDto.DeskID;
 
                 _context.Tickets.Update(parkTicket);
-
-
 
                 TicketState parkTicketOpr = new TicketState
                 {
@@ -463,8 +437,7 @@ namespace QLiteDataApi.Services
                     CreatedDate = DateTime.Now,
                     CreatedDateUtc = DateTime.UtcNow,
                     ModifiedDate = DateTime.Now,
-                    ModifiedDateUtc = DateTime.UtcNow,
-
+                    ModifiedDateUtc = DateTime.UtcNow
                 };
                 _context.TicketStates.Add(parkTicketOpr);
                 parkTicketOpr.TicketNavigation = parkTicket;
@@ -477,53 +450,160 @@ namespace QLiteDataApi.Services
                     _context.Desks.Update(desk);
                 }
 
-                _context.SaveChanges();
-                transaction.Commit();
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
                 return parkTicketOpr;
             }
         }
 
-        public TicketState TransferOperation(TransferTicketDto transferTicketDto)
+        public async Task<TicketState> TransferOperationAsync(TransferTicketDto transferTicket)
         {
-            throw new NotImplementedException();
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                Desk fromDesk = await _context.Desks
+                                              .Where(d => d.Oid == transferTicket.TransferFromDesk)
+                                              .FirstAsync();
+
+                if (fromDesk == null)
+                {
+                    // Handle case where the desk is not found
+                    throw new Exception("Source desk not found");
+                }
+
+                Ticket ticket = await GetTicketAsync(transferTicket.TicketId);
+
+                if (ticket == null)
+                {
+                    // Handle case where the ticket is not found
+                    throw new Exception("Ticket not found");
+                }
+
+
+                DateTime tNow = DateTime.Now;
+                TicketState current = ticket.TicketState;
+                current.EndTime = tNow;
+                current.TicketOprValue = (int)TicketOprEnum.Transfer;
+
+                fromDesk.CurrentTicketNumber = null;
+                fromDesk.LastStateTime = DateTime.Now;
+
+                Guid? toDesk = transferTicket.TransferToDesk;
+                Guid? toService = transferTicket.TransferServiceType;
+
+                ticket.Desk = transferTicket.TransferFromDesk;
+
+                ServiceType service = await _context.ServiceTypes.FirstOrDefaultAsync(sv => sv.Oid == toService);
+
+                TicketState transferState = new TicketState
+                {
+                    Oid = Guid.NewGuid(),
+                    Ticket = ticket.Oid,
+                    TicketStateValue = (int)TicketStateEnum.Waiting_T,
+                    StartTime = tNow,
+                    Segment = ticket.Segment,
+                    SegmentName = ticket.SegmentName,
+                    Branch = fromDesk.Branch, // Assuming both desks have the same branch
+                    Macro = ticket.TicketState?.Macro,
+                    MacroObject = ticket.TicketState?.MacroObject,
+                    TicketNumber = ticket.Number,
+                    ServiceType = toService,
+                    ServiceCode = ticket.ServiceCode,
+                    Desk = toDesk,
+                    ServiceTypeName = service?.Name
+                };
+
+                ticket.ToServiceType = toService;
+
+                ticket.ToDesk = toDesk;
+                ticket.LastOpr = (int)TicketOprEnum.Transfer;
+                ticket.LastOprTime = tNow;
+                ticket.CurrentState = (int)TicketStateEnum.Waiting_T;
+                ticket.CurrentDesk = null;
+                ticket.TicketNote = transferTicket.TicketNote;
+                ticket.ServiceTypeName = service?.Name;
+
+                // Add and update entities
+                _context.Desks.Update(fromDesk);
+                _context.TicketStates.Update(current);
+                _context.TicketStates.Add(transferState);
+                _context.Tickets.Update(ticket);
+
+                // Setting up relationships
+                transferState.TicketNavigation = ticket;
+
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return transferState;
+            }
         }
 
-
-        public Desk GetDesk(Guid DeskID)
-
+        public async Task<Desk> GetDeskAsync(Guid DeskID)
         {
-            var desk = _context.Desks.Where(d => d.Oid == DeskID && d.Gcrecord == null).First();
-
-
+            var desk = await _context.Desks.FirstOrDefaultAsync(d => d.Oid == DeskID && d.Gcrecord == null);
             return desk;
         }
 
-        public List<DeskMacroSchedule> GetMacros(Guid DeskID)
-
+        public async Task<List<DeskMacroSchedule>> GetMacrosAsync(Guid DeskID)
         {
-            // Fetch the corresponding MacroName for each DeskMacroSchedule
-            var macrosWithMacroNames = _context.DeskMacroSchedules
+            var macrosWithMacroNames = await _context.DeskMacroSchedules
                 .Where(dms => dms.Desk == DeskID && dms.Gcrecord == null)
                 .Join(
                     _context.Macros,
-                    dms => dms.Macro, // DeskMacroSchedule.Macro
-                    macro => macro.Oid, // Macro.Oid
+                    dms => dms.Macro,
+                    macro => macro.Oid,
                     (dms, macro) => new { DeskMacroSchedule = dms, MacroName = macro.Name }
                 )
-                .ToList();
+                .ToListAsync();
 
-            // Update the MacroName property for each DeskMacroSchedule
             foreach (var item in macrosWithMacroNames)
             {
                 item.DeskMacroSchedule.MacroName = item.MacroName;
             }
 
-            // Now macrosWithMacroNames contains DeskMacroSchedule objects with updated MacroName property
             var macros = macrosWithMacroNames.Select(item => item.DeskMacroSchedule).ToList();
-
-
             return macros;
         }
+
+        public async Task<List<Desk>> GetDeskListAsync()
+        {
+            var desks = await _context.Desks.Where(d => d.Gcrecord == null).ToListAsync();
+            return desks;
+        }
+
+        public async Task<List<DeskTransferableService>> GetTransferableServiceListAsync(Guid DeskID)
+        {
+            var transferableServices = await _context.DeskTransferableServices
+                .Where(dts => dts.Gcrecord == null && dts.Desk == DeskID)
+                .Select(dts => new DeskTransferableService
+                {
+                    Account = dts.Account,
+                    Branch = dts.Branch,
+                    Desk = dts.Desk,
+                    ServiceType = dts.ServiceType,
+                    ServiceTypeNavigation = new ServiceType
+                    {
+                        Name = dts.ServiceTypeNavigation.Name
+                    }
+                })
+                .ToListAsync();
+
+            return transferableServices;
+        }
+
+        public async Task<List<DeskCreatableService>> GetCreatableServiceListAsync(Guid DeskID)
+        {
+            var creatableServices = await _context.DeskCreatableServices.Where(dcs => dcs.Gcrecord == null && dcs.Desk == DeskID).ToListAsync();
+            return creatableServices;
+        }
+        public async Task<int> GetTicketDurationAsync(Guid ticketid)
+        {
+            int duration = 1;
+
+            return duration;
+        }
+
     }
 }
