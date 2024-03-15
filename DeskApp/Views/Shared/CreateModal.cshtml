@@ -1,0 +1,31 @@
+﻿<!--Create Modal -->
+<div class="modal fade"  id="createTicketModal" tabindex="-1" >
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Ticket</h5>
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <div class="modal-body">
+                <label>ServiceType :</label>
+                <select id="createServiceDropdown" class="form-control" onchange="enableCreateTicketButton()">
+                    <!-- Dropdown options will be added dynamically here -->
+                </select>
+
+                <label>Segment :</label>
+                <select id="segmentDropdown" class="form-control" onchange="enableCreateTicketButton()">
+                    <!-- Dropdown options will be added dynamically here -->
+                </select>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="createTicketButton" onclick="CreateTicket()" disabled>OK</button>
+            </div>
+        </div>
+    </div>
+</div>

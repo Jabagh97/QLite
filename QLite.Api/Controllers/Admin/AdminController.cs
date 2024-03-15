@@ -13,9 +13,9 @@ namespace QLiteDataApi.Controllers.Admin
     public class AdminController : Controller
     {
         private readonly IModelTypeMappingService _modelTypeMappingService;
-        private readonly IDataService _dataService;
+        private readonly IAdminService _dataService;
 
-        public AdminController(IDataService dataService, IModelTypeMappingService modelTypeMappingService)
+        public AdminController(IAdminService dataService, IModelTypeMappingService modelTypeMappingService)
         {
             _dataService = dataService;
             _modelTypeMappingService = modelTypeMappingService;

@@ -62,7 +62,6 @@ function fetchTickets(url, title,id,justnumber) {
     });
 
     fetchCompletedTickets('Ticket/GetCompletedTickets?deskId=' + deskId);
-    updateMainPanel();
 }
 
 var CompletedTable = $('#CompletedTable').DataTable({
@@ -127,18 +126,18 @@ function updateMainPanel()
 
             $('#mainPanelContent').html(response);
 
-            var selectedMacroName = localStorage.getItem('selectedMacroName');
+            //var selectedMacroName = localStorage.getItem('selectedMacroName');
 
-            // If there is a selectedMacroName, set the text of the element with id macroName
-            if (selectedMacroName != null && selectedMacroName.trim() !== '') {
-                $('#macroName').text(selectedMacroName);
+            //// If there is a selectedMacroName, set the text of the element with id macroName
+            //if (selectedMacroName != null && selectedMacroName.trim() !== '') {
+            //    $('#macroName').text(selectedMacroName);
 
-                // Remove the 'hidden' attribute to show the button
-                $("#autoCallBtn").removeAttr('hidden');
-            } else {
-                // If selectedMacroName is null or empty, hide the button
-                $("#autoCallBtn").attr('hidden', 'hidden');
-            }
+            //    // Remove the 'hidden' attribute to show the button
+            //    $("#autoCallBtn").removeAttr('hidden');
+            //} else {
+            //    // If selectedMacroName is null or empty, hide the button
+            //    $("#autoCallBtn").attr('hidden', 'hidden');
+            //}
 
         },
         error: function (xhr, status, error) {
@@ -156,7 +155,7 @@ function EndTicket()
         type: 'GET',
         data: { DeskID: deskId },
         success: function (response) {
-           
+            updateMainPanel();
         },
         error: function (xhr, status, error) {
             console.error(xhr.responseText);
@@ -168,7 +167,7 @@ function showParkTicketModal() {
     $('#parkTicketModal').modal('show');
 }
 function ParkTicket() {
-    var note = $('#ticketNote').val();
+    var note = $('#parkTicketNote').val();
     var ticket = $('#ticketNumber').data('ticket-id');
     $.ajax({
         url: 'Ticket/ParkTicket',
@@ -176,6 +175,7 @@ function ParkTicket() {
         data: { TicketId: ticket, DeskID: deskId, TicketNote: note },
         success: function (response) {
             $('#parkTicketModal').modal('hide');
+            updateMainPanel();
 
         },
         error: function (xhr, status, error) {
@@ -190,7 +190,7 @@ function showTransferTicketModal() {
 }
 
 function TransferTicket() {
-    var note = $('#ticketNote').val();
+    var note = $('#transferTicketNote').val();
     var ticket = $('#ticketNumber').data('ticket-id');
     var transferServiceType = $('#serviceDropdown').val(); // Get selected value from service dropdown
     var transferToDesk = $('#deskDropdown').val(); // Get selected value from desk dropdown
@@ -265,30 +265,6 @@ function GetTransferableServices(DeskID) {
 }
 
 
-function GetCreatableServices(DeskID) {
-    $.ajax({
-        url: 'Ticket/GetCreatableServicesList?DeskID=' + DeskID,
-        type: 'GET',
-        success: function (response) {
-            // Clear any existing dropdown options
-            $('#serviceDropdown').empty();
-
-            // Populate dropdown with desks from the response
-            response.forEach(function (desk) {
-                $('#serviceDropdown').append('<option value="' + desk.oid + '">' + desk.name + '</option>');
-            });
-
-            
-        },
-        error: function (xhr, status, error) {
-            console.error(xhr.responseText);
-            // Handle error
-        }
-    });
-}
-
-
-
 function autocall() {
     var macroId = localStorage.getItem('selectedMacroId'); 
 
@@ -299,6 +275,7 @@ function autocall() {
 
         success: function (data) {
             // Handle success if needed
+            updateMainPanel();
         },
         error: function (xhr, status, error) {
             console.error(xhr.responseText);
@@ -315,7 +292,7 @@ $('#table').on('click', '.call-ticket', function () {
         data: { TicketID: oid, DeskID: deskId },
         success: function (data) {
             // Handle success if needed
-
+            updateMainPanel();
 
         },
         error: function (xhr, status, error) {
@@ -333,13 +310,20 @@ $('#CompletedTable').on('click', '.call-ticket', function () {
         data: { TicketID: oid, DeskID: deskId },
         success: function (data) {
             // Handle success if needed
-
+            updateMainPanel();
 
         },
         error: function (xhr, status, error) {
             console.error(xhr.responseText);
         }
     });
+});
+
+// Handle double click on rows
+$('#CompletedTable tbody').on('dblclick', 'tr', function () {
+    var rowData = CompletedTable.row(this).data(); // Get the data of the clicked row
+    var ticketID = rowData.oid; // Get the oid of the clicked row
+    ShowTicketStateModal(ticketID); // Call the function with ticketID
 });
 function GetDesk()
 {
@@ -357,7 +341,6 @@ function GetDesk()
 
 
 function fetchAndPopulateMacros() {
-
     // Send a GET request to fetch macros with the deskId
     $.get('Ticket/GetMacros', { DeskID: deskId }, function (macros) {
         // Get the macroMenu element
@@ -366,40 +349,273 @@ function fetchAndPopulateMacros() {
         // Clear existing menu items
         macroMenu.innerHTML = '';
 
-        // Iterate over the macros array and add dropdown items
-        macros.forEach(function (macro) {
-            var menuItem = document.createElement('div');
-            menuItem.className = 'menu-item';
-            menuItem.innerHTML = '<a class="menu-link" >' + macro.macroName + '</a>';
+        // Check if macros array is empty
+        if (macros.length === 0) {
+            var noMacroMessage = document.createElement('div');
+            noMacroMessage.innerText = 'No Macros assigned for this desk.';
+            macroMenu.appendChild(noMacroMessage);
+        } else {
+            // Iterate over the macros array and add dropdown items
+            macros.forEach(function (macro) {
+                var menuItem = document.createElement('div');
+                menuItem.className = 'menu-item';
+                menuItem.innerHTML = '<a class="menu-link" >' + macro.macroName + '</a>';
 
-            menuItem.addEventListener('click', function () {
-                // Set data-macro-id attribute to macro.oid for macroMenu element
-                var macroElement = document.getElementById('macroName');
-                $('#macroName').text(macro.macroName);
-                macroElement.setAttribute('data-macro-id', macro.macro);
+                menuItem.addEventListener('click', function () {
+                    // Set data-macro-id attribute to macro.oid for macroMenu element
+                    var macroElement = document.getElementById('macroName');
+                    $('#macroName').text(macro.macroName);
+                    macroElement.setAttribute('data-macro-id', macro.macro);
 
-                localStorage.setItem('selectedMacroId', macro.macro);
-                localStorage.setItem('selectedMacroName', macro.macroName);
+                    localStorage.setItem('selectedMacroId', macro.macro);
+                    localStorage.setItem('selectedMacroName', macro.macroName);
 
-                // Remove the 'hidden' attribute to show the button
-                $("#autoCallBtn").removeAttr('hidden');
+                    // Remove the 'hidden' attribute to show the button
+                    $("#autoCallBtn").removeAttr('hidden');
+                });
+
+                macroMenu.appendChild(menuItem);
             });
-
-            macroMenu.appendChild(menuItem);
-        });
+        }
     });
 }
 
-fetchTickets('Ticket/GetParkedTickets?deskId=' + deskId, 'Parked Tickets', 'PT', true);
 
-fetchTickets('Ticket/GetTransferedTickets?deskId=' + deskId, 'Transfered Tickets', 'TT', true);
+function GetSegmentsandServices()
+{
+    GetCreatableServices();
+    GetSegmentList();
+}
 
 
-fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
 
-// Call the function to fetch completed tickets on page load
-fetchCompletedTickets('Ticket/GetCompletedTickets?deskId=' + deskId);
+function GetCreatableServices() {
 
-GetDesk();
+    $.ajax({
+        url: 'Ticket/GetCreatableServicesList?DeskID=' + deskId,
+        type: 'GET',
+        success: function (response) {
+            // Clear any existing dropdown options
+            $('#createServiceDropdown').empty();
 
-fetchAndPopulateMacros();
+            // Populate dropdown with service from the response
+            response.forEach(function (service) {
+                $('#createServiceDropdown').append('<option value="' + service.serviceType + '">' + service.serviceTypeNavigation.name + '</option>');
+            });
+            // Show the modal once the dropdown is populated
+            $('#createTicketModal').modal('show');
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+            // Handle error
+        }
+    });
+
+}
+function GetSegmentList() {
+    $.ajax({
+        url: 'Ticket/GetSegmentList',
+        type: 'GET',
+        success: function (response) {
+            // Clear any existing dropdown options
+            $('#segmentDropdown').empty();
+
+            // Populate dropdown with segment from the response
+            response.forEach(function (segment) {
+                $('#segmentDropdown').append('<option value="' + segment.oid + '">' + segment.name + '</option>');
+            });
+          
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+            // Handle error
+        }
+    });
+}
+function CreateTicket() {
+    var createServiceType = $('#createServiceDropdown').val(); 
+    var createSegment = $('#segmentDropdown').val(); 
+
+    $.ajax({
+        url: 'Ticket/CreateTicket',
+        type: 'POST',
+        data:
+        {
+            ServiceTypeId: createServiceType,
+            SegmentId: createSegment,
+           
+        },
+        success: function (response) {
+            $('#createTicketModal').modal('hide');
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Ticket Created Successfully',
+                showConfirmButton: false,
+                timer: 1500 // Auto close after 1.5 seconds
+            });
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+            $('#transferTicketModal').modal('hide');
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to create ticket. try another Segment.',
+                confirmButtonText: 'OK'
+            });
+
+        }
+    });
+}
+
+function SetBusyStatus() {
+    var statusElement = document.getElementById('statusEnum');
+    var status = parseInt(statusElement.getAttribute('data-status'));
+    var text;
+
+    if (status === 1) {
+        // Change status to Busy (3)
+        status = 3;
+        text = 'Busy';
+    } else {
+        // Change status to Open (1)
+        status = 1;
+        text = 'Open';
+    }
+
+    $.ajax({
+        url: 'Ticket/SetBusyStatus?DeskID=' + deskId + '&Status=' + status,
+        type: 'GET',
+        success: function (response) {
+            // Update text content
+            $('#statusEnum').text(text);
+            // Update data-status attribute
+            statusElement.setAttribute('data-status', status);
+
+            // Update styling based on status
+            if (status === 1) {
+
+                // Remove sleep animation element if it exists
+
+                $('#sleepAnimation').remove();
+                // Remove dim class from body
+                document.body.classList.remove('dim-screen');
+
+                $('#busyButton').css('z-index', 'auto');
+
+                if (!$('#kt_drawer_chat_toggle').length) {
+                    $('#statusEnum').append('<div class="btn btn-icon btn-custom btn-active-light btn-active-color-primary w-35px h-35px position-relative" id="kt_drawer_chat_toggle"><span class="bullet bullet-dot bg-success h-6px w-6px  animation-blink"></span></div>');
+                }
+            } else {
+                // Add sleep animation element
+                if (!$('#sleepAnimation').length) {
+                    $('#statusEnum')
+                        .append(
+                            '<div id="sleepAnimation" class="sleeping"><span>z</span><span>z</span><span>z</span><span>z</span></div><div class="avatar"> <div class="head"> <div class="eyes close-eyes"> <div class="eye left-eye"></div><div class="eye right-eye"></div></div> <div class="mouth yawn"></div> </div></div>');
+                }
+                // Add dim class to body
+                document.body.classList.add('dim-screen');
+                // Remove the chat toggle button if it exists
+                $('#kt_drawer_chat_toggle').remove();
+
+                $('#busyButton').css('position', 'relative');
+
+                $('#busyButton').css('z-index', '10000');
+
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+            // Handle error
+        }
+    });
+}
+
+
+function ShowTicketStateModal(ticketID)
+{
+    // Destroy the existing DataTable instance if it exists
+    if ($.fn.DataTable.isDataTable('#TicketStateTable')) {
+        $('#TicketStateTable').DataTable().destroy();
+    }
+
+    var TicketStateTable = $('#TicketStateTable').DataTable({
+        serverSide: false,
+        paging: true,
+        filter: true,
+        columns: [
+            { data: 'desk' },
+            { data: 'callType' },
+            { data: 'startTime' },
+            { data: 'endTime' },
+            { data: 'note' },
+        ],
+        ajax: {
+            url: '/Ticket/GetTicketStates?TicketID=' + ticketID,
+            type: "GET",
+            dataType: "json",
+            error: function (xhr, error, code) {
+                console.log(xhr, code);
+            }
+        },
+        columnDefs: [
+            { targets: '_all', "defaultContent": "" },
+            {
+                targets: '_all',
+                "render": function (data, type, row, meta) {
+                    if (String(data).length <= 100) {
+                        return data
+                    }
+                    else {
+                        return data.substring(0, 30) + ".....";
+                    }
+                }
+            }
+        ],
+        lengthMenu: [
+            [5, 10, 25, 50, 1000],
+            ['5 rows', '10 rows', '25 rows', '50 rows', 'Show all']
+        ],
+        pageLength: 5
+    });
+
+    $('#TicketStateModal').modal('show');
+
+}
+
+function initScreen() {
+    fetchTickets('Ticket/GetParkedTickets?deskId=' + deskId, 'Parked Tickets', 'PT', true);
+
+    fetchTickets('Ticket/GetTransferedTickets?deskId=' + deskId, 'Transfered Tickets', 'TT', true);
+
+
+    fetchTickets('Ticket/GetWaitingTickets', 'Waiting Tickets', 'WT');
+
+    // Call the function to fetch completed tickets on page load
+    fetchCompletedTickets('Ticket/GetCompletedTickets?deskId=' + deskId);
+
+    GetDesk();
+
+    fetchAndPopulateMacros();
+
+    var selectedMacroName = localStorage.getItem('selectedMacroName');
+
+    // If there is a selectedMacroName, set the text of the element with id macroName
+    if (selectedMacroName != null && selectedMacroName.trim() !== '') {
+        $('#macroName').text(selectedMacroName);
+
+        // Remove the 'hidden' attribute to show the button
+        $("#autoCallBtn").removeAttr('hidden');
+    } else {
+        // If selectedMacroName is null or empty, hide the button
+        $("#autoCallBtn").attr('hidden', 'hidden');
+    }
+
+}
+
+$(document).ready(function () {
+    initScreen();
+});
+

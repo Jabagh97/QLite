@@ -5,6 +5,7 @@ using QLite.Data;
 using QLite.Data.Dtos;
 using QLite.Data.Models;
 using QLiteDataApi.Context;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static QLite.Data.Models.Enums;
 
 namespace QLiteDataApi.Services
@@ -23,6 +24,15 @@ namespace QLiteDataApi.Services
         Task<List<Desk>> GetDeskListAsync();
         Task<List<DeskTransferableService>> GetTransferableServiceListAsync(Guid DeskID);
         Task<List<DeskCreatableService>> GetCreatableServiceListAsync(Guid DeskID);
+
+        Task<List<ServiceType>> GetServiceList();
+
+        Task<List<Segment>> GetSegmentList();
+
+        Task<string> SetBusyStatus(Guid Desk,DeskActivityStatus Status);
+
+        Task<object> GetTicketStateListAsync(Guid TicketID);
+
     }
 
 
@@ -579,9 +589,7 @@ namespace QLiteDataApi.Services
                 .Where(dts => dts.Gcrecord == null && dts.Desk == DeskID)
                 .Select(dts => new DeskTransferableService
                 {
-                    Account = dts.Account,
-                    Branch = dts.Branch,
-                    Desk = dts.Desk,
+                  
                     ServiceType = dts.ServiceType,
                     ServiceTypeNavigation = new ServiceType
                     {
@@ -595,8 +603,20 @@ namespace QLiteDataApi.Services
 
         public async Task<List<DeskCreatableService>> GetCreatableServiceListAsync(Guid DeskID)
         {
-            var creatableServices = await _context.DeskCreatableServices.Where(dcs => dcs.Gcrecord == null && dcs.Desk == DeskID).ToListAsync();
-            return creatableServices;
+            var createableServices = await _context.DeskCreatableServices
+                .Where(dts => dts.Gcrecord == null && dts.Desk == DeskID)
+                .Select(dts => new DeskCreatableService
+                {
+                   
+                    ServiceType = dts.ServiceType,
+                    ServiceTypeNavigation = new ServiceType
+                    {
+                        Name = dts.ServiceTypeNavigation.Name
+                    }
+                })
+                .ToListAsync();
+
+            return createableServices;
         }
         public async Task<int> GetTicketDurationAsync(Guid ticketid)
         {
@@ -604,6 +624,131 @@ namespace QLiteDataApi.Services
 
             return duration;
         }
+
+        public async Task<List<ServiceType>> GetServiceList( )
+        {
+
+            var services = await  _context.ServiceTypes.Where(s=> s.Gcrecord == null).ToListAsync();
+
+            return services;
+        }
+
+        public async Task<List<Segment>> GetSegmentList( )
+        {
+
+            var segments = await _context.Segments.Where(s => s.Gcrecord == null).ToListAsync();
+
+            return segments;
+        }
+
+        public async Task<string> SetBusyStatus(Guid DeskID,DeskActivityStatus Status)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Get current time
+                var currentTime = DateTime.Now;
+
+                // If the desk status is Paused, Closed, or Busy, end the current service
+                if (Status == DeskActivityStatus.Paused || Status == DeskActivityStatus.Closed || Status == DeskActivityStatus.Busy)
+                {
+                    await EndCurrentServiceAsync(DeskID);
+                }
+
+                // Create a new DeskStatus entity
+                var deskStatus = new DeskStatus
+                {
+                    Oid = Guid.NewGuid(),
+                   // User = user,
+                    Desk = DeskID,
+                    DeskActivityStatus = (int)Status,
+                    StateStartTime = currentTime
+                };
+
+                // Update the end time of the last desk status
+                var deskLatestStatus = await GetLastDeskStatus(DeskID);
+                if (deskLatestStatus != null)
+                {
+                    deskLatestStatus.StateEndTime = currentTime;
+                    _context.Update(deskLatestStatus);
+                }
+
+                // Update the activity status of the desk
+                var desk = await _context.Desks.SingleAsync(d => d.Oid == DeskID);
+
+                desk.ActivityStatus = (int)Status;
+                desk.LastStateTime= currentTime;
+
+                _context.Update(desk);
+
+                // Insert the new desk status
+                _context.DeskStatuses.Add(deskStatus);
+
+                // Save changes to the database
+                await _context.SaveChangesAsync();
+
+                // Commit transaction
+                await transaction.CommitAsync();
+
+                return desk.DisplayNo;
+            }
+            catch (Exception ex)
+            {
+                // Rollback transaction if an exception occurs
+                await transaction.RollbackAsync();
+
+                return null;
+            }
+           
+
+        }
+        public async Task<DeskStatus> GetLastDeskStatus(Guid deskId)
+        {
+            var query = await _context.DeskStatuses
+                .Where(ds => ds.Oid == deskId && ds.StateEndTime == null)
+                .OrderByDescending(ds => ds.StateStartTime)
+                .FirstOrDefaultAsync();
+
+            return query;
+        }
+
+        public async Task<object> GetTicketStateListAsync(Guid ticketID)
+        {
+            // Query the database to find the ticket with the given ID
+            var ticket = await _context.Tickets
+                                        .Include(t => t.TicketStates) // Include the TicketStates collection
+                                            .ThenInclude(ts => ts.DeskNavigation) // Include DeskNavigation within TicketStates
+                                        .FirstOrDefaultAsync(ts => ts.Oid == ticketID);
+
+            if (ticket != null)
+            {
+                // Return the TicketStates collection of the found ticket
+                var ticketStates = ticket.TicketStates
+                                        .Select(ts => new 
+                                        {
+                                            Desk = ts.DeskNavigation != null ? ts.DeskNavigation.Name : null, 
+                                            CallType = ts.TicketCallType.ToString(),
+                                            StartTime = ts.StartTime.ToString(), 
+                                            EndTime = ts.EndTime.ToString(), 
+
+                                            Note = ts.Note,
+                                        })
+                                        .ToList();
+
+                var recordsTotal = ticketStates.Count();
+
+                var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = ticketStates };
+
+                return jsonData;
+            }
+            else
+            {
+                // If no ticket is found, return an empty list
+                return new { };
+            }
+        }
+
 
     }
 }

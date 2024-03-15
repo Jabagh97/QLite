@@ -9,6 +9,8 @@
     <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="article" />
     <title>@ViewData["Title"] - DeskApp</title>
+    <link rel="shortcut icon" href="~/images/Qlite-mini.png" />
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/DeskApp.styles.css" asp-append-version="true" />
 
@@ -20,7 +22,6 @@
     <link href="~/css/style.bundle.css" rel="stylesheet" type="text/css" />
     <link href="~/css/site.css" rel="stylesheet" type="text/css" />
 
-    <link href="~/DataTables/DataTables-1.13.8/css/dataTables.bootstrap5.css" rel="stylesheet">
     <link href="~/DataTables/datatables.css" rel="stylesheet">
     <link href="~/lib/swal/sweetalert2.css" rel="stylesheet">
     <script src="~/js/popper.min.js"></script>
@@ -94,6 +95,14 @@
 
 
     <!--begin::Modals-->
+
+    <partial name="CreateModal" />
+    <partial name="ParkModal" />
+    <partial name="TransferModal" />
+    <partial name="TicketStateModal" />
+
+
+
     <!--end::Modals-->
     <!--begin::Javascript-->
     <!--begin::Global Javascript Bundle(mandatory for all pages)-->
@@ -101,12 +110,7 @@
     <script src="~/DataTables/datatables.js"></script>
     <script src="~/bootstrap/js/bootstrap.bundle.js"></script>
     <script src="~/js/scripts.bundle.js"></script>
-
-    <script src="~/js/popper.min.js"></script>
-
-
     <script src="~/lib/swal/sweetalert2.all.js"></script>
-    <script src="~/plugins/custom/draggable/draggable.bundle.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
 

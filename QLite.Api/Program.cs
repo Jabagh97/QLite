@@ -21,7 +21,7 @@ internal class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        builder.Services.AddScoped<IDataService, DataService>();
+        builder.Services.AddScoped<IAdminService, AdminService>();
         builder.Services.AddScoped<IModelTypeMappingService, ModelTypeMappingService>();
         builder.Services.AddScoped<IQueryFactory, QueryFactory>();
 

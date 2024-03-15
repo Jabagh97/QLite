@@ -18,9 +18,9 @@ namespace QLiteDataApi.Services
 {
     public interface IKioskService
     {
-        Ticket GetNewTicket(TicketRequestDto req);
+        Task<Ticket> GetNewTicketAsync(TicketRequestDto req);
 
-        List<ServiceType> GetServiceTypes(Guid segmentId);
+        Task<List<ServiceType>> GetServiceTypes(Guid segmentId);
         List<Segment> GetSegments();
 
         List<Kiosk> GetKioskByHwID(string HwId);
@@ -36,48 +36,60 @@ namespace QLiteDataApi.Services
         }
 
         #region New Ticket
-        public Ticket GetNewTicket(TicketRequestDto req)
+        public async Task<Ticket> GetNewTicketAsync(TicketRequestDto req)
         {
-            var svcType = GetServiceTypeAsync(req.ServiceTypeId);
-            var segment = GetSegmentAsync(req.SegmentId);
-            var ticketPool = GetTicketPoolAsync(req.ServiceTypeId, req.SegmentId);
-
-            if (svcType == null || segment == null || ticketPool == null)
+            using (var dbContextTransaction = _context.Database.BeginTransaction())
             {
-                throw new Exception("Failed to retrieve necessary data from the database");
+                try
+                {
+                    var svcType =  GetServiceType(req.ServiceTypeId);
+                    var segment =  GetSegment(req.SegmentId);
+                    var ticketPool =  GetTicketPool(req.ServiceTypeId, req.SegmentId);
+
+                    if (svcType == null || segment == null || ticketPool == null)
+                    {
+                        throw new Exception("Failed to retrieve necessary data from the database");
+                    }
+
+                    ValidateTicketPool(ticketPool);
+                    ValidateWaitingTicketCount(ticketPool, req.ServiceTypeId, req.SegmentId);
+
+                    var retNumber = GenerateTicketNumber(ticketPool);
+
+                    var newTicket = CreateNewTicket(svcType, segment, ticketPool, retNumber);
+
+                    var newTicketState = CreateNewTicketState(newTicket, svcType, segment);
+
+                    var waiting =  GetNumberOfWaitingTickets(req.ServiceTypeId, req.SegmentId);
+
+                    newTicket.WaitingTickets = waiting;
+
+                    await SaveTicketAsync(newTicket, newTicketState);
+
+                    await dbContextTransaction.CommitAsync();
+
+                    return newTicket;
+                }
+                catch (Exception ex)
+                {
+                    // Rollback transaction in case of failure
+                    await dbContextTransaction.RollbackAsync();
+                    throw ex;
+                }
             }
-
-
-            ValidateTicketPool(ticketPool);
-
-            ValidateWaitingTicketCount(ticketPool, req.ServiceTypeId, req.SegmentId);
-
-            var retNumber = GenerateTicketNumber(ticketPool);
-
-            var newTicket = CreateNewTicket(svcType, segment, ticketPool, retNumber);
-
-            var newTicketState = CreateNewTicketState(newTicket, svcType, segment);
-
-            var waiting = GetNumberOfWaitingTickets(req.ServiceTypeId, req.SegmentId);
-
-            newTicket.WaitingTickets= waiting;
-
-            SaveTicketAsync(newTicket, newTicketState);
-
-            return newTicket;
         }
 
-        private ServiceType? GetServiceTypeAsync(Guid serviceTypeId)
+        private ServiceType? GetServiceType(Guid serviceTypeId)
         {
             return _context.ServiceTypes.Find(serviceTypeId);
         }
 
-        private Segment? GetSegmentAsync(Guid segmentId)
+        private Segment? GetSegment(Guid segmentId)
         {
             return _context.Segments.Find(segmentId);
         }
 
-        private TicketPool GetTicketPoolAsync(Guid serviceTypeId, Guid segmentId)
+        private TicketPool GetTicketPool(Guid serviceTypeId, Guid segmentId)
         {
             var ticketPool = _context.TicketPools
                 .FirstOrDefault(x => x.ServiceType == serviceTypeId && x.Segment == segmentId);
@@ -203,32 +215,32 @@ namespace QLiteDataApi.Services
             };
         }
 
-        private void SaveTicketAsync(Ticket newTicket, TicketState newTicketState)
+        private async Task SaveTicketAsync(Ticket newTicket, TicketState newTicketState)
         {
             _context.Tickets.Add(newTicket);
             _context.TicketStates.Add(newTicketState);
-            _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
 
         #endregion
 
 
-        public List<ServiceType> GetServiceTypes(Guid segmentId)
+        public async Task<List<ServiceType>> GetServiceTypes(Guid segmentId)
         {
             var currentTime = DateTime.Now.TimeOfDay;
 
-            var serviceTypes = _context.ServiceTypes
+            var serviceTypes = await _context.ServiceTypes
                             .Where(st => st.Gcrecord == null && st.Parent == null)
                             .Include(st => st.TicketPools)
                             .Where(st => st.TicketPools.Any(tp => tp.Segment == segmentId  &&
                                                                    tp.NotAvailable != true ))
                             .OrderBy(st => st.SeqNo)
-                            .ToList();
+                            .ToListAsync();
 
 
             // Apply time-based filtering in memory
-            serviceTypes = serviceTypes.Where(st =>
+            serviceTypes =  serviceTypes.Where(st =>
                 st.TicketPools.All(tp =>
                     tp.ServiceStartTime == null ||
                     (tp.ServiceStartTime.Value.TimeOfDay < currentTime &&

@@ -45,7 +45,7 @@
         console.log("Message received from server:", message);
     });
 
-
+    //TODO fix: Popups are Closing when invoking this method
     connection.on("NotifyTicketState", function (message) {
         try {
             // Parse the JSON string into a JavaScript object

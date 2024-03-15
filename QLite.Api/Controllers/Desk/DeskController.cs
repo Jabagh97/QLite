@@ -156,6 +156,57 @@ namespace QLiteDataApi.Controllers.Desk
 
             return Ok(serializedTicketState);
         }
+
+        [HttpGet("api/Desk/GetServiceList")]
+        public async Task<IActionResult> GetServiceList()
+        {
+            var serviceTypes = await _deskService.GetServiceList();
+            return Ok(serviceTypes);
+        }
+
+
+        [HttpGet("api/Desk/GetSegmentList")]
+        public async Task<IActionResult> GetSegmentList()
+        {
+            var segments = await _deskService.GetSegmentList();
+            return Ok(segments);
+        }
+
+        [HttpGet("api/Desk/SetBusyStatus/{DeskID}/{Status}")]
+        public async Task<IActionResult> SetBusyStatus(Guid DeskID,DeskActivityStatus Status)
+        {
+            var status = await _deskService.SetBusyStatus(DeskID, Status);
+
+            if (status !=null && Status != DeskActivityStatus.Open)
+            {
+                string kioskId = _configuration.GetValue<string>("DisplayID");
+
+                // Create the JSON object
+                var notificationData = new
+                {
+                    DisplayNo = status,
+                    TicketNo = "Busy",
+                    SendToMain = true 
+                };
+
+                // Serialize the JSON object to a string
+                string jsonNotification = JsonConvert.SerializeObject(notificationData);
+
+                // Send the JSON notification to clients in the group
+                await _communicationHubContext.Clients.Group("Display_" + kioskId).SendAsync("NotifyTicketState", jsonNotification);
+            }
+
+            return Ok(status);
+        }
+
+
+        [HttpGet("api/Desk/GetTicketStates/{TicketID}")]
+        public async Task<IActionResult> GetTicketStates(Guid TicketID)
+        {
+            var jsonData = await _deskService.GetTicketStateListAsync(TicketID);
+            return Ok(jsonData);
+        }
+
     }
 
 

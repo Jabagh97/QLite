@@ -30,18 +30,18 @@ namespace QLiteDataApi.Controllers.Kiosk
 
         [HttpPost]
         [Route("api/Kiosk/GetTicket")]
-        public IActionResult GetNewTicketAsync([FromBody] TicketRequestDto req)
+        public async Task<IActionResult> GetNewTicketAsync([FromBody] TicketRequestDto req)
         {
             try
             {
-                Ticket newTicket = _KioskService.GetNewTicket(req);
+                Ticket newTicket = await _KioskService.GetNewTicketAsync(req);
 
                 TicketState ticketState = newTicket.TicketStates.Last();
 
                 //send ticketState to all clients registered
                 string serializedTicketState = JsonConvert.SerializeObject(ticketState);
 
-                _communicationHubContext.Clients.Group("ALL_").SendAsync("NotifyTicketState", serializedTicketState);
+                await _communicationHubContext.Clients.Group("ALL_").SendAsync("NotifyTicketState", serializedTicketState);
 
                 string serializedTicket = JsonConvert.SerializeObject(newTicket);
 
@@ -57,9 +57,9 @@ namespace QLiteDataApi.Controllers.Kiosk
 
         [HttpGet]
         [Route("api/Kiosk/GetServiceTypeList")]
-        public IActionResult GetServiceTypeList(Guid segmentId)
+        public async Task<IActionResult> GetServiceTypeList(Guid segmentId)
         {
-            var ServiceList = _KioskService.GetServiceTypes(segmentId);
+            var ServiceList = await _KioskService.GetServiceTypes(segmentId);
             string serializedList = JsonConvert.SerializeObject(ServiceList);
 
             return Ok(serializedList);

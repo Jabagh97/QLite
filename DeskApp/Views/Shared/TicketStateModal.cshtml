@@ -1,0 +1,34 @@
+﻿<!--Ticket states Modal -->
+<div class="modal fade" id="TicketStateModal" tabindex="-1">
+    <div class="modal-dialog modal-lg"> 
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ticket States</h5>
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <div class="modal-body">
+                <table id="TicketStateTable" class="table" style="width:100%;">
+                    <thead>
+                        <tr class="fw-bold fs-6 text-gray-800">
+                            <th>Desk</th>
+                            <th>CallType</th>
+                            <th>StartTime</th>
+                            <th>EndTime</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody class="fw-bold fs-6 text-gray-800">
+                        <!-- Table body content will be dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

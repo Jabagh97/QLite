@@ -11,6 +11,7 @@ using System.Data;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
+using static QLite.Data.Models.Enums;
 
 namespace DeskApp.Controllers
 {
@@ -23,10 +24,14 @@ namespace DeskApp.Controllers
         {
             _httpClient = httpClient;
             _configuration = configuration;
-            _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
+            var apiBase = _configuration.GetValue<string>("APIBase");
+            if (string.IsNullOrEmpty(apiBase))
+                throw new ArgumentException("APIBase configuration is missing or invalid.", nameof(apiBase));
+
+            _httpClient.BaseAddress = new Uri(apiBase);
         }
 
-       
+
 
         public IActionResult Index()
         {
@@ -36,9 +41,6 @@ namespace DeskApp.Controllers
         public Task<IActionResult> CallTicketAsync(Guid TicketID, Guid DeskID, Guid MacroID) =>
             HandleHttpRequest(async () => await _httpClient.GetAsync($"api/Desk/CallTicket?DeskID={DeskID}&ticketID={TicketID}&user={Guid.Empty}&macroID={MacroID}"));
 
-        [HttpGet]
-        public Task<IActionResult> GetCurrentTicket(Guid DeskID) =>
-            GetJsonResponse<TicketState>($"api/Desk/GetCurrentTicket/{DeskID}");
 
         [HttpGet]
         public Task<IActionResult> EndTicket(Guid DeskID) =>
@@ -62,7 +64,7 @@ namespace DeskApp.Controllers
 
         [HttpGet]
         public Task<IActionResult> GetCreatableServicesList(Guid DeskID) =>
-            GetJsonResponse<List<DeskCreatableService>>($"api/Desk/GetCreatableServicesList/{DeskID}");
+            GetJsonResponse<List<DeskCreatableService>>($"api/Desk/GetCreatableServiceList/{DeskID}");
 
         [HttpGet]
         public Task<IActionResult> GetWaitingTickets() =>
@@ -88,9 +90,52 @@ namespace DeskApp.Controllers
         public Task<IActionResult> TransferTicket([Required] TransferTicketDto transferTicket) =>
             PostJsonRequest($"api/Desk/TransferTicket", transferTicket);
 
+        [HttpGet]
+        public Task<IActionResult> GetCurrentTicket(Guid DeskID) =>
+            GetViewResponse<TicketState>($"api/Desk/GetCurrentTicket/{DeskID}", "Components/MainPanel");
+
+
+        [HttpGet]
+        public Task<IActionResult> GetSegmentList() =>
+            GetJsonResponse<List<Segment>>($"api/Desk/GetSegmentList");
+
+        [HttpPost]
+        public Task<IActionResult> CreateTicket([Required] TicketRequestDto ticketRequest) =>
+           PostJsonRequest($"api/Kiosk/GetTicket", ticketRequest);
+
+
+        [HttpGet]
+        public Task<IActionResult> SetBusyStatus(Guid DeskID,DeskActivityStatus Status) =>
+            GetJsonResponse<DeskActivityStatus>($"api/Desk/SetBusyStatus/{DeskID}/{Status}");
+
+
+        [HttpGet]
+        public Task<IActionResult> GetTicketStates([Required] Guid TicketID) =>
+           GetJsonResponse<TicketStateResponse>($"api/Desk/GetTicketStates/{TicketID}");
 
         #region Helpers
+        private async Task<IActionResult> GetViewResponse<T>(string endpoint, string view)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync(endpoint);
 
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    T deserializedData = JsonConvert.DeserializeObject<T>(responseData);
+                    return PartialView(view, deserializedData);
+                }
+                else
+                {
+                    return StatusCode((int)response.StatusCode, $"Failed to retrieve data");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
+            }
+        }
         private async Task<IActionResult> HandleHttpRequest(Func<Task<HttpResponseMessage>> request)
         {
             try

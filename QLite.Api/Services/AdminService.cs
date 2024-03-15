@@ -10,7 +10,7 @@ using QLiteDataApi.Context;
 
 namespace QLiteDataApi.Services
 {
-    public interface IDataService
+    public interface IAdminService
     {
 
 
@@ -29,13 +29,13 @@ namespace QLiteDataApi.Services
 
         List<Desk> GetAllDesks();
     }
-    public class DataService : IDataService
+    public class AdminService : IAdminService
     {
         private readonly ApplicationDbContext _dbContext;
 
         private readonly IQueryFactory _queryFactory;
 
-        public DataService(ApplicationDbContext dbContext, IQueryFactory queryFactory)
+        public AdminService(ApplicationDbContext dbContext, IQueryFactory queryFactory)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _queryFactory = queryFactory ?? throw new ArgumentNullException(nameof(queryFactory));
@@ -64,7 +64,12 @@ namespace QLiteDataApi.Services
 
         #region GetData
 
+        public List<Desk> GetAllDesks()
+        {
+            var DeskList = _dbContext.Desks.Where(d => d.Gcrecord == null).ToList();
 
+            return DeskList;
+        }
 
         public IQueryable ApplySearchFilter(IQueryable data, string? searchValue, Type modelType, Type viewModelType)
         {
@@ -310,12 +315,7 @@ namespace QLiteDataApi.Services
 
 
         #endregion
-        public List<Desk> GetAllDesks()
-        {
-            var DeskList = _dbContext.Desks.Where(d=>d.Gcrecord==null).ToList();
-
-            return DeskList;
-        }
+       
     }
 
 }
