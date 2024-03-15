@@ -25,13 +25,20 @@ internal class Program
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
        Host.CreateDefaultBuilder(args)
-           // .UseSerilog()
+          .UseWindowsService(options =>
+          {
+              options.ServiceName = "QLiteAdmin";
+          })
            .ConfigureWebHostDefaults(webBuilder =>
            {
                webBuilder.UseStartup<Startup>();
+               webBuilder.UseStaticWebAssets();
+               webBuilder.UseWebRoot(@"wwwroot");
+               webBuilder.UseContentRoot(Path.GetDirectoryName(typeof(Program).Assembly.Location));
+               webBuilder.UseKestrel();
                var config = new ConfigurationBuilder()
                    .SetBasePath(Directory.GetCurrentDirectory())
-                   .AddJsonFile("appsettings.json")
+                    .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"))
                    .Build();
                var ipAddress = config["SiteDomain"];
                webBuilder.UseUrls(ipAddress);

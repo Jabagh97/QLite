@@ -1,105 +1,58 @@
-using Autofac.Core;
-using Microsoft.EntityFrameworkCore;
-using QLite.Data;
-using QLite.Data.Models.Auth;
-using QLite.Data.Services;
+using Microsoft.AspNetCore.Hosting;
 using QLiteDataApi;
-using QLiteDataApi.Context;
-using QLiteDataApi.QueryFactory;
-using QLiteDataApi.Services;
-using QLiteDataApi.SignalR;
-using System.Linq;
-using System.Linq.Dynamic.Core;
+using Serilog;
+using Serilog.Events;
+using System.ServiceProcess;
 
 internal class Program
 {
+
+    private static IHost _host;
+
     private static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+       
 
-        builder.Services.AddScoped<IAdminService, AdminService>();
-        builder.Services.AddScoped<IModelTypeMappingService, ModelTypeMappingService>();
-        builder.Services.AddScoped<IQueryFactory, QueryFactory>();
-
-        builder.Services.AddScoped<IKioskService, KioskService>();
-        builder.Services.AddScoped<IDeskService, DeskService>();
+        Log.Information("API is starting... " + DateTime.Now.ToString());
 
 
-        builder.Services.AddControllers();
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
-        builder.Services.AddSignalR();
-
-     
-        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
-
-        builder.Services.AddCors(options =>
+        _host = Host.CreateDefaultBuilder(args)
+        .UseWindowsService(options =>
         {
-            options.AddPolicy("AllowSpecificOrigin", builder =>
-            {
-                builder.WithOrigins(allowedOrigins)
-                       .AllowAnyMethod()
-                       .AllowAnyHeader()
-                       .AllowCredentials();
-            });
-        });
-
-        var app = builder.Build();
-
-        if (app.Environment.IsDevelopment())
+            options.ServiceName = "QLiteAPI";
+        })
+        .UseSerilog((hostingContext, loggerConfiguration) =>
         {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
-
-        app.UseRouting(); 
-
-        app.UseAuthorization();
-
-        app.UseCors("AllowSpecificOrigin"); 
-
-        app.MapControllers();
-
-        app.UseEndpoints(endpoints =>
+            loggerConfiguration
+                .WriteTo.File(
+                    path: "Logs/log-.txt",
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: 10)
+                .MinimumLevel.Information()
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+                .Enrich.FromLogContext();
+        })
+        .ConfigureWebHostDefaults(webBuilder =>
         {
-            endpoints.MapControllers();
-            endpoints.MapHub<CommunicationHub>("/communicationHub");
-        });
+            webBuilder.UseStartup<Startup>();
+            webBuilder.UseStaticWebAssets();
+            webBuilder.UseWebRoot(@"wwwroot");
+            webBuilder.UseContentRoot(Path.GetDirectoryName(typeof(Program).Assembly.Location));
+            webBuilder.UseKestrel();
+
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"))
+                .Build();
+            var ipAddress = config["SiteDomain"];
+            webBuilder.UseUrls(ipAddress);
+        }).Build();
+
+        _host.Run();
 
 
-        //Call Site Cache Warmup 
-        using (var scope = app.Services.CreateScope())
-        {
-            var services = scope.ServiceProvider;
-            try
-            {
-                var dbContext = services.GetRequiredService<ApplicationDbContext>();
-                // Use LINQ dynamic to perform a query on the DbSet<TEntity>
-                var query = dbContext.Set<Country>().AsQueryable();
-
-                // Example: Retrieve the first record
-                var firstRecord = query.FirstOrDefault();
-
-                var filteredData = query.Where("Gcrecord == 1").ToList();
-
-                Console.WriteLine("Warming Up Done !!!");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("An error occurred during warm-up.");
-                Console.WriteLine(ex.Message);
-            }
-        }
-       // app.Run();
-
-        var siteDomain = builder.Configuration["SiteDomain"];
-
-         app.Run(siteDomain);
     }
-
    
+
 }

@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminPortal", "AdminPortal.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QLite.Data", "..\QLite.Data\QLite.Data.csproj", "{706DF036-AB8A-45E7-A95E-0241E7392973}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QLite.DesignComponents", "..\QLite.DesignComponents\QLite.DesignComponents.csproj", "{5F16D163-C4DA-4430-B0FB-55EE7E759139}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{706DF036-AB8A-45E7-A95E-0241E7392973}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{706DF036-AB8A-45E7-A95E-0241E7392973}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{706DF036-AB8A-45E7-A95E-0241E7392973}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F16D163-C4DA-4430-B0FB-55EE7E759139}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F16D163-C4DA-4430-B0FB-55EE7E759139}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F16D163-C4DA-4430-B0FB-55EE7E759139}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F16D163-C4DA-4430-B0FB-55EE7E759139}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

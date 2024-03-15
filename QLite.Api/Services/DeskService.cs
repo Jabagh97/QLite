@@ -1,11 +1,8 @@
-﻿using Humanizer;
-using Microsoft.EntityFrameworkCore;
-using NPoco;
+﻿using Microsoft.EntityFrameworkCore;
 using QLite.Data;
 using QLite.Data.Dtos;
 using QLite.Data.Models;
 using QLiteDataApi.Context;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static QLite.Data.Models.Enums;
 
 namespace QLiteDataApi.Services

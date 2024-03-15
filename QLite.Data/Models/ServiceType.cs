@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
-using NPoco;
 using QLite.Data.CustomAttribute;
-using QLite.Data.ViewModels.Resource;
 using QLite.Data.ViewModels.ServiceType;
 using System;
 using System.Collections.Generic;

@@ -50,6 +50,7 @@ namespace QLiteDataApi.Controllers.Kiosk
             catch (Exception ex)
             {
                 // Log the exception and return an appropriate response
+                Log.Error("Kiosk Error: Error Creating Ticket");
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
@@ -83,6 +84,8 @@ namespace QLiteDataApi.Controllers.Kiosk
 
             if (kiosk.Count() == 0 || kiosk.Count() > 1) // Check if kiosk is null or empty
             {
+                Log.Error("Kiosk Error: Kiosk not found for the provided Hardware ID.");
+
                 return NotFound("Kiosk not found for the provided Hardware ID.");
             }
 

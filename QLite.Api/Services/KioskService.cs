@@ -1,17 +1,7 @@
-﻿using Humanizer;
-using IdentityServer4.Extensions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.Operations;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using NPoco;
-using NuGet.Protocol;
+﻿using Microsoft.EntityFrameworkCore;
 using QLite.Data;
 using QLite.Data.Dtos;
 using QLiteDataApi.Context;
-using QLiteDataApi.Controllers.Kiosk;
-using QLiteDataApi.Services;
-using System;
 using static QLite.Data.Models.Enums;
 
 namespace QLiteDataApi.Services
