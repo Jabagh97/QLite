@@ -163,9 +163,9 @@ namespace QLite.Data.Models
         }
         public enum WfStep
         {
-            PageServiceTypeSelection = 0,
-            PageSelectLanguage = 1,
-            PageSegmentSelection = 2,
+            ServiceTypeSelection = 0,
+            SelectLanguage = 1,
+            SegmentSelection = 2,
             PagePrint = 3,
             PageNationalId = 4,
             PageInputType = 5,

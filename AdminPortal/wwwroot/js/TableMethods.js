@@ -335,4 +335,3 @@ function handleFileSelect(propertyName, fileInputId) {
     }
 }
 
-

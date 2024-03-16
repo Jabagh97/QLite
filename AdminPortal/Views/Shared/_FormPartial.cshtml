@@ -74,6 +74,8 @@
         var isIcon = viewModelProperty?.GetCustomAttribute<IconAttribute>() != null;
         var isNonEditable = viewModelProperty?.GetCustomAttribute<NonEditableAttribute>() != null;
         var isHidden = viewModelProperty?.GetCustomAttribute<NotForTableAttribute>() != null;
+        var isDesign = viewModelProperty?.GetCustomAttribute<DesignAttribute>()  != null;
+
         var isDropDown = (Model.DropDowns?.ContainsKey(property.Name) ?? false);
 
         var propertyToLower = Char.ToLower(propertyName[0]) + propertyName.Substring(1);
@@ -85,7 +87,7 @@
             formDataValue = Model.FormData[propertyToLower] != null ? Model.FormData[propertyToLower] : "";
         }
 
-      
+
 
         switch (true)
         {
@@ -112,6 +114,13 @@
 
             case bool _ when isDropDown:
                 return RenderDropDown(property, propertyToLower, formDataValue);
+
+            case bool _ when isDesign && Model.Action == "Edit":
+                var oidProperty = Model.FilteredProperties.FirstOrDefault(p => p.Name == "Oid");
+                var oid = GetValue(oidProperty);
+             
+                var url = Url.Action("Index", "Designer", new { DesignID = oid });
+                return $"<a href=\"{url}\" target=\"_blank\">Lunch Designer</a>";
 
             default:
                 return $"<input type=\"text\" name=\"{propertyName}\" id=\"{propertyName}\" class=\"form-control\" value=\"{value}\" />";
@@ -172,8 +181,8 @@
             var isSelected = false;
 
             var enumIntValue = Convert.ToInt32(enumValue);
-           isSelected = Model.FormData?.ContainsKey(propertyToLower) == true &&
-                    enumIntValue.ToString() == formDataValue;
+            isSelected = Model.FormData?.ContainsKey(propertyToLower) == true &&
+                     enumIntValue.ToString() == formDataValue;
             sb.Append($"<option value=\"{enumIntValue}\" {(isSelected ? "selected" : "")}>");
             sb.Append($"{enumValue}</option>");
         }

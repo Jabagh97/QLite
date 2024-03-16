@@ -49,3 +49,47 @@ body {
         transform: translateX(0);
     }
 }
+.drag-icon {
+    background-image: url("../locate.png");
+    width: 17px;
+    height: 17px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.guide-line {
+    pointer-events: none;
+    background: red;
+    position: fixed;
+    display: flex;
+    justify-items: space-between;
+    width: 0;
+    height: 0;
+    left: 0;
+    right: 0;
+}
+
+    .guide-line > span {
+        font-size: 9px;
+        line-height: 0;
+        color: red;
+        position: absolute;
+    }
+
+.guide-line-x > span {
+    transform: translateX(-50%);
+    left: 50%;
+}
+
+.guide-line-y {
+    flex-direction: row;
+}
+
+.guide-line-x {
+    flex-direction: column;
+}
+
+.guide-line-y > span {
+    transform: translateY(-50%);
+    top: 50%;
+}

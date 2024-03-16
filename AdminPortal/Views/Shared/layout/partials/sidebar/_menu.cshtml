@@ -24,7 +24,7 @@
                     <span class="menu-link">
                         <span class="menu-icon">
                             <i class="fas fa-desktop fs-2"></i>
-                        </span><span class="menu-title">Kiosk Apps</span><span class="menu-arrow"></span>
+                        </span><span class="menu-title">Kiosks</span><span class="menu-arrow"></span>
                     </span>
                     <!--end:Menu link-->
                     <!--begin:Menu sub-->
@@ -37,7 +37,7 @@
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Kapp Settings</span>
+                                <span class="menu-title">Application Settings</span>
                             </a>
                             <!--end:Menu link-->
                         </div>
@@ -71,10 +71,35 @@
                         </div>
                         <!--end:Menu item-->
                         <!--end:Menu item-->
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            @* RESOURCE *@
+                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="Design">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Designs</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+                        <!--end:Menu item-->
 
-
-
-
+                         <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            @* RESOURCE *@
+                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="DesignTarget">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Desgin Targets</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+                        <!--end:Menu item-->
                     </div>
                     <!--end:Menu sub-->
                 </div>
@@ -82,6 +107,7 @@
             </div>
             <!--end::Menu-->
             <!--begin:: Services Menu-->
+
             <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold fs-6"
                  id="#kt_app_sidebar_menu_3"
                  data-kt-menu="true"
@@ -92,53 +118,60 @@
                     <span class="menu-link">
                         <span class="menu-icon">
                             <i class="fas fa-desktop fs-2"></i>
-                        </span><span class="menu-title">Services</span><span class="menu-arrow"></span>
+                        </span><span class="menu-title">Service Types</span><span class="menu-arrow"></span>
                     </span>
                     <!--end:Menu link-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        @* KAPP SETTINGS *@
-                        <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="ServiceType">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Service Types</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        @* KAPP SETTINGS *@
-                        <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="DeskTransferableService">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Transferable By Desk</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        @* KAPP SETTINGS *@
-                        <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="DeskCreatableService">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Creatable By Desk</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
+                    <!--begin:Menu sub-->
+                    <div class="menu-sub menu-sub-accordion">
+
+                        
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            @* KAPP SETTINGS *@
+                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="ServiceType">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Service Types</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            @* KAPP SETTINGS *@
+                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="DeskTransferableService">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Transferable By Desk</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            @* KAPP SETTINGS *@
+                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="DeskCreatableService">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Creatable By Desk</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
 
 
+                    </div>
+                    <!--end:Menu sub-->
                 </div>
                 <!--end:Menu item-->
             </div>
+
             <!--end::Menu-->
             <!--begin:: Macro Menu-->
             <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold fs-6"

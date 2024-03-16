@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using QLite.Data.CustomAttribute;
+using System.ComponentModel.DataAnnotations;
+using static QLite.Data.Models.Enums;
 
 namespace QLite.Data.ViewModels.Design
 {
@@ -6,19 +8,18 @@ namespace QLite.Data.ViewModels.Design
     {
         [Required]
 
-        public string? Name { get; set; }
+        public string Name { get; set; }
+        [Design]
+        public string? DesignData { get; set; }
         [Required]
 
-        public string? DesignData { get; set; }
-
-        public string? Account { get; set; }
-
-        public string? KioskApplicationType { get; set; }
-
+        public string Account { get; set; }
+        
         public string? DesignTag { get; set; }
         [Required]
+        [Enum]
 
-        public string? WfStep { get; set; }
+        public WfStep WfStep { get; set; }
 
     }
 }

@@ -1,0 +1,55 @@
+﻿<div class="menu-sub menu-sub-dropdown menu-sub-indention px-2 py-4 w-250px mh-75 overflow-auto">
+    <!--begin:Menu item-->
+    <div class="menu-item">
+        <!--begin:Menu content-->
+        <div class="menu-content "><span class="menu-section fs-5 fw-bolder ps-1 py-1">Main Components</span></div>
+        <!--end:Menu content-->
+    </div>
+    <!--end:Menu item-->
+    <!--begin:Menu item-->
+    <div class="menu-item">
+        <!--begin:Menu link-->
+        <a class="menu-link active" href="?page=index" id="segmentButton">
+            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+            <span class="menu-title">Segment</span>
+        </a>
+        <!--end:Menu link-->
+    </div>
+    <!--end:Menu item--><!--begin:Menu item-->
+    <div class="menu-item">
+        <!--begin:Menu link--><a class="menu-link" href="?page=dashboards/ecommerce"><span class="menu-bullet"><span class="bullet bullet-dot"></span></span><span class="menu-title">Service</span></a><!--end:Menu link-->
+    </div>
+    <!--end:Menu item-->
+    <!--begin:Menu item-->
+    <div class="menu-item">
+        <!--begin:Menu link--><a class="menu-link" href="?page=dashboards/ecommerce"><span class="menu-bullet"><span class="bullet bullet-dot"></span></span><span class="menu-title">Step Button</span></a><!--end:Menu link-->
+    </div>
+    <!--end:Menu item-->
+    <!--begin:Menu item-->
+    <div class="menu-item">
+        <!--begin:Menu link--><a class="menu-link" href="?page=dashboards/ecommerce"><span class="menu-bullet"><span class="bullet bullet-dot"></span></span><span class="menu-title">Language</span></a><!--end:Menu link-->
+    </div>
+    <!--end:Menu item-->
+</div>
+<script>
+    document.getElementById('segmentButton').addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent the default action of the link
+
+        // Create a new button element
+        var newButton = document.createElement('button');
+        newButton.textContent = 'Segment Button';
+        newButton.style.width = '100px'; // Set default width
+        newButton.style.height = '100px'; // Set default height
+        newButton.className = 'segment';
+       // Create a span element for the drag icon
+        var dragIcon = document.createElement('div');
+        dragIcon.className = 'drag-icon';
+        newButton.appendChild(dragIcon);
+
+      
+        // Append the new button to the canvas container
+        document.getElementById('canvas-container').appendChild(newButton);
+
+        dragAndDrop('segment');
+    });
+</script>

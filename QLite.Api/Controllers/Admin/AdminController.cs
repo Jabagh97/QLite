@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using QLite.Data.Services;
+using QLite.DesignComponents;
 using QLiteDataApi.Constants;
 using QLiteDataApi.Helpers;
 using QLiteDataApi.Services;
@@ -236,15 +236,51 @@ namespace QLiteDataApi.Controllers.Admin
 
         [Route("api/Admin/GetAllDesks")]
 
-        public  IActionResult GetAllDesks()
+        public IActionResult GetAllDesks()
         {
             var DeskList = _dataService.GetAllDesks();
 
             return Ok(DeskList);
         }
-            #region Helpers
 
-            private IActionResult ProcessModelOperation(Dictionary<string, object> formData, bool isCreateOperation)
+
+        [HttpGet]
+        [Route("api/Admin/GetDesign/{DesignID}")]
+        public IActionResult GetDesign(Guid DesignID)
+        {
+            var design = _dataService.GetDesign(DesignID);
+
+            if (design != null)
+            {
+                return Ok(design.DesignData);
+            }
+
+            return NotFound();
+        }
+
+        [HttpPost]
+        [Route("api/Admin/SaveDesign/{DesignID}")]
+        public IActionResult SaveDesign(Guid DesignID, [FromBody] DesPageData desPageData)
+        {
+            var saved = _dataService.SaveDesign(DesignID, desPageData);
+
+            if (saved)
+            {
+                return Ok();
+            }
+            else 
+            {
+                return NotFound();
+
+            }
+
+        }
+
+
+
+        #region Helpers
+
+        private IActionResult ProcessModelOperation(Dictionary<string, object> formData, bool isCreateOperation)
         {
             // Validate formData and create/update a model instance
             if (!formData.ContainsKey("modelType"))

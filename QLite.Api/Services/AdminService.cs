@@ -7,6 +7,8 @@ using System.Linq.Dynamic.Core;
 using System.Text.Json;
 using QLiteDataApi.Helpers;
 using QLiteDataApi.Context;
+using QLite.DesignComponents;
+using Newtonsoft.Json;
 
 namespace QLiteDataApi.Services
 {
@@ -28,6 +30,11 @@ namespace QLiteDataApi.Services
         bool RemoveFromSubList(string tabName, Type modelType, string modelOid, List<string> Oids);
 
         List<Desk> GetAllDesks();
+
+
+        Design GetDesign(Guid DesignID);
+
+        bool SaveDesign(Guid DesignID, DesPageData desPageData);
     }
     public class AdminService : IAdminService
     {
@@ -133,6 +140,13 @@ namespace QLiteDataApi.Services
             data = Model.SelectAndJoinQuery(data, innerType, innerViewType, _dbContext, optionalArguments);
 
             return data;
+        }
+
+
+        public Design GetDesign(Guid DesignID)
+        {
+            var Design = _dbContext.Designs.Where(d => d.Oid == DesignID && d.Gcrecord == null).FirstOrDefault();
+            return Design;
         }
 
         #endregion
@@ -245,6 +259,23 @@ namespace QLiteDataApi.Services
             // Return the updated model instance
             return existingEntity;
         }
+        public bool SaveDesign(Guid DesignID, DesPageData desPageData)
+        {
+            var designEntity = _dbContext.Designs.FirstOrDefault(d => d.Oid == DesignID);
+
+            if (designEntity != null)
+            {
+                var jsonData = JsonConvert.SerializeObject(desPageData);
+                designEntity.DesignData = jsonData;
+
+                _dbContext.Update(designEntity);
+                _dbContext.SaveChanges();
+
+                return true; // Indicate that the design was saved successfully
+            }
+
+            return false; // Indicate that the design was not found
+        }
 
 
         #endregion
@@ -263,7 +294,7 @@ namespace QLiteDataApi.Services
                 }
 
                 // Extract primary key values
-                var primaryKeyValues = JsonSerializer.Deserialize<List<string>>(oidJsonElement.ToString());
+                var primaryKeyValues = System.Text.Json.JsonSerializer.Deserialize<List<string>>(oidJsonElement.ToString());
 
                 // Get the DbSet for the specified model type
                 var dbSet = GetTypedDbSet(modelType);
@@ -309,13 +340,17 @@ namespace QLiteDataApi.Services
             return allSuccess;
         }
 
+     
+
 
 
 
 
 
         #endregion
-       
+
+
+
     }
 
 }

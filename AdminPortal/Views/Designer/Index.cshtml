@@ -1,0 +1,223 @@
+﻿@using QLite.DesignComponents;
+@model DesPageData
+
+
+@{
+    Layout = "_DesingerLayout.cshtml";
+
+}
+
+<!--begin::Container-->
+<div id="kt_content_container" class="container-xxl">
+
+    @if (Model != null && Model.Comps != null)
+    {
+        <div id="canvas-container" style="width: @(Model.Width ?? "800px"); height: @(Model.Height ?? "600px"); background-image: url('@(Model.BgImageUrl ?? "")'); background-size: contain; background-position: center; background-repeat: no-repeat;border: 1px solid black; margin-top: 10px;">
+            @foreach (var comp in Model.Comps)
+            {
+                @Html.Raw(RenderComponent(comp))
+            }
+        </div>
+
+    }
+    else
+    {
+        <div id="canvas-container" style="border: 1px solid black; margin-top: 10px; background-color: grey; background-size: contain; background-position: center; background-repeat: no-repeat;">
+        </div>
+
+    }
+</div>
+
+<!--end::Container-->
+@functions {
+    public string RenderComponent(DesCompData comp)
+    {
+        switch (comp)
+        {
+            case DesCompDataText textComp:
+                return RenderTextComponent(textComp);
+            case DesCompDataServiceButton buttonComp:
+                return RenderButtonComponent(buttonComp);
+            case DesCompDataServiceSelection selectionComp:
+                return RenderSelectionComponent(selectionComp);
+            case DesCompDataWfButton wfButtonComp:
+                return RenderWfButtonComponent(wfButtonComp);
+            case DesCompDataKeypadInput keypadComp:
+                return RenderKeypadInputComponent(keypadComp);
+            case DesCompDataSegment segmentComp:
+                return RenderSegmentComponent(segmentComp);
+            case DesCompDataAppointment appointmentComp:
+                return RenderAppointmentComponent(appointmentComp);
+            case DesCompDataGenericHtml htmlComp:
+                return RenderGenericHtmlComponent(htmlComp);
+            case DesCompDataFrame frameComp:
+                return RenderFrameComponent(frameComp);
+            case DesCompDataIDInput idInputComp:
+                return RenderIDInputComponent(idInputComp);
+            case DesCompDataLang langComp:
+                return RenderLangComponent(langComp);
+            // Add cases for other component types here
+            default:
+                return string.Empty; // Unknown component type
+        }
+    }
+
+    public string RenderTextComponent(DesCompDataText comp)
+    {
+        return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">{comp.Text}</div>";
+    }
+
+    public string RenderButtonComponent(DesCompDataServiceButton comp)
+    {
+        return $"<button style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">{comp.ButtonText}</button>";
+    }
+
+    public string RenderSelectionComponent(DesCompDataServiceSelection comp)
+    {
+        // Implement rendering for DesCompDataServiceSelection
+        return $"<select style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\"><option value=\"option1\">Option 1</option><option value=\"option2\">Option 2</option></select>";
+    }
+
+    public string RenderWfButtonComponent(DesCompDataWfButton comp)
+    {
+        string buttonText = comp.ButtonText;
+        string buttonType = comp.BtnType.ToString().ToLower();
+        return $"<button style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" type=\"{buttonType}\">{buttonText}</button>";
+    }
+
+    public string RenderKeypadInputComponent(DesCompDataKeypadInput comp)
+    {
+        // Implement rendering for DesCompDataKeypadInput
+        return $"<input type=\"text\" style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">";
+    }
+
+    public string RenderSegmentComponent(DesCompDataSegment comp)
+    {
+        // Implement rendering for DesCompDataSegment
+        return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">Segment: {comp.ButtonText}</div>";
+    }
+
+    public string RenderAppointmentComponent(DesCompDataAppointment comp)
+    {
+        // Implement rendering for DesCompDataAppointment
+        string operation = comp.Operation.ToString().ToLower();
+        return $"<button style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" type=\"button\">{operation} Appointment</button>";
+    }
+
+    public string RenderGenericHtmlComponent(DesCompDataGenericHtml comp)
+    {
+        // Implement rendering for DesCompDataGenericHtml
+        if (!string.IsNullOrEmpty(comp.fileURL))
+        {
+            if (comp.fileURL.EndsWith(".mp4") || comp.fileURL.EndsWith(".avi") || comp.fileURL.EndsWith(".webm"))
+            {
+                return $"<video style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" controls><source src=\"{comp.fileURL}\" type=\"video/mp4\"></video>";
+            }
+            else if (comp.fileURL.EndsWith(".png") || comp.fileURL.EndsWith(".jpg") || comp.fileURL.EndsWith(".jpeg") || comp.fileURL.EndsWith(".gif"))
+            {
+                return $"<img style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" src=\"{comp.fileURL}\" alt=\"Image\">";
+            }
+            else
+            {
+                return $"<a style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" href=\"{comp.fileURL}\" target=\"_blank\">Open file</a>";
+            }
+        }
+        else if (!string.IsNullOrEmpty(comp.YoutubeUrl))
+        {
+            return $"<iframe style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" width=\"560\" height=\"315\" src=\"{comp.YoutubeUrl}\" frameborder=\"0\" allowfullscreen></iframe>";
+        }
+        else
+        {
+            return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">No content available</div>";
+        }
+    }
+
+    public string RenderFrameComponent(DesCompDataFrame comp)
+    {
+        // Implement rendering for DesCompDataFrame
+        string designId = comp.DesignId;
+        string animation = comp.SlideAnimation ? "slide" : "none";
+        return $"<iframe style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" src=\"/Designer?DesignID={designId}\" scrolling=\"no\" frameborder=\"0\" allowfullscreen></iframe>";
+    }
+
+    public string RenderIDInputComponent(DesCompDataIDInput comp)
+    {
+        // Implement rendering for DesCompDataIDInput
+        return $"<input type=\"text\" style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">";
+    }
+
+    public string RenderLangComponent(DesCompDataLang comp)
+    {
+        // Implement rendering for DesCompDataLang
+        string logoUrl = comp.LogoURL;
+        string languageName = comp.LanguageName;
+        return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\"><img src=\"{logoUrl}\" alt=\"{languageName}\" title=\"{languageName}\"></div>";
+    }
+
+    // Add render methods for other component types here
+}
+
+
+<script>
+
+
+
+    // Function to update canvas size in the desPageData object
+    function updateCanvasSize() {
+        var widthSelect = document.getElementById('widthSelect');
+        var heightSelect = document.getElementById('heightSelect');
+        var selectedWidth = widthSelect.value + 'px';
+        var selectedHeight = heightSelect.value + 'px';
+        document.getElementById('canvas-container').style.width = selectedWidth;
+        document.getElementById('canvas-container').style.height = selectedHeight;
+
+        // Update desPageData properties
+        desPageData.Width = selectedWidth;
+        desPageData.Height = selectedHeight;
+    }
+
+    // Function to update background color in the desPageData object
+    function updateBackgroundColor() {
+        var colorPicker = document.getElementById('backgroundColor');
+        var selectedColor = colorPicker.value;
+        document.getElementById('canvas-container').style.backgroundColor = selectedColor;
+
+        // Update desPageData property
+        desPageData.BackGroundColor = selectedColor;
+    }
+
+    // Function to handle file upload and update BgImageUrl property in the desPageData object
+    document.getElementById('imageUpload').addEventListener('change', function (event) {
+        var file = event.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            document.getElementById('canvas-container').style.backgroundImage = 'url(' + event.target.result + ')';
+            // Update desPageData property
+            desPageData.BgImageUrl = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Event listeners for dropdown changes
+    document.getElementById('widthSelect').addEventListener('change', updateCanvasSize);
+    document.getElementById('heightSelect').addEventListener('change', updateCanvasSize);
+
+    // Event listener for color picker change
+    document.getElementById('backgroundColor').addEventListener('change', updateBackgroundColor);
+
+
+
+</script>
+
+
+
+
+          @*GuideLines*@
+<div class="guide-line-y guide-line">
+    <span style="opacity:0">y</span>
+    <span>x</span>
+</div>
+<div class="guide-line-x guide-line">
+    <span style="opacity:0">x</span>
+    <span>x</span>
+</div>

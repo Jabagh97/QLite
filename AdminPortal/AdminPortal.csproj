@@ -28,13 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
-
-    <Folder Include="wwwroot\assets\js\" />
     <Folder Include="wwwroot\JQuery\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\QLite.Data\QLite.Data.csproj" />
+    <ProjectReference Include="..\QLite.DesignComponents\QLite.DesignComponents.csproj" />
   </ItemGroup>
 
 </Project>
