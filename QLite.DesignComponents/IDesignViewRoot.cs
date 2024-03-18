@@ -96,6 +96,11 @@ namespace QLite.DesignComponents
         {
             get; set;
         }
+
+        public string CustomCss
+        {
+            get; set;
+        }
     }
 
 

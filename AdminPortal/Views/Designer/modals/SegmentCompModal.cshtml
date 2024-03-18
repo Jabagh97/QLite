@@ -2,78 +2,51 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="segmentModalLabel">Edit Segment</h5>
-
-                <!--begin::Close-->
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="ki-duotone ki-cross fs-2x"><span class="path1"></span><span class="path2"></span></i>
-                </div>
-                <!--end::Close-->
+                <h5 class="modal-title" id="segmentModalLabel">Edit Segment Button</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Segment Properties Form -->
                 <form id="segmentPropertiesForm">
-                    <!-- Text input for Button Text -->
-                    <div class="form-group">
-                        <label for="buttonText">Button Text</label>
+                    <div class="mb-3">
+                        <label for="buttonText" class="form-label">Button Text</label>
                         <input type="text" class="form-control" id="buttonText" placeholder="Enter button text">
                     </div>
-                    <!-- Dropdown for Segment ID -->
-                    <div class="form-group">
-                        <label for="segmentID">Segment ID</label>
-                        <select class="form-control" id="segmentID">
-                            <!-- Placeholder option -->
+                    <div class="mb-3">
+                        <label for="segmentID" class="form-label">Segment ID</label>
+                        <select class="form-select" id="segmentID">
                             <option value="'00000000-0000-0000-0000-000000000000'">Select Segment</option>
                         </select>
                     </div>
-                    <!-- Text input for padding -->
-                    <div class="form-group">
-                        <label for="padding">Padding</label>
-                        <input type="text" class="form-control" id="padding" placeholder="Enter padding">
+                    <div class="mb-3">
+                        <label for="cssCustom" class="form-label">Custom CSS</label>
+                        <textarea class="form-control" id="cssCustom" style="min-height: 150px; resize: vertical;" placeholder="Enter your custom CSS properties"></textarea>
                     </div>
-                    <!-- Text input for shape -->
-                    <div class="form-group">
-                        <label for="shape">Shape</label>
-                        <input type="text" class="form-control" id="shape" placeholder="Enter shape">
-                    </div>
-                    <!-- Text input for margin -->
-                    <div class="form-group">
-                        <label for="margin">Margin</label>
-                        <input type="text" class="form-control" id="margin" placeholder="Enter margin">
-                    </div>
-                    <!-- Text input for border -->
-                    <div class="form-group">
-                        <label for="border">Border</label>
-                        <input type="text" class="form-control" id="border" placeholder="Enter border">
-                    </div>
-                    <!-- Checkbox for Localized -->
-                    <div class="form-group form-check">
+                    <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="localized">
                         <label class="form-check-label" for="localized">Localized</label>
                     </div>
-                    <!-- Checkbox for Bounce -->
-                    <div class="form-group form-check">
+                    <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="bounce">
                         <label class="form-check-label" for="bounce">Bounce</label>
                     </div>
-                    <!-- Component ID -->
-
-                    <div class="form-group form-check">
+                    <div class="mb-3">
+                        <label for="compID" class="form-label">Component ID</label>
                         <input type="text" class="form-control" id="compID" disabled>
-                        <label class="form-check-label" for="bounce">Component ID</label>
                     </div>
-                </form>
 
+
+                </form>
             </div>
             <div class="modal-footer">
-                <!-- Delete button -->
                 <button type="button" class="btn btn-danger" id="deleteButton">Delete</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" onclick="saveSegmentProperties()">Save changes</button>
             </div>
         </div>
     </div>
 </div>
+
+
 <script src="~/JQuery/jquery-3.7.1.js"></script>
 
 <script>
@@ -110,43 +83,35 @@
         // Retrieve values from the form
         var buttonText = document.getElementById('buttonText').value;
         var segmentID = document.getElementById('segmentID').value;
-        var padding = document.getElementById('padding').value;
-        var shape = document.getElementById('shape').value;
-        var margin = document.getElementById('margin').value;
-        var border = document.getElementById('border').value;
         var localized = document.getElementById('localized').checked;
         var bounce = document.getElementById('bounce').checked;
+        var cssCustom = document.getElementById('cssCustom').value; 
         var compId = document.getElementById('compID').value;
-
         var compIndex = desPageData.Comps.findIndex(comp => comp.Id === compId);
 
         if (compIndex !== -1) {
             // Update desPageData list
             var comp = desPageData.Comps[compIndex];
-            if (!comp.buttonText) comp.ButtonText = buttonText;
-            if (!comp.segmentID) comp.SegmentID = segmentID;
-            if (!comp.padding) comp.Padding = padding;
-            if (!comp.shape) comp.Shape = shape;
-            if (!comp.margin) comp.Margin = margin;
-            if (!comp.border) comp.Border = border;
-            if (!comp.localized) comp.Localized = localized;
-            if (!comp.bounce) comp.Bounce = bounce;
+            if (!comp.ButtonText) comp.ButtonText = buttonText;
+            if (!comp.SegmentID) comp.SegmentID = segmentID;
+
+            if (!comp.Localized) comp.Localized = localized;
+            if (!comp.Bounce) comp.Bounce = bounce;
+            if (!comp.CustomCss) comp.CustomCss = cssCustom;
 
             // Apply changes to the HTML element
             var compElement = document.getElementById(compId);
             if (compElement) {
-                // compElement.textContent = comp.ButtonText;
-                compElement.style.padding = padding;
-                compElement.style.border = border;
-                compElement.style.margin = margin;
-                compElement.style.border = border;
-                // Update other properties as needed
+                // Split the custom CSS into individual rules
+                var cssRules = cssCustom.split(';');
+                cssRules.forEach(rule => {
+                    if (rule.trim() !== '') {
+                        var [property, value] = rule.split(':').map(item => item.trim());
+                        compElement.style[property] = value;
+                    }
+                });
             }
         }
-
-        console.log(comp);
-
-        // Optionally, close the modal
         $('#segmentModal').modal('hide');
     }
 

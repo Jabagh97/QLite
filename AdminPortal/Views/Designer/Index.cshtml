@@ -7,7 +7,7 @@
     Layout = "_DesingerLayout.cshtml";
 
 
-   
+
 
 }
 
@@ -34,7 +34,7 @@
                 BackGroundColor: "",
                 Comps: []
             };
-             var desPageData = @Html.Raw(JsonConvert.SerializeObject(Model, new DesCompJsonConverter()));
+            var desPageData = @Html.Raw(JsonConvert.SerializeObject(Model, new DesCompJsonConverter()));
 
             console.log(desPageData)
         </script>
@@ -77,12 +77,20 @@
         }
     }
 
-
     public string RenderSegmentComponent(DesCompDataSegment comp)
     {
+        string cssStyles = "";
 
-        return $"<button id=\"{comp.Id}\" data-comp-id=\"{comp.Id}\" data-x=\"{comp.PosX}\" data-y=\"{comp.PosY}\" class=\"resize-drag\" style=\"position: absolute; width:{comp.Width}; height:{comp.Height};  transform: translate({comp.PosX}, {comp.PosY}); \"> <div class=\"drag-icon\"></div><div class=\"panel-icon\" onclick=\"showModal('{comp.Id}')\"></div>{comp.ButtonText}</button>";
+        // Check if comp has CSS styles defined
+        if (!string.IsNullOrEmpty(comp.CustomCss))
+        {
+            // Append the custom CSS styles to the existing style attribute
+            cssStyles = comp.CustomCss;
+        }
+
+        return $"<button id=\"{comp.Id}\" data-comp-id=\"{comp.Id}\" data-x=\"{comp.PosX}\" data-y=\"{comp.PosY}\" class=\"resize-drag\" style=\"position: absolute; width:{comp.Width}; height:{comp.Height};  transform: translate({comp.PosX}, {comp.PosY}); {cssStyles}\"> <div class=\"drag-icon\"></div><div class=\"panel-icon\" onclick=\"showModal('{comp.Id}')\"></div>{comp.ButtonText}</button>";
     }
+
 
     public string RenderTextComponent(DesCompDataText comp)
     {
@@ -154,6 +162,9 @@
 
     // Add render methods for other component types here
 }
+
+
+
 <script src="~/js/DragAndDrop.js"></script>
 
 <script>
@@ -168,10 +179,7 @@
 
             $('#buttonText').val(component.ButtonText);
             $('#segmentID').val(component.SegmentID);
-            $('#padding').val(component.Padding);
-            $('#shape').val(component.Shape);
-            $('#margin').val(component.Margin);
-            $('#border').val(component.Border);
+            $('#cssCustom').val(component.CustomCss);
             $('#localized').prop('checked', component.Localized);
             $('#bounce').prop('checked', component.Bounce);
             $('#compID').val(compId);
