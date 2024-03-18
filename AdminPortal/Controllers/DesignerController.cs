@@ -35,14 +35,14 @@ namespace AdminPortal.Controllers
             return await GetDesignResponse<DesPageData>($"api/Admin/GetDesign/{DesignID}");
         }
 
+
         [HttpPost]
         [Route("Designer/SaveDesign/{DesignID}")]
-        public async Task<IActionResult> SaveDesign(Guid DesignID, [FromBody] DesPageData desPageData)
+        public async Task<IActionResult> SaveDesign(Guid DesignID, [FromBody] DesPageDataViewModel desPageData)
         {
-            // Serialize the design data to JSON
-            var jsonData = JsonConvert.SerializeObject(desPageData);
+            
+            var jsonData = JsonConvert.SerializeObject(new { desPageData.DesPageDataJson });
 
-            // Send a POST request to the Admin/SaveDesign endpoint
             var response = await _httpClient.PostAsync($"api/Admin/SaveDesign/{DesignID}", new StringContent(jsonData, Encoding.UTF8, "application/json"));
 
             if (response.IsSuccessStatusCode)
@@ -57,6 +57,31 @@ namespace AdminPortal.Controllers
             }
         }
 
+
+        [HttpGet]
+        public Task<IActionResult> GetSegmentList() =>
+           GetJsonResponse<List<Segment>>($"api/Admin/GetSegmentList");
+
+
+        [HttpGet]
+        public Task<IActionResult> GetServiceList() =>
+           GetJsonResponse<List<Segment>>($"api/Admin/GetServiceList");
+
+
+        private async Task<IActionResult> GetJsonResponse<T>(string endpoint)
+        {
+            var response = await _httpClient.GetAsync(endpoint);
+            if (response.IsSuccessStatusCode)
+            {
+                var responseData = await response.Content.ReadAsStringAsync();
+                T deserializedData = JsonConvert.DeserializeObject<T>(responseData);
+                return Ok(deserializedData);
+            }
+            else
+            {
+                return StatusCode((int)response.StatusCode, $"Failed to retrieve data");
+            }
+        }
         private async Task<T> GetDesignResponse<T>(string endpoint)
         {
             var response = await _httpClient.GetAsync(endpoint);
@@ -74,5 +99,5 @@ namespace AdminPortal.Controllers
     }
 
 
-
+   
 }

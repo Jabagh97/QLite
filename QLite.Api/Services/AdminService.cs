@@ -35,6 +35,13 @@ namespace QLiteDataApi.Services
         Design GetDesign(Guid DesignID);
 
         bool SaveDesign(Guid DesignID, DesPageData desPageData);
+
+
+        Task<List<Segment>> GetSegmentList();
+
+        Task<List<ServiceType>> GetServiceList();
+
+
     }
     public class AdminService : IAdminService
     {
@@ -148,6 +155,23 @@ namespace QLiteDataApi.Services
             var Design = _dbContext.Designs.Where(d => d.Oid == DesignID && d.Gcrecord == null).FirstOrDefault();
             return Design;
         }
+
+        public async Task<List<Segment>> GetSegmentList()
+        {
+            List<Segment> segments = await _dbContext.Segments
+                                            .Where(s => s.Gcrecord == null)
+                                            .ToListAsync();
+
+            return segments;
+        }
+
+        public async Task<List<ServiceType>> GetServiceList()
+        {
+            var services = await _dbContext.ServiceTypes.Where(s => s.Gcrecord == null).ToListAsync();
+
+            return services;
+        }
+
 
         #endregion
 
@@ -265,8 +289,9 @@ namespace QLiteDataApi.Services
 
             if (designEntity != null)
             {
-                var jsonData = JsonConvert.SerializeObject(desPageData);
-                designEntity.DesignData = jsonData;
+                var desPageDataTest = JsonConvert.SerializeObject(desPageData);
+
+                designEntity.DesignData = desPageDataTest;
 
                 _dbContext.Update(designEntity);
                 _dbContext.SaveChanges();
@@ -340,7 +365,8 @@ namespace QLiteDataApi.Services
             return allSuccess;
         }
 
-     
+
+
 
 
 

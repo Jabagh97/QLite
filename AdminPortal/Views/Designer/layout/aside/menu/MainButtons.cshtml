@@ -9,10 +9,10 @@
     <!--begin:Menu item-->
     <div class="menu-item">
         <!--begin:Menu link-->
-        <a class="menu-link active" href="?page=index" id="segmentButton">
+        <button class="menu-link active" id="segmentButton">
             <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
             <span class="menu-title">Segment</span>
-        </a>
+        </button>
         <!--end:Menu link-->
     </div>
     <!--end:Menu item--><!--begin:Menu item-->
@@ -31,25 +31,3 @@
     </div>
     <!--end:Menu item-->
 </div>
-<script>
-    document.getElementById('segmentButton').addEventListener('click', function (event) {
-        event.preventDefault(); // Prevent the default action of the link
-
-        // Create a new button element
-        var newButton = document.createElement('button');
-        newButton.textContent = 'Segment Button';
-        newButton.style.width = '100px'; // Set default width
-        newButton.style.height = '100px'; // Set default height
-        newButton.className = 'segment';
-       // Create a span element for the drag icon
-        var dragIcon = document.createElement('div');
-        dragIcon.className = 'drag-icon';
-        newButton.appendChild(dragIcon);
-
-      
-        // Append the new button to the canvas container
-        document.getElementById('canvas-container').appendChild(newButton);
-
-        dragAndDrop('segment');
-    });
-</script>

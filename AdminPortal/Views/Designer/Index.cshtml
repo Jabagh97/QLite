@@ -1,9 +1,13 @@
-﻿@using QLite.DesignComponents;
+﻿@using Newtonsoft.Json;
+@using QLite.DesignComponents;
 @model DesPageData
 
 
 @{
     Layout = "_DesingerLayout.cshtml";
+
+
+   
 
 }
 
@@ -18,7 +22,22 @@
                 @Html.Raw(RenderComponent(comp))
             }
         </div>
+        <script>
 
+            // Initialize a JavaScript object similar to DesPageData class
+            var desPageData = {
+                Name: "",
+                PosY: "",
+                Width: "",
+                Height: "",
+                BgImageUrl: "",
+                BackGroundColor: "",
+                Comps: []
+            };
+             var desPageData = @Html.Raw(JsonConvert.SerializeObject(Model, new DesCompJsonConverter()));
+
+            console.log(desPageData)
+        </script>
     }
     else
     {
@@ -38,28 +57,31 @@
                 return RenderTextComponent(textComp);
             case DesCompDataServiceButton buttonComp:
                 return RenderButtonComponent(buttonComp);
-            case DesCompDataServiceSelection selectionComp:
-                return RenderSelectionComponent(selectionComp);
+
             case DesCompDataWfButton wfButtonComp:
                 return RenderWfButtonComponent(wfButtonComp);
-            case DesCompDataKeypadInput keypadComp:
-                return RenderKeypadInputComponent(keypadComp);
+
             case DesCompDataSegment segmentComp:
                 return RenderSegmentComponent(segmentComp);
-            case DesCompDataAppointment appointmentComp:
-                return RenderAppointmentComponent(appointmentComp);
+
             case DesCompDataGenericHtml htmlComp:
                 return RenderGenericHtmlComponent(htmlComp);
             case DesCompDataFrame frameComp:
                 return RenderFrameComponent(frameComp);
-            case DesCompDataIDInput idInputComp:
-                return RenderIDInputComponent(idInputComp);
+
             case DesCompDataLang langComp:
                 return RenderLangComponent(langComp);
             // Add cases for other component types here
             default:
                 return string.Empty; // Unknown component type
         }
+    }
+
+
+    public string RenderSegmentComponent(DesCompDataSegment comp)
+    {
+
+        return $"<button id=\"{comp.Id}\" data-comp-id=\"{comp.Id}\" data-x=\"{comp.PosX}\" data-y=\"{comp.PosY}\" class=\"resize-drag\" style=\"position: absolute; width:{comp.Width}; height:{comp.Height};  transform: translate({comp.PosX}, {comp.PosY}); \"> <div class=\"drag-icon\"></div><div class=\"panel-icon\" onclick=\"showModal('{comp.Id}')\"></div>{comp.ButtonText}</button>";
     }
 
     public string RenderTextComponent(DesCompDataText comp)
@@ -83,25 +105,6 @@
         string buttonText = comp.ButtonText;
         string buttonType = comp.BtnType.ToString().ToLower();
         return $"<button style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" type=\"{buttonType}\">{buttonText}</button>";
-    }
-
-    public string RenderKeypadInputComponent(DesCompDataKeypadInput comp)
-    {
-        // Implement rendering for DesCompDataKeypadInput
-        return $"<input type=\"text\" style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">";
-    }
-
-    public string RenderSegmentComponent(DesCompDataSegment comp)
-    {
-        // Implement rendering for DesCompDataSegment
-        return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">Segment: {comp.ButtonText}</div>";
-    }
-
-    public string RenderAppointmentComponent(DesCompDataAppointment comp)
-    {
-        // Implement rendering for DesCompDataAppointment
-        string operation = comp.Operation.ToString().ToLower();
-        return $"<button style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" type=\"button\">{operation} Appointment</button>";
     }
 
     public string RenderGenericHtmlComponent(DesCompDataGenericHtml comp)
@@ -140,11 +143,6 @@
         return $"<iframe style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" src=\"/Designer?DesignID={designId}\" scrolling=\"no\" frameborder=\"0\" allowfullscreen></iframe>";
     }
 
-    public string RenderIDInputComponent(DesCompDataIDInput comp)
-    {
-        // Implement rendering for DesCompDataIDInput
-        return $"<input type=\"text\" style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">";
-    }
 
     public string RenderLangComponent(DesCompDataLang comp)
     {
@@ -156,59 +154,77 @@
 
     // Add render methods for other component types here
 }
-
+<script src="~/js/DragAndDrop.js"></script>
 
 <script>
+    dragAndDrop('resize-drag');
+    function showModal(compId) {
+        // Find the component with the given ID
+        var component = desPageData.Comps.find(comp => comp.Id === compId);
+
+        // Check if the component is found
+        if (component) {
+            // Populate the modal fields with the component's properties
+
+            $('#buttonText').val(component.ButtonText);
+            $('#segmentID').val(component.SegmentID);
+            $('#padding').val(component.Padding);
+            $('#shape').val(component.Shape);
+            $('#margin').val(component.Margin);
+            $('#border').val(component.Border);
+            $('#localized').prop('checked', component.Localized);
+            $('#bounce').prop('checked', component.Bounce);
+            $('#compID').val(compId);
+
+            // Show the modal
+            $('#segmentModal').modal('show');
+            // Handle delete button click
+            $('#deleteButton').click(function () {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'You will not be able to recover this component!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel!',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Remove the component from desPageData.Comps
+                        desPageData.Comps = desPageData.Comps.filter(comp => comp.Id !== compId);
+
+                        // Remove the HTML element associated with the component
+                        $('#' + compId).remove();
 
 
 
-    // Function to update canvas size in the desPageData object
-    function updateCanvasSize() {
-        var widthSelect = document.getElementById('widthSelect');
-        var heightSelect = document.getElementById('heightSelect');
-        var selectedWidth = widthSelect.value + 'px';
-        var selectedHeight = heightSelect.value + 'px';
-        document.getElementById('canvas-container').style.width = selectedWidth;
-        document.getElementById('canvas-container').style.height = selectedHeight;
+                        Swal.fire(
+                            'Deleted!',
+                            'The component has been deleted.',
+                            'success'
+                        );
 
-        // Update desPageData properties
-        desPageData.Width = selectedWidth;
-        desPageData.Height = selectedHeight;
+                        // Close the modal
+                        $('#segmentModal').modal('hide');
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire(
+                            'Cancelled',
+                            'Your component is safe :)',
+                            'error'
+                        );
+                    }
+                });
+            });
+        } else {
+            console.log('Component not found for ID:', compId);
+        }
+
     }
-
-    // Function to update background color in the desPageData object
-    function updateBackgroundColor() {
-        var colorPicker = document.getElementById('backgroundColor');
-        var selectedColor = colorPicker.value;
-        document.getElementById('canvas-container').style.backgroundColor = selectedColor;
-
-        // Update desPageData property
-        desPageData.BackGroundColor = selectedColor;
-    }
-
-    // Function to handle file upload and update BgImageUrl property in the desPageData object
-    document.getElementById('imageUpload').addEventListener('change', function (event) {
-        var file = event.target.files[0];
-        var reader = new FileReader();
-        reader.onload = function (event) {
-            document.getElementById('canvas-container').style.backgroundImage = 'url(' + event.target.result + ')';
-            // Update desPageData property
-            desPageData.BgImageUrl = event.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    // Event listeners for dropdown changes
-    document.getElementById('widthSelect').addEventListener('change', updateCanvasSize);
-    document.getElementById('heightSelect').addEventListener('change', updateCanvasSize);
-
-    // Event listener for color picker change
-    document.getElementById('backgroundColor').addEventListener('change', updateBackgroundColor);
-
-
-
 </script>
 
+
+
+<script src="~/js/Designer.js"></script>
 
 
 

@@ -103,7 +103,7 @@ function dragAndDrop(className) {
                 rect,
             } = event.modifiers[0].target.source
 
-            const canvasRect = document.getElementById('canvas-id').getBoundingClientRect()
+            const canvasRect = document.getElementById('canvas-container').getBoundingClientRect()
             const { x, y } = event.target.getBoundingClientRect()
 
             if (xModifier) {
@@ -143,14 +143,27 @@ function dragAndDrop(className) {
         target.setAttribute('data-x', x)
         target.setAttribute('data-y', y)
 
-
+        // Update the position in desPageData.Comps
+        var compId = target.getAttribute('data-comp-id');
+        if (compId) {
+            var compIndex = desPageData.Comps.findIndex(comp => comp.Id === compId);
+            if (compIndex !== -1) {
+                desPageData.Comps[compIndex].PosX = x + 'px';
+                desPageData.Comps[compIndex].PosY = y + 'px';
+                // Populate input fields if the component exists
+                document.getElementById('posXInput').value = x + 'px';
+                document.getElementById('posYInput').value = y + 'px';
+                document.getElementById('widthInput').value = desPageData.Comps[compIndex].Width;
+                document.getElementById('heightInput').value = desPageData.Comps[compIndex].Height;
+                document.getElementById('selectedComp').value = desPageData.Comps[compIndex].ButtonText;
+            }
+        }
 
         x = String(x)
         y = String(y)
 
 
 
-        // Call the C# callback function to send the change in position 
 
         targetId = target.getAttribute('id');
     }
@@ -190,11 +203,27 @@ function dragAndDrop(className) {
 
                             target.style.transform = 'translate(' + x + 'px,' + y + 'px)'
 
+                            // Update the position in desPageData.Comps
+                            var compId = target.getAttribute('data-comp-id');
+                            if (compId) {
+                                var compIndex = desPageData.Comps.findIndex(comp => comp.Id === compId);
+                                if (compIndex !== -1) {
+                                    desPageData.Comps[compIndex].Width = event.rect.width + 'px'
+                                    desPageData.Comps[compIndex].Height = event.rect.height + 'px'
+
+                                    document.getElementById('widthInput').value = desPageData.Comps[compIndex].Width;
+                                    document.getElementById('heightInput').value = desPageData.Comps[compIndex].Height;
+                                    document.getElementById('selectedComp').value = desPageData.Comps[compIndex].ButtonText;
+                                }
+                            }
+
                             target.setAttribute('data-x', x)
                             target.setAttribute('data-y', y)
                             x = String(x)
                             y = String(y)
 
+
+                           
 
                         }
                     },

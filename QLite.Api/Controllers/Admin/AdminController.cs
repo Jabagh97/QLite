@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using QLite.Data.Services;
 using QLite.DesignComponents;
 using QLiteDataApi.Constants;
@@ -260,9 +261,11 @@ namespace QLiteDataApi.Controllers.Admin
 
         [HttpPost]
         [Route("api/Admin/SaveDesign/{DesignID}")]
-        public IActionResult SaveDesign(Guid DesignID, [FromBody] DesPageData desPageData)
+        public IActionResult SaveDesign(Guid DesignID, [FromBody] DesPageDataViewModel jsonData)
         {
-            var saved = _dataService.SaveDesign(DesignID, desPageData);
+            DesPageData desPageDataTest = JsonConvert.DeserializeObject<DesPageData>(jsonData.DesPageDataJson);
+
+            var saved = _dataService.SaveDesign(DesignID, desPageDataTest);
 
             if (saved)
             {
@@ -277,6 +280,20 @@ namespace QLiteDataApi.Controllers.Admin
         }
 
 
+
+        [HttpGet("api/Admin/GetServiceList")]
+        public async Task<IActionResult> GetServiceList()
+        {
+            var services = await _dataService.GetServiceList();
+            return Ok(services);
+        }
+
+        [HttpGet("api/Admin/GetSegmentList")]
+        public async Task<IActionResult> GetSegmentList()
+        {
+            var segments = await _dataService.GetSegmentList();
+            return Ok(segments);
+        }
 
         #region Helpers
 

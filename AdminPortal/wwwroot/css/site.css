@@ -57,6 +57,17 @@ body {
     top: 0;
     left: 0;
 }
+
+.panel-icon {
+    background-image: url("../showprops.png");
+    width: 17px;
+    height: 17px;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 1;
+}
+
 .guide-line {
     pointer-events: none;
     background: red;

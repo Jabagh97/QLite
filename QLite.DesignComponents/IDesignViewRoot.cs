@@ -110,17 +110,6 @@ namespace QLite.DesignComponents
         }
     }
 
-    public enum WfButtonType
-    {
-        NEXT,
-        BACK,
-        CANCEL
-    }
-    public enum AppointmentOperation
-    {
-        Appointment,
-        NoAppointment,
-    }
     public class DesCompDataWfButton : DesCompData
     {
         public string ButtonText;
@@ -305,10 +294,26 @@ namespace QLite.DesignComponents
     }
 
 
+    public enum WfButtonType
+    {
+        NEXT,
+        BACK,
+        CANCEL
+    }
+    public enum AppointmentOperation
+    {
+        Appointment,
+        NoAppointment,
+    }
     public enum SysFuncs
     {
         Time12,
         Date,
         Time24
+    }
+
+    public class DesPageDataViewModel
+    {
+        public string DesPageDataJson { get; set; }
     }
 }
