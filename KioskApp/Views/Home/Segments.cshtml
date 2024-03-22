@@ -1,4 +1,5 @@
-﻿@using QLite.DesignComponents;
+﻿@using KioskApp.Helpers;
+@using QLite.DesignComponents;
 @using QLite.Data;
 @using System.Text;
 @model DesPageData
@@ -50,112 +51,21 @@ else
     {
         switch (comp)
         {
-            case DesCompDataText textComp:
-                return RenderTextComponent(textComp);
-
+         
 
             case DesCompDataWfButton wfButtonComp:
-                return RenderWfButtonComponent(wfButtonComp);
+                return ViewHelper.RenderWfButtonComponent(wfButtonComp);
 
             case DesCompDataSegment segmentComp:
-                return RenderSegmentComponent(segmentComp, segments);
+                return ViewHelper.RenderSegmentComponent(segmentComp, segments);
 
             case DesCompDataGenericHtml htmlComp:
-                return RenderGenericHtmlComponent(htmlComp);
+                return ViewHelper.RenderGenericHtmlComponent(htmlComp);
 
 
-            //case DesCompDataLang langComp:
-            //    return RenderLangComponent(langComp);
-            // Add cases for other component types here
             default:
                 return string.Empty; // Unknown component type
         }
     }
 
-    public string RenderSegmentComponent(DesCompDataSegment comp, List<Segment> segments)
-    {
-        // Check if comp's SegmentID exists in the segments list
-        if (segments == null || !segments.Any(seg => seg.Oid == comp.SegmentID))
-        {
-            return null; // or handle the case where SegmentID doesn't exist in segments
-        }
-
-        // Prepare CSS styles
-        string cssStyles = string.IsNullOrEmpty(comp.CustomCss) ? "" : comp.CustomCss;
-
-        // Construct the button HTML using StringBuilder
-        StringBuilder sb = new StringBuilder();
-        sb.Append($"<button id=\"{comp.Id}\" ");
-        sb.Append($"data-comp-id=\"{comp.Id}\" ");
-        sb.Append($"data-x=\"{comp.PosX}\" ");
-        sb.Append($"data-y=\"{comp.PosY}\" ");
-        sb.Append("class=\"resize-drag\" ");
-        sb.Append("style=\"position: absolute; ");
-        sb.AppendFormat("width:{0}; ", comp.Width);
-        sb.AppendFormat("height:{0}; ", comp.Height);
-        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
-        sb.Append(cssStyles);
-        sb.Append("\" onclick=\"loadServiceView('");
-        sb.Append(comp.SegmentID);
-        sb.Append("')\"> ");
-        sb.Append(comp.ButtonText);
-        sb.Append("</button>");
-
-        return sb.ToString();
-    }
-
-
-
-    public string RenderTextComponent(DesCompDataText comp)
-    {
-        return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">{comp.Text}</div>";
-    }
-
-
-    public string RenderWfButtonComponent(DesCompDataWfButton comp)
-    {
-        string buttonText = comp.ButtonText;
-        string buttonType = comp.BtnType.ToString().ToLower();
-        return $"<button style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" type=\"{buttonType}\">{buttonText}</button>";
-    }
-
-    public string RenderGenericHtmlComponent(DesCompDataGenericHtml comp)
-    {
-        // Implement rendering for DesCompDataGenericHtml
-        if (!string.IsNullOrEmpty(comp.fileURL))
-        {
-            if (comp.fileURL.EndsWith(".mp4") || comp.fileURL.EndsWith(".avi") || comp.fileURL.EndsWith(".webm"))
-            {
-                return $"<video style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" controls><source src=\"{comp.fileURL}\" type=\"video/mp4\"></video>";
-            }
-            else if (comp.fileURL.EndsWith(".png") || comp.fileURL.EndsWith(".jpg") || comp.fileURL.EndsWith(".jpeg") || comp.fileURL.EndsWith(".gif"))
-            {
-                return $"<img style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" src=\"{comp.fileURL}\" alt=\"Image\">";
-            }
-            else
-            {
-                return $"<a style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" href=\"{comp.fileURL}\" target=\"_blank\">Open file</a>";
-            }
-        }
-        else if (!string.IsNullOrEmpty(comp.YoutubeUrl))
-        {
-            return $"<iframe style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" width=\"560\" height=\"315\" src=\"{comp.YoutubeUrl}\" frameborder=\"0\" allowfullscreen></iframe>";
-        }
-        else
-        {
-            return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">No content available</div>";
-        }
-    }
-
-
-
-    //public string RenderLangComponent(DesCompDataLang comp)
-    //{
-    //    // Implement rendering for DesCompDataLang
-    //    //string logoUrl = comp.LogoURL;
-    //    string languageName = comp.LanguageName;
-    //    return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\"><img src=\"{logoUrl}\" alt=\"{languageName}\" title=\"{languageName}\"></div>";
-    //}
-
-    // Add render methods for other component types here
 }

@@ -505,7 +505,7 @@ function showModal(compId, buttonText, componentType) {
                     component.Text = 'Test Segment';
                     break;
                 default:
-                   
+
                     break;
             }
 
@@ -539,7 +539,7 @@ function showModal(compId, buttonText, componentType) {
                 case 4:
                 case '4':
                     $('#cssCustomField').show();
-                   
+
                 default:
                     // Handle default case
                     break;
@@ -561,7 +561,7 @@ function showModal(compId, buttonText, componentType) {
 
         }
 
-     
+
 
         // Perform additional actions if needed
         if (componentConfiguration.additionalActions) {
@@ -689,6 +689,12 @@ $('#saveComponentButton').click(function () {
         if (comp.DesCompType === 'DesCompDataFrame') {
             getDesignByID(comp.DesignId, comp.Id);
         }
+
+        if (comp.DesCompType === 'DesCompDataGenericHtml' && (comp.GenCompType === 2 || comp.GenCompType === '2')) {
+            var videoId = comp.YoutubeUrl.split('/').pop().split('?')[0];
+            $('#' + compId + '_frame').attr('src', comp.YoutubeUrl + '?controls=0&mute=1&showinfo=0&rel=0&autoplay=1&loop=1&playlist=' + videoId);
+        }
+
         if (comp.DesCompType !== 'DesCompDataText') {
             $('#' + compId + '_text').text(comp.ButtonText);
         }
@@ -814,7 +820,7 @@ document.getElementById('HtmlType').addEventListener('change', function () {
 
         case '4':
             $('#cssCustomField').show();
-           
+
             var compTextElement = document.getElementById(compId + '_text');
 
             compTextElement.textContent = Date.now();
@@ -822,8 +828,113 @@ document.getElementById('HtmlType').addEventListener('change', function () {
 
             break;
         default:
-           
+
             break;
     }
 });
 
+
+// Add click event listener to the button
+document.getElementById('popupButton').addEventListener('click', function () {
+    // Show Swal (SweetAlert) popup
+    Swal.fire({
+        title: 'CSS Properties',
+        html: `
+            <p>CSS (Cascading Style Sheets) is a styling language used for describing the presentation of a document written in HTML.</p>
+            <p>It consists of a set of rules applied to HTML elements to control their appearance.</p>
+            <h4>Common CSS Properties:</h4>
+            <ul>
+                <li><b>color:</b> Specifies the text color. Example: color: black;</li>
+                <li><b>font-size:</b> Sets the size of the font. Example: font-size: 16px;</li>
+                <li><b>background-color:</b> Defines the background color of an element. Example: background-color: #f0f0f0;</li>
+                <li><b>margin:</b> Controls the space around elements. Example: margin: 10px;</li>
+                <li><b>padding:</b> Specifies the space between the content and the border. Example: padding: 5px;</li>
+                <li><b>border:</b> Sets the border properties. Example: border: 1px solid #000;</li>
+                <li><b>text-align:</b> Aligns the text horizontally. Example: text-align: center;</li>
+                <li><b>display:</b> Defines how an element is displayed. Example: display: block;</li>
+                <li><b>font-family:</b> Specifies the font family for text. Example: font-family: Arial, sans-serif;</li>
+                <li><b>font-weight:</b> Sets the boldness of the font. Example: font-weight: bold;</li>
+                <li><b>text-decoration:</b> Adds decorations to text. Example: text-decoration: underline;</li>
+                <li><b>border-radius:</b> Defines the curvature of border corners. Example: border-radius: 5px;</li>
+                <li><b>box-shadow:</b> Adds shadows to elements. Example: box-shadow: 2px 2px 5px #888888;</li>
+            </ul>
+            <h4>Examples of Inline CSS Styles:</h4>
+            <p>color: black;</p>
+            <p>font-size: 25px;</p>
+            <p>background-color: #f0f0f0;</p>
+            <p>text-align: center;</p>
+            <p>margin: 10px;</p>
+            <p>padding: 5px;</p>
+            <p>border: 1px solid #000;</p>
+            <p>display: block;</p>
+            <p>font-family: Arial, sans-serif;</p>
+            <p>font-weight: bold;</p>
+            <p>text-decoration: underline;</p>
+            <p>border-radius: 5px;</p>
+            <p>box-shadow: 2px 2px 5px #888888;</p>
+            <p>For more CSS properties, you can refer to <a href="https://www.w3schools.com/cssref/index.php" target="_blank">W3Schools CSS Reference</a>.</p>
+        `,
+        icon: 'info',
+        confirmButtonText: 'OK',
+        customClass: {
+            popup: 'custom-popup-class'
+        }
+    });
+});
+
+
+
+
+
+
+/////////////////   ToolBar Methods  //////////////////////////
+document.getElementById('widthInput').addEventListener('change', function () {
+    var compId = $('#compID').val();
+    var compIndex = desPageData.Comps.findIndex(comp => comp.Id === compId);
+    if (compIndex === -1) {
+        console.error('Component not found in desPageData.Comps');
+        return;
+    }
+    var comp = desPageData.Comps[compIndex];
+
+    // Get the changed width value from the input field
+    var newWidth = $(this).val();
+
+    // Update the component's width
+    comp.Width = newWidth + (newWidth.includes('px') ? '' : 'px');
+
+    // Get the component element
+    var element = $('#' + compId)[0];
+
+    // Set the width of the element
+    element.style.width = newWidth + (newWidth.includes('px') ? '' : 'px');
+
+    // Set the data-x attribute of the element
+   // element.setAttribute('data-x', newWidth);
+});
+
+document.getElementById('heightInput').addEventListener('change', function () {
+
+    var compId = $('#compID').val();
+    var compIndex = desPageData.Comps.findIndex(comp => comp.Id === compId);
+    if (compIndex === -1) {
+        console.error('Component not found in desPageData.Comps');
+        return;
+    }
+    var comp = desPageData.Comps[compIndex];
+
+    // Get the changed width value from the input field
+    var newHeight = $(this).val();
+
+    // Update the component's width
+    comp.Height = newHeight + (newHeight.includes('px') ? '' : 'px');;
+
+    // Get the component element
+    var element = $('#' + compId)[0];
+
+    // Set the width of the element
+    element.style.height = newHeight + (newHeight.includes('px') ? '' : 'px');
+
+    // Set the data-x attribute of the element
+    //element.setAttribute('data-y', newHeight);
+});

@@ -156,6 +156,9 @@ function dragAndDrop(className) {
                 document.getElementById('widthInput').value = desPageData.Comps[compIndex].Width;
                 document.getElementById('heightInput').value = desPageData.Comps[compIndex].Height;
                 document.getElementById('selectedComp').value = desPageData.Comps[compIndex].ButtonText;
+
+                $('#compID').val(compId);
+
             }
         }
 
@@ -214,6 +217,9 @@ function dragAndDrop(className) {
                                     document.getElementById('widthInput').value = desPageData.Comps[compIndex].Width;
                                     document.getElementById('heightInput').value = desPageData.Comps[compIndex].Height;
                                     document.getElementById('selectedComp').value = desPageData.Comps[compIndex].ButtonText;
+
+                                    $('#compID').val(compId);
+
                                 }
                             }
 

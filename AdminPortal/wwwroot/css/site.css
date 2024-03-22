@@ -146,3 +146,14 @@ body {
             .custom-select .select-items div:hover {
                 background-color: #f1f1f1;
             }
+
+
+
+.custom-popup-class {
+    width: 600px; /* Adjust width as needed */
+    height: 600px; /* Adjust height as needed */
+}
+.swal2-container .swal2-html-container {
+
+    max-height :350px
+}

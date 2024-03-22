@@ -1,4 +1,5 @@
-﻿@using QLite.DesignComponents;
+﻿@using KioskApp.Helpers;
+@using QLite.DesignComponents;
 @using QLite.Data;
 @using System.Text;
 @model DesPageData
@@ -15,7 +16,7 @@
 
     <div id="canvas-container"
      style="
-         width: @(Model.Width ?? "100vw");
+        width: @(Model.Width ?? "100vw");
         height: @(Model.Height ?? "100vh");
         background-image: url('@(Model.BgImageUrl ?? "")');
         background-size: cover;
@@ -23,6 +24,30 @@
         background-repeat: no-repeat;
         border: 1px solid black;
             ">
+
+
+
+        <div id="content" 
+            style="
+        width: @(Model.Width ?? "100vw");
+        height: @(Model.Height ?? "100vh");
+        ">
+
+           
+
+
+            @foreach (var comp in Model.Comps)
+            {
+                @Html.Raw(RenderComponent(comp))
+            }
+
+        </div>
+
+     
+
+      
+        @*Errors*@
+
         <div id="connectionError" class="alert alert-danger mb-4" style="display: none;" role="alert">
             @KioskIndexModel.GetLanguage("Server is currently down. Please wait while we try to reconnect...")
         </div>
@@ -31,6 +56,48 @@
             @KioskIndexModel.GetLanguage("Kiosk is Not Registered to the system")
         </div>
 
+
+        <div id="Errors" style="display:none; font-family: Arial, sans-serif;">
+            <div id="divooo" style="text-align:center;">
+                <img src="~/media/ooo2.png" style="width: calc(15vw + 15vh);" />
+                <div style="margin-top: 20px;">
+                    <div id="Printer" style="display: inline-block; margin-right: 20px;">
+                        <img src="~/media/printerError.png" style="width: 100px; height: auto;" />
+                        <span id="PrinterStatus" style="display: block; font-weight: bold; margin-top: 10px;font-size: large;">Printer is disconnected</span>
+                    </div>
+                    <div id="Display" style="display: inline-block; margin-right: 20px;">
+                        <img src="~/media/displayError.png" style="width: 100px; height: auto;" />
+                        <span id="DisplayStatus" style="display: block; font-weight: bold; margin-top: 10px;font-size: large;">Display is disconnected</span>
+                    </div>
+                    <div id="Terminal" style="display: inline-block;">
+                        <img src="~/media/terminalError.png" style="width: 100px; height: auto;" />
+                        <span id="TerminalStatus" style="display: block; font-weight: bold; margin-top: 10px;font-size: large;">Terminal is disconnected</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="container d-flex flex-column justify-content-center align-items-center h-100">
+        <div id="connectionError" class="alert alert-danger mb-4" style="display: none;" role="alert">
+            @KioskIndexModel.GetLanguage("Server is currently down. Please wait while we try to reconnect...")
+        </div>
+
+
+
+        <div id="AuthError" class="alert alert-danger mb-4" style="display: none;" role="alert">
+            @KioskIndexModel.GetLanguage("Kiosk is Not Registered to the system")
+        </div>
+
+        <div id="loadingAnimation" class="text-center mb-4" style="display: none;">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p class="mt-2">Connecting to server...</p>
+        </div>
 
         <div id="content" style="display: none;">
             <div class="text-center">
@@ -68,77 +135,10 @@
                 </div>
             </div>
         </div>
-
-        @foreach (var comp in Model.Comps)
-        {
-            @Html.Raw(RenderComponent(comp))
-        }
     </div>
 }
-else
-{
-<div class="container d-flex flex-column justify-content-center align-items-center h-100">
-    <div id="connectionError" class="alert alert-danger mb-4" style="display: none;" role="alert">
-        @KioskIndexModel.GetLanguage("Server is currently down. Please wait while we try to reconnect...")
-    </div>
 
 
-
-    <div id="AuthError" class="alert alert-danger mb-4" style="display: none;" role="alert">
-        @KioskIndexModel.GetLanguage("Kiosk is Not Registered to the system")
-    </div>
-
-    <div id="loadingAnimation" class="text-center mb-4" style="display: none;">
-        <div class="spinner-border" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-        <p class="mt-2">Connecting to server...</p>
-    </div>
-
-    <div id="content" style="display: none;">
-        <div class="text-center">
-            <h1 class="display-4 mb-4" style="color:azure">
-                @KioskIndexModel.GetLanguage("Welcome")
-            </h1>
-            <div id="clock" style="font-size: calc(1vw + 1vh); color:azure">
-                @currentTime
-            </div>
-        </div>
-        <div id="pv" class="form-group" style="text-align:center;color:azure">
-
-            <div style="font-size: calc(2vw + 4vh); margin: 1%;">
-                @KioskIndexModel.GetLanguage("TouchToStart")
-            </div>
-        </div>
-    </div>
-
-    <div id="Errors" style="display:none; font-family: Arial, sans-serif;">
-        <div id="divooo" style="text-align:center;">
-            <img src="~/media/ooo2.png" style="width: calc(15vw + 15vh);" />
-            <div style="margin-top: 20px;">
-                <div id="Printer" style="display: inline-block; margin-right: 20px;">
-                    <img src="~/media/printerError.png" style="width: 100px; height: auto;" />
-                    <span id="PrinterStatus" style="display: block; font-weight: bold; margin-top: 10px;font-size: large;">Printer is disconnected</span>
-                </div>
-                <div id="Display" style="display: inline-block; margin-right: 20px;">
-                    <img src="~/media/displayError.png" style="width: 100px; height: auto;" />
-                    <span id="DisplayStatus" style="display: block; font-weight: bold; margin-top: 10px;font-size: large;">Display is disconnected</span>
-                </div>
-                <div id="Terminal" style="display: inline-block;">
-                    <img src="~/media/terminalError.png" style="width: 100px; height: auto;" />
-                    <span id="TerminalStatus" style="display: block; font-weight: bold; margin-top: 10px;font-size: large;">Terminal is disconnected</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-}
-
-
-<script>
-    var apiUrl = '@Configuration["APIBase"]';
-    var kioskID = '@Configuration["KioskID"]';
-</script>
 
 
 @functions {
@@ -146,67 +146,20 @@ else
     {
         switch (comp)
         {
-            case DesCompDataText textComp:
-                return RenderTextComponent(textComp);
+
 
 
             case DesCompDataGenericHtml htmlComp:
-                return RenderGenericHtmlComponent(htmlComp);
+                return ViewHelper.RenderGenericHtmlComponent(htmlComp);
 
 
-            //case DesCompDataLang langComp:
-            //    return RenderLangComponent(langComp);
-            // Add cases for other component types here
+
             default:
                 return string.Empty; // Unknown component type
         }
     }
-
-  
-
-    public string RenderTextComponent(DesCompDataText comp)
-    {
-        return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">{comp.Text}</div>";
-    }
-
-
-    public string RenderGenericHtmlComponent(DesCompDataGenericHtml comp)
-    {
-        // Implement rendering for DesCompDataGenericHtml
-        if (!string.IsNullOrEmpty(comp.fileURL))
-        {
-            if (comp.fileURL.EndsWith(".mp4") || comp.fileURL.EndsWith(".avi") || comp.fileURL.EndsWith(".webm"))
-            {
-                return $"<video style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" controls><source src=\"{comp.fileURL}\" type=\"video/mp4\"></video>";
-            }
-            else if (comp.fileURL.EndsWith(".png") || comp.fileURL.EndsWith(".jpg") || comp.fileURL.EndsWith(".jpeg") || comp.fileURL.EndsWith(".gif"))
-            {
-                return $"<img style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" src=\"{comp.fileURL}\" alt=\"Image\">";
-            }
-            else
-            {
-                return $"<a style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" href=\"{comp.fileURL}\" target=\"_blank\">Open file</a>";
-            }
-        }
-        else if (!string.IsNullOrEmpty(comp.YoutubeUrl))
-        {
-            return $"<iframe style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" width=\"560\" height=\"315\" src=\"{comp.YoutubeUrl}\" frameborder=\"0\" allowfullscreen></iframe>";
-        }
-        else
-        {
-            return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">No content available</div>";
-        }
-    }
-
-
-
-    //public string RenderLangComponent(DesCompDataLang comp)
-    //{
-    //    // Implement rendering for DesCompDataLang
-    //    string logoUrl = comp.LogoURL;
-    //    string languageName = comp.LanguageName;
-    //    return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\"><img src=\"{logoUrl}\" alt=\"{languageName}\" title=\"{languageName}\"></div>";
-    //}
-
-    // Add render methods for other component types here
 }
+<script>
+    var apiUrl = '@Configuration["APIBase"]';
+    var kioskID = '@Configuration["KioskID"]';
+</script>

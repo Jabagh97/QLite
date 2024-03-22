@@ -1,4 +1,5 @@
-﻿@using QLite.Data;
+﻿@using KioskApp.Helpers;
+@using QLite.Data;
 @using QLite.DesignComponents;
 @using System.Text;
 @model TicketAndDesPageDataViewModel
@@ -77,125 +78,18 @@ else
         switch (comp)
         {
             case DesCompDataText textComp:
-                return RenderTextComponent(textComp, ticket);
+                return ViewHelper.RenderTicketOrDisplayComponent(textComp, ticket);
 
             case DesCompDataGenericHtml htmlComp:
-                return RenderGenericHtmlComponent(htmlComp);
+                return ViewHelper.RenderGenericHtmlComponent(htmlComp);
 
             default:
-                return string.Empty; // Unknown component type
+                return string.Empty; 
         }
     }
 
-
-
-
-
-    public string RenderTextComponent(DesCompDataText comp, Ticket ticket)
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.Append($"<div id=\"{comp.Id}\" ");
-        sb.Append($"data-comp-id=\"{comp.Id}\" ");
-        sb.Append("class=\"resize-drag\" ");
-
-        sb.Append("style=\"position: absolute; ");
-        sb.AppendFormat("width:{0}; ", comp.Width);
-        sb.AppendFormat("height:{0}; ", comp.Height);
-        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
-        //sb.AppendFormat("top:{0}px; ", comp.PosY); // Add top property
-        //sb.AppendFormat("left:{0}px; ", comp.PosX); // Add left property
-        if (!string.IsNullOrEmpty(comp.CustomCss))
-        {
-            sb.Append(comp.CustomCss);
-        }
-
-        sb.Append("\"> ");
-        if (comp.InfoType == TicketInfoType.ServiceCode)
-        {
-            sb.Append(ticket.ServiceCode);
-
-        }
-        if (comp.InfoType == TicketInfoType.Number)
-        {
-            sb.Append(ticket.Number);
-
-        }
-        if (comp.InfoType == TicketInfoType.WaitingTickets)
-        {
-            sb.Append(ticket.WaitingTickets);
-
-        }
-        if (comp.InfoType == TicketInfoType.ServiceTypeName)
-        {
-            sb.Append(ticket.ServiceTypeName);
-
-        }
-        if (comp.InfoType == TicketInfoType.Segment)
-        {
-            sb.Append(ticket.SegmentName);
-
-        }
-        sb.Append("</div>");
-
-        return sb.ToString();
-    }
-
-
-
-    public string RenderGenericHtmlComponent(DesCompDataGenericHtml comp)
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.Append($"<div id=\"{comp.Id}\" ");
-        sb.Append($"data-comp-id=\"{comp.Id}\" ");
-        sb.Append("style=\"position: absolute;");
-        sb.AppendFormat("width:{0}; ", comp.Width);
-        sb.AppendFormat("height:{0}; ", comp.Height);
-        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
-
-
-        if (comp.GenCompType == HtmlCompType.Image)
-        {
-            // Apply additional styles for background image
-            sb.Append("background-image: url(");
-            sb.Append(comp.BgImageUrl);
-            sb.Append("); ");
-            sb.Append("background-size: cover; ");
-            sb.Append("background-position: center; ");
-            sb.Append("background-repeat: no-repeat; ");
-        }
-
-        if (!string.IsNullOrEmpty(comp.CustomCss))
-        {
-            sb.Append(comp.CustomCss);
-        }
-
-        sb.Append("\"> ");
-        if (comp.GenCompType == HtmlCompType.Text)
-        {
-            sb.Append(comp.ButtonText);
-
-        }
-
-        if (comp.GenCompType == HtmlCompType.Date)
-        {
-            sb.Append(DateTime.Now);
-
-        }
-        
-        sb.Append("</div>");
-
-        return sb.ToString();
-    }
 
 }
-
-
-
-
-
-
 
 
 
@@ -205,15 +99,15 @@ else
         var body = document.getElementById("ticket-body");
 
         //Apply the transition style to the ticket-body
-        //body.style.transition = "transform 3s ease-in-out";
+        body.style.transition = "transform 3s ease-in-out";
 
         // Animate the ticket-body sliding up
-        //body.style.transform = "translateY(+" + 1500 + "px)";
+        body.style.transform = "translateY(+" + 1500 + "px)";
 
         // After 2 seconds, redirect to the index page
         setTimeout(function () {
             window.location.href = '/';
-        }, 2000000);
+        }, 2000);
 
         var html = $("#ticketdiv").html();
 

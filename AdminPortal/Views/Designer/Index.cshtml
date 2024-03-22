@@ -54,6 +54,8 @@
 
         <div id="canvas-container"
          style="
+            width:800px;
+            height:800px;
             border: 1px solid black;
             margin-top: 10px;
             background-color: grey;
@@ -278,12 +280,27 @@
             sb.Append("background-repeat: no-repeat; ");
         }
 
+
+      
+
         if (!string.IsNullOrEmpty(comp.CustomCss))
         {
             sb.Append(comp.CustomCss);
         }
 
+
         sb.Append("\"> ");
+
+        if (comp.GenCompType == HtmlCompType.YoutubeVideo)
+        {
+            string videoId = comp.YoutubeUrl.Split("/").Last().Split("?").First();
+            // Build the iframe HTML string
+            sb.Append("<div style=\"position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;\">");
+            sb.Append($"<iframe id = {comp.Id}_frame style=\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;\"");
+            sb.Append($"src=\"{comp.YoutubeUrl}?controls=0&mute=1&showinfo=0&rel=0&autoplay=1&loop=1&playlist={videoId}\">");
+            sb.Append("</iframe>");
+            sb.Append("</div>");
+        }
         sb.Append($"<div id=\"{comp.Id}_text\">{comp.ButtonText}</div>");
 
         sb.Append("<div class=\"drag-icon\"></div>");
