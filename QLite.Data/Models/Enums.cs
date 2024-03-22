@@ -11,8 +11,8 @@ namespace QLite.Data.Models
 
         public enum KioskType
         {
-            Kiosk ,
-            Display ,
+            Kiosk,
+            Display,
         }
 
 
@@ -45,7 +45,7 @@ namespace QLite.Data.Models
         }
 
 
-       
+
 
 
         public enum QorchBusinessRole
@@ -145,7 +145,7 @@ namespace QLite.Data.Models
             SendToWaiting = 5
         }
 
-        
+
         public enum Parameter
         {
             PrimaryColor = 0,
@@ -164,15 +164,19 @@ namespace QLite.Data.Models
         public enum WfStep
         {
             ServiceTypeSelection = 0,
-            SelectLanguage = 1,
+            //SelectLanguage = 1,
             SegmentSelection = 2,
             PagePrint = 3,
-            PageNationalId = 4,
-            PageInputType = 5,
-            PageGeneric = 6,
-            PageCustomerNo = 7,
+            //PageNationalId = 4,
+            //PageInputType = 5,
+            //PageGeneric = 6,
+            //PageCustomerNo = 7,
+
+
 
             None = 8,
+
+            WelcomePage = 9
 
         }
 
@@ -183,7 +187,7 @@ namespace QLite.Data.Models
             AllTerminals = 2
         }
 
-      
+
 
         public enum MobilLoginState
         {

@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KioskApp", "KioskApp.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QLite.Data", "..\QLite.Data\QLite.Data.csproj", "{2F4B59CA-3E39-4779-814F-F4A732498E18}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QLite.DesignComponents", "..\QLite.DesignComponents\QLite.DesignComponents.csproj", "{8F20CCD8-E922-46E3-A951-6ACD57BCA05B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{2F4B59CA-3E39-4779-814F-F4A732498E18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F4B59CA-3E39-4779-814F-F4A732498E18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F4B59CA-3E39-4779-814F-F4A732498E18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F20CCD8-E922-46E3-A951-6ACD57BCA05B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F20CCD8-E922-46E3-A951-6ACD57BCA05B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F20CCD8-E922-46E3-A951-6ACD57BCA05B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F20CCD8-E922-46E3-A951-6ACD57BCA05B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

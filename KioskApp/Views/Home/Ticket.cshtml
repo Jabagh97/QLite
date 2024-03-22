@@ -1,55 +1,225 @@
 ﻿@using QLite.Data;
-@model Ticket
+@using QLite.DesignComponents;
+@using System.Text;
+@model TicketAndDesPageDataViewModel
 
-<div id="ticketdiv">
-    <div id="ticket-body" class="card card-dashed" style="font-size: 2rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);">
-    <div class="card-header">
-        <div class="d-flex justify-content-center align-items-center mb-3">
-            <img src="~/media/logos/qlogo.png" class="img-fluid" style="max-height: 40px; object-fit: contain;">
-        </div>
-        <h3 class="card-title"> @KioskIndexModel.GetLanguage("TicketInfo")</h3>
 
-    </div>
-    <div class="card-body">
-        <div class="font-weight-bold text-center mb-3">@Model?.ServiceTypeName</div>
-        <div class="font-weight-bold text-center mb-3" style="font-size: 40px;"><b>@Model?.ServiceCode@Model?.Number</b></div>
-        <div class="mb-3">
-            <table class="w-100">
-                <tr class="font-weight-bold">
-                    <td class="text-left pl-2">@DateTime.Now.ToString("dd/MM/yyyy")</td>
-                    <td class="text-right pr-2">@DateTime.Now.ToString("H:mm")</td>
-                </tr>
-            </table>
+@if (Model != null && Model.DesPageData != null && Model.DesPageData.Comps != null)
+{
+    <div style="display: flex; justify-content: center; align-items: center;">
+        <div id="ticketdiv" 
+            style="  
+            width: @(Model.DesPageData.Width ?? "450px");
+            height: @(Model.DesPageData.Height ?? "750px");">
+        
+            <div id="ticket-body"
+             style="
+            background-color: @(Model.DesPageData.BackGroundColor ?? "white");
+             width: @(Model.DesPageData.Width ?? "450px");
+            height: @(Model.DesPageData.Height ?? "750px");
+            background-image: url('@(Model.DesPageData.BgImageUrl ?? "")');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 1px solid black;
+            ">
+                @foreach (var comp in Model.DesPageData.Comps)
+                {
+                    @Html.Raw(RenderComponent(comp,Model.Ticket))
+                }
+
+            </div>
         </div>
-           </div>
-    <div class="card-footer">
-        <div class="font-weight-bold text-center mb-3">
-            @KioskIndexModel.GetLanguage("numberOfWaiting") : @Model?.WaitingTickets
-        </div> 
     </div>
-</div>
-</div>
+
+
+}
+else
+{
+    <div style="display: flex; justify-content: center; align-items: center;">
+
+        <div id="ticketdiv" style="width:450px;height:750px;">
+            <div id="ticket-body" class="card card-dashed" style="font-size: 2rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);">
+                <div class="card-header">
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <img src="~/media/Qlite-mini.png" class="img-fluid" style="max-height: 40px; object-fit: contain;">
+                    </div>
+                    <h3 class="card-title"> @KioskIndexModel.GetLanguage("TicketInfo")</h3>
+
+                </div>
+                <div class="card-body">
+                    <div class="font-weight-bold text-center mb-3">@Model?.Ticket.ServiceTypeName</div>
+                    <div class="font-weight-bold text-center mb-3" style="font-size: 40px;"><b>@Model?.Ticket.ServiceCode @Model?.Ticket?.Number</b></div>
+                    <div class="mb-3">
+                        <table class="w-100">
+                            <tr class="font-weight-bold">
+                                <td class="text-left pl-2">@DateTime.Now.ToString("dd/MM/yyyy")</td>
+                                <td class="text-right pr-2">@DateTime.Now.ToString("H:mm")</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="font-weight-bold text-center mb-3">
+                        @KioskIndexModel.GetLanguage("numberOfWaiting") :@Model?.Ticket.WaitingTickets
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+
+@functions {
+    public string RenderComponent(DesCompData comp, Ticket ticket)
+    {
+        switch (comp)
+        {
+            case DesCompDataText textComp:
+                return RenderTextComponent(textComp, ticket);
+
+            case DesCompDataGenericHtml htmlComp:
+                return RenderGenericHtmlComponent(htmlComp);
+
+            default:
+                return string.Empty; // Unknown component type
+        }
+    }
+
+
+
+
+
+    public string RenderTextComponent(DesCompDataText comp, Ticket ticket)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.Append($"<div id=\"{comp.Id}\" ");
+        sb.Append($"data-comp-id=\"{comp.Id}\" ");
+        sb.Append("class=\"resize-drag\" ");
+
+        sb.Append("style=\"position: absolute; ");
+        sb.AppendFormat("width:{0}; ", comp.Width);
+        sb.AppendFormat("height:{0}; ", comp.Height);
+        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+        //sb.AppendFormat("top:{0}px; ", comp.PosY); // Add top property
+        //sb.AppendFormat("left:{0}px; ", comp.PosX); // Add left property
+        if (!string.IsNullOrEmpty(comp.CustomCss))
+        {
+            sb.Append(comp.CustomCss);
+        }
+
+        sb.Append("\"> ");
+        if (comp.InfoType == TicketInfoType.ServiceCode)
+        {
+            sb.Append(ticket.ServiceCode);
+
+        }
+        if (comp.InfoType == TicketInfoType.Number)
+        {
+            sb.Append(ticket.Number);
+
+        }
+        if (comp.InfoType == TicketInfoType.WaitingTickets)
+        {
+            sb.Append(ticket.WaitingTickets);
+
+        }
+        if (comp.InfoType == TicketInfoType.ServiceTypeName)
+        {
+            sb.Append(ticket.ServiceTypeName);
+
+        }
+        if (comp.InfoType == TicketInfoType.Segment)
+        {
+            sb.Append(ticket.SegmentName);
+
+        }
+        sb.Append("</div>");
+
+        return sb.ToString();
+    }
+
+
+
+    public string RenderGenericHtmlComponent(DesCompDataGenericHtml comp)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.Append($"<div id=\"{comp.Id}\" ");
+        sb.Append($"data-comp-id=\"{comp.Id}\" ");
+        sb.Append("style=\"position: absolute;");
+        sb.AppendFormat("width:{0}; ", comp.Width);
+        sb.AppendFormat("height:{0}; ", comp.Height);
+        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+
+
+        if (comp.GenCompType == HtmlCompType.Image)
+        {
+            // Apply additional styles for background image
+            sb.Append("background-image: url(");
+            sb.Append(comp.BgImageUrl);
+            sb.Append("); ");
+            sb.Append("background-size: cover; ");
+            sb.Append("background-position: center; ");
+            sb.Append("background-repeat: no-repeat; ");
+        }
+
+        if (!string.IsNullOrEmpty(comp.CustomCss))
+        {
+            sb.Append(comp.CustomCss);
+        }
+
+        sb.Append("\"> ");
+        if (comp.GenCompType == HtmlCompType.Text)
+        {
+            sb.Append(comp.ButtonText);
+
+        }
+
+        if (comp.GenCompType == HtmlCompType.Date)
+        {
+            sb.Append(DateTime.Now);
+
+        }
+        
+        sb.Append("</div>");
+
+        return sb.ToString();
+    }
+
+}
+
+
+
+
+
+
+
+
+
 <script>
     // Wait for the DOM to be fully loaded
     $(document).ready(function () {
         var body = document.getElementById("ticket-body");
 
-         //Apply the transition style to the ticket-body
-        body.style.transition = "transform 2s ease-in-out";
+        //Apply the transition style to the ticket-body
+        //body.style.transition = "transform 3s ease-in-out";
 
         // Animate the ticket-body sliding up
-        body.style.transform = "translateY(+" + 1500 + "px)";
+        //body.style.transform = "translateY(+" + 1500 + "px)";
 
         // After 2 seconds, redirect to the index page
         setTimeout(function () {
             window.location.href = '/';
-        }, 2000);
+        }, 2000000);
 
         var html = $("#ticketdiv").html();
 
         PrintTicket(html);
 
-   
+
 
     });
 </script>

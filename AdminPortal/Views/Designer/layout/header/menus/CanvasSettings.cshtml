@@ -1,31 +1,52 @@
 ﻿<div class="row mb-4">
-    <div class="col-md-4">
+    <div class="col-md-4 mb-3">
         <label for="widthSelect" class="form-label">Width:</label>
         <div class="kt-select2">
             <select id="widthSelect" class="form-select kt-select2">
-                <option value="800">800px</option>
-                <option value="1024">1024px</option>
-                <option value="1280">1280px</option>
+                <option value="450px">450px</option>
+
+                <option value="600px">600px</option>
+                <option value="768px">768px</option>
+                <option value="1024px">1024px</option>
+                <option value="1080px">1080px</option>
+                <option value="1920px">1920px</option>
+                <option value="100vw">Full Width</option>
+
                 <!-- Add more options as needed -->
             </select>
         </div>
     </div>
-    <div class="col-md-4">
+
+    <div class="col-md-4 mb-3">
         <label for="heightSelect" class="form-label">Height:</label>
         <div class="kt-select2">
             <select id="heightSelect" class="form-select kt-select2">
-                <option value="600">600px</option>
-                <option value="768">768px</option>
-                <option value="960">960px</option>
+                <option value="750px">750px</option>
+
+                <option value="1024px">1024px</option>
+                <option value="1080px">1080px</option>
+                <option value="1280px">1280px</option>
+                <option value="1920px">1920px</option>
+                <option value="100vh">Full Height</option>
+
                 <!-- Add more options as needed -->
             </select>
         </div>
     </div>
-    <div class="col-md-4">
+
+    <div class="col-md-4 mb-3">
         <label for="backgroundColor" class="form-label">Background Color:</label>
         <input type="text" class="form-control" id="backgroundColor" value="#ffffff">
     </div>
 </div>
+
+<div class="row mb-4">
+    <div class="col-md-12 mb-3">
+        <label for="canvasCssCustom" class="form-label">Custom CSS</label>
+        <textarea class="form-control" id="canvasCssCustom" style="min-height: 150px; resize: vertical;" placeholder="Enter your custom CSS properties"></textarea>
+    </div>
+</div>
+
 <div class="row mb-4">
     <div class="col-md-12">
         <label for="imageUpload" class="form-label">Upload Background Image:</label>

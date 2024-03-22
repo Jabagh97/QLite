@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QLite.Data;
 using QLite.Data.Dtos;
+using QLite.DesignComponents;
 using QLiteDataApi.Context;
 using static QLite.Data.Models.Enums;
 
@@ -14,6 +15,8 @@ namespace QLiteDataApi.Services
         List<Segment> GetSegments();
 
         List<Kiosk> GetKioskByHwID(string HwId);
+
+        Task<Design> GetDesignByKiosk(string Step, string HwID);
 
     }
     public class KioskService : IKioskService
@@ -261,7 +264,40 @@ namespace QLiteDataApi.Services
             return kiosk;
         }
 
-        
+        public async Task<Design> GetDesignByKiosk(string Step, string HwID)
+        {
+            var kiosk = await _context.Kiosks.FirstOrDefaultAsync(k => k.HwId == HwID);
+
+            if (kiosk == null)
+            {
+                return null;
+            }
+            if (!Enum.TryParse(Step, out WfStep wfStep))
+            {
+                // Handle invalid step value here, perhaps return null or throw an exception
+                return null;
+            }
+            // Left join DesignTargets with Designs
+            var targetsWithDesigns = await (
+                from target in _context.DesignTargets
+                join design in _context.Designs
+                    on target.Design equals design.Oid into designGroup
+                from d in designGroup.DefaultIfEmpty() // Left join
+                where target.Kiosk == kiosk.Oid
+                select new { Target = target, Design = d }
+            ).ToListAsync();
+
+            // Filter the results based on the provided Step
+            var targetWithDesign = targetsWithDesigns.FirstOrDefault(td => td.Design != null && td.Design.WfStep == (int)wfStep);
+
+            if (targetWithDesign != null)
+            {
+                return targetWithDesign.Design;
+            }
+
+            return null;
+        }
+
 
 
     }

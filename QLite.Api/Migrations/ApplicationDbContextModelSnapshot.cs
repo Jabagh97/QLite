@@ -290,6 +290,9 @@ namespace QLiteDataApi.Migrations
                     b.Property<string>("DesignData")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("DesignImage")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("DesignTag")
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
@@ -323,6 +326,8 @@ namespace QLiteDataApi.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Oid");
+
+                    b.HasIndex(new[] { "Account" }, "iAccount_Design");
 
                     b.HasIndex(new[] { "Gcrecord" }, "iGCRecord_Design");
 
@@ -375,9 +380,15 @@ namespace QLiteDataApi.Migrations
 
                     b.HasKey("Oid");
 
+                    b.HasIndex(new[] { "Account" }, "iAccount_DesignTarget");
+
+                    b.HasIndex(new[] { "Branch" }, "iBranch_DesignTarget");
+
                     b.HasIndex(new[] { "Design" }, "iDesign_DesignTarget");
 
                     b.HasIndex(new[] { "Gcrecord" }, "iGCRecord_DesignTarget");
+
+                    b.HasIndex(new[] { "Kiosk" }, "iKiosk_DesignTarget");
 
                     b.ToTable("DesignTarget", (string)null);
                 });
@@ -2140,14 +2151,45 @@ namespace QLiteDataApi.Migrations
                     b.Navigation("TicketPoolProfileNavigation");
                 });
 
+            modelBuilder.Entity("QLite.Data.Design", b =>
+                {
+                    b.HasOne("QLite.Data.Account", "AccountNavigation")
+                        .WithMany("Designs")
+                        .HasForeignKey("Account")
+                        .HasConstraintName("FK_Design_Account");
+
+                    b.Navigation("AccountNavigation");
+                });
+
             modelBuilder.Entity("QLite.Data.DesignTarget", b =>
                 {
+                    b.HasOne("QLite.Data.Account", "AccountNavigation")
+                        .WithMany("DesignTargets")
+                        .HasForeignKey("Account")
+                        .HasConstraintName("FK_DesignTarget_Account");
+
+                    b.HasOne("QLite.Data.Branch", "BranchNavigation")
+                        .WithMany("DesignTargets")
+                        .HasForeignKey("Branch")
+                        .HasConstraintName("FK_DesignTarget_Branch");
+
                     b.HasOne("QLite.Data.Design", "DesignNavigation")
                         .WithMany("DesignTargets")
                         .HasForeignKey("Design")
                         .HasConstraintName("FK_DesignTarget_Design");
 
+                    b.HasOne("QLite.Data.Kiosk", "KioskNavigation")
+                        .WithMany("DesignTargets")
+                        .HasForeignKey("Kiosk")
+                        .HasConstraintName("FK_DesignTarget_Kiosk");
+
+                    b.Navigation("AccountNavigation");
+
+                    b.Navigation("BranchNavigation");
+
                     b.Navigation("DesignNavigation");
+
+                    b.Navigation("KioskNavigation");
                 });
 
             modelBuilder.Entity("QLite.Data.Desk", b =>
@@ -2612,6 +2654,10 @@ namespace QLiteDataApi.Migrations
 
                     b.Navigation("Branches");
 
+                    b.Navigation("DesignTargets");
+
+                    b.Navigation("Designs");
+
                     b.Navigation("DeskMacroSchedules");
 
                     b.Navigation("Desks");
@@ -2637,6 +2683,8 @@ namespace QLiteDataApi.Migrations
 
             modelBuilder.Entity("QLite.Data.Branch", b =>
                 {
+                    b.Navigation("DesignTargets");
+
                     b.Navigation("DeskCreatableServices");
 
                     b.Navigation("DeskMacroSchedules");
@@ -2694,6 +2742,8 @@ namespace QLiteDataApi.Migrations
 
             modelBuilder.Entity("QLite.Data.Kiosk", b =>
                 {
+                    b.Navigation("DesignTargets");
+
                     b.Navigation("Desks");
 
                     b.Navigation("KappRelationChildNavigations");

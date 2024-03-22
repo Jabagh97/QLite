@@ -7,55 +7,37 @@ using Quavis.QorchLite.Hwlib.Display;
 using Quavis.QorchLite.Hwlib.Printer;
 using System.Security.Cryptography;
 using KioskApp.Helpers;
+using QLite.DesignComponents;
+using KioskApp.Services;
+using QLite.Data.CommonContext;
+
 namespace KioskApp.Controllers
 {
     public class TicketController : Controller
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
         HwManager _hwman;
+        private readonly HttpService _httpService;
 
-        public TicketController(IHttpContextAccessor httpContextAccessor, HwManager hwman)
+        public TicketController(HttpService httpService, HwManager hwman)
         {
-            _httpContextAccessor = httpContextAccessor;
+            _httpService = httpService;
+
             _hwman = hwman;
 
 
         }
-        public IActionResult Index(string ticketJson)
-        {
-            try
-            {
-                Ticket ticket = JsonConvert.DeserializeObject<Ticket>(ticketJson);
+      
 
-                ISession session = _httpContextAccessor.HttpContext.Session;
-                string startTimeString = session.GetString("StartTime");
-                string segmentIdString = session.GetString("Segment");
-
-                // Do whatever you need to do with the ticket object
-                // For example, pass it to a view
-                return PartialView("Views/Home/Ticket.cshtml", ticket);
-            }
-            catch (JsonException ex)
-            {
-                // Handle JSON parsing errors
-                return StatusCode(400, $"JSON parsing error: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                // Handle other exceptions
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
 
         [HttpPost]
         public IActionResult PrintTicket([FromBody] TicketViewModel viewModel)
         {
             try
             {
-                var html = Helpers.Helpers.PrepareTicket(viewModel.Html);
+                //var html = Helpers.Helpers.PrepareTicket(viewModel.Html);
 
              
-                _hwman.Print(html);
+                _hwman.Print(viewModel.Html);
 
                 return Ok("Print successful");
             }
@@ -81,6 +63,8 @@ namespace KioskApp.Controllers
                 return StatusCode(500, $"Printing failed: {ex.Message}");
             }
         }
+
+      
     }
 }
 public class TicketViewModel

@@ -40,22 +40,43 @@ namespace AdminPortal.Controllers
         [Route("Designer/SaveDesign/{DesignID}")]
         public async Task<IActionResult> SaveDesign(Guid DesignID, [FromBody] DesPageDataViewModel desPageData)
         {
-            
-            var jsonData = JsonConvert.SerializeObject(new { desPageData.DesPageDataJson });
-
-            var response = await _httpClient.PostAsync($"api/Admin/SaveDesign/{DesignID}", new StringContent(jsonData, Encoding.UTF8, "application/json"));
+            var response = await _httpClient.PostAsync($"api/Admin/SaveDesign/{DesignID}", new StringContent(JsonConvert.SerializeObject(desPageData), Encoding.UTF8, "application/json"));
 
             if (response.IsSuccessStatusCode)
             {
-                // Design data saved successfully
                 return Ok("Design saved successfully");
             }
             else
             {
-                // Failed to save design data
                 return StatusCode((int)response.StatusCode, "Failed to save design");
             }
         }
+
+
+
+        [HttpGet]
+        [Route("Designer/GetDesignImageByID/{DesignID}")]
+
+        public async Task<IActionResult> GetDesignImageByID(Guid DesignID)
+       
+         {
+            var response = await _httpClient.GetAsync($"api/Admin/GetDesignImageByID/{DesignID}");
+            if (response.IsSuccessStatusCode)
+            {
+                var responseData = await response.Content.ReadAsStringAsync();
+      
+                return Ok(responseData);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+
+        [HttpGet]
+        public Task<IActionResult> GetDesignList() =>
+          GetJsonResponse<List<Design>>($"api/Admin/GetDesignList");
 
 
         [HttpGet]
@@ -65,7 +86,7 @@ namespace AdminPortal.Controllers
 
         [HttpGet]
         public Task<IActionResult> GetServiceList() =>
-           GetJsonResponse<List<Segment>>($"api/Admin/GetServiceList");
+           GetJsonResponse<List<ServiceType>>($"api/Admin/GetServiceList");
 
 
         private async Task<IActionResult> GetJsonResponse<T>(string endpoint)

@@ -34,14 +34,15 @@ namespace QLiteDataApi.Services
 
         Design GetDesign(Guid DesignID);
 
-        bool SaveDesign(Guid DesignID, DesPageData desPageData);
+        bool SaveDesign(Guid DesignID, DesPageData desPageData,string designImage);
 
 
         Task<List<Segment>> GetSegmentList();
 
         Task<List<ServiceType>> GetServiceList();
 
-
+        Task<List<Design>> GetDesignList();
+        Task<string>GetDesignImageByID(Guid designID);
     }
     public class AdminService : IAdminService
     {
@@ -156,6 +157,11 @@ namespace QLiteDataApi.Services
             return Design;
         }
 
+        public async Task<List<Design>> GetDesignList()
+        {
+            var Designs = await _dbContext.Designs.Where(d=>d.Gcrecord == null).ToListAsync();
+            return Designs;
+        }
         public async Task<List<Segment>> GetSegmentList()
         {
             List<Segment> segments = await _dbContext.Segments
@@ -283,7 +289,7 @@ namespace QLiteDataApi.Services
             // Return the updated model instance
             return existingEntity;
         }
-        public bool SaveDesign(Guid DesignID, DesPageData desPageData)
+        public bool SaveDesign(Guid DesignID, DesPageData desPageData, string designImage)
         {
             var designEntity = _dbContext.Designs.FirstOrDefault(d => d.Oid == DesignID);
 
@@ -292,6 +298,7 @@ namespace QLiteDataApi.Services
                 var desPageDataTest = JsonConvert.SerializeObject(desPageData);
 
                 designEntity.DesignData = desPageDataTest;
+                designEntity.DesignImage= designImage;
 
                 _dbContext.Update(designEntity);
                 _dbContext.SaveChanges();
@@ -365,11 +372,13 @@ namespace QLiteDataApi.Services
             return allSuccess;
         }
 
+        public async Task<string> GetDesignImageByID(Guid designID)
+        {
+            Design design = await _dbContext.Designs.Where(d=>d.Oid == designID && d.Gcrecord == null).FirstOrDefaultAsync();
 
 
-
-
-
+            return design.DesignImage;
+        }
 
 
 

@@ -1,7 +1,4 @@
-﻿using NPoco.FluentMappings;
-using System.Drawing;
-
-namespace KioskApp.Helpers
+﻿namespace KioskApp.Helpers
 {
     public static class Helpers
     {

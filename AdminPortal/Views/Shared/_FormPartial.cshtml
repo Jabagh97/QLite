@@ -73,7 +73,7 @@
         var isEnum = viewModelProperty?.GetCustomAttribute<EnumAttribute>() != null;
         var isIcon = viewModelProperty?.GetCustomAttribute<IconAttribute>() != null;
         var isNonEditable = viewModelProperty?.GetCustomAttribute<NonEditableAttribute>() != null;
-        var isHidden = viewModelProperty?.GetCustomAttribute<NotForTableAttribute>() != null;
+       // var isHidden = viewModelProperty?.GetCustomAttribute<NotForTableAttribute>() != null;
         var isDesign = viewModelProperty?.GetCustomAttribute<DesignAttribute>()  != null;
 
         var isDropDown = (Model.DropDowns?.ContainsKey(property.Name) ?? false);
@@ -109,8 +109,8 @@
             case bool _ when isEnum:
                 return RenderEnumInput(property, viewModelProperty, formDataValue, propertyToLower);
 
-            case bool _ when isHidden:
-                return "";
+            //case bool _ when isHidden:
+            //    return "";
 
             case bool _ when isDropDown:
                 return RenderDropDown(property, propertyToLower, formDataValue);
@@ -118,7 +118,7 @@
             case bool _ when isDesign && Model.Action == "Edit":
                 var oidProperty = Model.FilteredProperties.FirstOrDefault(p => p.Name == "Oid");
                 var oid = GetValue(oidProperty);
-             
+
                 var url = Url.Action("Index", "Designer", new { DesignID = oid });
                 return $"<a href=\"{url}\" target=\"_blank\">Lunch Designer</a>";
 
@@ -200,13 +200,24 @@
         var hiddenInputId = $"{propertyName}HiddenInput";
 
         var sb = new StringBuilder();
-        sb.AppendLine("<div class=\"custom-file\">");
-        sb.AppendLine($"<input type=\"file\" class=\"custom-file-input\" id=\"{fileInputId}\" accept=\"image/*\" onchange=\"handleFileSelect('{propertyName}', '{fileInputId}')\">");
-        sb.AppendLine("</div>");
+
+        if (!property.Name.Equals("DesignImage"))
+        {
+            sb.AppendLine("<div class=\"custom-file\">");
+            sb.AppendLine($"<input type=\"file\" class=\"custom-file-input\" id=\"{fileInputId}\" accept=\"image/*\" onchange=\"handleFileSelect('{propertyName}', '{fileInputId}')\">");
+            sb.AppendLine("</div>");
+        }
 
         if (!string.IsNullOrEmpty(value))
         {
-            sb.AppendLine($"<img id=\"{previewId}\" style=\"width: 50%; max-height: 10rem; margin-top: 5px;\" src=\"data:image/jpg;base64,{value}\" alt=\"{propertyName}\" />");
+            if (value.StartsWith("data:image"))
+            {
+                sb.AppendLine($"<img id=\"{previewId}\" style=\"width: 50%; max-height: 35rem; margin-top: 5px;\" src=\"{value}\" alt=\"{propertyName}\" />");
+            }
+            else
+            {
+                sb.AppendLine($"<img id=\"{previewId}\" style=\"width: 50%; max-height: 10rem; margin-top: 5px;\" src=\"data:image/jpg;base64,{value}\" alt=\"{propertyName}\" />");
+            }
         }
         else
         {

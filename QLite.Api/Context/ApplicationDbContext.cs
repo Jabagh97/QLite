@@ -238,6 +238,8 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("Design");
 
+            entity.HasIndex(e => e.Account, "iAccount_Design");
+
             entity.HasIndex(e => e.Gcrecord, "iGCRecord_Design");
 
             entity.Property(e => e.Oid).ValueGeneratedNever();
@@ -251,6 +253,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.ModifiedDateUtc).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.WfStep).HasMaxLength(100);
+
+            entity.HasOne(d => d.AccountNavigation).WithMany(p => p.Designs)
+               .HasForeignKey(d => d.Account)
+               .HasConstraintName("FK_Design_Account");
         });
 
         modelBuilder.Entity<DesignTarget>(entity =>
@@ -258,8 +264,12 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => e.Oid);
 
             entity.ToTable("DesignTarget");
-
             entity.HasIndex(e => e.Design, "iDesign_DesignTarget");
+
+            entity.HasIndex(e => e.Account, "iAccount_DesignTarget");
+            entity.HasIndex(e => e.Branch, "iBranch_DesignTarget");
+            entity.HasIndex(e => e.Kiosk, "iKiosk_DesignTarget");
+
 
             entity.HasIndex(e => e.Gcrecord, "iGCRecord_DesignTarget");
 
@@ -275,6 +285,18 @@ public partial class ApplicationDbContext : DbContext
             entity.HasOne(d => d.DesignNavigation).WithMany(p => p.DesignTargets)
                 .HasForeignKey(d => d.Design)
                 .HasConstraintName("FK_DesignTarget_Design");
+
+            entity.HasOne(d => d.AccountNavigation).WithMany(p => p.DesignTargets)
+                .HasForeignKey(d => d.Account)
+                .HasConstraintName("FK_DesignTarget_Account");
+
+            entity.HasOne(d => d.BranchNavigation).WithMany(p => p.DesignTargets)
+                .HasForeignKey(d => d.Branch)
+                .HasConstraintName("FK_DesignTarget_Branch");
+
+            entity.HasOne(d => d.KioskNavigation).WithMany(p => p.DesignTargets)
+                .HasForeignKey(d => d.Kiosk)
+                .HasConstraintName("FK_DesignTarget_Kiosk");
         });
 
         modelBuilder.Entity<Desk>(entity =>

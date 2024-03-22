@@ -36,11 +36,12 @@ namespace KioskApp
                 hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(20);
             });
 
+            
             services.AddSession();
 
             services.AddControllersWithViews();
-            services.AddHttpClient();
-          
+            services.AddHttpClient<HttpService>();
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

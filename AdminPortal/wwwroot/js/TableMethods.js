@@ -49,7 +49,11 @@ function initializeDataTable(modelName, columnDefinitions) {
         table = dt.$;
     }
 
-
+    // Double-click event listener on rows
+    $('#table tbody').on('dblclick', 'tr', function () {
+        var data = dt.row(this).data(); // Accessing DataTable instance (dt) here
+        showEditModal("kt_modal_3_Edit", "editModalBody", "editForm", modelName, 'Edit', { 'data': data });
+    });
 
     function generateButtons(modelName) {
         var buttons = [

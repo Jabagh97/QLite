@@ -6,10 +6,17 @@ namespace QLite.Data.ViewModels.Design
 {
     internal class DesignViewModel
     {
+
+        [Icon]
+        public string DesignImage { get; set; }
+
+
         [Required]
 
         public string Name { get; set; }
+
         [Design]
+        [NotForTable]
         public string? DesignData { get; set; }
         [Required]
 

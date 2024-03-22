@@ -1,24 +1,53 @@
-﻿@using QLite.Data;
+﻿@using QLite.DesignComponents;
+@using QLite.Data;
+@using System.Text;
+@model DesPageData
+
 @{
     var services = ViewBag.Services as List<ServiceType>;
 }
-<div class="d-flex justify-content-center align-items-center h-100">
-    <div class="row">
-        @foreach (var service in services)
+@if (Model != null && Model.Comps != null)
+{
+
+    <div id="canvas-container"
+     style="
+         width: @(Model.Width ?? "100vw");
+        height: @(Model.Height ?? "100vh");
+        background-image: url('@(Model.BgImageUrl ?? "")');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        border: 1px solid black;
+            ">
+        @foreach (var comp in Model.Comps)
         {
-            <div class="col-md-12 mb-3">
-                <div class="text-center">
-                    <button class="btn btn-primary btn-lg" style="font-size: 2rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);" onclick="svcTypeSelected('@service.Oid')">@service.Name </button>
-                </div>
-            </div>
+            @Html.Raw(RenderComponent(comp,services))
         }
     </div>
-</div>
+}
+
+else
+{
+
+    <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="row">
+            @foreach (var service in services)
+            {
+                <div class="col-md-12 mb-3">
+                    <div class="text-center">
+                        <button class="btn btn-primary btn-lg" style="font-size: 2rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);" onclick="svcTypeSelected('@service.Oid')">@service.Name </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
 <script>
     async function svcTypeSelected(svcTypeId) {
-       
 
-        let ticket = await postHttpReq('Service/GetTicket', JSON.stringify({ "ServiceTypeId": svcTypeId}));
+
+        let ticket = await postHttpReq('Service/GetTicket', JSON.stringify({ "ServiceTypeId": svcTypeId }));
 
         $('#content').html(ticket);
 
@@ -26,3 +55,125 @@
     }
 
 </script>
+
+
+@functions {
+    public string RenderComponent(DesCompData comp, List<ServiceType> services)
+    {
+        switch (comp)
+        {
+            case DesCompDataText textComp:
+                return RenderTextComponent(textComp);
+
+            case DesCompDataServiceButton buttonComp:
+                return RenderServiceButton(buttonComp, services);
+
+            case DesCompDataWfButton wfButtonComp:
+                return RenderWfButtonComponent(wfButtonComp);
+
+
+            case DesCompDataGenericHtml htmlComp:
+                return RenderGenericHtmlComponent(htmlComp);
+
+
+            //case DesCompDataLang langComp:
+            //    return RenderLangComponent(langComp);
+            // Add cases for other component types here
+            default:
+                return string.Empty; // Unknown component type
+        }
+    }
+
+    public string RenderServiceButton(DesCompDataServiceButton comp, List<ServiceType> services)
+    {
+        // Check if comp's SegmentID exists in the segments list
+        if (services == null || !services.Any(seg => seg.Oid == comp.ServiceTypeOid))
+        {
+            return null; // or handle the case where SegmentID doesn't exist in segments
+        }
+
+        // Prepare CSS styles
+        string cssStyles = string.IsNullOrEmpty(comp.CustomCss) ? "" : comp.CustomCss;
+
+        // Construct the button HTML using StringBuilder
+        StringBuilder sb = new StringBuilder();
+        sb.Append($"<button id=\"{comp.Id}\" ");
+        sb.Append($"data-comp-id=\"{comp.Id}\" ");
+        sb.Append($"data-x=\"{comp.PosX}\" ");
+        sb.Append($"data-y=\"{comp.PosY}\" ");
+        sb.Append("class=\"resize-drag\" ");
+        sb.Append("style=\"position: absolute; ");
+        sb.AppendFormat("width:{0}; ", comp.Width);
+        sb.AppendFormat("height:{0}; ", comp.Height);
+        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+        sb.Append(cssStyles);
+        sb.Append("\" onclick=\"svcTypeSelected('");
+        sb.Append(comp.ServiceTypeOid);
+        sb.Append("')\"> ");
+        sb.Append(comp.ButtonText);
+        sb.Append("</button>");
+
+        return sb.ToString();
+
+    }
+
+    public string RenderTextComponent(DesCompDataText comp)
+    {
+        return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">{comp.Text}</div>";
+    }
+
+
+
+    public string RenderSelectionComponent(DesCompDataServiceSelection comp)
+    {
+        // Implement rendering for DesCompDataServiceSelection
+        return $"<select style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\"><option value=\"option1\">Option 1</option><option value=\"option2\">Option 2</option></select>";
+    }
+
+    public string RenderWfButtonComponent(DesCompDataWfButton comp)
+    {
+        string buttonText = comp.ButtonText;
+        string buttonType = comp.BtnType.ToString().ToLower();
+        return $"<button style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" type=\"{buttonType}\">{buttonText}</button>";
+    }
+
+    public string RenderGenericHtmlComponent(DesCompDataGenericHtml comp)
+    {
+        // Implement rendering for DesCompDataGenericHtml
+        if (!string.IsNullOrEmpty(comp.fileURL))
+        {
+            if (comp.fileURL.EndsWith(".mp4") || comp.fileURL.EndsWith(".avi") || comp.fileURL.EndsWith(".webm"))
+            {
+                return $"<video style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" controls><source src=\"{comp.fileURL}\" type=\"video/mp4\"></video>";
+            }
+            else if (comp.fileURL.EndsWith(".png") || comp.fileURL.EndsWith(".jpg") || comp.fileURL.EndsWith(".jpeg") || comp.fileURL.EndsWith(".gif"))
+            {
+                return $"<img style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" src=\"{comp.fileURL}\" alt=\"Image\">";
+            }
+            else
+            {
+                return $"<a style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" href=\"{comp.fileURL}\" target=\"_blank\">Open file</a>";
+            }
+        }
+        else if (!string.IsNullOrEmpty(comp.YoutubeUrl))
+        {
+            return $"<iframe style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" width=\"560\" height=\"315\" src=\"{comp.YoutubeUrl}\" frameborder=\"0\" allowfullscreen></iframe>";
+        }
+        else
+        {
+            return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">No content available</div>";
+        }
+    }
+
+
+
+    //public string RenderLangComponent(DesCompDataLang comp)
+    //{
+    //    // Implement rendering for DesCompDataLang
+    //    string logoUrl = comp.LogoURL;
+    //    string languageName = comp.LanguageName;
+    //    return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\"><img src=\"{logoUrl}\" alt=\"{languageName}\" title=\"{languageName}\"></div>";
+    //}
+
+    // Add render methods for other component types here
+}

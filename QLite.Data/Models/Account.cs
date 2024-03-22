@@ -45,7 +45,9 @@ public partial class Account
     public virtual ICollection<KappSetting> KappSettings { get; } = new List<KappSetting>();
 
 
+    public virtual ICollection<Design> Designs { get; } = new List<Design>();
 
+    public virtual ICollection<DesignTarget> DesignTargets { get; } = new List<DesignTarget>();
 
     public virtual ICollection<Kiosk> Kiosks { get; } = new List<Kiosk>();
 

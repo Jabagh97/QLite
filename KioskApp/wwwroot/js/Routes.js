@@ -2,6 +2,7 @@
     $.ajax({
         url: '/Segment/Index',
         type: 'GET',
+        data: { HwID: kioskID },
         success: function (response) {
             console.log("Segments")
             $('#content').html(response);
@@ -19,7 +20,7 @@ function loadServiceView(segmentOid) {
     $.ajax({
         url: '/Service/Index',
         type: 'GET',
-        data: { SegmentOid: segmentOid },
+        data: { SegmentOid: segmentOid, HwID: kioskID },
 
         success: function (response) {
             console.log("Service")

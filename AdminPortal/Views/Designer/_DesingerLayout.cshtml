@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
     <!--end::Fonts-->
     <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
+
     <link href="~/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
     <link href="~/assets/css/Designer.style.bundle.css" rel="stylesheet" type="text/css" />
     <link href="~/css/site.css" rel="stylesheet" type="text/css" />
@@ -25,6 +26,9 @@
 
 <!--begin::Body-->
 <body id="kt_body" class="header-fixed header-tablet-and-mobile-fixed toolbar-enabled toolbar-fixed aside-enabled aside-fixed">
+
+
+    <!--end::Page loading-->
     @await Html.PartialAsync("partials/theme-mode/_init")
 
     <!--begin::Main-->
@@ -42,6 +46,8 @@
 
                 <!--begin::Content-->
                 <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
+
+
                     @RenderBody()
 
                 </div>
@@ -59,21 +65,26 @@
     <!--end::Main-->
     @await Html.PartialAsync("partials/_scrolltop")
 
+
     <!--begin::Modals-->
-    @await Html.PartialAsync("modals/SegmentCompModal")
+    @await Html.PartialAsync("modals/ComponentModal")
+
     <!--end::Modals-->
     <!--begin::Javascript-->
-    <script>
-        var hostUrl = "assets/";</script>
+   
+
     <script src="~/JQuery/jquery-3.7.1.js"></script>
+
     <script src="~/bootstrap/js/bootstrap.bundle.js"></script>
-
     <script src="~/assets/js/Designer.scripts.bundle.js"></script>
-
-    <script src="https://unpkg.com/interactjs/dist/interact.min.js"></script>
-
-
     <script src="~/lib/swal/sweetalert2.all.js"></script>
+
+    <script src="~/js/interact.js"></script>
+
+    <script src="~/js/htmlToImage.js"></script>
+
+    <script src="~/js/DragAndDrop.js"></script>
+    <script src="~/js/Designer.js"></script>
 
 
     @RenderSection("scripts", required: false)

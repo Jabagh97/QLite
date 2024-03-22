@@ -15,7 +15,7 @@ namespace QLite.Data.ViewModels.Kiosk
         public KioskType KioskType { get; set; }
        
 
-        public string? KappWorkflow { get; set; }
+       
         [Required]
 
         public string? Name { get; set; }

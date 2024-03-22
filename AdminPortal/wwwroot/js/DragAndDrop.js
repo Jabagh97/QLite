@@ -128,7 +128,7 @@ function dragAndDrop(className) {
     var target
 
     function dragMoveListener(event) {
-        drawGuideLine(event)
+       // drawGuideLine(event)
         target = event.target
 
         // keep the dragged position in the data-x/data-y attributes
@@ -178,7 +178,7 @@ function dragAndDrop(className) {
     var classCSS = '.' + className
     document.addEventListener('mouseover', function (event) {
         var element = event.target;
-        if (element.classList.contains(className)) {
+        if (element.classList.contains('drag-icon')) {
 
             interact(classCSS)
 

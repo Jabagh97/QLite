@@ -92,5 +92,23 @@ namespace QLiteDataApi.Controllers.Kiosk
             return Ok(kiosk);
         }
 
+
+        [HttpGet]
+        [Route("api/Kiosk/GetDesignByKiosk/{Step}/{HwID}")]
+        public IActionResult GetDesignByKiosk(string Step,string HwID)
+        {
+            var design = _KioskService.GetDesignByKiosk(Step, HwID);
+
+            if (design.Result != null)
+            {
+                return Ok(design.Result.DesignData);
+            }
+
+            return NotFound();
+
+
+        }
+
+
     }
 }

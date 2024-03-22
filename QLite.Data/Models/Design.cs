@@ -27,6 +27,7 @@ public partial class Design
 
     public string? DesignData { get; set; }
 
+
     public Guid? Account { get; set; }
 
     public Guid? KioskApplicationType { get; set; }
@@ -34,10 +35,13 @@ public partial class Design
     public string? DesignTag { get; set; }
 
     public int? WfStep { get; set; }
-
+    public string? DesignImage { get; set; }
     public int? OptimisticLockField { get; set; }
 
     public int? Gcrecord { get; set; }
+
+    public virtual Account? AccountNavigation { get; set; }
+
 
     public virtual ICollection<DesignTarget> DesignTargets { get; } = new List<DesignTarget>();
 }

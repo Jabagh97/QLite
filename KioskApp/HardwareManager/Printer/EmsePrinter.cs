@@ -141,11 +141,11 @@
             byte[] imgData;
             var converter = new HtmlConverter();
 
-            if (!html.StartsWith("<html>"))
-            {
-                html = "<html><head><meta charset=\"utf-8\"/></head><body> " + html + " </body></html>";
-            }
-            imgData = converter.FromHtmlString(html, width: 150, format: ImageFormat.Jpg);
+            //if (!html.StartsWith("<html>"))
+            //{
+            //    html = "<html><head><meta charset=\"utf-8\"/></head><body> " + html + " </body></html>";
+            //}
+            imgData = converter.FromHtmlString(html, width: 200, format: ImageFormat.Jpg);
 
 
             Log.Debug("emsequeprinter image created");

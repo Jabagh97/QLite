@@ -1,0 +1,183 @@
+﻿@using QLite.DesignComponents;
+
+
+<div class="modal fade" id="componentModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="componentModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                  @*HtmlType*@
+
+                <div class="mb-3" id="HtmlTypeField">
+                    <label for="HtmlType" class="form-label">Html Component Type :</label>
+                    <select class="form-select" id="HtmlType">
+                        @foreach (var value in Enum.GetValues(typeof(HtmlCompType)))
+                        {
+                            int numericValue = (int)value;
+
+                            <option value="@numericValue">@value</option>
+                        }
+                    </select>
+                </div>
+
+                @*Button Text*@
+
+                <div class="mb-3" id="BtnTextField">
+                    <label for="buttonText" class="form-label">Button Text</label>
+                    <input type="text" class="form-control" id="buttonText" placeholder="Enter button text">
+                </div>
+
+                @*Segment ID*@
+
+                <div class="mb-3" id="selectSegmentIDField">
+                    <label for="selectSegmentID" class="form-label">Segment</label>
+                    <select class="form-select" id="selectSegmentID">
+                    </select>
+                </div>
+
+                @*Service ID*@
+
+                <div class="mb-3" id="selectServiceIDField">
+                    <label for="selectServiceID" class="form-label">Service</label>
+                    <select class="form-select" id="selectServiceID">
+                    </select>
+                </div>
+
+                @*Frame ID*@
+
+                <div class="mb-3" id="frameIDField">
+                    <label for="frameID" class="form-label">Design :</label>
+                    <select class="form-select" id="frameID">
+                    </select>
+                </div>
+
+                @*Preview Text*@
+
+                <div class="mb-3" id="previewTextField">
+                    <label for="previewText" class="form-label">Preview text </label>
+                    <input type="text" class="form-control" id="previewText" placeholder="(this text is only for preview puposes)" disabled>
+                </div>
+
+                @*TextType*@
+
+                <div class="mb-3" id="textTypeField">
+                    <label for="textType" class="form-label">Ticket Text Type :</label>
+                    <select class="form-select" id="textType">
+                        @foreach (var value in Enum.GetValues(typeof(TicketInfoType)))
+                        {
+                            int numericValue = (int)value;
+
+                            <option value="@numericValue">@value</option>
+                        }
+                    </select>
+                </div>
+
+              
+
+                @*CSS*@
+
+                <div class="mb-3" id="cssCustomField">
+                    <label for="cssCustom" class="form-label">Custom CSS</label>
+                    <textarea class="form-control" id="cssCustom" style="min-height: 150px; resize: vertical;" placeholder="Enter your custom CSS properties"></textarea>
+                </div>
+
+                @*Localized*@
+
+                <div class="mb-3 form-check" id="localizedField">
+                    <input type="checkbox" class="form-check-input" id="localized">
+                    <label class="form-check-label" for="localized">Localized</label>
+                </div>
+
+                @*Bounce animation*@
+
+                <div class="mb-3 form-check" id="bounceField">
+                    <input type="checkbox" class="form-check-input" id="bounce">
+                    <label class="form-check-label" for="bounce">Bounce</label>
+                </div>
+
+                @*Live Data*@
+
+                <div class="mb-3 form-check" id="dataAwareField">
+                    <input type="checkbox" class="form-check-input" id="dataAware">
+                    <label class="form-check-label" for="dataAware">Live Data</label>
+                </div>
+
+                @*Slide Animation*@
+
+                <div class="mb-3 form-check" id="slideAnimationField">
+                    <input type="checkbox" class="form-check-input" id="slideAnimation">
+                    <label class="form-check-label" for="slideAnimation">Slide Down Animation</label>
+                </div>
+
+                @*Index For Display*@
+
+                <div class="mb-3" id="ctxIndexField">
+                    <label for="ctxIndex" class="form-label">Ticket Dispay Index</label>
+                    <input type="number" class="form-control" id="ctxIndex">
+                </div>
+
+                @*Local Video*@
+
+                <div class="mb-3" id="localVField">
+                    <label for="localVideoURL" class="form-label">Local Video (From Kiosk)</label>
+                    <input type="text" class="form-control" id="localVideoURL" placeholder="Enter a Local Video Path">
+                </div>
+                <div class="mb-3" id="orLabel">
+                    <span>Or</span>
+
+                </div>
+
+                @*Youtube Video*@
+
+                <div class="mb-3" id="youtubeField">
+                    <label for="youtubeVideoURL" class="form-label">Youtube Video (Internet Required)</label>
+                    <input type="text" class="form-control" id="youtubeVideoURL" placeholder="Enter a Youtube Video Embeded Link">
+                </div>
+
+
+
+                @*Language name*@
+
+                <div class="mb-3" id="languageIDField">
+                    <label for="selectLanguageID" class="form-label">Language</label>
+                    <select class="form-select" id="selectLanguageID">
+                    </select>
+                </div>
+
+
+
+                @*Image*@
+
+                <div class="mb-3" id="ImageField">
+                    <label for="componentImageUpload" class="form-label">Upload Background Image:</label>
+                    <div class="file-input">
+                        <input type="file" id="componentImageUpload" class="form-control">
+                        <span class="form-file-text">Choose file...</span>
+                        <span class="form-file-button">Browse</span>
+                    </div>
+                </div>
+
+
+                @*Comp ID*@
+
+
+                <div class="mb-3" id="compIdField">
+                    <label for="compID" class="form-label">Component ID</label>
+                    <input type="text" class="form-control" id="compID" disabled>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="deleteButton">Delete</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveComponentButton">Apply changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

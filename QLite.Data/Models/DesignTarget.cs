@@ -36,4 +36,12 @@ public partial class DesignTarget
     public int? Gcrecord { get; set; }
 
     public virtual Design? DesignNavigation { get; set; }
+
+    public virtual Account? AccountNavigation { get; set; }
+
+    public virtual Branch? BranchNavigation { get; set; }
+
+    public virtual Kiosk? KioskNavigation { get; set; }
+
+
 }

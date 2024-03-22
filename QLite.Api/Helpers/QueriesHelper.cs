@@ -78,6 +78,13 @@ namespace QLiteDataApi.Helpers
                     return true;
                 }
 
+                // Check if the value is "on" (common for checkboxes)
+                if (value.Trim().Equals("on", StringComparison.OrdinalIgnoreCase))
+                {
+                    convertedValue = targetType == typeof(bool) ? (object)true : (object)(bool?)true;
+                    return true;
+                }
+
                 if (bool.TryParse(value, out var boolValue))
                 {
                     convertedValue = targetType == typeof(bool) ? (object)boolValue : (object)(bool?)boolValue;
@@ -86,6 +93,7 @@ namespace QLiteDataApi.Helpers
 
                 return false;
             }
+
 
             return false;
         }

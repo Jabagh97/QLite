@@ -258,25 +258,33 @@ namespace QLiteDataApi.Controllers.Admin
 
             return NotFound();
         }
-
         [HttpPost]
         [Route("api/Admin/SaveDesign/{DesignID}")]
-        public IActionResult SaveDesign(Guid DesignID, [FromBody] DesPageDataViewModel jsonData)
+        public IActionResult SaveDesign(Guid DesignID, [FromBody] DesPageDataViewModel desPageData)
         {
-            DesPageData desPageDataTest = JsonConvert.DeserializeObject<DesPageData>(jsonData.DesPageDataJson);
+            // Deserialize DesPageDataJson into DesPageData
+            DesPageData desPageDataTest = JsonConvert.DeserializeObject<DesPageData>(desPageData.DesPageDataJson);
 
-            var saved = _dataService.SaveDesign(DesignID, desPageDataTest);
+            
+
+            // You can use desPageData.DesignImage here as needed
+
+            var saved = _dataService.SaveDesign(DesignID, desPageDataTest, desPageData.DesignImage);
 
             if (saved)
             {
                 return Ok();
             }
-            else 
+            else
             {
                 return NotFound();
-
             }
-
+        }
+        [HttpGet("api/Admin/GetDesignList")]
+        public async Task<IActionResult> GetDesignList()
+        {
+            var designs = await _dataService.GetDesignList();
+            return Ok(designs);
         }
 
 
@@ -293,6 +301,22 @@ namespace QLiteDataApi.Controllers.Admin
         {
             var segments = await _dataService.GetSegmentList();
             return Ok(segments);
+        }
+
+
+        [HttpGet]
+        [Route("api/Admin/GetDesignImageByID/{DesignID}")]
+        public async Task<IActionResult> GetDesignImageByID(Guid DesignID)
+        {
+            string designImage = await _dataService.GetDesignImageByID(DesignID);
+
+           
+
+          
+            return Ok(designImage);
+        
+
+          
         }
 
         #region Helpers

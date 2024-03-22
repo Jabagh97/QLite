@@ -58,6 +58,8 @@ public partial class Branch
 
     public virtual Country? CountryNavigation { get; set; }
 
+    public virtual ICollection<DesignTarget> DesignTargets { get; } = new List<DesignTarget>();
+
     public virtual ICollection<DeskCreatableService> DeskCreatableServices { get; } = new List<DeskCreatableService>();
 
     public virtual ICollection<DeskMacroSchedule> DeskMacroSchedules { get; } = new List<DeskMacroSchedule>();

@@ -13,7 +13,8 @@
         title = Html.DisplayName(property.Name).ToString(),
         isBool = property.GetCustomAttribute<BooleanAttribute>() != null,
         isEnum = property.GetCustomAttribute<EnumAttribute>() != null,
-        isDate =property.GetCustomAttribute<DateAtrribute>() != null
+        isDate =property.GetCustomAttribute<DateAtrribute>() != null,
+        isIcon= property.GetCustomAttribute<IconAttribute>() != null,
     })
     .ToList();
 
@@ -57,69 +58,53 @@ $(document).ready(function () {
     var columnDefinitions = [
         @foreach (var column in columnDefinitions)
         {
-            @if (column.property.Name.IndexOf("Logo", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                <text>
+            <text>
+                {
+                    "data": "@column.data",
+                    "name": "@column.property.Name",
+                    "title": "@column.title",
+                    @if (column.isIcon)
                     {
-                        "data": "@column.data",
-                        "name": "@column.property.Name",
-                        "title": "@column.title",
+                        <text>
                         "render": function (data, type, row, meta) {
                             if (data != null) {
-                                return '<img style="width: 50%; max-height: 10rem;" src="data:image/jpg;base64,' + data + '" />';
+                                if (data.startsWith("data:image")) {
+                                    return '<img style="width: 50%; max-height: 10rem;" src="' + data + '" />';
+                                }
+                                else {
+                                    return '<img style="width: 50%; max-height: 10rem;" src="data:image/jpg;base64,' + data + '" />';
+                                }
                             } else {
                                 return '';
                             }
                         }
-                    },
-                </text>
-            }
-            else
-            {
-                <text>
+                        </text>
+                    }
+                    @if (column.isBool)
                     {
-                        "data": "@column.data",
-                        "name": "@column.property.Name",
-                        "title": "@column.title",
-                        @if (column.isBool)
-                        {
-                            <text>"render": function (data, type, row, meta) {
-                                var color = data === false ? 'red' : 'green';
-                                return '<span style="color: ' + color + ';font-weight:600;">' + data + '</span>';
-                            }</text>
-                        }
-                      @if (column.isEnum)
-                        {
                         <text>"render": function (data, type, row, meta) {
-                            // Retrieve enum values as an array of strings
-
+                            var color = data === false ? 'red' : 'green';
+                            return '<span style="color: ' + color + ';font-weight:600;">' + data + '</span>';
+                        }</text>
+                    }
+                    @if (column.isEnum)
+                    {
+                        <text>"render": function (data, type, row, meta) {
                             var enumValues = @Html.Raw(Json.Serialize(Enum.GetNames(column.property.PropertyType)));
-
-                            // Convert data to integer if needed (assuming it represents enum index)
                             var enumIndex = parseInt(data);
-
-                            // Return the corresponding enum value
                             return enumValues[enumIndex];
-                            }</text>
+                        }</text>
                     }
                     else if (column.isDate)
                     {
-                         <text>
-                            "render": function (data, type, row, meta) {
-                                // Parse the date string into a JavaScript Date object
-                                var date = new Date(data);
-
-                                // Format the date to display only the time part
-                                var formattedTime = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
-
-                                // Return the formatted time
-                                return formattedTime;
-                            }
-                        </text>
+                        <text>"render": function (data, type, row, meta) {
+                            var date = new Date(data);
+                            var formattedTime = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+                            return formattedTime;
+                        }</text>
                     }
-                    },
-                </text>
-            }
+                },
+            </text>
         }
     ];
 

@@ -1,13 +1,11 @@
 ﻿@using Newtonsoft.Json;
 @using QLite.DesignComponents;
+@using System.Text;
 @model DesPageData
 
 
 @{
     Layout = "_DesingerLayout.cshtml";
-
-
-
 
 }
 
@@ -16,7 +14,18 @@
 
     @if (Model != null && Model.Comps != null)
     {
-        <div id="canvas-container" style="width: @(Model.Width ?? "800px"); height: @(Model.Height ?? "600px"); background-image: url('@(Model.BgImageUrl ?? "")'); background-size: contain; background-position: center; background-repeat: no-repeat;border: 1px solid black; margin-top: 10px;">
+        <div id="canvas-container"
+         style="
+            width: @(Model.Width ?? "800px");
+            height: @(Model.Height ?? "600px");
+            background-image: url('@(Model.BgImageUrl ?? "")');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 1px solid black;
+            background-color: @(Model.BackGroundColor ?? "grey");
+
+            ">
             @foreach (var comp in Model.Comps)
             {
                 @Html.Raw(RenderComponent(comp))
@@ -32,6 +41,7 @@
                 Height: "",
                 BgImageUrl: "",
                 BackGroundColor: "",
+                CustomCss: "",
                 Comps: []
             };
             var desPageData = @Html.Raw(JsonConvert.SerializeObject(Model, new DesCompJsonConverter()));
@@ -41,7 +51,34 @@
     }
     else
     {
-        <div id="canvas-container" style="border: 1px solid black; margin-top: 10px; background-color: grey; background-size: contain; background-position: center; background-repeat: no-repeat;">
+
+        <div id="canvas-container"
+         style="
+            border: 1px solid black;
+            margin-top: 10px;
+            background-color: grey;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 1px solid black;">
+
+            <script>
+
+                // Initialize a JavaScript object similar to DesPageData class
+                var desPageData = {
+                    Name: "",
+                    PosY: "",
+                    Width: "",
+                    Height: "",
+                    BgImageUrl: "",
+                    BackGroundColor: "",
+                    CustomCss: "",
+                    Comps: []
+                };
+
+
+                console.log(desPageData)
+            </script>
         </div>
 
     }
@@ -56,7 +93,7 @@
             case DesCompDataText textComp:
                 return RenderTextComponent(textComp);
             case DesCompDataServiceButton buttonComp:
-                return RenderButtonComponent(buttonComp);
+                return RenderServiceButton(buttonComp);
 
             case DesCompDataWfButton wfButtonComp:
                 return RenderWfButtonComponent(wfButtonComp);
@@ -79,160 +116,263 @@
 
     public string RenderSegmentComponent(DesCompDataSegment comp)
     {
-        string cssStyles = "";
+        StringBuilder sb = new StringBuilder();
 
-        // Check if comp has CSS styles defined
+        sb.Append($"<button id=\"{comp.Id}\" ");
+        sb.Append($"data-comp-id=\"{comp.Id}\" ");
+        sb.Append($"data-x=\"{comp.PosX}\" ");
+        sb.Append($"data-y=\"{comp.PosY}\" ");
+        sb.Append("class=\"resize-drag\" ");
+        sb.Append("style=\"position: absolute; ");
+        sb.AppendFormat("width:{0}; ", comp.Width);
+        sb.AppendFormat("height:{0}; ", comp.Height);
+        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+
         if (!string.IsNullOrEmpty(comp.CustomCss))
         {
-            // Append the custom CSS styles to the existing style attribute
-            cssStyles = comp.CustomCss;
+            sb.Append(comp.CustomCss);
         }
 
-        return $"<button id=\"{comp.Id}\" data-comp-id=\"{comp.Id}\" data-x=\"{comp.PosX}\" data-y=\"{comp.PosY}\" class=\"resize-drag\" style=\"position: absolute; width:{comp.Width}; height:{comp.Height};  transform: translate({comp.PosX}, {comp.PosY}); {cssStyles}\"> <div class=\"drag-icon\"></div><div class=\"panel-icon\" onclick=\"showModal('{comp.Id}')\"></div>{comp.ButtonText}</button>";
-    }
+        sb.Append("\"> ");
+        sb.Append("<div class=\"drag-icon\"></div>");
+        sb.Append("<div class=\"panel-icon\" onclick=\"showModal('");
+        sb.Append(comp.Id);
+        sb.Append("', '");
+        sb.Append(comp.ButtonText);
+        sb.Append("', '");
+        sb.Append(comp.DesCompType);
+        sb.Append("')\"></div>");
+        sb.Append(comp.ButtonText);
+        sb.Append("</button>");
 
+        return sb.ToString();
+    }
 
     public string RenderTextComponent(DesCompDataText comp)
     {
-        return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">{comp.Text}</div>";
+        StringBuilder sb = new StringBuilder();
+
+        sb.Append($"<div id=\"{comp.Id}\" ");
+        sb.Append($"data-comp-id=\"{comp.Id}\" ");
+        sb.Append($"data-x=\"{comp.PosX}\" ");
+        sb.Append($"data-y=\"{comp.PosY}\" ");
+        sb.Append("class=\"resize-drag\" ");
+        sb.Append("style=\"position: absolute; ");
+        sb.AppendFormat("width:{0}; ", comp.Width);
+        sb.AppendFormat("height:{0}; ", comp.Height);
+        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+
+        if (!string.IsNullOrEmpty(comp.CustomCss))
+        {
+            sb.Append(comp.CustomCss);
+        }
+
+        sb.Append("\"> ");
+        sb.Append($"<div id=\"{comp.Id}_text\">{comp.Text}</div>");
+
+        sb.Append("<div class=\"drag-icon\"></div>");
+        sb.Append("<div class=\"panel-icon\" onclick=\"showModal('");
+        sb.Append(comp.Id);
+        sb.Append("', '");
+        sb.Append(comp.Text);
+        sb.Append("', '");
+        sb.Append(comp.DesCompType);
+        sb.Append("')\"></div>");
+        sb.Append("</div>");
+
+        return sb.ToString();
     }
 
-    public string RenderButtonComponent(DesCompDataServiceButton comp)
+    public string RenderServiceButton(DesCompDataServiceButton comp)
     {
-        return $"<button style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">{comp.ButtonText}</button>";
+        StringBuilder sb = new StringBuilder();
+
+        sb.Append($"<button id=\"{comp.Id}\" ");
+        sb.Append($"data-comp-id=\"{comp.Id}\" ");
+        sb.Append($"data-x=\"{comp.PosX}\" ");
+        sb.Append($"data-y=\"{comp.PosY}\" ");
+        sb.Append("class=\"resize-drag\" ");
+        sb.Append("style=\"position: absolute; ");
+        sb.AppendFormat("width:{0}; ", comp.Width);
+        sb.AppendFormat("height:{0}; ", comp.Height);
+        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+
+        if (!string.IsNullOrEmpty(comp.CustomCss))
+        {
+            sb.Append(comp.CustomCss);
+        }
+
+        sb.Append("\"> ");
+        sb.Append("<div class=\"drag-icon\"></div>");
+        sb.Append("<div class=\"panel-icon\" onclick=\"showModal('");
+        sb.Append(comp.Id);
+        sb.Append("', '");
+        sb.Append(comp.ButtonText);
+        sb.Append("', '");
+        sb.Append(comp.DesCompType);
+        sb.Append("')\"></div>");
+        sb.Append(comp.ButtonText);
+        sb.Append("</button>");
+
+        return sb.ToString();
     }
 
-    public string RenderSelectionComponent(DesCompDataServiceSelection comp)
-    {
-        // Implement rendering for DesCompDataServiceSelection
-        return $"<select style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\"><option value=\"option1\">Option 1</option><option value=\"option2\">Option 2</option></select>";
-    }
+
 
     public string RenderWfButtonComponent(DesCompDataWfButton comp)
     {
-        string buttonText = comp.ButtonText;
-        string buttonType = comp.BtnType.ToString().ToLower();
-        return $"<button style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" type=\"{buttonType}\">{buttonText}</button>";
+        StringBuilder sb = new StringBuilder();
+
+        sb.Append($"<button id=\"{comp.Id}\" ");
+        sb.Append($"data-comp-id=\"{comp.Id}\" ");
+        sb.Append($"data-x=\"{comp.PosX}\" ");
+        sb.Append($"data-y=\"{comp.PosY}\" ");
+        sb.Append("class=\"resize-drag\" ");
+        sb.Append("style=\"position: absolute; ");
+        sb.AppendFormat("width:{0}; ", comp.Width);
+        sb.AppendFormat("height:{0}; ", comp.Height);
+        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+
+        if (!string.IsNullOrEmpty(comp.CustomCss))
+        {
+            sb.Append(comp.CustomCss);
+        }
+
+        sb.Append("\"> ");
+        sb.Append("<div class=\"drag-icon\"></div>");
+        sb.Append("<div class=\"panel-icon\" onclick=\"showModal('");
+        sb.Append(comp.Id);
+        sb.Append("', '");
+        sb.Append(comp.ButtonText);
+        sb.Append("', '");
+        sb.Append(comp.DesCompType);
+        sb.Append("')\"></div>");
+        sb.Append(comp.ButtonText);
+        sb.Append("</button>");
+
+        return sb.ToString();
     }
 
     public string RenderGenericHtmlComponent(DesCompDataGenericHtml comp)
     {
-        // Implement rendering for DesCompDataGenericHtml
-        if (!string.IsNullOrEmpty(comp.fileURL))
+        StringBuilder sb = new StringBuilder();
+
+        sb.Append($"<div id=\"{comp.Id}\" ");
+        sb.Append($"data-comp-id=\"{comp.Id}\" ");
+        sb.Append($"data-x=\"{comp.PosX}\" ");
+        sb.Append($"data-y=\"{comp.PosY}\" ");
+        sb.Append("class=\"resize-drag\" ");
+        sb.Append("style=\"position: absolute; border : 1px dotted black;");
+        sb.AppendFormat("width:{0}; ", comp.Width);
+        sb.AppendFormat("height:{0}; ", comp.Height);
+        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+
+        if (comp.GenCompType == HtmlCompType.Image)
         {
-            if (comp.fileURL.EndsWith(".mp4") || comp.fileURL.EndsWith(".avi") || comp.fileURL.EndsWith(".webm"))
-            {
-                return $"<video style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" controls><source src=\"{comp.fileURL}\" type=\"video/mp4\"></video>";
-            }
-            else if (comp.fileURL.EndsWith(".png") || comp.fileURL.EndsWith(".jpg") || comp.fileURL.EndsWith(".jpeg") || comp.fileURL.EndsWith(".gif"))
-            {
-                return $"<img style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" src=\"{comp.fileURL}\" alt=\"Image\">";
-            }
-            else
-            {
-                return $"<a style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" href=\"{comp.fileURL}\" target=\"_blank\">Open file</a>";
-            }
+            // Apply additional styles for background image
+            sb.Append("background-image: url(");
+            sb.Append(comp.BgImageUrl);
+            sb.Append("); ");
+            sb.Append("background-size: cover; ");
+            sb.Append("background-position: center; ");
+            sb.Append("background-repeat: no-repeat; ");
         }
-        else if (!string.IsNullOrEmpty(comp.YoutubeUrl))
+
+        if (!string.IsNullOrEmpty(comp.CustomCss))
         {
-            return $"<iframe style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" width=\"560\" height=\"315\" src=\"{comp.YoutubeUrl}\" frameborder=\"0\" allowfullscreen></iframe>";
+            sb.Append(comp.CustomCss);
         }
-        else
-        {
-            return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\">No content available</div>";
-        }
+
+        sb.Append("\"> ");
+        sb.Append($"<div id=\"{comp.Id}_text\">{comp.ButtonText}</div>");
+
+        sb.Append("<div class=\"drag-icon\"></div>");
+        sb.Append("<div class=\"panel-icon\" onclick=\"showModal('");
+        sb.Append(comp.Id);
+        sb.Append("', '");
+        sb.Append(comp.ButtonText);
+        sb.Append("', '");
+        sb.Append(comp.DesCompType);
+        sb.Append("')\"></div>");
+        sb.Append("</div>");
+
+        return sb.ToString();
     }
+
 
     public string RenderFrameComponent(DesCompDataFrame comp)
     {
-        // Implement rendering for DesCompDataFrame
-        string designId = comp.DesignId;
-        string animation = comp.SlideAnimation ? "slide" : "none";
-        return $"<iframe style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\" src=\"/Designer?DesignID={designId}\" scrolling=\"no\" frameborder=\"0\" allowfullscreen></iframe>";
+        StringBuilder sb = new StringBuilder();
+
+        sb.Append($"<button id=\"{comp.Id}\" ");
+        sb.Append($"data-comp-id=\"{comp.Id}\" ");
+        sb.Append($"data-x=\"{comp.PosX}\" ");
+        sb.Append($"data-y=\"{comp.PosY}\" ");
+        sb.Append("class=\"resize-drag\" ");
+        sb.Append("style=\"position: absolute; ");
+        sb.AppendFormat("width:{0}; ", comp.Width);
+        sb.AppendFormat("height:{0}; ", comp.Height);
+        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+
+        if (!string.IsNullOrEmpty(comp.CustomCss))
+        {
+            sb.Append(comp.CustomCss);
+        }
+
+        sb.Append("\"> ");
+        sb.Append("<div class=\"drag-icon\"></div>");
+        sb.Append("<div class=\"panel-icon\" onclick=\"showModal('");
+        sb.Append(comp.Id);
+        sb.Append("', '");
+        sb.Append(comp.DesignId);
+        sb.Append("', '");
+        sb.Append(comp.DesCompType);
+        sb.Append("')\"></div>");
+        sb.Append(comp.DesignId);
+        sb.Append("</button>");
+
+        return sb.ToString();
     }
+
 
 
     public string RenderLangComponent(DesCompDataLang comp)
     {
-        // Implement rendering for DesCompDataLang
-        string logoUrl = comp.LogoURL;
-        string languageName = comp.LanguageName;
-        return $"<div style=\"position: absolute; top: {comp.PosY}px; left: {comp.PosX}px;\"><img src=\"{logoUrl}\" alt=\"{languageName}\" title=\"{languageName}\"></div>";
-    }
+        StringBuilder sb = new StringBuilder();
 
+        sb.Append($"<button id=\"{comp.Id}\" ");
+        sb.Append($"data-comp-id=\"{comp.Id}\" ");
+        sb.Append($"data-x=\"{comp.PosX}\" ");
+        sb.Append($"data-y=\"{comp.PosY}\" ");
+        sb.Append("class=\"resize-drag\" ");
+        sb.Append("style=\"position: absolute; ");
+        sb.AppendFormat("width:{0}; ", comp.Width);
+        sb.AppendFormat("height:{0}; ", comp.Height);
+        sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+
+        if (!string.IsNullOrEmpty(comp.CustomCss))
+        {
+            sb.Append(comp.CustomCss);
+        }
+
+        sb.Append("\"> ");
+        sb.Append("<div class=\"drag-icon\"></div>");
+        sb.Append("<div class=\"panel-icon\" onclick=\"showModal('");
+        sb.Append(comp.Id);
+        sb.Append("', '");
+        sb.Append(comp.LanguageName);
+        sb.Append("', '");
+        sb.Append(comp.DesCompType);
+        sb.Append("')\"></div>");
+        sb.Append(comp.LanguageName);
+        sb.Append("</button>");
+
+        return sb.ToString();
+    }
     // Add render methods for other component types here
 }
 
 
-
-<script src="~/js/DragAndDrop.js"></script>
-
-<script>
-    dragAndDrop('resize-drag');
-    function showModal(compId) {
-        // Find the component with the given ID
-        var component = desPageData.Comps.find(comp => comp.Id === compId);
-
-        // Check if the component is found
-        if (component) {
-            // Populate the modal fields with the component's properties
-
-            $('#buttonText').val(component.ButtonText);
-            $('#segmentID').val(component.SegmentID);
-            $('#cssCustom').val(component.CustomCss);
-            $('#localized').prop('checked', component.Localized);
-            $('#bounce').prop('checked', component.Bounce);
-            $('#compID').val(compId);
-
-            // Show the modal
-            $('#segmentModal').modal('show');
-            // Handle delete button click
-            $('#deleteButton').click(function () {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'You will not be able to recover this component!',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'No, cancel!',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Remove the component from desPageData.Comps
-                        desPageData.Comps = desPageData.Comps.filter(comp => comp.Id !== compId);
-
-                        // Remove the HTML element associated with the component
-                        $('#' + compId).remove();
-
-
-
-                        Swal.fire(
-                            'Deleted!',
-                            'The component has been deleted.',
-                            'success'
-                        );
-
-                        // Close the modal
-                        $('#segmentModal').modal('hide');
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        Swal.fire(
-                            'Cancelled',
-                            'Your component is safe :)',
-                            'error'
-                        );
-                    }
-                });
-            });
-        } else {
-            console.log('Component not found for ID:', compId);
-        }
-
-    }
-</script>
-
-
-
-<script src="~/js/Designer.js"></script>
 
 
 

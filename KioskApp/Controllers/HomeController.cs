@@ -1,40 +1,56 @@
 ﻿using KioskApp.Models;
+using KioskApp.Services;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using QLite.Data.CommonContext;
+using QLite.DesignComponents;
 using Quavis.QorchLite.Hwlib;
 using System.Diagnostics;
+using System.Net.Http;
 
 namespace KioskApp.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly IConfiguration _configuration;
-        HwManager _hwman;
+        private readonly HwManager _hwman;
+        private readonly HttpService _httpService;
 
-        public HomeController(ILogger<HomeController> logger, IConfiguration configuration, HwManager hwman)
+        public HomeController(HwManager hwman, HttpService httpService)
         {
-            _logger = logger;
-            _configuration = configuration;
+           
             _hwman = hwman;
-
+            _httpService = httpService;
+            
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            string kioskId = _configuration.GetValue<string>("KioskID");
-            ViewData["KioskID"] = kioskId;
+            try
+            {
+                string _kioskHwId = CommonCtx.KioskHwId;
 
-            return View();
+                DesPageData designData = await GetDesignData(_kioskHwId);
+                ViewData["KioskID"] = _kioskHwId;
+                return View(designData);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
-       
-        public virtual IActionResult CheckKiosk()
+
+        public IActionResult CheckKiosk()
         {
             return Ok(_hwman.GetKioskHwStatus());
         }
-        public IActionResult Privacy()
+
+        private async Task<DesPageData> GetDesignData(string hwId)
         {
-            return View();
+            var step = "WelcomePage";
+            return await _httpService.GetDesignResponse<DesPageData>($"api/Kiosk/GetDesignByKiosk/{step}/{hwId}");
         }
+
+       
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

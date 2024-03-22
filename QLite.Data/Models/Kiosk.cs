@@ -49,6 +49,9 @@ public partial class Kiosk
 
     public virtual Branch? BranchNavigation { get; set; }
 
+    public virtual ICollection<DesignTarget> DesignTargets { get; } = new List<DesignTarget>();
+
+
     public virtual ICollection<Desk> Desks { get; } = new List<Desk>();
 
     public virtual ICollection<KappRelation> KappRelationChildNavigations { get; } = new List<KappRelation>();

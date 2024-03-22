@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using QLite.Data;
 
 namespace QLite.DesignComponents
 {
@@ -29,6 +30,10 @@ namespace QLite.DesignComponents
         }
 
         public string BackGroundColor
+        {
+            get; set;
+        }
+        public string CustomCss
         {
             get; set;
         }
@@ -127,11 +132,7 @@ namespace QLite.DesignComponents
 
     public class DesCompDataKeypadInput : DesCompData
     {
-        public string padding;
-        public string shape;
-        public string margin;
-        public string border;
-        public string fontColor;
+       
         public DesCompDataKeypadInput() : base()
         {
         }
@@ -141,10 +142,6 @@ namespace QLite.DesignComponents
     {
         public string ButtonText;
         public Guid ServiceTypeOid;
-        public string padding;
-        public string shape;
-        public string margin;
-        public string border;
         public bool Localized;
         public bool PopUp;
         public bool Bounce;
@@ -161,10 +158,6 @@ namespace QLite.DesignComponents
     {
         public string ButtonText;
         public Guid SegmentID;
-        public string padding;
-        public string shape;
-        public string margin;
-        public string border;
         public bool Localized;
         public bool Bounce;
 
@@ -179,10 +172,6 @@ namespace QLite.DesignComponents
     {
         public string ButtonText;
         public AppointmentOperation Operation;
-        public string padding;
-        public string shape;
-        public string margin;
-        public string border;
         public bool Localized;
         public bool Bounce;
 
@@ -199,12 +188,11 @@ namespace QLite.DesignComponents
 
         public string ButtonText;
         public string fileURL;
-
         public long? fileSize;
         public string YoutubeUrl;
         public string LocalUrl;
 
-        public string GenCompType = "";
+        public HtmlCompType GenCompType;
 
 
 
@@ -223,28 +211,7 @@ namespace QLite.DesignComponents
     public class DesCompDataIDInput : DesCompData
     {
 
-        public string padding;
-        public string shape;
-        public string margin;
-        public string border;
-
-
-
-        public string Bold;
-
-        public string FontFamily;
-
-        public string FontStyle;
-
-        public string FontWeight;
-        public string FontSize;
-
-
-        public string LineHeight;
-        public string LetterSpacing;
-        public string FontColor;
-        public string TextAlignHo;
-        public string TextAlignVE;
+      
         public DesCompDataIDInput() : base()
         {
         }
@@ -256,26 +223,9 @@ namespace QLite.DesignComponents
 
         public int CtxIndex;
         public bool Localized;
-
-        public string TextColor;
-
-        public string Bold;
-
-        public string FontFamily;
-
-        public string FontStyle;
-
-        public string FontWeight;
-        public string FontSize;
-
-
-        public string LineHeight;
-        public string LetterSpacing;
-        public string FontColor;
-        public string TextAlignHo;
-        public string TextAlignVE;
         public bool DataAware;
         public bool SlideAnimation;
+        public TicketInfoType InfoType;
 
         public DesCompDataText() : base()
         {
@@ -286,11 +236,6 @@ namespace QLite.DesignComponents
     {
 
         public string LangCode;
-        public string padding;
-        public string shape;
-        public string margin;
-        public string border;
-        public string LogoURL;
         public string LanguageName;
 
         public DesCompDataLang() : base()
@@ -298,12 +243,30 @@ namespace QLite.DesignComponents
         }
     }
 
+    public enum TicketInfoType
+    {
+        ServiceCode,
+        Number,
+        WaitingTickets,
+        ServiceTypeName,
+        Segment
+    }
 
     public enum WfButtonType
     {
         NEXT,
         BACK,
         CANCEL
+    }
+
+    public enum HtmlCompType
+    {
+        Image,
+        LocalVideo,
+        YoutubeVideo,
+        Text,
+        Date,
+        IFrame
     }
     public enum AppointmentOperation
     {
@@ -320,5 +283,13 @@ namespace QLite.DesignComponents
     public class DesPageDataViewModel
     {
         public string DesPageDataJson { get; set; }
+        public string DesignImage { get; set; }
     }
+
+    public class TicketAndDesPageDataViewModel
+    {
+        public Ticket Ticket { get; set; }
+        public DesPageData DesPageData { get; set; }
+    }
+
 }
