@@ -283,19 +283,19 @@ function showAddModal(modalId, modalBodyId, formId, viewModel, buttonName, addit
 function showEditModal(modalId, modalBodyId, formId, viewModel, buttonName, additionalData = {}) {
 
     var url = `GenericTable/ShowPopup?modelName=${viewModel}&opType=${buttonName}`;
-    $('#Wrapper').addClass('slide-out');
-    $('#Wrapper').removeClass('slide-out').addClass('slide-in');
 
+    // Add slide-out class to initiate animation
+    $('#Wrapper').addClass('slide-out');
+
+    // Load modal content
     $("#Wrapper").load(url, additionalData, function (response, status, xhr) {
         if (status === "error") {
             handleErrors(xhr.status);
         } else {
-
-
             // Wait for the slide-out animation to complete, then replace the content and slide in the new content
             setTimeout(function () {
-
                 // Remove the slide-out class and add the slide-in class to slide in the new content
+                $('#Wrapper').removeClass('slide-out').addClass('slide-in');
 
                 // Attach event handler for form submission
                 $('#Wrapper').off('click', '#submit'); // Remove existing click event handler
@@ -306,7 +306,6 @@ function showEditModal(modalId, modalBodyId, formId, viewModel, buttonName, addi
             }, 150); // Adjust the timeout value to match the duration of your slide-out animation
         }
     });
-
 }
 
 

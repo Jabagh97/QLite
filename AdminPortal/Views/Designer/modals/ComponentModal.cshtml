@@ -136,6 +136,8 @@
                 <div class="mb-3" id="youtubeField">
                     <label for="youtubeVideoURL" class="form-label">Youtube Video (Internet Required)</label>
                     <input type="text" class="form-control" id="youtubeVideoURL" placeholder="Enter a Youtube Video Embeded Link">
+                    <button id="YtTutorialButton" class="btn btn-link">Need Help with Getting the link ??</button>
+
                 </div>
 
 
@@ -171,6 +173,7 @@
                 </div>
 
 
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" id="deleteButton">Delete</button>
@@ -182,3 +185,8 @@
 </div>
 
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('componentImageUpload').addEventListener('change', handleImageUpload);
+    });
+</script>

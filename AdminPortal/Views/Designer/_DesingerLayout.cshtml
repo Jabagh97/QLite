@@ -18,7 +18,8 @@
     <link href="~/css/site.css" rel="stylesheet" type="text/css" />
     <link href="~/lib/swal/sweetalert2.css" rel="stylesheet">
 
-
+    <!-- Include Spectrum Color Picker CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.1/spectrum.min.css">
 
     <script src="~/lib/popper.min.js"></script>
 
@@ -52,15 +53,14 @@
 
                 </div>
                 <!--end::Content-->
-                @await Html.PartialAsync("layout/_footer")
-
+@*                @await Html.PartialAsync("layout/_footer")
+*@
             </div>
             <!--end::Wrapper-->
         </div>
         <!--end::Page-->
     </div>
     <!--end::Root-->
-    @await Html.PartialAsync("partials/_drawers")
 
     <!--end::Main-->
     @await Html.PartialAsync("partials/_scrolltop")
@@ -84,6 +84,10 @@
     <script src="~/js/htmlToImage.js"></script>
 
     <script src="~/js/DragAndDrop.js"></script>
+   
+
+    <!-- Include Spectrum Color Picker JavaScript -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.1/spectrum.min.js"></script>
     <script src="~/js/Designer.js"></script>
 
 

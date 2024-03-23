@@ -28,15 +28,20 @@ function updateCanvasSize() {
     desPageData.Height = selectedHeight;
 }
 
-// Function to update background color in the desPageData object
-function updateBackgroundColor() {
-    var colorPicker = document.getElementById('backgroundColor');
-    var selectedColor = colorPicker.value;
-    document.getElementById('canvas-container').style.backgroundColor = selectedColor;
+//// Function to update background color in the desPageData object
+$("#backgroundColor").spectrum({
+    color: "#ffffff",
+    showInput: true,
+    preferredFormat: "hex",
+    showAlpha: true,
+    change: function (color) {
+        // Update background color
+        $('#canvas-container').css('background-color', color.toHexString());
 
-    // Update desPageData property
-    desPageData.BackGroundColor = selectedColor;
-}
+        // Update desPageData property
+        desPageData.BackGroundColor = color.toHexString();
+    }
+});
 
 // Function to handle file upload and update BgImageUrl property in the desPageData object
 document.getElementById('imageUpload').addEventListener('change', function (event) {
@@ -54,8 +59,7 @@ document.getElementById('imageUpload').addEventListener('change', function (even
 document.getElementById('widthSelect').addEventListener('change', updateCanvasSize);
 document.getElementById('heightSelect').addEventListener('change', updateCanvasSize);
 
-// Event listener for color picker change
-document.getElementById('backgroundColor').addEventListener('change', updateBackgroundColor);
+
 
 // Retrieve the width and height values from the Model
 var selectedWidth = desPageData.Width;
@@ -79,6 +83,7 @@ function loadDesignImages() {
     });
 }
 loadDesignImages();
+
 
 
 
@@ -408,7 +413,32 @@ const componentConfigurations = {
 
     // Add other component configurations here...
 };
-var imageBase64 = '';
+// Function to handle file upload
+function handleImageUpload(event) {
+    var file = event.target.files[0];
+    var reader = new FileReader();
+    reader.onload = function (event) {
+        var imageUrl = event.target.result;
+
+        var  compId = $('#compID').val();
+
+        var component = desPageData.Comps.find(comp => comp.Id === compId);
+
+        var element = document.getElementById(compId);
+        // Set the background image URL 
+        element.style.backgroundImage = 'url(' + imageUrl + ')';
+        // Apply additional styles for background image 
+        element.style.backgroundSize = 'cover';
+        element.style.backgroundPosition = 'center';
+        element.style.backgroundRepeat = 'no-repeat';
+        element.style.border = '1px dotted black';
+        // Update component data 
+        component.BgImageUrl = imageUrl;
+
+    };
+    reader.readAsDataURL(file);
+
+}
 
 
 
@@ -420,7 +450,7 @@ function showModal(compId, buttonText, componentType) {
         return;
     }
 
-    var component = desPageData.Comps.find(comp => comp.Id === compId);
+    const component = desPageData.Comps.find(comp => comp.Id === compId);
 
     // Check if the component is found
     if (component) {
@@ -540,6 +570,11 @@ function showModal(compId, buttonText, componentType) {
                 case '4':
                     $('#cssCustomField').show();
 
+                case 5:
+                case '5':
+                    $('#cssCustomField').show();
+
+
                 default:
                     // Handle default case
                     break;
@@ -567,38 +602,6 @@ function showModal(compId, buttonText, componentType) {
         if (componentConfiguration.additionalActions) {
             componentConfiguration.additionalActions(id);
         }
-
-        function handleImageUpload(event) {
-            var file = event.target.files[0];
-            var reader = new FileReader();
-            reader.onload = function (event) {
-                var imageUrl = event.target.result;
-                var element = document.getElementById(compId);
-
-                // Set the background image URL
-                element.style.backgroundImage = 'url(' + imageUrl + ')';
-
-                // Apply additional styles for background image
-                element.style.backgroundSize = 'cover';
-                element.style.backgroundPosition = 'center';
-                element.style.backgroundRepeat = 'no-repeat';
-                element.style.border = '1px dotted black';
-
-
-                // Update component data
-                component.BgImageUrl = imageUrl;
-            };
-            reader.readAsDataURL(file);
-        }
-        // Remove existing event listener for the image uploader
-        document.getElementById('componentImageUpload').removeEventListener('change', handleImageUpload);
-
-        // Function to handle file upload
-
-
-        // Add event listener for the image uploader
-        document.getElementById('componentImageUpload').addEventListener('change', handleImageUpload);
-
 
         // Show the modal
         $('#componentModal').modal('show');
@@ -826,6 +829,9 @@ document.getElementById('HtmlType').addEventListener('change', function () {
             compTextElement.textContent = Date.now();
             $('#buttonText').val(Date.now());
 
+        case '5':
+            $('#cssCustomField').show();
+
             break;
         default:
 
@@ -883,6 +889,31 @@ document.getElementById('popupButton').addEventListener('click', function () {
 });
 
 
+// Add click event listener to the button
+document.getElementById('YtTutorialButton').addEventListener('click', function () {
+    // Show Swal (SweetAlert) popup
+    Swal.fire({
+        title: 'How to Get the Embedded YouTube Video Link',
+        html: `
+            <div>
+                <p>Follow these steps to get the embedded YouTube video link:</p>
+                <ol>
+                    <li>Open the YouTube video you want to embed in a new tab.</li>
+                    <li>Click the "Share" button located below the video.</li>
+                    <li>Select the "Embed" option from the menu.</li>
+                    <li>Copy the src link provided in the embed code. For example: <br> 
+                        <code>https://www.youtube.com/embed/VIDEO_ID</code></li>
+                    <li>Paste the link into the input field above.</li>
+                </ol>
+                <p><strong>Note:</strong> The src link typically starts with <code>https://www.youtube.com/embed/</code> followed by the video ID.</p>
+            </div>`,
+        icon: 'info',
+        confirmButtonText: 'OK',
+        customClass: {
+            popup: 'custom-popup-class'
+        }
+    });
+});
 
 
 
@@ -910,7 +941,7 @@ document.getElementById('widthInput').addEventListener('change', function () {
     element.style.width = newWidth + (newWidth.includes('px') ? '' : 'px');
 
     // Set the data-x attribute of the element
-   // element.setAttribute('data-x', newWidth);
+    // element.setAttribute('data-x', newWidth);
 });
 
 document.getElementById('heightInput').addEventListener('change', function () {

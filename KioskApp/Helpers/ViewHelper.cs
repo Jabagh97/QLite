@@ -110,7 +110,7 @@ namespace KioskApp.Helpers
 
             if (comp.GenCompType == HtmlCompType.Date)
             {
-                sb.Append(DateTime.Now);
+                sb.Append(DateTime.Now.ToShortDateString());
 
             }
 

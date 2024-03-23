@@ -14,46 +14,51 @@
 
     @if (Model != null && Model.Comps != null)
     {
-        <div id="canvas-container"
-         style="
-            width: @(Model.Width ?? "800px");
-            height: @(Model.Height ?? "600px");
-            background-image: url('@(Model.BgImageUrl ?? "")');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            border: 1px solid black;
-            background-color: @(Model.BackGroundColor ?? "grey");
+        <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
 
-            ">
-            @foreach (var comp in Model.Comps)
-            {
-                @Html.Raw(RenderComponent(comp))
-            }
+            <div id="canvas-container" class="full-width"
+             style="
+        width: @(Model.Width ?? "800px");
+        height: @(Model.Height ?? "600px");
+        background-image: url('@(Model.BgImageUrl ?? "")');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        border: 1px solid black;
+        background-color: @(Model.BackGroundColor ?? "grey");
+        @(Model.CustomCss)
+        ">
+                @foreach (var comp in Model.Comps)
+                {
+                    @Html.Raw(RenderComponent(comp))
+                }
+            </div>
+
+            <script>
+
+                // Initialize a JavaScript object similar to DesPageData class
+                var desPageData = {
+                    Name: "",
+                    PosY: "",
+                    Width: "",
+                    Height: "",
+                    BgImageUrl: "",
+                    BackGroundColor: "",
+                    CustomCss: "",
+                    Comps: []
+                };
+                var desPageData = @Html.Raw(JsonConvert.SerializeObject(Model, new DesCompJsonConverter()));
+
+                console.log(desPageData)
+            </script>
         </div>
-        <script>
 
-            // Initialize a JavaScript object similar to DesPageData class
-            var desPageData = {
-                Name: "",
-                PosY: "",
-                Width: "",
-                Height: "",
-                BgImageUrl: "",
-                BackGroundColor: "",
-                CustomCss: "",
-                Comps: []
-            };
-            var desPageData = @Html.Raw(JsonConvert.SerializeObject(Model, new DesCompJsonConverter()));
-
-            console.log(desPageData)
-        </script>
     }
     else
     {
-
-        <div id="canvas-container"
-         style="
+        <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+            <div id="canvas-container"
+             style="
             width:800px;
             height:800px;
             border: 1px solid black;
@@ -63,7 +68,7 @@
             background-position: center;
             background-repeat: no-repeat;
             border: 1px solid black;">
-
+            </div>
             <script>
 
                 // Initialize a JavaScript object similar to DesPageData class
@@ -281,7 +286,7 @@
         }
 
 
-      
+
 
         if (!string.IsNullOrEmpty(comp.CustomCss))
         {

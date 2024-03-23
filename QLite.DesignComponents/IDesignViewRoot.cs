@@ -266,7 +266,7 @@ namespace QLite.DesignComponents
         YoutubeVideo,
         Text,
         Date,
-        IFrame
+        Layout
     }
     public enum AppointmentOperation
     {

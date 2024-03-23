@@ -157,3 +157,8 @@ body {
 
     max-height :350px
 }
+
+#kt_content {
+    transition: transform 0.2s ease; /* Smooth transition for zooming */
+    overflow: hidden; /* Hide overflow content */
+}
