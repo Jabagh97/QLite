@@ -1,51 +1,89 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using QLite.Data.CommonContext;
+using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-
 
 namespace QLite.Data.Services
 {
-    public interface IApiService
-    {
-        Task<HttpResponseMessage> GetAsync<TRequest>(string endpoint, TRequest requestData = default);
-        Task<HttpResponseMessage> PostAsync<TRequest>(string endpoint, TRequest requestData);
-    }
-
-    public class ApiService : IApiService
+    public class ApiService
     {
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
 
-
-        public ApiService(HttpClient httpClient, IConfiguration configuration)
+        public ApiService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _configuration = configuration;
 
-            _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
+            _httpClient.BaseAddress = new Uri(CommonCtx.Config.GetValue<string>("APIBase"));
+
         }
 
-        public async Task<HttpResponseMessage> GetAsync<TRequest>(string endpoint, TRequest requestData = default)
+        public async Task<T> GetDesignResponse<T>(string endpoint)
         {
             var response = await _httpClient.GetAsync(endpoint);
-            response.EnsureSuccessStatusCode(); // Ensure successful response
-
-            return response;
+            if (response.IsSuccessStatusCode)
+            {
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<T>(responseData);
+            }
+            else
+            {
+                return default;
+            }
         }
-
-        public async Task<HttpResponseMessage> PostAsync<TRequest>(string endpoint, TRequest requestData)
+        public async Task<T> GetGenericResponse<T>(string endpoint)
         {
-            // Serialize request data
-            var content = new StringContent(JsonConvert.SerializeObject(requestData), Encoding.UTF8, "application/json");
+            try
+            {
+                var response = await _httpClient.GetAsync(endpoint);
 
-            // Make POST request to API endpoint
-            var response = await _httpClient.PostAsync(endpoint, content);
-            response.EnsureSuccessStatusCode(); // Ensure successful response
-
-            return response;
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    T deserializedData = JsonConvert.DeserializeObject<T>(responseData);
+                    return deserializedData;
+                }
+                else
+                {
+                    return default;
+                }
+            }
+            catch (Exception ex)
+            {
+                return default;
+            }
         }
+
+        public async Task<T> GetViewResponse<T>(string endpoint, object data)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(endpoint, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    var deserializedData = JsonConvert.DeserializeObject<T>(responseData);
+                    return deserializedData;
+                }
+                else
+                {
+                    return default; // or throw an appropriate exception
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex; // Rethrow the exception to be handled in the controller
+            }
+        }
+
+
+
+
     }
 }

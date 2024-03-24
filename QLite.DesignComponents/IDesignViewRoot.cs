@@ -291,5 +291,14 @@ namespace QLite.DesignComponents
         public Ticket Ticket { get; set; }
         public DesPageData DesPageData { get; set; }
     }
-
+    public class SegmentsAndDesignModel
+    {
+        public DesPageData DesignData { get; set; }
+        public List<Segment> Segments { get; set; }
+    }
+    public class ServicesAndDesignModel
+    {
+        public DesPageData DesignData { get; set; }
+        public List<ServiceType> Services { get; set; }
+    }
 }

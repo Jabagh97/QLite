@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using QLite.Data;
 using QLite.Data.Dtos;
 using QLite.DesignComponents;
@@ -12,129 +13,152 @@ namespace QLiteDataApi.Services
         Task<Ticket> GetNewTicketAsync(TicketRequestDto req);
 
         Task<List<ServiceType>> GetServiceTypes(Guid segmentId);
-        List<Segment> GetSegments();
+        Task<List<Segment>> GetSegments();
 
-        List<Kiosk> GetKioskByHwID(string HwId);
+        Task<Kiosk> GetKioskByHwID(string HwId);
 
         Task<Design> GetDesignByKiosk(string Step, string HwID);
 
     }
     public class KioskService : IKioskService
     {
+        private readonly IMemoryCache _cache;
+
         private readonly ApplicationDbContext _context;
 
-        public KioskService(ApplicationDbContext context)
+        public KioskService(IMemoryCache cache, ApplicationDbContext context)
         {
+            _cache = cache;
+
             _context = context;
         }
 
         #region New Ticket
         public async Task<Ticket> GetNewTicketAsync(TicketRequestDto req)
         {
-            using (var dbContextTransaction = _context.Database.BeginTransaction())
+            // Initialize DbContext transaction at the beginning of the scope to ensure it covers all operations
+            await using var dbContextTransaction = await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                try
-                {
-                    var svcType =  GetServiceType(req.ServiceTypeId);
-                    var segment =  GetSegment(req.SegmentId);
-                    var ticketPool =  GetTicketPool(req.ServiceTypeId, req.SegmentId);
+                // Combined queries to minimize database round trips
+                var (svcType, segment, ticketPool) = await GetTicketCreationDependenciesAsync(req.ServiceTypeId, req.SegmentId);
 
-                    if (svcType == null || segment == null || ticketPool == null)
-                    {
-                        throw new Exception("Failed to retrieve necessary data from the database");
-                    }
+                ValidateTicketPool(ticketPool);
+                int waitingTicketCount = await GetNumberOfWaitingTicketsAsync(req.ServiceTypeId, req.SegmentId);
+                ValidateWaitingTicketCount(ticketPool, waitingTicketCount);
 
-                    ValidateTicketPool(ticketPool);
-                    ValidateWaitingTicketCount(ticketPool, req.ServiceTypeId, req.SegmentId);
+                var retNumber = await GenerateTicketNumberAsync(ticketPool);
+                var newTicket = CreateNewTicket(svcType, segment, ticketPool, retNumber);
+                var newTicketState = CreateNewTicketState(newTicket, svcType, segment);
 
-                    var retNumber = GenerateTicketNumber(ticketPool);
+                await SaveTicketAsync(newTicket, newTicketState);
+                await dbContextTransaction.CommitAsync();
 
-                    var newTicket = CreateNewTicket(svcType, segment, ticketPool, retNumber);
-
-                    var newTicketState = CreateNewTicketState(newTicket, svcType, segment);
-
-                    var waiting =  GetNumberOfWaitingTickets(req.ServiceTypeId, req.SegmentId);
-
-                    newTicket.WaitingTickets = waiting;
-
-                    await SaveTicketAsync(newTicket, newTicketState);
-
-                    await dbContextTransaction.CommitAsync();
-
-                    return newTicket;
-                }
-                catch (Exception ex)
-                {
-                    // Rollback transaction in case of failure
-                    await dbContextTransaction.RollbackAsync();
-                    throw ex;
-                }
+                return newTicket;
+            }
+            catch (Exception)
+            {
+                // Rollback transaction in case of failure
+                await dbContextTransaction.RollbackAsync();
+                throw; // Use throw; to preserve stack trace of the original exception
             }
         }
-
-        private ServiceType? GetServiceType(Guid serviceTypeId)
+        private async Task<(ServiceType, Segment, TicketPool)> GetTicketCreationDependenciesAsync(Guid serviceTypeId, Guid segmentId)
         {
-            return _context.ServiceTypes.Find(serviceTypeId);
-        }
+            var serviceType = await _context.ServiceTypes.FindAsync(serviceTypeId);
+            var segment = await _context.Segments.FindAsync(segmentId);
+            var ticketPool = await _context.TicketPools
+                                            .FirstOrDefaultAsync(x => x.ServiceType == serviceTypeId && x.Segment == segmentId);
 
-        private Segment? GetSegment(Guid segmentId)
-        {
-            return _context.Segments.Find(segmentId);
-        }
-
-        private TicketPool GetTicketPool(Guid serviceTypeId, Guid segmentId)
-        {
-            var ticketPool = _context.TicketPools
-                .FirstOrDefault(x => x.ServiceType == serviceTypeId && x.Segment == segmentId);
-
-            if (ticketPool == null)
+            if (serviceType == null || segment == null || ticketPool == null)
             {
-                throw new Exception("Ticket pool not defined for this service type");
+                throw new InvalidOperationException("Failed to retrieve necessary data from the database");
             }
 
-            return ticketPool;
+            return (serviceType, segment, ticketPool);
+        }
+        private Ticket CreateNewTicket(ServiceType svcType, Segment segment, TicketPool ticketPool, int retNumber)
+        {
+            return new Ticket
+            {
+                Oid = Guid.NewGuid(),
+                ServiceType = svcType.Oid,
+                Segment = segment.Oid,
+                Year = DateTime.Today.Year,
+                DayOfYear = DateTime.Today.DayOfYear,
+                Number = retNumber,
+                ServiceTypeName = svcType?.Name,
+                SegmentName = segment.Name,
+                CurrentState = (int?)TicketStateEnum.Waiting,
+                ToServiceType = ticketPool.ServiceType,
+                LastOprTime = DateTime.Now,
+                CreatedDate = DateTime.Now,
+                CreatedDateUtc = DateTime.UtcNow,
+                ModifiedDate = DateTime.Now,
+                ModifiedDateUtc = DateTime.UtcNow,
+                TicketPool = ticketPool.Oid,
+                ServiceCode = ticketPool.ServiceCode,
+                Branch = ticketPool.Branch,
+                CopyNumber = ticketPool.CopyNumber,
+
+            };
+        }
+
+        private TicketState CreateNewTicketState(Ticket newTicket, ServiceType svcType, Segment segment)
+        {
+            return new TicketState
+            {
+                Oid = Guid.NewGuid(),
+                Ticket = newTicket.Oid,
+                TicketStateValue = (int?)TicketStateEnum.Waiting,
+                StartTime = DateTime.Now,
+                TicketNumber = newTicket.Number,
+                ServiceType = svcType?.Oid,
+                Segment = segment.Oid,
+                SegmentName = segment.Name,
+                ServiceTypeName = svcType?.Name,
+                Branch = newTicket.Branch,
+                CreatedDate = DateTime.Now,
+                CreatedDateUtc = DateTime.UtcNow,
+                ModifiedDate = DateTime.Now,
+                ModifiedDateUtc = DateTime.UtcNow,
+                TicketNavigation = newTicket,
+            };
         }
 
         private void ValidateTicketPool(TicketPool ticketPool)
         {
-            if (!(ticketPool.ServiceStartTime?.TimeOfDay < DateTime.Now.TimeOfDay &&
-                  ticketPool.ServiceEndTime?.AddSeconds(-1).TimeOfDay > DateTime.Now.TimeOfDay &&
-                  !(ticketPool.BreakStartTime?.TimeOfDay < DateTime.Now.TimeOfDay &&
-                    ticketPool.BreakEndTime?.TimeOfDay > DateTime.Now.TimeOfDay)))
+            var now = DateTime.Now.TimeOfDay;
+            bool isServiceTimeValid = ticketPool.ServiceStartTime?.TimeOfDay < now && ticketPool.ServiceEndTime?.TimeOfDay > now;
+            bool isBreakTimeInvalid = ticketPool.BreakStartTime?.TimeOfDay < now && ticketPool.BreakEndTime?.TimeOfDay > now;
+
+            if (!isServiceTimeValid || isBreakTimeInvalid)
             {
-                throw new Exception("Ticket pool is currently unavailable");
+                throw new InvalidOperationException("Ticket pool is currently unavailable.");
             }
         }
 
-        private void ValidateWaitingTicketCount(TicketPool ticketPool, Guid serviceTypeId, Guid segmentId)
+
+        private void ValidateWaitingTicketCount(TicketPool ticketPool, int waitingTicketCount)
         {
-            if (ticketPool.MaxWaitingTicketCountControlTime?.TimeOfDay > DateTime.Now.TimeOfDay)
+            var now = DateTime.Now.TimeOfDay;
+            if (ticketPool.MaxWaitingTicketCountControlTime?.TimeOfDay < now &&
+                ticketPool.MaxWaitingTicketCount.HasValue &&
+                ticketPool.MaxWaitingTicketCount < waitingTicketCount)
             {
-                int waitingTicketCount = GetNumberOfWaitingTickets(serviceTypeId, segmentId);
-                if (ticketPool.MaxWaitingTicketCount != null && ticketPool.MaxWaitingTicketCount < waitingTicketCount)
-                {
-                    throw new Exception("MaximumWaitingTicket number is reached for this service type");
-                }
+                throw new InvalidOperationException("Maximum waiting ticket number is reached for this service type.");
             }
         }
 
-        private int GetNumberOfWaitingTickets(Guid stId, Guid sgmId)
-        {
-            return _context.Tickets
-                .Count(x => x.ServiceType == stId &&
-                            x.Segment == sgmId &&
-                            x.CurrentState == (int?)TicketStateEnum.Waiting &&
-                            x.DayOfYear == DateTime.Today.DayOfYear &&
-                            x.Year == DateTime.Today.Year);
-        }
 
-        private int GenerateTicketNumber(TicketPool ticketPool)
+        private async Task<int> GenerateTicketNumberAsync(TicketPool ticketPool)
         {
-            var lastTicketNumber = _context.Tickets
+            var lastTicketNumber = await _context.Tickets
                 .Where(t => t.ServiceType == ticketPool.ServiceType && t.Segment == ticketPool.Segment && t.TicketPool == ticketPool.Oid)
                 .OrderByDescending(t => t.Number)
                 .Select(t => t.Number)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             var retNumber = lastTicketNumber != null ? lastTicketNumber + 1 : ticketPool.RangeStart;
 
@@ -156,56 +180,13 @@ namespace QLiteDataApi.Services
 
             return (int)retNumber;
         }
-
-
-
-    private Ticket CreateNewTicket(ServiceType svcType, Segment segment, TicketPool ticketPool, int retNumber)
+        private async Task<int> GetNumberOfWaitingTicketsAsync(Guid serviceTypeId, Guid segmentId)
         {
-            return new Ticket
-            {
-                Oid = Guid.NewGuid(),
-                ServiceType = svcType.Oid,
-                Segment = segment.Oid,
-                Year = DateTime.Today.Year,
-                DayOfYear = DateTime.Today.DayOfYear,
-                Number = retNumber,
-                ServiceTypeName = svcType?.Name,
-                SegmentName = segment.Name,
-                CurrentState = (int?)TicketStateEnum.Waiting,
-                ToServiceType = ticketPool.ServiceType,
-                LastOprTime = DateTime.Now,
-                CreatedDate = DateTime.Now,
-                CreatedDateUtc = DateTime.UtcNow,
-                ModifiedDate = DateTime.Now,
-                ModifiedDateUtc= DateTime.UtcNow,
-                TicketPool = ticketPool.Oid,
-                ServiceCode = ticketPool.ServiceCode,
-                Branch= ticketPool.Branch,
-                CopyNumber= ticketPool.CopyNumber,
-
-            };
-        }
-
-        private TicketState CreateNewTicketState(Ticket newTicket, ServiceType svcType, Segment segment)
-        {
-            return new TicketState
-            {
-                Oid = Guid.NewGuid(),
-                Ticket = newTicket.Oid,
-                TicketStateValue = (int?)TicketStateEnum.Waiting,
-                StartTime = DateTime.Now,
-                TicketNumber = newTicket.Number,
-                ServiceType = svcType?.Oid,
-                Segment = segment.Oid,
-                SegmentName = segment.Name,
-                ServiceTypeName = svcType?.Name,
-                Branch= newTicket.Branch,
-                CreatedDate = DateTime.Now,
-                CreatedDateUtc = DateTime.UtcNow,
-                ModifiedDate = DateTime.Now,
-                ModifiedDateUtc = DateTime.UtcNow,
-                TicketNavigation=newTicket,
-            };
+            return await _context.Tickets.CountAsync(x => x.ServiceType == serviceTypeId &&
+                                                          x.Segment == segmentId &&
+                                                          x.CurrentState == (int)TicketStateEnum.Waiting &&
+                                                          x.DayOfYear == DateTime.Today.DayOfYear &&
+                                                          x.Year == DateTime.Today.Year);
         }
 
         private async Task SaveTicketAsync(Ticket newTicket, TicketState newTicketState)
@@ -221,81 +202,125 @@ namespace QLiteDataApi.Services
 
         public async Task<List<ServiceType>> GetServiceTypes(Guid segmentId)
         {
-            var currentTime = DateTime.Now.TimeOfDay;
+            var cacheKey = $"ServicesForSegment_{segmentId}";
 
-            var serviceTypes = await _context.ServiceTypes
-                            .Where(st => st.Gcrecord == null && st.Parent == null)
-                            .Include(st => st.TicketPools)
-                            .Where(st => st.TicketPools.Any(tp => tp.Segment == segmentId  &&
-                                                                   tp.NotAvailable != true ))
-                            .OrderBy(st => st.SeqNo)
-                            .ToListAsync();
+            if (!_cache.TryGetValue(cacheKey, out List<ServiceType> serviceTypes))
+            {
+                serviceTypes = await _context.ServiceTypes
+                               .Where(st => st.Gcrecord == null && st.Parent == null)
+                               .Include(st => st.TicketPools)
+                               .Where(st => st.TicketPools.Any(tp => tp.Segment == segmentId &&
+                                                                      tp.NotAvailable != true))
+                               .OrderBy(st => st.SeqNo)
+                               .ToListAsync();
 
+                var currentTime = DateTime.Now.TimeOfDay;
 
-            // Apply time-based filtering in memory
-            serviceTypes =  serviceTypes.Where(st =>
-                st.TicketPools.All(tp =>
-                    tp.ServiceStartTime == null ||
-                    (tp.ServiceStartTime.Value.TimeOfDay < currentTime &&
-                     (tp.ServiceEndTime == null || tp.ServiceEndTime.Value.TimeOfDay > currentTime) &&
-                     (tp.BreakStartTime == null || !(tp.BreakStartTime.Value.TimeOfDay < currentTime && tp.BreakEndTime.Value.TimeOfDay > currentTime)))))
-                .ToList();
+                // Apply time-based filtering in memory
+                serviceTypes = serviceTypes.Where(st =>
+                    st.TicketPools.All(tp =>
+                        tp.ServiceStartTime == null ||
+                        (tp.ServiceStartTime.Value.TimeOfDay < currentTime &&
+                         (tp.ServiceEndTime == null || tp.ServiceEndTime.Value.TimeOfDay > currentTime) &&
+                         (tp.BreakStartTime == null || !(tp.BreakStartTime.Value.TimeOfDay < currentTime && tp.BreakEndTime.Value.TimeOfDay > currentTime)))))
+                    .ToList();
+
+                // Set cache options
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(5)); 
+
+                // Save data in cache
+                _cache.Set(cacheKey, serviceTypes, cacheEntryOptions);
+            }
 
             return serviceTypes;
         }
 
 
 
-
-        public List<Segment> GetSegments()
+        public async Task<List<Segment>> GetSegments()
         {
-            var segments = _context.Segments.Where(seg => seg.Gcrecord == null)
-                 .ToList();
+            // Try to get the cached segments
+            if (!_cache.TryGetValue("SegmentsForKiosk", out List<Segment> segments))
+            {
+                // Key not in cache, so get data from the database
+                segments = await _context.Segments.Where(seg => seg.Gcrecord == null).ToListAsync();
+
+                // Set cache options
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(5)); 
+
+                // Save data in cache
+                _cache.Set("SegmentsForKiosk", segments, cacheEntryOptions);
+            }
 
             return segments;
         }
 
-
-        public List<Kiosk> GetKioskByHwID(string HwId)
+        public async Task<Kiosk> GetKioskByHwID(string HwId)
         {
-            var kiosk = _context.Kiosks.Where(k => k.Gcrecord == null && k.Active ==true && k.HwId == HwId)
-                 .ToList();
+            var cacheKey = $"Kiosk_HwID_{HwId}";
+
+            if (!_cache.TryGetValue(cacheKey, out Kiosk kiosk))
+            {
+                kiosk = await _context.Kiosks.FirstOrDefaultAsync(k => k.Gcrecord == null && k.Active == true && k.HwId == HwId);
+
+                if (kiosk != null)
+                {
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromMinutes(5)); 
+                    _cache.Set(cacheKey, kiosk, cacheEntryOptions);
+                }
+            }
 
             return kiosk;
         }
 
+
+       
         public async Task<Design> GetDesignByKiosk(string Step, string HwID)
         {
-            var kiosk = await _context.Kiosks.FirstOrDefaultAsync(k => k.HwId == HwID);
+            // Define a unique cache key based on both Step and HwID
+            var cacheKey = $"DesignByKiosk_Step_{Step}_HwID_{HwID}";
 
-            if (kiosk == null)
+            if (!_cache.TryGetValue(cacheKey, out Design _design))
             {
-                return null;
-            }
-            if (!Enum.TryParse(Step, out WfStep wfStep))
-            {
-                // Handle invalid step value here, perhaps return null or throw an exception
-                return null;
-            }
-            // Left join DesignTargets with Designs
-            var targetsWithDesigns = await (
-                from target in _context.DesignTargets
-                join design in _context.Designs
-                    on target.Design equals design.Oid into designGroup
-                from d in designGroup.DefaultIfEmpty() // Left join
-                where target.Kiosk == kiosk.Oid
-                select new { Target = target, Design = d }
-            ).ToListAsync();
+                var kiosk = await _context.Kiosks.FirstOrDefaultAsync(k => k.HwId == HwID);
 
-            // Filter the results based on the provided Step
-            var targetWithDesign = targetsWithDesigns.FirstOrDefault(td => td.Design != null && td.Design.WfStep == (int)wfStep);
+                if (kiosk == null)
+                {
+                    return null; // Early exit if kiosk is not found
+                }
 
-            if (targetWithDesign != null)
-            {
-                return targetWithDesign.Design;
+                if (!Enum.TryParse(Step, true, out WfStep wfStep)) // Case insensitive parsing
+                {
+                    // Optionally, log this error or handle it as needed
+                    return null; // Handle invalid step value by returning null or consider logging
+                }
+
+                // Perform the query to get the design
+                var targetWithDesign = await (
+                    from target in _context.DesignTargets
+                    join design in _context.Designs on target.Design equals design.Oid into designGroup
+                    from d in designGroup.DefaultIfEmpty() // Left join
+                    where target.Kiosk == kiosk.Oid && d != null && d.WfStep == (int)wfStep
+                    select d
+                ).FirstOrDefaultAsync();
+
+                if (targetWithDesign != null)
+                {
+                    _design = targetWithDesign;
+
+                    // Set cache options
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromMinutes(5)); 
+
+                    // Save the design in cache
+                    _cache.Set(cacheKey, _design, cacheEntryOptions);
+                }
             }
 
-            return null;
+            return _design;
         }
 
 

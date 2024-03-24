@@ -150,9 +150,8 @@ namespace AdminPortal
 
             services.AddControllersWithViews();
 
-            services.AddHttpClient();
+            services.AddHttpClient<ApiService>();
 
-            services.AddScoped<IApiService, ApiService>();
 
 
         }

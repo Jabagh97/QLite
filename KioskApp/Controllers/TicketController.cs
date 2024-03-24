@@ -10,15 +10,16 @@ using KioskApp.Helpers;
 using QLite.DesignComponents;
 using KioskApp.Services;
 using QLite.Data.CommonContext;
+using QLite.Data.Services;
 
 namespace KioskApp.Controllers
 {
     public class TicketController : Controller
     {
         HwManager _hwman;
-        private readonly HttpService _httpService;
+        private readonly ApiService _httpService;
 
-        public TicketController(HttpService httpService, HwManager hwman)
+        public TicketController(ApiService httpService, HwManager hwman)
         {
             _httpService = httpService;
 

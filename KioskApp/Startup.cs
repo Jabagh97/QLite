@@ -40,7 +40,7 @@ namespace KioskApp
             services.AddSession();
 
             services.AddControllersWithViews();
-            services.AddHttpClient<HttpService>();
+            services.AddHttpClient<ApiService>();
 
         }
 

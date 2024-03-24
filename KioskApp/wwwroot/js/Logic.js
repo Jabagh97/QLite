@@ -52,6 +52,8 @@ function startConnection() {
             console.log("Connected to Communication Hub.");
             sendMessageToDesk("Kiosk is Connected");
             hideErrorAndShowContent();
+            queryHw();
+
         })
         .catch(function (err) {
             console.error(err.toString());
@@ -82,17 +84,16 @@ function touch() {
     loadSegmentView();
 }
 
-// Initialize on window load
-$(window).on('load', function () {
+// Initialize when all elements on the page have loaded
+$(document).ready(function () {
     $("body").unbind("click");
     $("body").on('click', function (event) {
         touch();
     });
 
     ValidateKiosk();
-
-
 });
+
 
 // Send message to desk
 function sendMessageToDesk(message) {
@@ -116,8 +117,10 @@ function ValidateKiosk() {
             console.log("Kiosk Authenticated successfully");
             try {
                 const responseObject = JSON.parse(response);
-                if (responseObject && responseObject.length > 0) {
-                    const kioskData = responseObject[0];
+
+                if (responseObject ) {
+
+                    const kioskData = responseObject;
                     ({ branchID, kioskType, hwId, name } = kioskData);
                     KioskType = (kioskType === 0) ? "Kiosk" : (kioskType === 1) ? "Display" : null;
                     if (KioskType) {
@@ -196,16 +199,29 @@ function hideContentAndShowErrors() {
 
 // Display broken devices
 function displayBrokenDevices() {
+    // Hide all devices initially
     $("#Printer, #Display, #Terminal").hide();
-    if (brokenDevices.length === 1) {
-        if (brokenDevices[0] === 0) {
+
+    // If no devices are broken, nothing to display
+    if (brokenDevices.length === 0) {
+        return;
+    }
+
+    // If all devices are broken, show all of them
+    if (brokenDevices.length === 3) {
+        $("#Printer, #Display, #Terminal").show();
+        return;
+    }
+
+    // Otherwise, show the broken devices
+    for (let i = 0; i < brokenDevices.length; i++) {
+        const device = brokenDevices[i];
+        if (device === 0) {
             $("#Printer").show();
-        } else if (brokenDevices[0] === 1) {
+        } else if (device === 1) {
             $("#Display").show();
-        } else if (brokenDevices[0] === 2) {
+        } else if (device === 2) {
             $("#Terminal").show();
         }
-    } else if (brokenDevices.length === 3) {
-        $("#Printer, #Display, #Terminal").show();
     }
 }

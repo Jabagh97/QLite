@@ -42,6 +42,7 @@ namespace QLiteDataApi
 
 
             services.AddControllers();
+            services.AddMemoryCache();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.AddSignalR();

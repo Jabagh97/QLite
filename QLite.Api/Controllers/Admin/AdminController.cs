@@ -48,8 +48,6 @@ namespace QLiteDataApi.Controllers.Admin
             }
         }
 
-
-
         [HttpPost]
         [Route("api/Admin/Create")]
 

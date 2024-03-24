@@ -3,6 +3,7 @@ using KioskApp.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using QLite.Data.CommonContext;
+using QLite.Data.Services;
 using QLite.DesignComponents;
 using Quavis.QorchLite.Hwlib;
 using System.Diagnostics;
@@ -13,9 +14,9 @@ namespace KioskApp.Controllers
     public class HomeController : Controller
     {
         private readonly HwManager _hwman;
-        private readonly HttpService _httpService;
+        private readonly ApiService _httpService;
 
-        public HomeController(HwManager hwman, HttpService httpService)
+        public HomeController(HwManager hwman, ApiService httpService)
         {
            
             _hwman = hwman;

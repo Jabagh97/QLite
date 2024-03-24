@@ -9,44 +9,41 @@ using System.Text;
 using QLite.DesignComponents;
 using KioskApp.Services;
 using QLite.Data.CommonContext;
+using QLite.Data.Services;
+using Serilog;
 
 namespace KioskApp.Controllers
 {
     public class ServiceController : Controller
     {
-        private readonly HttpService _httpService;
+        private readonly ApiService _httpService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ServiceController(HttpService httpService, IHttpContextAccessor httpContextAccessor)
+        public ServiceController(ApiService httpService, IHttpContextAccessor httpContextAccessor)
         {
             _httpService = httpService;
             _httpContextAccessor = httpContextAccessor;
         }
 
 
-        public async Task<IActionResult> Index(Guid SegmentOid, string HwID)
+        public async Task<IActionResult> Index(Guid segmentOid, string hwId)
         {
+            var viewModel = new ServicesAndDesignModel();
             try
             {
+                viewModel.DesignData = await GetDesignData(hwId);
+                viewModel.Services = await FetchServiceTypesFromAPIAsync(segmentOid);
 
-                DesPageData designData = await GetDesignData(HwID);
+                // Store necessary data in the session
+                var session = _httpContextAccessor.HttpContext.Session;
+                session.SetString("Segment", segmentOid.ToString());
 
-
-                ISession session = _httpContextAccessor.HttpContext.Session;
-
-                session.SetString("Segment", SegmentOid.ToString());
-
-                var services = await FetchServiceTypesFromAPIAsync(SegmentOid);
-
-
-                ViewBag.Services = services;
-
-                return PartialView("Views/Home/Services.cshtml", designData);
+                return PartialView("Views/Home/Services.cshtml", viewModel);
             }
             catch (Exception ex)
             {
-                // Log or handle the exception appropriately
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                Log.Error(ex, "Failed to load services.");
+                return StatusCode(500, "Internal server error. Please try again later.");
             }
         }
         private async Task<DesPageData> GetDesignDataTicket(string HwID)
@@ -67,51 +64,39 @@ namespace KioskApp.Controllers
 
         }
 
+       
         [HttpPost]
         public async Task<IActionResult> GetTicket([FromBody] TicketRequestDto ticketRequest)
         {
             try
             {
-                ISession session = _httpContextAccessor.HttpContext.Session;
-
-                string segmentIdString = session.GetString("Segment");
-
+                var session = _httpContextAccessor.HttpContext.Session;
+                var segmentIdString = session.GetString("Segment");
                 if (Guid.TryParse(segmentIdString, out Guid segmentId))
                 {
                     ticketRequest.SegmentId = segmentId;
                 }
 
                 var ticket = await _httpService.GetViewResponse<Ticket>(EndPoints.GetTicket, ticketRequest);
+                if (ticket == null) return StatusCode(500, "Failed to retrieve ticket data");
 
-                if (ticket != null)
+                var hwId = CommonCtx.Config.GetValue<string>("KioskID"); 
+                var designData = await GetDesignDataTicket(hwId);
+
+                var model = new TicketAndDesPageDataViewModel
                 {
-                    string kioskHwId = CommonCtx.KioskHwId;
+                    Ticket = ticket,
+                    DesPageData = designData
+                };
 
-                    // Get the design data for the kiosk
-                    DesPageData designData = await GetDesignDataTicket(kioskHwId);
-
-                    // Create the view model
-                    var model = new TicketAndDesPageDataViewModel
-                    {
-                        Ticket = ticket,
-                        DesPageData = designData
-                    };
-
-                    // Return the partial view with the view model
-                    return PartialView("Views/Home/Ticket.cshtml", model);
-                }
-                else
-                {
-                    return StatusCode(500, "Failed to retrieve ticket data");
-                }
+                return PartialView("Views/Home/Ticket.cshtml", model);
             }
             catch (Exception ex)
             {
-                // Log or handle other exceptions
+                Log.Error(ex, "Error fetching ticket.");
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
 
 
     }

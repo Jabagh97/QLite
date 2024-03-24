@@ -68,9 +68,9 @@ namespace QLiteDataApi.Controllers.Kiosk
 
         [HttpGet]
         [Route("api/Kiosk/GetSegments")]
-        public IActionResult GetSegments()
+        public async Task<IActionResult> GetSegments()
         {
-            var segments = _KioskService.GetSegments();
+            var segments = await _KioskService.GetSegments();
 
             return Ok(segments);
 
@@ -78,16 +78,9 @@ namespace QLiteDataApi.Controllers.Kiosk
 
         [HttpGet]
         [Route("api/Kiosk/GetKioskByHwID")]
-        public IActionResult GetKioskByHwID(string HwId)
+        public async Task<IActionResult> GetKioskByHwID(string HwId)
         {
-            var kiosk = _KioskService.GetKioskByHwID(HwId);
-
-            if (kiosk.Count() == 0 || kiosk.Count() > 1) // Check if kiosk is null or empty
-            {
-                Log.Error("Kiosk Error: Kiosk not found for the provided Hardware ID.");
-
-                return NotFound("Kiosk not found for the provided Hardware ID.");
-            }
+            var kiosk = await _KioskService.GetKioskByHwID(HwId);
 
             return Ok(kiosk);
         }
@@ -95,13 +88,13 @@ namespace QLiteDataApi.Controllers.Kiosk
 
         [HttpGet]
         [Route("api/Kiosk/GetDesignByKiosk/{Step}/{HwID}")]
-        public IActionResult GetDesignByKiosk(string Step,string HwID)
+        public async Task<IActionResult> GetDesignByKiosk(string Step, string HwID)
         {
-            var design = _KioskService.GetDesignByKiosk(Step, HwID);
+            var design = await _KioskService.GetDesignByKiosk(Step, HwID);
 
-            if (design.Result != null)
+            if (design != null)
             {
-                return Ok(design.Result.DesignData);
+                return Ok(design.DesignData);
             }
 
             return NotFound();

@@ -4,51 +4,58 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using QLite.Data;
+using QLite.Data.Services;
 using QLite.DesignComponents;
+using Serilog;
 
 namespace KioskApp.Controllers
 {
     public class SegmentController : Controller
     {
-        private readonly HttpService _httpService;
+        private readonly ApiService _apiService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SegmentController(HttpService httpService, IHttpContextAccessor httpContextAccessor)
+        public SegmentController(ApiService apiService, IHttpContextAccessor httpContextAccessor)
         {
-            _httpService = httpService;
+            _apiService = apiService;
             _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IActionResult> Index(string hwId)
         {
+            var viewModel = new SegmentsAndDesignModel();
             try
             {
-                var designData = await GetDesignData(hwId);
-                var segments = await FetchSegmentsFromAPIAsync();
+                viewModel.DesignData = await GetDesignData(hwId);
+                viewModel.Segments = await FetchSegmentsFromAPIAsync();
 
-                // Store session data
-                var session = _httpContextAccessor.HttpContext.Session;
-                session.SetString("StartTime", DateTime.Now.ToString());
-
-                ViewBag.Segments = segments;
-                return PartialView("~/Views/Home/Segments.cshtml", designData);
+                // Consider if there's a more efficient way to handle this or if it's necessary
+                _httpContextAccessor.HttpContext.Session.SetString("StartTime", DateTime.Now.ToString());
             }
             catch (Exception ex)
             {
-                // Log or handle the exception appropriately
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                // Logging the exception
+                Log.Error(ex, "Failed to load segments.");
+
+                // In a global error handler, you'd handle this more gracefully
+                return StatusCode(500, "Internal server error. Please try again later.");
             }
+
+            return PartialView("~/Views/Home/Segments.cshtml", viewModel);
         }
 
         private async Task<DesPageData> GetDesignData(string hwId)
         {
             var step = "SegmentSelection";
-            return await _httpService.GetDesignResponse<DesPageData>($"api/Kiosk/GetDesignByKiosk/{step}/{hwId}");
+            return await _apiService.GetDesignResponse<DesPageData>($"api/Kiosk/GetDesignByKiosk/{step}/{hwId}");
         }
 
         private async Task<List<Segment>> FetchSegmentsFromAPIAsync()
         {
-            return await _httpService.GetGenericResponse<List<Segment>>(EndPoints.GetSegments);
+            return await _apiService.GetGenericResponse<List<Segment>>(EndPoints.GetSegments);
         }
     }
+
+   
+
 }

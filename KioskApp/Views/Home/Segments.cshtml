@@ -1,31 +1,29 @@
-﻿@using KioskApp.Helpers;
+﻿@using KioskApp.Controllers;
+@using KioskApp.Helpers;
 @using QLite.DesignComponents;
 @using QLite.Data;
 @using System.Text;
-@model DesPageData
+@model SegmentsAndDesignModel
 
 
-@{
 
-    var segments = ViewBag.Segments as List<Segment>;
-}
 
-@if (Model != null && Model.Comps != null)
+@if (Model.DesignData != null && Model.DesignData.Comps != null)
 {
 
     <div id="canvas-container"
      style="
-        width: @(Model.Width ?? "100vw");
-        height: @(Model.Height ?? "100vh");
-        background-image: url('@(Model.BgImageUrl ?? "")');
+        width: @(Model.DesignData.Width ?? "100vw");
+        height: @(Model.DesignData.Height ?? "100vh");
+        background-image: url('@(Model.DesignData.BgImageUrl ?? "")');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
         border: 1px solid black;
             ">
-        @foreach (var comp in Model.Comps)
+        @foreach (var comp in Model.DesignData.Comps)
         {
-            @Html.Raw(RenderComponent(comp,segments))
+            @Html.Raw(RenderComponent(comp,Model.Segments))
         }
     </div>
 }
@@ -33,7 +31,7 @@ else
 {
     <div class="d-flex justify-content-center align-items-center h-100">
         <div class="row">
-            @foreach (var segment in segments)
+            @foreach (var segment in Model.Segments)
             {
                 <div class="col-md-12 mb-3">
                     <div class="text-center">

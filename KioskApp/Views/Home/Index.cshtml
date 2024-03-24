@@ -32,20 +32,13 @@
              style="
         width: @(Model.Width ?? "100vw");
         height: @(Model.Height ?? "100vh");
-        ">
-
-
-
-
+        display: none; ">
                 @foreach (var comp in Model.Comps)
                 {
                     @Html.Raw(RenderComponent(comp))
                 }
 
             </div>
-
-
-
 
             @*Errors*@
 
@@ -60,7 +53,7 @@
 
             <div id="Errors" style="display:none; font-family: Arial, sans-serif;">
                 <div id="divooo" style="text-align:center;">
-                    <img src="~/media/ooo2.png" style="width: calc(15vw + 15vh);" />
+                    <img src="~/media/ooo2.png"  />
                     <div style="margin-top: 20px;">
                         <div id="Printer" style="display: inline-block; margin-right: 20px;">
                             <img src="~/media/printerError.png" style="width: 100px; height: auto;" />
@@ -77,6 +70,8 @@
                     </div>
                 </div>
             </div>
+
+        
 
         </div>
     </div>
