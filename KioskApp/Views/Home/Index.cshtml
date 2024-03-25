@@ -2,24 +2,23 @@
 @using QLite.DesignComponents;
 @using QLite.Data;
 @using System.Text;
-@model DesPageData
+@model HomeAndDesPageDataViewModel
 @inject IConfiguration Configuration
 
 @{
     ViewData["Title"] = "Home Page";
-    var kioskId = ViewData["KioskID"] as string;
+   
     var currentTime = DateTime.Now.ToString("D");
 }
 
-@if (Model != null && Model.Comps != null)
+@if (Model.DesPageData != null && Model.DesPageData.Comps != null)
 {
-    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; width:100vw;">
 
-        <div id="canvas-container"
+        <div id="canvas-container" 
          style="
-        width: @(Model.Width ?? "100vw");
-        height: @(Model.Height ?? "100vh");
-        background-image: url('@(Model.BgImageUrl ?? "")');
+        width: @(Model.DesPageData.Width ?? "100vw");
+        height: @(Model.DesPageData.Height ?? "100vh");
+        background-image: url('@(Model.DesPageData.BgImageUrl ?? "")');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -30,10 +29,10 @@
 
             <div id="content"
              style="
-        width: @(Model.Width ?? "100vw");
-        height: @(Model.Height ?? "100vh");
+        width: @(Model.DesPageData.Width ?? "100vw");
+        height: @(Model.DesPageData.Height ?? "100vh");
         display: none; ">
-                @foreach (var comp in Model.Comps)
+                @foreach (var comp in Model.DesPageData.Comps)
                 {
                     @Html.Raw(RenderComponent(comp))
                 }
@@ -74,7 +73,6 @@
         
 
         </div>
-    </div>
 
 }
 else

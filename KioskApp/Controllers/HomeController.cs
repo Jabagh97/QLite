@@ -26,13 +26,17 @@ namespace KioskApp.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var viewModel = new HomeAndDesPageDataViewModel();
+
             try
             {
                 string _kioskHwId = CommonCtx.KioskHwId;
 
                 DesPageData designData = await GetDesignData(_kioskHwId);
-                ViewData["KioskID"] = _kioskHwId;
-                return View(designData);
+
+                viewModel.DesPageData = designData;
+                viewModel.KioskHwId = _kioskHwId;
+                return View(viewModel);
             }
             catch (Exception ex)
             {

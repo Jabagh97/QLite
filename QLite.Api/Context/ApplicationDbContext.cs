@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QLite.Data;
+using QLiteDataApi.Services;
 
 namespace QLiteDataApi.Context;
 
@@ -86,7 +87,6 @@ public partial class ApplicationDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            // Load connection string from configuration
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
@@ -95,6 +95,8 @@ public partial class ApplicationDbContext : DbContext
             optionsBuilder.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
         }
     }
+
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

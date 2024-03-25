@@ -13,12 +13,11 @@ namespace KioskApp.Helpers
 
             sb.Append($"<div id=\"{comp.Id}\" ");
             sb.Append($"data-comp-id=\"{comp.Id}\" ");
-            sb.Append("class=\"resize-drag\" ");
 
             sb.Append("style=\"position: absolute; ");
             sb.AppendFormat("width:{0}; ", comp.Width);
             sb.AppendFormat("height:{0}; ", comp.Height);
-            sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+            sb.AppendFormat("left: {0}; top:{1}; ", comp.PosX, comp.PosY);
 
             if (!string.IsNullOrEmpty(comp.CustomCss))
             {
@@ -70,7 +69,7 @@ namespace KioskApp.Helpers
             sb.Append("style=\"position: absolute;");
             sb.AppendFormat("width:{0}; ", comp.Width);
             sb.AppendFormat("height:{0}; ", comp.Height);
-            sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+            sb.AppendFormat("left: {0}; top:{1}; ", comp.PosX, comp.PosY);
 
 
             if (comp.GenCompType == HtmlCompType.Image)

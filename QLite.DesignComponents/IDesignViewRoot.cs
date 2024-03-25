@@ -286,6 +286,12 @@ namespace QLite.DesignComponents
         public string DesignImage { get; set; }
     }
 
+    public class HomeAndDesPageDataViewModel
+    {
+        public string KioskHwId { get; set; }
+        public DesPageData DesPageData { get; set; }
+    }
+
     public class TicketAndDesPageDataViewModel
     {
         public Ticket Ticket { get; set; }
