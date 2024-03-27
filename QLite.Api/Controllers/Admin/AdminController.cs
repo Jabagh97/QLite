@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using QLite.Data;
 using QLite.Data.Services;
 using QLite.DesignComponents;
 using QLiteDataApi.Constants;
@@ -301,6 +302,13 @@ namespace QLiteDataApi.Controllers.Admin
             return Ok(segments);
         }
 
+        [HttpGet("api/Admin/GetLanguageList")]
+        public async Task<IActionResult> GetLanguageList()
+        {
+            var segments = await _dataService.GetLanguageList();
+            return Ok(segments);
+        }
+
 
         [HttpGet]
         [Route("api/Admin/GetDesignImageByID/{DesignID}")]
@@ -308,13 +316,18 @@ namespace QLiteDataApi.Controllers.Admin
         {
             string designImage = await _dataService.GetDesignImageByID(DesignID);
 
-           
-
-          
-            return Ok(designImage);
         
+            return Ok(designImage);
+        }
 
-          
+
+        [HttpGet]
+        [Route("api/Admin/GetTicketStateReport/{StartDate}/{EndDate}")]
+        public async Task<IActionResult> GetTicketStateReport(DateTime StartDate, DateTime EndDate) 
+        {
+            string reportData = await _dataService.GetTicketStateReport(StartDate, EndDate);
+
+            return Ok(reportData);
         }
 
         #region Helpers

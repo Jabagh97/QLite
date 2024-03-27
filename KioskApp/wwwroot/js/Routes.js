@@ -15,15 +15,12 @@
 }
 
 function loadServiceView(segmentOid) {
-
-
     $.ajax({
-        url: '/Service/Index',
+        url: '/Service/Index', 
         type: 'GET',
-        data: { SegmentOid: segmentOid, HwID: kioskID },
-
+        data: { segmentOid: segmentOid, hwId: kioskID }, 
         success: function (response) {
-            console.log("Service")
+            console.log("Service");
             $('#content').html(response);
         },
         error: function (error) {
@@ -31,6 +28,7 @@ function loadServiceView(segmentOid) {
         }
     });
 }
+
 
 function loadTicketView(ticket) {
     $.ajax({
@@ -54,7 +52,7 @@ function PrintTicket(ticket) {
         url: 'Ticket/PrintTicket',
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ html: ticket }), // Convert data to JSON string
+        data: JSON.stringify({ html: ticket }), 
         success: function (response) {
             console.log("Printed");
         },
@@ -69,7 +67,7 @@ function DisplayTicket(ticket) {
         url: '/Ticket/DisplayTicket', 
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ DisplayNo: ticket.DisplayNo, TicketNo: ticket.ServiceCode + ticket.TicketNumber, SendToMain: true }), // Convert data to JSON string
+        data: JSON.stringify({ DisplayNo: ticket.DisplayNo, TicketNo: ticket.ServiceCode + ticket.TicketNumber, SendToMain: true }), 
         success: function (response) {
             console.log("Ticket displayed successfully");
         },
@@ -79,6 +77,22 @@ function DisplayTicket(ticket) {
     });
 }
 
+
+function changeLanguage(step,lang) {
+    $.ajax({
+        url: `${step}/ChangeLanguage/?LangID=${lang}`,
+        type: 'POST',
+        success: function (response) {
+            console.log("language changed successfully");
+
+            $('#content').html(response);
+
+        },
+        error: function (xhr, status, error) {
+            console.error("Error cahnging language", xhr.responseText);
+        }
+    });
+}
 
 async function getHttpReq(url, data) {
     let temp;

@@ -85,8 +85,17 @@ function loadDesignImages() {
 loadDesignImages();
 
 
+document.addEventListener('DOMContentLoaded', function () {
+    // Set the input value to desPageData.PageTimeOut when the page loads
+    var timeoutInput = document.getElementById('TimeOut');
+    timeoutInput.value = desPageData.PageTimeOut;
 
-
+    // Update desPageData.PageTimeOut whenever the input's value changes
+    timeoutInput.addEventListener('input', function (e) {
+        desPageData.PageTimeOut = parseInt(e.target.value, 10) || 0;
+        console.log('Page Timeout set to:', desPageData.PageTimeOut); // For debugging purposes
+    });
+});
 
 /////////////////  Buttons    //////////////////////////
 
@@ -367,6 +376,35 @@ function populateServiceOptions(serviceTypeOid) {
         }
     });
 }
+// Function to populate service options
+function populateLanguageOptions(languageOid) {
+    $.ajax({
+        url: 'Designer/GetLanguageList',
+        method: 'GET',
+        success: function (response) {
+            // Clear existing options
+            $('#selectLanguageID').empty().append($('<option>', {
+                value: '00000000-0000-0000-0000-000000000000',
+                text: 'None'
+            }));
+
+            // Append new options
+            $.each(response, function (index, service) {
+                $('#selectLanguageID').append($('<option>', {
+                    value: service.oid,
+                    text: service.name
+                }));
+            });
+
+            // Set the selected value after the options have been populated
+            $('#selectLanguageID').val(languageOid);
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching service list:', error);
+        }
+    });
+}
+
 
 
 /////////////////   Modal Methods  //////////////////////////
@@ -402,7 +440,9 @@ const componentConfigurations = {
 
     'DesCompDataLang': {
         modalTitle: 'Edit Language Component',
-        fieldsToShow: ['#BtnTextField', '#cssCustomField', '#languageIDField', '#compIdField'],
+        fieldsToShow: ['#BtnTextField', '#cssCustomField', '#languageIDField', '#selectLanguageID','#ImageField', '#compIdField'],
+        additionalActions: populateLanguageOptions
+
     },
 
     'DesCompDataWfButton': {
@@ -592,7 +632,7 @@ function showModal(compId, buttonText, componentType) {
         }
         else if (componentType === 'DesCompDataLang') {
 
-            // id = comp.LanguageName;
+            id = component.LangID;
 
         }
 
@@ -673,9 +713,10 @@ $('#saveComponentButton').click(function () {
             'ctxIndex': 'CtxIndex',
             'localVideoURL': 'LocalUrl',
             'youtubeVideoURL': 'YoutubeUrl',
-            'selectLanguageID': 'LanguageName',
+            'selectLanguageID': 'LangID',
             'textType': 'InfoType',
-            'HtmlType': 'GenCompType'
+            'HtmlType': 'GenCompType',
+
         };
 
         Object.entries(inputsToCompProps).forEach(([inputId, propName]) => {

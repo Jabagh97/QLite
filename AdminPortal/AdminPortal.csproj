@@ -28,7 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Designer\layout\partials\" />
     <Folder Include="wwwroot\JQuery\" />
   </ItemGroup>
 

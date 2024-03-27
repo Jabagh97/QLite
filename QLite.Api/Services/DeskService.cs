@@ -249,7 +249,7 @@ namespace QLiteDataApi.Services
                 DateTime t = DateTime.Now;
                 current.EndTime = t;
                 current.TicketOprValue = (int)TicketOprEnum.ServiceEnd;
-
+                current.EndTime = DateTime.Now;
                 // Update the TicketState entity
                 _context.TicketStates.Update(current);
 
@@ -264,6 +264,7 @@ namespace QLiteDataApi.Services
                     currentTicket.ModifiedDate = DateTime.Now;
                     currentTicket.ModifiedDateUtc = DateTime.UtcNow;
                     currentTicket.Desk = DeskID;
+                    
 
                     // Update the Ticket entity
                     _context.Tickets.Update(currentTicket);
@@ -287,11 +288,11 @@ namespace QLiteDataApi.Services
                     TicketStateValue = (int)TicketStateEnum.Final,
                     StartTime = t,
                     ServiceCode = currentTicket.ServiceCode,
-
                     CreatedDate = DateTime.Now,
                     CreatedDateUtc = DateTime.UtcNow,
                     ModifiedDate = DateTime.Now,
                     ModifiedDateUtc = DateTime.UtcNow,
+
 
                     // User = QorchUserContext.UserId,
 

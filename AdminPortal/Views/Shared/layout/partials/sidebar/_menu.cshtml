@@ -470,6 +470,19 @@
                             <!--end:Menu link-->
                         </div>
 
+
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            @* SUB PROVINCE *@
+                            <a class="menu-link" asp-controller="GenericTable" asp-action="Index" asp-route-modelName="Resource">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Resources</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
                     </div>
                     <!--end:Menu sub-->
                 </div>
@@ -496,9 +509,10 @@
 
                         <!--begin:Menu item-->
                         <div class="menu-item">
+                            
                             <!--begin:Menu link-->
                             @* ACCOuNT *@
-                            <a class="menu-link" asp-controller="User" asp-action="Index">
+                            <a class="menu-link" asp-controller="Reports" asp-action="Index" asp-route-ReportType="TicketStateReport">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>

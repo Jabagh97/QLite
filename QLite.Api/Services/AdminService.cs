@@ -34,7 +34,7 @@ namespace QLiteDataApi.Services
 
         Design GetDesign(Guid DesignID);
 
-        bool SaveDesign(Guid DesignID, DesPageData desPageData,string designImage);
+        bool SaveDesign(Guid DesignID, DesPageData desPageData, string designImage);
 
 
         Task<List<Segment>> GetSegmentList();
@@ -42,7 +42,9 @@ namespace QLiteDataApi.Services
         Task<List<ServiceType>> GetServiceList();
 
         Task<List<Design>> GetDesignList();
-        Task<string>GetDesignImageByID(Guid designID);
+        Task<string> GetDesignImageByID(Guid designID);
+        Task<string> GetTicketStateReport(DateTime StartDate, DateTime EndDate);
+        Task<List<Language>> GetLanguageList();
     }
     public class AdminService : IAdminService
     {
@@ -78,6 +80,72 @@ namespace QLiteDataApi.Services
 
 
         #region GetData
+        public async Task<List<Language>> GetLanguageList()
+        {
+            var Languages = await _dbContext.Languages.Where(d => d.Gcrecord == null).ToListAsync();
+
+            return Languages;
+        }
+        public async Task<string> GetTicketStateReport(DateTime startDate, DateTime endDate)
+        {
+            // Fetch the necessary data, avoiding complex translations
+            var tickets = await _dbContext.TicketStates
+                                          .Where(t => t.StartTime >= startDate && (t.EndTime <= endDate || t.EndTime == null))
+                                          .Include(t => t.DeskNavigation)
+                                          .ToListAsync();
+
+            // Perform the grouping and aggregation in-memory
+            var reportData = tickets
+                                .GroupBy(t => t.DeskNavigation != null ? t.DeskNavigation.Name : "Not Called")
+                                .Select(g => new
+                                {
+                                    DeskName = g.Key,
+                                    WaitingTickets = g.Count(t => t.TicketStateValue == 0),
+                                    TransferedTickets = g.Count(t => t.TicketStateValue == 1),
+                                    TicketsInProcess = g.Count(t => t.TicketStateValue == 2),
+                                    Parked = g.Count(t => t.TicketStateValue == 3),
+                                    ServedTickets = g.Count(t => t.TicketStateValue == 4),
+                                    TotalTickets = g.Count(),
+                                    WaitingTime = QueriesHelper.FormatTime(
+                                        g.Where(t => t.TicketStateValue == 0)
+                                            .Select(t => (t.EndTime ?? DateTime.Now) - t.StartTime)
+                                            .DefaultIfEmpty() // To ensure there's at least one element
+                                            .Average(ts => ((TimeSpan?)ts)?.TotalMinutes ?? 0)
+                                    ),
+                                    TransferTime = QueriesHelper.FormatTime(g.Where(t => t.TicketStateValue == 1)
+                                        .Select(t => (t.EndTime ?? DateTime.Now) - t.StartTime)
+                                        .DefaultIfEmpty()
+                                        .Average(ts => ((TimeSpan?)ts)?.TotalMinutes ?? 0)
+                                    ),
+                                    NowInServiceTime = QueriesHelper.FormatTime(g.Where(t => t.TicketStateValue == 2)
+                                        .Select(t => (t.EndTime ?? DateTime.Now) - t.StartTime)
+                                        .DefaultIfEmpty()
+                                        .Average(ts => ((TimeSpan?)ts)?.TotalMinutes ?? 0)
+                                    ),
+                                    ParkedTime = QueriesHelper.FormatTime(g.Where(t => t.TicketStateValue == 3)
+                                        .Select(t => (t.EndTime ?? DateTime.Now) - t.StartTime)
+                                        .DefaultIfEmpty()
+                                        .Average(ts => ((TimeSpan?)ts)?.TotalMinutes ?? 0)
+                                    ),
+                                    ServedTime = QueriesHelper.FormatTime(g.Where(t => t.TicketStateValue == 4)
+                                        .Select(t => (t.EndTime ?? DateTime.Now) - t.StartTime)
+                                        .DefaultIfEmpty()
+                                        .Average(ts => ((TimeSpan?)ts)?.TotalMinutes ?? 0)
+                                    ),
+                                    TotalTime = QueriesHelper.FormatTime(g.Select(t => (t.EndTime ?? DateTime.Now) - (t.StartTime ?? DateTime.Now))
+                                        .Sum(ts => ((TimeSpan?)ts)?.TotalMinutes ?? 0))
+                                })
+                                .ToList();
+
+
+
+            // Serialize the report data to JSON
+            string reportJson = JsonConvert.SerializeObject(reportData);
+
+            return reportJson;
+        }
+
+
 
         public List<Desk> GetAllDesks()
         {
@@ -159,7 +227,7 @@ namespace QLiteDataApi.Services
 
         public async Task<List<Design>> GetDesignList()
         {
-            var Designs = await _dbContext.Designs.Where(d=>d.Gcrecord == null).ToListAsync();
+            var Designs = await _dbContext.Designs.Where(d => d.Gcrecord == null).ToListAsync();
             return Designs;
         }
         public async Task<List<Segment>> GetSegmentList()
@@ -298,7 +366,7 @@ namespace QLiteDataApi.Services
                 var desPageDataTest = JsonConvert.SerializeObject(desPageData);
 
                 designEntity.DesignData = desPageDataTest;
-                designEntity.DesignImage= designImage;
+                designEntity.DesignImage = designImage;
 
                 _dbContext.Update(designEntity);
                 _dbContext.SaveChanges();
@@ -374,11 +442,14 @@ namespace QLiteDataApi.Services
 
         public async Task<string> GetDesignImageByID(Guid designID)
         {
-            Design design = await _dbContext.Designs.Where(d=>d.Oid == designID && d.Gcrecord == null).FirstOrDefaultAsync();
+            Design design = await _dbContext.Designs.Where(d => d.Oid == designID && d.Gcrecord == null).FirstOrDefaultAsync();
 
 
             return design.DesignImage;
         }
+
+      
+
 
 
 

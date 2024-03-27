@@ -1,4 +1,7 @@
-﻿using QLite.Data;
+﻿using Microsoft.Extensions.Primitives;
+using QLite.Data;
+using QLite.Data.CommonContext;
+using QLite.Data.Dtos;
 using QLite.DesignComponents;
 using System.Text;
 
@@ -44,12 +47,12 @@ namespace KioskApp.Helpers
                 }
                 if (comp.InfoType == TicketInfoType.ServiceTypeName)
                 {
-                    sb.Append(ticket.ServiceTypeName);
+                    sb.Append(GetLanguage(ticket.ServiceTypeName));
 
                 }
                 if (comp.InfoType == TicketInfoType.Segment)
                 {
-                    sb.Append(ticket.SegmentName);
+                    sb.Append(GetLanguage(ticket.SegmentName));
 
                 }
             }
@@ -103,7 +106,9 @@ namespace KioskApp.Helpers
             }
             if (comp.GenCompType == HtmlCompType.Text)
             {
-                sb.Append(comp.ButtonText);
+                
+                 sb.Append(GetLanguage(comp.ButtonText));
+
 
             }
 
@@ -118,8 +123,49 @@ namespace KioskApp.Helpers
             return sb.ToString();
         }
 
+        public static string RenderLanguageButton(DesCompDataLang comp, string step)
+        {
+            var languages = CommonCtx.Languages;
 
-        public static string RenderSegmentComponent(DesCompDataSegment comp, List<Segment> segments)
+            // Check if comp's SegmentID exists in the segments list
+            if (languages == null || !languages.Any(lang => lang.Oid == comp.LangID))
+            {
+                return null; 
+            }
+
+            // Prepare CSS styles
+            string cssStyles = string.IsNullOrEmpty(comp.CustomCss) ? "" : comp.CustomCss;
+
+            // Construct the button HTML using StringBuilder
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"<button id=\"{comp.Id}\" ");
+            sb.Append($"data-comp-id=\"{comp.Id}\" ");
+            sb.Append($"data-x=\"{comp.PosX}\" ");
+            sb.Append($"data-y=\"{comp.PosY}\" ");
+            sb.Append("class=\"resize-drag\" ");
+            sb.Append("style=\"position: absolute; ");
+            sb.AppendFormat("width:{0}; ", comp.Width);
+            sb.AppendFormat("height:{0}; ", comp.Height);
+            sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+            sb.Append(cssStyles);
+            sb.Append("background-image: url(");
+            sb.Append(comp.BgImageUrl);
+            sb.Append("); ");
+            sb.Append("background-size: cover; ");
+            sb.Append("background-position: center; ");
+            sb.Append("background-repeat: no-repeat; ");
+            sb.Append("\" onclick=\"changeLanguage('");
+            sb.Append(step);
+            sb.Append("','");
+            sb.Append(comp.LangID);
+            sb.Append("')\"> ");
+
+            sb.Append(comp.LanguageName);
+            sb.Append("</button>");
+
+            return sb.ToString();
+        }
+        public static string RenderSegmentComponent(DesCompDataSegment comp, List<SegmentDto> segments)
         {
             // Check if comp's SegmentID exists in the segments list
             if (segments == null || !segments.Any(seg => seg.Oid == comp.SegmentID))
@@ -145,7 +191,7 @@ namespace KioskApp.Helpers
             sb.Append("\" onclick=\"loadServiceView('");
             sb.Append(comp.SegmentID);
             sb.Append("')\"> ");
-            sb.Append(comp.ButtonText);
+            sb.Append(GetLanguage(comp.ButtonText));
             sb.Append("</button>");
 
             return sb.ToString();
@@ -159,7 +205,7 @@ namespace KioskApp.Helpers
         }
 
 
-        public static string RenderServiceButton(DesCompDataServiceButton comp, List<ServiceType> services)
+        public static string RenderServiceButton(DesCompDataServiceButton comp, List<ServiceTypeDto> services)
         {
             // Check if comp's SegmentID exists in the segments list
             if (services == null || !services.Any(seg => seg.Oid == comp.ServiceTypeOid))
@@ -185,11 +231,23 @@ namespace KioskApp.Helpers
             sb.Append("\" onclick=\"svcTypeSelected('");
             sb.Append(comp.ServiceTypeOid);
             sb.Append("')\"> ");
-            sb.Append(comp.ButtonText);
+            sb.Append(GetLanguage(comp.ButtonText));
             sb.Append("</button>");
 
             return sb.ToString();
 
+        }
+
+
+        public static string GetLanguage(string key)
+        {
+            var resources = CommonCtx.Resources.Where(rl => rl.Language == CommonCtx.CurrentLanguage).ToList();
+            if (string.IsNullOrEmpty(key))
+                return null;
+            var paramValue = resources.FirstOrDefault(c => c.Parameter?.ToLower().Trim() == key.ToLower().Trim());
+            if (paramValue != null)
+                return paramValue.ParameterValue;
+            return key;
         }
     }
 }

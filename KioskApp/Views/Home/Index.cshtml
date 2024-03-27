@@ -1,4 +1,5 @@
 ﻿@using KioskApp.Helpers;
+@using QLite.Data.CommonContext;
 @using QLite.DesignComponents;
 @using QLite.Data;
 @using System.Text;
@@ -11,7 +12,7 @@
     var currentTime = DateTime.Now.ToString("D");
 }
 
-@if (Model.DesPageData != null && Model.DesPageData.Comps != null)
+@if (Model != null && Model.DesPageData != null && Model.DesPageData.Comps != null)
 {
 
         <div id="canvas-container" 
@@ -31,7 +32,7 @@
              style="
         width: @(Model.DesPageData.Width ?? "100vw");
         height: @(Model.DesPageData.Height ?? "100vh");
-        display: none; ">
+         ">
                 @foreach (var comp in Model.DesPageData.Comps)
                 {
                     @Html.Raw(RenderComponent(comp))
@@ -42,12 +43,14 @@
             @*Errors*@
 
             <div id="connectionError" class="alert alert-danger mb-4" style="display: none;" role="alert">
-                @KioskIndexModel.GetLanguage("Server is currently down. Please wait while we try to reconnect...")
+
+
+            @ViewHelper.GetLanguage("wsError")
             </div>
 
             <div id="AuthError" class="alert alert-danger mb-4" style="display: none;" role="alert">
-                @KioskIndexModel.GetLanguage("Kiosk is Not Registered to the system")
-            </div>
+            @ViewHelper.GetLanguage("authError")
+        </div>
 
 
             <div id="Errors" style="display:none; font-family: Arial, sans-serif;">
@@ -79,13 +82,13 @@ else
 {
     <div class="container d-flex flex-column justify-content-center align-items-center h-100">
         <div id="connectionError" class="alert alert-danger mb-4" style="display: none;" role="alert">
-            @KioskIndexModel.GetLanguage("Server is currently down. Please wait while we try to reconnect...")
+            @ViewHelper.GetLanguage("wsError")
         </div>
 
 
 
         <div id="AuthError" class="alert alert-danger mb-4" style="display: none;" role="alert">
-            @KioskIndexModel.GetLanguage("Kiosk is Not Registered to the system")
+            @ViewHelper.GetLanguage("authError")
         </div>
 
         <div id="loadingAnimation" class="text-center mb-4" style="display: none;">
@@ -98,7 +101,7 @@ else
         <div id="content" style="display: none;">
             <div class="text-center">
                 <h1 class="display-4 mb-4" style="color:azure">
-                    @KioskIndexModel.GetLanguage("Welcome")
+                    @ViewHelper.GetLanguage("Welcome")
                 </h1>
                 <div id="clock" style="font-size: calc(1vw + 1vh); color:azure">
                     @currentTime
@@ -107,7 +110,7 @@ else
             <div id="pv" class="form-group" style="text-align:center;color:azure">
 
                 <div style="font-size: calc(2vw + 4vh); margin: 1%;">
-                    @KioskIndexModel.GetLanguage("TouchToStart")
+                    @ViewHelper.GetLanguage("TouchToStart")
                 </div>
             </div>
         </div>
@@ -143,11 +146,10 @@ else
         switch (comp)
         {
 
-
-
             case DesCompDataGenericHtml htmlComp:
                 return ViewHelper.RenderGenericHtmlComponent(htmlComp);
-
+            case DesCompDataLang langComp:
+                return ViewHelper.RenderLanguageButton(langComp,"Home");
 
 
             default:

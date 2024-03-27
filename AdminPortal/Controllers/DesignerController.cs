@@ -88,6 +88,10 @@ namespace AdminPortal.Controllers
         public Task<IActionResult> GetServiceList() =>
            GetJsonResponse<List<ServiceType>>($"api/Admin/GetServiceList");
 
+        [HttpGet]
+        public Task<IActionResult> GetLanguageList() =>
+           GetJsonResponse<List<Language>>($"api/Admin/GetLanguageList");
+
 
         private async Task<IActionResult> GetJsonResponse<T>(string endpoint)
         {

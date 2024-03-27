@@ -12,13 +12,14 @@ namespace QLiteDataApi.Services
     {
         Task<Ticket> GetNewTicketAsync(TicketRequestDto req);
 
-        Task<List<ServiceType>> GetServiceTypes(Guid segmentId);
-        Task<List<Segment>> GetSegments();
+        Task<List<ServiceTypeDto>> GetServiceTypes(Guid segmentId);
+        Task<List<SegmentDto>> GetSegments();
 
         Task<Kiosk> GetKioskByHwID(string HwId);
 
         Task<Design> GetDesignByKiosk(string Step, string HwID);
-
+        Task<List<Resource>> GetResourceList();
+        Task<List<Language>> GetLanguageList();
     }
     public class KioskService : IKioskService
     {
@@ -54,6 +55,8 @@ namespace QLiteDataApi.Services
 
                 await SaveTicketAsync(newTicket, newTicketState);
                 await dbContextTransaction.CommitAsync();
+
+                newTicket.WaitingTickets = waitingTicketCount;
 
                 return newTicket;
             }
@@ -200,55 +203,70 @@ namespace QLiteDataApi.Services
         #endregion
 
 
-        public async Task<List<ServiceType>> GetServiceTypes(Guid segmentId)
+        public async Task<List<ServiceTypeDto>> GetServiceTypes(Guid segmentId)
         {
             var cacheKey = $"ServicesForSegment_{segmentId}";
 
-            if (!_cache.TryGetValue(cacheKey, out List<ServiceType> serviceTypes))
+            if (!_cache.TryGetValue(cacheKey, out List<ServiceTypeDto> serviceTypeInfos))
             {
-                serviceTypes = await _context.ServiceTypes
-                               .Where(st => st.Gcrecord == null && st.Parent == null)
-                               .Include(st => st.TicketPools)
-                               .Where(st => st.TicketPools.Any(tp => tp.Segment == segmentId &&
-                                                                      tp.NotAvailable != true))
-                               .OrderBy(st => st.SeqNo)
-                               .ToListAsync();
-
                 var currentTime = DateTime.Now.TimeOfDay;
 
+                // Fetch necessary data while still in IQueryable form, this includes TicketPools for time-based filtering
+                var serviceTypes = await _context.ServiceTypes
+                    .Where(st => st.Gcrecord == null && st.Parent == null)
+                    .Include(st => st.TicketPools)
+                    .Where(st => st.TicketPools.Any(tp => tp.Segment == segmentId && tp.NotAvailable != true))
+                    .OrderBy(st => st.SeqNo)
+                    .ToListAsync();
+
                 // Apply time-based filtering in memory
-                serviceTypes = serviceTypes.Where(st =>
-                    st.TicketPools.All(tp =>
+                serviceTypeInfos = serviceTypes
+                    .Where(st => st.TicketPools.All(tp =>
                         tp.ServiceStartTime == null ||
                         (tp.ServiceStartTime.Value.TimeOfDay < currentTime &&
                          (tp.ServiceEndTime == null || tp.ServiceEndTime.Value.TimeOfDay > currentTime) &&
                          (tp.BreakStartTime == null || !(tp.BreakStartTime.Value.TimeOfDay < currentTime && tp.BreakEndTime.Value.TimeOfDay > currentTime)))))
+                    .Select(st => new ServiceTypeDto 
+                    {
+                        Oid = st.Oid,
+                        Name = st.Name
+                    })
                     .ToList();
 
                 // Set cache options
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(5)); 
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(1))
+                    .SetSize(1);
 
                 // Save data in cache
-                _cache.Set(cacheKey, serviceTypes, cacheEntryOptions);
+                _cache.Set(cacheKey, serviceTypeInfos, cacheEntryOptions);
             }
 
-            return serviceTypes;
+            return serviceTypeInfos;
         }
 
 
 
-        public async Task<List<Segment>> GetSegments()
+
+        public async Task<List<SegmentDto>> GetSegments()
         {
             // Try to get the cached segments
-            if (!_cache.TryGetValue("SegmentsForKiosk", out List<Segment> segments))
+            if (!_cache.TryGetValue("SegmentsForKiosk", out List<SegmentDto> segments))
             {
                 // Key not in cache, so get data from the database
-                segments = await _context.Segments.Where(seg => seg.Gcrecord == null).ToListAsync();
+                segments = await _context.Segments
+                                          .Where(seg => seg.Gcrecord == null)
+                                          .Select(seg => new SegmentDto
+                                          {
+                                              Name = seg.Name,
+                                              Oid = seg.Oid
+                                          })
+                                          .ToListAsync();
 
                 // Set cache options
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(5)); 
+                       .SetSlidingExpiration(TimeSpan.FromMinutes(1))
+                       .SetSize(1);
 
                 // Save data in cache
                 _cache.Set("SegmentsForKiosk", segments, cacheEntryOptions);
@@ -256,6 +274,7 @@ namespace QLiteDataApi.Services
 
             return segments;
         }
+
 
         public async Task<Kiosk> GetKioskByHwID(string HwId)
         {
@@ -268,7 +287,8 @@ namespace QLiteDataApi.Services
                 if (kiosk != null)
                 {
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(TimeSpan.FromMinutes(5)); 
+                        .SetSlidingExpiration(TimeSpan.FromMinutes(1)).SetSize(1);
+
                     _cache.Set(cacheKey, kiosk, cacheEntryOptions);
                 }
             }
@@ -277,7 +297,7 @@ namespace QLiteDataApi.Services
         }
 
 
-       
+
         public async Task<Design> GetDesignByKiosk(string Step, string HwID)
         {
             // Define a unique cache key based on both Step and HwID
@@ -313,17 +333,50 @@ namespace QLiteDataApi.Services
 
                     // Set cache options
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(TimeSpan.FromMinutes(5)); 
+                        .SetSlidingExpiration(TimeSpan.FromMinutes(1)).SetSize(1);
 
                     // Save the design in cache
                     _cache.Set(cacheKey, _design, cacheEntryOptions);
+
+
                 }
             }
 
             return _design;
         }
 
+        public async Task<List<Resource>> GetResourceList()
+        {
+            List<Resource> resources;
+            string cacheKey = "resourceList";
+            if (!_cache.TryGetValue(cacheKey, out resources))
+            {
+                resources = await _context.Resources.Where(r => r.Gcrecord == null).ToListAsync();
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromMinutes(1)).SetSize(1);
 
 
+                _cache.Set(cacheKey, resources, cacheEntryOptions);
+            }
+
+            return resources;
+        }
+
+        public async Task<List<Language>> GetLanguageList()
+        {
+            List<Language> languages;
+            string cacheKey = "languageList";
+            if (!_cache.TryGetValue(cacheKey, out languages))
+            {
+                languages = await _context.Languages.Where(l => l.Gcrecord == null).ToListAsync();
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromMinutes(1)).SetSize(1);
+
+
+                _cache.Set(cacheKey, languages, cacheEntryOptions);
+            }
+
+            return languages;
+        }
     }
 }

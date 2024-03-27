@@ -9,6 +9,72 @@ let connection;
 var brokenDevices = [];
 const retryInterval = 5000; // Retry connection every 5 seconds
 
+
+// Initialize when all elements on the page have loaded
+$(document).ready(function () {
+    $("body").unbind("click");
+    $("body").on('click', function (event) {
+        // Check if the clicked element or any of its parents have a specific class or id
+        if (!$(event.target).closest('.resize-drag').length) {
+            // If the click was not inside the language button, call touch()
+            touch();
+        }
+    });
+
+
+    ValidateKiosk();
+});
+
+// Validate kiosk
+function ValidateKiosk() {
+    $.ajax({
+        url: '/KioskAuth/Authenticate',
+        type: 'GET',
+        contentType: 'application/json',
+        success: function (response) {
+            console.log("Kiosk Authenticated successfully");
+            try {
+                const responseObject = JSON.parse(response);
+
+                if (responseObject) {
+
+                    const kioskData = responseObject;
+                    ({ branchID, kioskType, hwId, name } = kioskData);
+                    KioskType = (kioskType === 0) ? "Kiosk" : (kioskType === 1) ? "Display" : null;
+                    if (KioskType) {
+                        hubUrl = `${apiUrl}/communicationHub/?branchId=${branch}&branchName=IST&clientType=${KioskType}&clientName=${name}&clientId=${hwId}`;
+                        initConnection();
+                        startConnection();
+                        queryHw();
+                    } else {
+                        console.error("Invalid kioskType:", kioskType);
+                        $("#AuthError").show();
+                        $("#loadingAnimation").hide();
+                        $("#content").hide();
+                    }
+                } else {
+                    console.error("No kiosk data found in response.");
+                    $("#AuthError").show();
+                    $("#loadingAnimation").hide();
+                    $("#content").hide();
+                }
+            } catch (error) {
+                console.error("Error parsing JSON response:", error);
+                $("#AuthError").show();
+                $("#loadingAnimation").hide();
+                $("#content").hide();
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error :", xhr.responseText);
+            $("#AuthError").show();
+            $("#loadingAnimation").hide();
+            $("#content").hide();
+            setTimeout(ValidateKiosk, retryInterval);
+
+        }
+    });
+}
 // Initialize connection
 function initConnection() {
     connection = new signalR.HubConnectionBuilder().withUrl(hubUrl).build();
@@ -61,94 +127,6 @@ function startConnection() {
         });
 }
 
-// Hide error message and show content
-function hideErrorAndShowContent() {
-    $("#connectionError").hide();
-    $("#AuthError").hide();
-
-    $("#loadingAnimation").hide();
-    $("#content").show();
-}
-
-// Show error message and retry after interval
-function showErrorAndRetry() {
-    $("#connectionError").show();
-    $("#loadingAnimation").hide();
-    $("#content").hide();
-    setTimeout(startConnection, retryInterval);
-}
-
-// Handle touch event
-function touch() {
-    $("body").unbind("click");
-    loadSegmentView();
-}
-
-// Initialize when all elements on the page have loaded
-$(document).ready(function () {
-    $("body").unbind("click");
-    $("body").on('click', function (event) {
-        touch();
-    });
-
-    ValidateKiosk();
-});
-
-
-// Send message to desk
-function sendMessageToDesk(message) {
-    if (connection && connection.state === "Connected") {
-        connection.invoke("SendMessageToDesk", message)
-            .catch(function (err) {
-                console.error(err.toString());
-            });
-    } else {
-        console.error("Connection is not in the 'Connected' state.");
-    }
-}
-
-// Validate kiosk
-function ValidateKiosk() {
-    $.ajax({
-        url: '/KioskAuth/Authenticate',
-        type: 'GET',
-        contentType: 'application/json',
-        success: function (response) {
-            console.log("Kiosk Authenticated successfully");
-            try {
-                const responseObject = JSON.parse(response);
-
-                if (responseObject ) {
-
-                    const kioskData = responseObject;
-                    ({ branchID, kioskType, hwId, name } = kioskData);
-                    KioskType = (kioskType === 0) ? "Kiosk" : (kioskType === 1) ? "Display" : null;
-                    if (KioskType) {
-                        hubUrl = `${apiUrl}/communicationHub/?branchId=${branch}&branchName=IST&clientType=${KioskType}&clientName=${name}&clientId=${hwId}`;
-                        initConnection();
-                        startConnection();
-                        queryHw();
-                    } else {
-                        console.error("Invalid kioskType:", kioskType);
-                    }
-                } else {
-                    console.error("No kiosk data found in response.");
-                }
-            } catch (error) {
-                console.error("Error parsing JSON response:", error);
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error("Error :", xhr.responseText);
-            $("#AuthError").show();
-            $("#loadingAnimation").hide();
-            $("#content").hide();
-            setTimeout(ValidateKiosk, retryInterval);
-
-        }
-    });
-}
-
 // Query hardware status
 async function queryHw() {
     const status = await getHttpReq('Home/CheckKiosk');
@@ -169,6 +147,7 @@ function setBrokenDevices(hwStatusList) {
     }
 }
 
+
 // Evaluate unavailable status
 function evalUnavStatus(caller, noRunProc) {
     try {
@@ -183,11 +162,34 @@ function evalUnavStatus(caller, noRunProc) {
     }
 }
 
+// Hide error message and show content
+function hideErrorAndShowContent() {
+    $("#connectionError").hide();
+    $("#AuthError").hide();
+
+    $("#loadingAnimation").hide();
+    $("#content").show();
+}
+
+// Show error message and retry after interval
+function showErrorAndRetry() {
+    $("#connectionError").show();
+    $("#loadingAnimation").hide();
+    $("#content").hide();
+    setTimeout(startConnection, retryInterval);
+}
+
 // Show content and bind touch event
 function showContent() {
     $("#content").show();
     $("#Errors").hide();
-    $("body").off("click").on('click', touch);
+    $("body").on('click', function (event) {
+        // Check if the clicked element or any of its parents have a specific class or id
+        if (!$(event.target).closest('.resize-drag').length) {
+            // If the click was not inside the language button, call touch()
+            touch();
+        }
+    });
 }
 
 // Hide content and show errors
@@ -225,3 +227,22 @@ function displayBrokenDevices() {
         }
     }
 }
+// Send message to desk
+function sendMessageToDesk(message) {
+    if (connection && connection.state === "Connected") {
+        connection.invoke("SendMessageToDesk", message)
+            .catch(function (err) {
+                console.error(err.toString());
+            });
+    } else {
+        console.error("Connection is not in the 'Connected' state.");
+    }
+}
+
+// Handle touch event
+function touch() {
+    $("body").unbind("click");
+    loadSegmentView();
+}
+
+

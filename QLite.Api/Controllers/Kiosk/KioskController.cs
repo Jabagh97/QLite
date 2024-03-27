@@ -1,40 +1,34 @@
-﻿using IdentityServer4.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using QLite.Data;
 using QLite.Data.Dtos;
-using QLiteDataApi.Context;
 using QLiteDataApi.Services;
 using QLiteDataApi.SignalR;
 using Serilog;
 using System.Net.Sockets;
-using System.Text;
-using static QLite.Data.Models.Enums;
 
 namespace QLiteDataApi.Controllers.Kiosk
 {
+    [ApiController]
+    [Route("api/Kiosk")]
     public class KioskController : Controller
     {
-
-        private readonly IKioskService _KioskService;
+        private readonly IKioskService _kioskService;
         private readonly IHubContext<CommunicationHub> _communicationHubContext;
 
-
-        public KioskController(IKioskService KioskService, IHubContext<CommunicationHub> communicationHubContext)
+        public KioskController(IKioskService kioskService, IHubContext<CommunicationHub> communicationHubContext)
         {
             _communicationHubContext = communicationHubContext;
-            _KioskService = KioskService;
+            _kioskService = kioskService;
         }
 
-        [HttpPost]
-        [Route("api/Kiosk/GetTicket")]
+        [HttpPost("GetTicket")]
         public async Task<IActionResult> GetNewTicketAsync([FromBody] TicketRequestDto req)
         {
             try
             {
-                Ticket newTicket = await _KioskService.GetNewTicketAsync(req);
+                Ticket newTicket = await _kioskService.GetNewTicketAsync(req);
 
                 TicketState ticketState = newTicket.TicketStates.Last();
 
@@ -49,59 +43,57 @@ namespace QLiteDataApi.Controllers.Kiosk
             }
             catch (Exception ex)
             {
-                // Log the exception and return an appropriate response
-                Log.Error("Kiosk Error: Error Creating Ticket");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                Log.Error(ex, "Error in GetNewTicketAsync. Request: {@Request}", req);
+                return StatusCode(500, "Internal server error. Please try again later.");
             }
         }
 
-
-        [HttpGet]
-        [Route("api/Kiosk/GetServiceTypeList")]
-        public async Task<IActionResult> GetServiceTypeList(Guid segmentId)
+        [HttpGet("GetServiceTypeList/{segmentId}")]
+        public async Task<IActionResult> GetServiceTypeList([FromRoute] Guid segmentId)
         {
-            var ServiceList = await _KioskService.GetServiceTypes(segmentId);
-            string serializedList = JsonConvert.SerializeObject(ServiceList);
-
-            return Ok(serializedList);
+            var serviceList = await _kioskService.GetServiceTypes(segmentId);
+            return Ok(serviceList);
         }
 
-        [HttpGet]
-        [Route("api/Kiosk/GetSegments")]
+        [HttpGet("GetSegments")]
         public async Task<IActionResult> GetSegments()
         {
-            var segments = await _KioskService.GetSegments();
-
+            var segments = await _kioskService.GetSegments();
             return Ok(segments);
-
         }
 
-        [HttpGet]
-        [Route("api/Kiosk/GetKioskByHwID")]
-        public async Task<IActionResult> GetKioskByHwID(string HwId)
+        [HttpGet("GetKioskByHwID/{HwId}")]
+        public async Task<IActionResult> GetKioskByHwID([FromRoute] string HwId)
         {
-            var kiosk = await _KioskService.GetKioskByHwID(HwId);
-
+            var kiosk = await _kioskService.GetKioskByHwID(HwId);
             return Ok(kiosk);
         }
 
-
-        [HttpGet]
-        [Route("api/Kiosk/GetDesignByKiosk/{Step}/{HwID}")]
-        public async Task<IActionResult> GetDesignByKiosk(string Step, string HwID)
+        [HttpGet("GetDesignByKiosk/{step}/{hwID}")]
+        public async Task<IActionResult> GetDesignByKiosk([FromRoute] string step, [FromRoute] string hwID)
         {
-            var design = await _KioskService.GetDesignByKiosk(Step, HwID);
+            var design = await _kioskService.GetDesignByKiosk(step, hwID);
 
             if (design != null)
             {
                 return Ok(design.DesignData);
             }
 
-            return NotFound();
-
-
+            return NotFound("Design not found.");
         }
 
+        [HttpGet("GetResourceList")]
+        public async Task<IActionResult> GetResourceList()
+        {
+            var resources = await _kioskService.GetResourceList();
+            return Ok(resources);
+        }
 
+        [HttpGet("GetLanguageList")]
+        public async Task<IActionResult> GetLanguageList()
+        {
+            var languages = await _kioskService.GetLanguageList();
+            return Ok(languages);
+        }
     }
 }

@@ -15,40 +15,83 @@ namespace QLiteDataApi
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
         {
             CommonCtx.Config = configuration;
-
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
-
             Log.Information("ConfigureServices Started");
 
-            // Add services to the container.
+            // Database Context
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(CommonCtx.Config.GetConnectionString("DefaultConnection")));
 
+            // Scoped services
+            RegisterScopedServices(services);
 
-            services.AddScoped<IAdminService, AdminService>();
-            services.AddScoped<IModelTypeMappingService, ModelTypeMappingService>();
-            services.AddScoped<IQueryFactory,QLiteDataApi.QueryFactory.QueryFactory>();
-
-            services.AddScoped<IKioskService, KioskService>();
-            services.AddScoped<IDeskService, DeskService>();
-
-
+            // Controllers
             services.AddControllers();
-            services.AddMemoryCache();
+
+            // Memory Cache
+            services.AddMemoryCache(options => {
+                options.SizeLimit = 1024; // Adjust based on tests
+            });
+
+            // API Documentation and Versioning
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
+
+            // Real-time communication
             services.AddSignalR();
+
+            // Background services
             services.AddHostedService<DbBackupService>();
 
+            // CORS Configuration
+            ConfigureCors(services);
 
+            // Additional configurations can be added here...
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider services)
+        {
+            // Cache Warmup
+            CacheWarmup(services);
+
+            // Middleware configuration
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseCors("AllowSpecificOrigin");
+
+            if (env.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<CommunicationHub>("/communicationHub");
+            });
+        }
+
+        private void RegisterScopedServices(IServiceCollection services)
+        {
+            services.AddScoped<IAdminService, AdminService>();
+            services.AddScoped<IModelTypeMappingService, ModelTypeMappingService>();
+            services.AddScoped<IQueryFactory, QLiteDataApi.QueryFactory.QueryFactory>();
+            services.AddScoped<IKioskService, KioskService>();
+            services.AddScoped<IDeskService, DeskService>();
+        }
+
+        private void ConfigureCors(IServiceCollection services)
+        {
             var allowedOrigins = CommonCtx.Config.GetSection("Cors:AllowedOrigins").Get<string[]>();
 
             services.AddCors(options =>
@@ -63,23 +106,17 @@ namespace QLiteDataApi
             });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider services)
+        private static void CacheWarmup(IServiceProvider services)
         {
-            // Cache Warmup
             using (var scope = services.CreateScope())
             {
                 var serviceProvider = scope.ServiceProvider;
                 try
                 {
                     var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
-                    // Use LINQ dynamic to perform a query on the DbSet<TEntity>
                     var query = dbContext.Set<Country>().AsQueryable();
-
-                    // Example: Retrieve the first record
                     var firstRecord = query.FirstOrDefault();
-
                     var filteredData = query.Where("Gcrecord == 1").ToList();
-
                     Console.WriteLine("Cache Warmup Done !!!");
                 }
                 catch (Exception ex)
@@ -88,27 +125,6 @@ namespace QLiteDataApi
                     Console.WriteLine(ex.Message);
                 }
             }
-
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseCors("AllowSpecificOrigin");
-
-            //app.MapControllers();
-            if (env.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-                endpoints.MapHub<CommunicationHub>("/communicationHub");
-            });
         }
-
-
     }
 }

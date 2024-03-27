@@ -11,6 +11,7 @@ using KioskApp.Services;
 using QLite.Data.CommonContext;
 using QLite.Data.Services;
 using Serilog;
+using KioskApp.Helpers;
 
 namespace KioskApp.Controllers
 {
@@ -38,6 +39,9 @@ namespace KioskApp.Controllers
                 var session = _httpContextAccessor.HttpContext.Session;
                 session.SetString("Segment", segmentOid.ToString());
 
+
+                Session.servicesAndDesignModel = viewModel;
+
                 return PartialView("Views/Home/Services.cshtml", viewModel);
             }
             catch (Exception ex)
@@ -57,10 +61,10 @@ namespace KioskApp.Controllers
             return await _httpService.GetDesignResponse<DesPageData>($"api/Kiosk/GetDesignByKiosk/{Step}/{HwID}");
         }
 
-        private async Task<List<ServiceType>> FetchServiceTypesFromAPIAsync(Guid? segmentOid)
+        private async Task<List<ServiceTypeDto>> FetchServiceTypesFromAPIAsync(Guid segmentOid)
         {
 
-            return await _httpService.GetGenericResponse<List<ServiceType>>($"{EndPoints.GetServiceTypeList}?segmentId={segmentOid}");
+            return await _httpService.GetGenericResponse<List<ServiceTypeDto>>($"api/Kiosk/GetServiceTypeList/{segmentOid}");
 
         }
 
@@ -96,6 +100,22 @@ namespace KioskApp.Controllers
                 Log.Error(ex, "Error fetching ticket.");
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
+        }
+
+        public async Task<IActionResult> ChangeLanguage(Guid LangID)
+        {
+
+            try
+            {
+                CommonCtx.CurrentLanguage = LangID;
+
+                return PartialView("~/Views/Home/Services.cshtml", Session.servicesAndDesignModel);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+
         }
 
 

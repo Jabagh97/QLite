@@ -147,6 +147,16 @@ namespace QLiteDataApi.Helpers
             return propertyName.Replace(navigationKeyword, string.Empty);
         }
 
+        public static string FormatTime(double timeInMinutes)
+        {
+            // Calculate hours and minutes from the total minutes
+            int hours = (int)timeInMinutes / 60;
+            int minutes = (int)timeInMinutes % 60;
+
+            // Return the formatted string
+            return $"{hours}h {minutes}m";
+        }
+
     }
 
 }

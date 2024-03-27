@@ -29,7 +29,7 @@ namespace KioskApp.Controllers
             {
                 var kioskId = _configuration.GetValue<string>("KioskID");
 
-                var response = await _httpClient.GetAsync($"api/Kiosk/GetKioskByHwID?HwId={kioskId}");
+                var response = await _httpClient.GetAsync($"api/Kiosk/GetKioskByHwID/{kioskId}");
 
                 if (response.IsSuccessStatusCode)
                 {

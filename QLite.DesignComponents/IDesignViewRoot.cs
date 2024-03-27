@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using QLite.Data;
+using QLite.Data.Dtos;
 
 namespace QLite.DesignComponents
 {
@@ -34,6 +35,10 @@ namespace QLite.DesignComponents
             get; set;
         }
         public string CustomCss
+        {
+            get; set;
+        }
+        public int PageTimeOut
         {
             get; set;
         }
@@ -237,6 +242,7 @@ namespace QLite.DesignComponents
 
         public string LangCode;
         public string LanguageName;
+        public Guid LangID;
 
         public DesCompDataLang() : base()
         {
@@ -290,21 +296,31 @@ namespace QLite.DesignComponents
     {
         public string KioskHwId { get; set; }
         public DesPageData DesPageData { get; set; }
+
+       
+
     }
 
     public class TicketAndDesPageDataViewModel
     {
         public Ticket Ticket { get; set; }
         public DesPageData DesPageData { get; set; }
+
+      
+
     }
     public class SegmentsAndDesignModel
     {
         public DesPageData DesignData { get; set; }
-        public List<Segment> Segments { get; set; }
+        public List<SegmentDto> Segments { get; set; }
+
+      
     }
     public class ServicesAndDesignModel
     {
         public DesPageData DesignData { get; set; }
-        public List<ServiceType> Services { get; set; }
+        public List<ServiceTypeDto> Services { get; set; }
+
+    
     }
 }

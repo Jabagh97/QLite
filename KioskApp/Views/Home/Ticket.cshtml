@@ -33,7 +33,9 @@
         </div>
     </div>
 
-
+    <script>
+        localStorage.setItem('ServiceTimeoutActive', 'false');
+    </script>
 }
 else
 {
@@ -99,7 +101,7 @@ else
         var body = document.getElementById("ticket-body");
 
         //Apply the transition style to the ticket-body
-        body.style.transition = "transform 3s ease-in-out";
+        body.style.transition = "transform 2s ease-in-out";
 
         // Animate the ticket-body sliding up
         body.style.transform = "translateY(+" + 1500 + "px)";

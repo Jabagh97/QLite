@@ -22,7 +22,7 @@ namespace KioskApp
 
         public Startup(IConfiguration configuration)
         {
-            CommonCtx.Config = configuration;
+            CommonCtx.Config = configuration;            
         }
 
         public void ConfigureServices(IServiceCollection services)
