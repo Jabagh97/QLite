@@ -161,7 +161,7 @@ namespace QLite.Data.Models
 
 
         }
-        public enum WfStep
+        public enum Step
         {
             ServiceTypeSelection = 0,
             SegmentSelection = 2,

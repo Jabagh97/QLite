@@ -13,5 +13,8 @@ namespace KioskApp.Helpers
 
         public static ServicesAndDesignModel servicesAndDesignModel { get; set; }
 
+
+        public static Guid selectedSegment { get; set; }
+
     }
 }

@@ -26,7 +26,7 @@ namespace QLite.Data.ViewModels.Design
         [Required]
         [Enum]
 
-        public WfStep WfStep { get; set; }
+        public Step WfStep { get; set; }
 
     }
 }

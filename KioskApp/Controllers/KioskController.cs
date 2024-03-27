@@ -15,6 +15,7 @@ using Serilog;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Security.Cryptography;
+using static QLite.Data.Models.Enums;
 
 namespace KioskApp.Controllers
 {
@@ -22,91 +23,61 @@ namespace KioskApp.Controllers
     {
         private readonly ApiService _apiService;
         private readonly HwManager _hwman;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public KioskController(ApiService httpService, HwManager hwman, IHttpContextAccessor httpContextAccessor)
+        public KioskController(ApiService httpService, HwManager hwman)
         {
             _hwman = hwman;
             _apiService = httpService;
-            _httpContextAccessor = httpContextAccessor;
 
         }
 
         public async Task<IActionResult> Index()
         {
-            var viewModel = new HomeAndDesPageDataViewModel();
             try
             {
-                CommonCtx.Languages = await GetLanguageList();
-                CommonCtx.Resources = await GetResourceList();
-
-                // Check if CurrentLanguage is empty
-                if (CommonCtx.CurrentLanguage == Guid.Empty)
-                {
-                    var firstLanguage = CommonCtx.Languages.FirstOrDefault();
-                    // Ensure there's at least one language available
-                    if (firstLanguage != null)
-                    {
-                        CommonCtx.CurrentLanguage = firstLanguage.Oid;
-                    }
-                }
-
-                string _kioskHwId = CommonCtx.KioskHwId;
-                DesPageData designData = await GetDesignData(_kioskHwId, "WelcomePage");
-
-                viewModel.DesPageData = designData;
-                viewModel.KioskHwId = _kioskHwId;
-
-
-                Session.homeAndDesPageData = viewModel;
-
-
-
+                var viewModel = await InitHomepage();
                 return View(viewModel);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                Log.Error(ex, "Error loading the Kiosk page.");
+                return StatusCode(500, "An internal server error has occurred.");
             }
         }
 
         public async Task<IActionResult> GetSegmentView(string hwId)
         {
-            var viewModel = new SegmentsAndDesignModel();
             try
             {
-                viewModel.DesignData = await GetDesignData(hwId, "SegmentSelection");
-                viewModel.Segments = await FetchSegmentsFromAPIAsync();
-
-                _httpContextAccessor.HttpContext.Session.SetString("StartTime", DateTime.Now.ToString());
-
+                var viewModel = new SegmentsAndDesignModel
+                {
+                    DesignData = await GetDesignData(hwId, Step.SegmentSelection.ToString()),
+                    Segments = await GetSegmentList()
+                };
 
                 Session.segmentsAndDesignModel = viewModel;
+
+                return PartialView("~/Views/Kiosk/Segments.cshtml", viewModel);
             }
             catch (Exception ex)
             {
-                // Logging the exception
-                Log.Error(ex, "Failed to load segments.");
-
-                // In a global error handler, you'd handle this more gracefully
+                Log.Error(ex, "Failed to load segments view.");
                 return StatusCode(500, "Internal server error. Please try again later.");
             }
-
-            return PartialView("~/Views/Kiosk/Segments.cshtml", viewModel);
         }
 
         public async Task<IActionResult> GetServiceView(Guid segmentOid, string hwId)
         {
-            var viewModel = new ServicesAndDesignModel();
+
             try
             {
-                viewModel.DesignData = await GetDesignData(hwId, "ServiceTypeSelection");
-                viewModel.Services = await FetchServiceTypesFromAPIAsync(segmentOid);
+                var viewModel = new ServicesAndDesignModel
+                {
+                    DesignData = await GetDesignData(hwId, Step.ServiceTypeSelection.ToString()),
+                    Services = await GetServiceList(segmentOid)
+                };
 
-                // Store necessary data in the session
-                var session = _httpContextAccessor.HttpContext.Session;
-                session.SetString("Segment", segmentOid.ToString());
-
+                Session.selectedSegment = segmentOid;
 
                 Session.servicesAndDesignModel = viewModel;
 
@@ -124,18 +95,15 @@ namespace KioskApp.Controllers
         {
             try
             {
-                var session = _httpContextAccessor.HttpContext.Session;
-                var segmentIdString = session.GetString("Segment");
-                if (Guid.TryParse(segmentIdString, out Guid segmentId))
-                {
-                    ticketRequest.SegmentId = segmentId;
-                }
+                ticketRequest.SegmentId = Session.selectedSegment;
 
-                var ticket = await _apiService.GetViewResponse<Ticket>(EndPoints.GetTicket, ticketRequest);
+                var ticket = await _apiService.PostGenericRequest<Ticket>(EndPoints.GetTicket, ticketRequest);
+
                 if (ticket == null) return StatusCode(500, "Failed to retrieve ticket data");
 
                 var hwId = CommonCtx.Config.GetValue<string>("KioskID");
-                var designData = await GetDesignData(hwId, "PagePrint");
+
+                var designData = await GetDesignData(hwId, Step.PagePrint.ToString());
 
                 var model = new TicketAndDesPageDataViewModel
                 {
@@ -168,11 +136,11 @@ namespace KioskApp.Controllers
         {
             return await _apiService.GetDesignResponse<DesPageData>($"api/Kiosk/GetDesignByKiosk/{step}/{hwId}");
         }
-        private async Task<List<SegmentDto>> FetchSegmentsFromAPIAsync()
+        private async Task<List<SegmentDto>> GetSegmentList()
         {
             return await _apiService.GetGenericResponse<List<SegmentDto>>("api/Kiosk/GetSegments");
         }
-        private async Task<List<ServiceTypeDto>> FetchServiceTypesFromAPIAsync(Guid segmentOid)
+        private async Task<List<ServiceTypeDto>> GetServiceList(Guid segmentOid)
         {
 
             return await _apiService.GetGenericResponse<List<ServiceTypeDto>>($"api/Kiosk/GetServiceTypeList/{segmentOid}");
@@ -180,8 +148,7 @@ namespace KioskApp.Controllers
         }
 
         [HttpPost]
-
-        public async Task<IActionResult> ChangeLanguage(Guid LangID, string step )
+        public  IActionResult ChangeLanguage(Guid LangID, string step)
         {
             try
             {
@@ -208,7 +175,24 @@ namespace KioskApp.Controllers
             }
         }
 
+        private async Task<HomeAndDesPageDataViewModel> InitHomepage()
+        {
+            var viewModel = new HomeAndDesPageDataViewModel
+            {
+                DesPageData = await GetDesignData(CommonCtx.KioskHwId, Step.WelcomePage.ToString()),
+                KioskHwId = CommonCtx.KioskHwId
+            };
 
+            CommonCtx.Languages = await GetLanguageList();
+            CommonCtx.Resources = await GetResourceList();
+            CommonCtx.CurrentLanguage = CommonCtx.Languages.FirstOrDefault()?.Oid ?? Guid.Empty;
+
+            Session.homeAndDesPageData = viewModel;
+            return viewModel;
+        }
+
+
+        #region Hardware Requests
 
         [HttpPost]
         public IActionResult PrintTicket([FromBody] TicketViewModel viewModel)
@@ -243,7 +227,7 @@ namespace KioskApp.Controllers
         {
             return Ok(_hwman.GetKioskHwStatus());
         }
-
+        #endregion
 
     }
 }

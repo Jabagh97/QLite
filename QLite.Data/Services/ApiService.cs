@@ -57,7 +57,7 @@ namespace QLite.Data.Services
             }
         }
 
-        public async Task<T> GetViewResponse<T>(string endpoint, object data)
+        public async Task<T> PostGenericRequest<T>(string endpoint, object data)
         {
             try
             {
