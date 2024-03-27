@@ -26,6 +26,8 @@ function dragAndDrop(className) {
         cleanYLine()
     }
 
+
+    //Alignment Method 
     const handleStart = (event) => {
         // get all interactive elements
         targets.length = 0
@@ -128,7 +130,10 @@ function dragAndDrop(className) {
     var target
 
     function dragMoveListener(event) {
-       // drawGuideLine(event)
+
+        //TODO: Fix GuidLines Later
+
+        //drawGuideLine(event)
         target = event.target
 
         // keep the dragged position in the data-x/data-y attributes

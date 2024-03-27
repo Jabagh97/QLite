@@ -174,7 +174,7 @@
 
         var sb = new StringBuilder();
         sb.Append($"<select name=\"{property.Name}\" id=\"{property.Name}\" class=\"form-select form-select-lg form-select-solid\">");
-        sb.Append($"<option value=\"\">Select {property.Name}</option>");
+        sb.Append($"<option value=\"{Guid.Empty}\">None</option>");
 
         foreach (var enumValue in enumValues)
         {

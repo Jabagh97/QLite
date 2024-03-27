@@ -1,10 +1,9 @@
-﻿
-@model Type
+﻿@model Type
 
 @{
     var properties = Model.GetProperties();
     var columnDefinitions = properties
-    .Where(property => property.GetCustomAttribute<NotForTableAttribute>() == null) 
+    .Where(property => property.GetCustomAttribute<NotForTableAttribute>() == null)
     .Select(property => new
     {
         // Lowercase the first letter of the property name
@@ -13,8 +12,8 @@
         title = Html.DisplayName(property.Name).ToString(),
         isBool = property.GetCustomAttribute<BooleanAttribute>() != null,
         isEnum = property.GetCustomAttribute<EnumAttribute>() != null,
-        isDate =property.GetCustomAttribute<DateAtrribute>() != null,
-        isIcon= property.GetCustomAttribute<IconAttribute>() != null,
+        isDate = property.GetCustomAttribute<DateAtrribute>() != null,
+        isIcon = property.GetCustomAttribute<IconAttribute>() != null,
     })
     .ToList();
 
@@ -30,91 +29,84 @@
         <!--begin::Datatable-->
 
         <div id="Wrapper">
-        <table id="table" class="table table-hover table-rounded border gy-7 gs-7"  style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-            <thead>
-                <tr class="fw-semibold fs-7 text-primary border-bottom border-gray-200 py-4">
-                    @foreach (var column in columnDefinitions)
-                    {
-                        <th>@column.title</th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Your table body content goes here -->
-            </tbody>
-        </table>
+            <table id="table" class="table table-hover table-rounded border gy-7 gs-7" style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                <thead>
+                    <tr class="fw-semibold fs-7 text-primary border-bottom border-gray-200 py-4">
+                        @foreach (var column in columnDefinitions)
+                        {
+                            <th>@column.title</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Your table body content goes here -->
+                </tbody>
+            </table>
         </div>
         <!--end::Datatable-->
     </div>
 </div>
 
-
 @section Scripts {
     <script>
-$(document).ready(function () {
+        $(document).ready(function () {
+            // Serialize columnDefinitions to a JSON string in Razor, then parse it in JavaScript
+            var columnDefinitionsJson = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(columnDefinitions.Select(column => new
+            {
+            data = column.data,
+            name = column.property.Name,
+            title = column.title,
+            isBool = column.isBool,
+            isEnum = column.isEnum,
+            isDate = column.isDate,
+            isIcon = column.isIcon,
+            enumMapping = column.isEnum ? Enum.GetValues(column.property.PropertyType)
+            .Cast<Enum>()
+            .ToDictionary(t => Convert.ToInt32(t).ToString(), t => t.ToString()) : null
+            }), Newtonsoft.Json.Formatting.None));
 
-    
+            var columnDefinitions = columnDefinitionsJson.map(function (column) {
+                var obj = {
+                    data: column.data,
+                    name: column.name,
+                    title: column.title
+                };
 
-    var columnDefinitions = [
-        @foreach (var column in columnDefinitions)
-        {
-            <text>
-                {
-                    "data": "@column.data",
-                    "name": "@column.property.Name",
-                    "title": "@column.title",
-                    @if (column.isIcon)
-                    {
-                        <text>
-                        "render": function (data, type, row, meta) {
-                            if (data != null) {
-                                if (data.startsWith("data:image")) {
-                                    return '<img style="width: 50%; max-height: 10rem;" src="' + data + '" />';
-                                }
-                                else {
-                                    return '<img style="width: 50%; max-height: 10rem;" src="data:image/jpg;base64,' + data + '" />';
-                                }
-                            } else {
-                                return '';
-                            }
+                if (column.isIcon) {
+                    obj.render = function (data, type, row, meta) {
+                        if (data != null) {
+                            return data.startsWith("data:image")
+                                ? '<img style="width: 50%; max-height: 10rem;" src="' + data + '" />'
+                                : '<img style="width: 50%; max-height: 10rem;" src="data:image/jpg;base64,' + data + '" />';
                         }
-                        </text>
-                    }
-                    @if (column.isBool)
-                    {
-                        <text>"render": function (data, type, row, meta) {
-                            var color = data === false ? 'red' : 'green';
-                            return '<span style="color: ' + color + ';font-weight:600;">' + data + '</span>';
-                        }</text>
-                    }
-                    @if (column.isEnum)
-                    {
-                        <text>"render": function (data, type, row, meta) {
-                            var enumValues = @Html.Raw(Json.Serialize(Enum.GetNames(column.property.PropertyType)));
-                            var enumIndex = parseInt(data);
-                            return enumValues[enumIndex];
-                        }</text>
-                    }
-                    else if (column.isDate)
-                    {
-                        <text>"render": function (data, type, row, meta) {
-                            var date = new Date(data);
-                            var formattedTime = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
-                            return formattedTime;
-                        }</text>
-                    }
-                },
-            </text>
-        }
-    ];
+                        return '';
+                    };
+                }
+                else if (column.isBool) {
+                    obj.render = function (data, type, row, meta) {
+                        var color = data === false ? 'red' : 'green';
+                        return '<span style="color: ' + color + ';font-weight:600;">' + data + '</span>';
+                    };
+                }
+                else if (column.isDate) {
+                    obj.render = function (data, type, row, meta) {
+                        var date = new Date(data);
+                        var formattedTime = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+                        return formattedTime;
+                    };
+                }
+                else if (column.isEnum && column.enumMapping) {
+                    obj.render = function (data, type, row, meta) {
+                        return column.enumMapping[data] || data;
+                    };
+                }
 
-    var modelName = '@Model.Name.Replace("ViewModel", "")';
-    initializeDataTable(modelName, columnDefinitions);
-});
+                return obj;
+            });
 
+            var modelName = '@Model.Name.Replace("ViewModel", "")';
+            initializeDataTable(modelName, columnDefinitions);
+        });
     </script>
-
-
 }
-
 

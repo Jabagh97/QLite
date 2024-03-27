@@ -162,3 +162,7 @@ body {
     transition: transform 0.2s ease; /* Smooth transition for zooming */
     overflow: hidden; /* Hide overflow content */
 }
+
+.grey-dots {
+    border-top: 3px dotted grey; /* This sets the top border to a dotted line with a grey color */
+}

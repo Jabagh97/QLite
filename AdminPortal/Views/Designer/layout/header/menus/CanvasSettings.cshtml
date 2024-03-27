@@ -1,55 +1,46 @@
-﻿<div class="row mb-4">
-    <div class="col-md-4 mb-3">
+﻿<div class="container-fluid p-3">
+    <!-- Width Selection -->
+    <div class="mb-3">
         <label for="widthSelect" class="form-label">Width:</label>
-        <div class="kt-select2">
-            <select id="widthSelect" class="form-select kt-select2">
-                <option value="450px">450px</option>
-
-                <option value="600px">600px</option>
-                <option value="768px">768px</option>
-                <option value="1024px">1024px</option>
-                <option value="1080px">1080px</option>
-                <option value="1920px">1920px</option>
-                <option value="100vw">Full Width</option>
-
-                <!-- Add more options as needed -->
-            </select>
-        </div>
+        <select id="widthSelect" class="form-select">
+            <option value="450px">450px</option>
+            <option value="600px">600px</option>
+            <option value="768px">768px</option>
+            <option value="1024px">1024px</option>
+            <option value="1080px">1080px</option>
+            <option value="1920px">1920px</option>
+            <option value="100vw">Full Width</option>
+        </select>
     </div>
 
-    <div class="col-md-4 mb-3">
+    <!-- Height Selection -->
+    <div class="mb-3">
         <label for="heightSelect" class="form-label">Height:</label>
-        <div class="kt-select2">
-            <select id="heightSelect" class="form-select kt-select2">
-                <option value="750px">750px</option>
-
-                <option value="1024px">1024px</option>
-                <option value="1080px">1080px</option>
-                <option value="1280px">1280px</option>
-                <option value="1920px">1920px</option>
-                <option value="100vh">Full Height</option>
-
-                <!-- Add more options as needed -->
-            </select>
-        </div>
+        <select id="heightSelect" class="form-select">
+            <option value="750px">750px</option>
+            <option value="1024px">1024px</option>
+            <option value="1080px">1080px</option>
+            <option value="1280px">1280px</option>
+            <option value="1920px">1920px</option>
+            <option value="100vh">Full Height</option>
+        </select>
     </div>
 
-    <div class="col-md-4 mb-3">
+    <!-- Dotted Separator -->
+    <div class="separator border-dotted mb-3 grey-dots"></div>
+
+    <!-- Background Color Picker -->
+    <div class="mb-3">
         <label for="backgroundColor" class="form-label">Background Color:</label>
-        <input type="text" class="form-control color-picker" id="backgroundColor" value="#ffffff">
+        <input type="text" class="form-control" id="backgroundColor" value="#ffffff">
     </div>
 
- 
+    <!-- Dotted Separator -->
+    <div class="separator border-dotted mb-3 grey-dots"></div>
 
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <label for="imageUpload" class="form-label">Upload Background Image:</label>
-            <div class="file-input">
-                <input type="file" id="imageUpload" class="form-control">
-                <span class="form-file-text">Choose file...</span>
-                <span class="form-file-button">Browse</span>
-            </div>
-        </div>
+    <!-- File Upload -->
+    <div class="mb-3">
+        <label for="imageUpload" class="form-label">Upload Background Image:</label>
+        <input type="file" id="imageUpload" class="form-control">
     </div>
 </div>
-

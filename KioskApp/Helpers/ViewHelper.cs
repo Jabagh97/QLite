@@ -98,11 +98,11 @@ namespace KioskApp.Helpers
             {
                 string videoId = comp.YoutubeUrl.Split("/").Last().Split("?").First();
                 // Build the iframe HTML string
-                sb.Append("<div style=\"position: relative;padding-bottom: 56.25%; height: 0;\">");
-                sb.Append("<iframe style=\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;\"");
+                //sb.Append("<div style=\"position: relative;padding-bottom: 56.25%; height: 0;\">");
+                sb.Append($"<iframe id = {comp.Id}_frame style=\"position: absolute; top: 50%; left: 50%; width: 95%; height: 95%; transform: translate(-50%, -50%); width: 95%; height: 95%; border: none;\"");
                 sb.Append($"src=\"{comp.YoutubeUrl}?controls=0&mute=1&showinfo=0&rel=0&autoplay=1&loop=1&playlist={videoId}\">");
                 sb.Append("</iframe>");
-                sb.Append("</div>");
+                //sb.Append("</div>");
             }
             if (comp.GenCompType == HtmlCompType.Text)
             {

@@ -1,4 +1,6 @@
 ﻿
+//#region Init
+
 dragAndDrop('resize-drag');
 
 const loadingEl = document.createElement("div");
@@ -10,9 +12,10 @@ loadingEl.innerHTML = `
         <span class="text-muted fs-6 fw-semibold mt-5">Saving Changes Please wait...</span>
     `;
 
+//#endregion
 
 
-/////////////////  CANVAS    //////////////////////////
+//#region Canvas
 
 // Function to update canvas size in the desPageData object
 function updateCanvasSize() {
@@ -97,9 +100,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-/////////////////  Buttons    //////////////////////////
+
+//#endregion
 
 
+//#region Buttons
 
 function createButton(buttonText, componentType, elementType) {
     // Create a new element based on the specified elementType
@@ -123,6 +128,10 @@ function createButton(buttonText, componentType, elementType) {
     textDiv.textContent = buttonText;
 
     newComponent.appendChild(textDiv);
+
+    newComponent.addEventListener('click', function () {
+        selectComponent(compId);
+    });
 
     // Create a div element for the drag icon
     var dragIcon = document.createElement('div');
@@ -158,7 +167,7 @@ function createButton(buttonText, componentType, elementType) {
         TypeInfo: 'QLite.DesignComponents.' + componentType,
         ButtonText: buttonText,
     });
-    dragAndDrop('resize-drag');
+    //dragAndDrop('resize-drag');
 }
 
 // Event listener for segmentButton
@@ -196,9 +205,31 @@ document.getElementById('frameButton').addEventListener('click', function () {
     createButton('Frame Component', 'DesCompDataFrame', 'button');
 });
 
+function selectComponent(compId) {
+
+    if (compId) {
+        var compIndex = desPageData.Comps.findIndex(comp => comp.Id === compId);
+        if (compIndex !== -1) {
+
+            // Populate input fields if the component exists
+            document.getElementById('posXInput').value = desPageData.Comps[compIndex].PosX;
+            document.getElementById('posYInput').value = desPageData.Comps[compIndex].PosY;
+            document.getElementById('widthInput').value = desPageData.Comps[compIndex].Width;
+            document.getElementById('heightInput').value = desPageData.Comps[compIndex].Height;
+            document.getElementById('selectedComp').value = desPageData.Comps[compIndex].ButtonText;
+
+            $('#compID').val(compId);
 
 
-/////////////////   API Methods  //////////////////////////
+        }
+    }
+}
+
+//#endregion
+
+
+//#region API Methods
+
 
 // Function to save the design
 document.getElementById('saveButton').addEventListener('click', function () {
@@ -215,54 +246,49 @@ document.getElementById('saveButton').addEventListener('click', function () {
 
     // Check if DesignID is not null
     if (designID) {
+        html2canvas(document.querySelector("#canvas-container")).then(canvas => {
 
-        var node = document.getElementById('kt_content_container');
-        var designImage;
+            var designImage = canvas.toDataURL();
+            var desPageDataJson = JSON.stringify(desPageData);
 
-        domtoimage.toPng(node)
-            .then(function (dataUrl) {
-                // Store the generated image
-                designImage = dataUrl;
-
-                var desPageDataJson = JSON.stringify(desPageData);
-
-                // Perform your AJAX request with the DesignID included
-                $.ajax({
-                    url: '/Designer/SaveDesign/' + designID,
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ desPageDataJson: desPageDataJson, DesignImage: designImage }),
-                    success: function (response) {
-                        KTApp.hidePageLoading();
-                        //loadingEl.remove();
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Design Saved',
-                            showConfirmButton: false,
-                            timer: 2000
-                        });
-                    },
-                    error: function (xhr, status, error) {
-                        KTApp.hidePageLoading();
-                        //loadingEl.remove();
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Error',
-                            showConfirmButton: false,
-                            timer: 2000
-                        });
-                    }
-                });
-            })
-            .catch(function (error) {
-                KTApp.hidePageLoading();
-                //loadingEl.remove();
-                console.error('Oops, something went wrong!', error);
+            // Perform your AJAX request with the DesignID included
+            $.ajax({
+                url: '/Designer/SaveDesign/' + designID,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ desPageDataJson: desPageDataJson, DesignImage: designImage }),
+                success: function (response) {
+                    KTApp.hidePageLoading();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Design Saved',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                },
+                error: function (xhr, status, error) {
+                    KTApp.hidePageLoading();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Error',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
             });
+
+        });
+
+
     } else {
         KTApp.hidePageLoading();
-        // loadingEl.remove();
         console.error('DesignID not found in URL');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Error',
+            showConfirmButton: false,
+            timer: 2000
+        });
     }
 });
 
@@ -405,20 +431,21 @@ function populateLanguageOptions(languageOid) {
     });
 }
 
+//#endregion
 
+//#region Modal Methods
 
-/////////////////   Modal Methods  //////////////////////////
 
 
 const componentConfigurations = {
     'DesCompDataServiceButton': {
         modalTitle: 'Edit Service Button',
-        fieldsToShow: ['#BtnTextField', '#selectServiceIDField', '#cssCustomField', '#localizedField', '#bounceField', '#compIdField'],
+        fieldsToShow: ['#BtnTextField', '#selectServiceIDField', '#cssCustomField', '#localizedField', '#bounceField', '#ImageField', '#compIdField'],
         additionalActions: populateServiceOptions
     },
     'DesCompDataSegment': {
         modalTitle: 'Edit Segment Button',
-        fieldsToShow: ['#BtnTextField', '#selectSegmentIDField', '#cssCustomField', '#localizedField', '#bounceField', '#compIdField'],
+        fieldsToShow: ['#BtnTextField', '#selectSegmentIDField', '#cssCustomField', '#localizedField', '#bounceField', '#ImageField', '#compIdField'],
         additionalActions: populateSegmentOptions
     },
     'DesCompDataGenericHtml': {
@@ -440,14 +467,14 @@ const componentConfigurations = {
 
     'DesCompDataLang': {
         modalTitle: 'Edit Language Component',
-        fieldsToShow: ['#BtnTextField', '#cssCustomField', '#languageIDField', '#selectLanguageID','#ImageField', '#compIdField'],
+        fieldsToShow: ['#BtnTextField', '#cssCustomField', '#languageIDField', '#selectLanguageID', '#ImageField', '#compIdField'],
         additionalActions: populateLanguageOptions
 
     },
 
     'DesCompDataWfButton': {
         modalTitle: 'Edit Step Component',
-        fieldsToShow: ['#BtnTextField', '#cssCustomField', '#compIdField'],
+        fieldsToShow: ['#BtnTextField', '#cssCustomField', '#ImageField', '#compIdField'],
     },
 
 
@@ -460,7 +487,7 @@ function handleImageUpload(event) {
     reader.onload = function (event) {
         var imageUrl = event.target.result;
 
-        var  compId = $('#compID').val();
+        var compId = $('#compID').val();
 
         var component = desPageData.Comps.find(comp => comp.Id === compId);
 
@@ -512,7 +539,6 @@ function showModal(compId, buttonText, componentType) {
 
             id = component.ServiceTypeOid;
 
-            $('#localized').prop('checked', component.Localized);
             $('#bounce').prop('checked', component.Bounce);
         }
         else if (componentType === "DesCompDataSegment") {
@@ -526,9 +552,7 @@ function showModal(compId, buttonText, componentType) {
         else if (componentType === "DesCompDataText") {
 
             $('#slideAnimation').prop('checked', component.SlideAnimation);
-            $('#dataAware').prop('checked', component.DataAware);
             $('#ctxIndex').val(component.CtxIndex);
-            $('#localized').prop('checked', component.Localized);
             $('#textType').val(component.InfoType);
 
             switch (component.InfoType) {
@@ -656,7 +680,79 @@ function showModal(compId, buttonText, componentType) {
 
     }
 }
+// Handle clone button click
 
+$('#cloneButton').click(function () {
+    var compId = $('#compID').val();
+    var originalComp = desPageData.Comps.find(comp => comp.Id == compId);
+
+    // Clone the original component, except for its Id
+    var clonedComp = {};
+    for (var key in originalComp) {
+        if (originalComp.hasOwnProperty(key) && key !== 'Id') {
+            clonedComp[key] = originalComp[key];
+        }
+    }
+
+    var newCompId = 'comp_' + Date.now(); // Generate a unique ID for the new component
+    var newPosX = '30px';
+    var newPosY = '30px';
+    // Create a new div element for the cloned component
+    var newComponent = document.createElement('div');
+    newComponent.id = newCompId;
+    newComponent.className = 'resize-drag';
+    newComponent.style.cssText = originalComp.CustomCss; // Copying Custom CSS
+    newComponent.style.width = clonedComp.Width;
+    newComponent.style.height = clonedComp.Height;
+    newComponent.style.border = '1px dotted black';
+    newComponent.style.transform = `translate(${newPosX}, ${newPosY})`;
+    newComponent.setAttribute('data-x', newPosX);
+    newComponent.setAttribute('data-y', newPosY);
+    newComponent.setAttribute('data-comp-id', newCompId);
+
+
+    // Create a div element for the drag icon
+    var dragIcon = document.createElement('div');
+    dragIcon.className = 'drag-icon';
+    newComponent.appendChild(dragIcon);
+
+    // Create a div element for the drag icon
+    var panelIcon = document.createElement('div');
+    panelIcon.className = 'panel-icon';
+    panelIcon.id = "panel-icon-id";
+    newComponent.appendChild(panelIcon);
+
+    // Add onclick event to the panel icon
+    panelIcon.addEventListener('click', function () {
+        showModal(compId, clonedComp.ButtonText, clonedComp.DesCompType);
+    });
+
+    // Optional: If the original component has text, clone it
+    if (clonedComp.ButtonText) {
+        var textDiv = document.createElement('div');
+        textDiv.id = newCompId + '_text';
+        textDiv.textContent = clonedComp.ButtonText;
+        newComponent.appendChild(textDiv);
+    }
+
+    // Add the cloned component to the canvas or desired container
+    document.getElementById('canvas-container').appendChild(newComponent);
+
+    // Add event listeners or other initialization logic as needed
+    // For example, adding a click event listener to select the component
+    newComponent.addEventListener('click', function () {
+        selectComponent(newCompId);
+    });
+
+    // Update your components list with the new component data
+    // Assigning new Id, PosX, and PosY while keeping the rest of the properties the same
+    desPageData.Comps.push({
+        ...clonedComp, // Spread operator to include all cloned properties
+        Id: newCompId, // Assign the new unique ID
+        PosX: newPosX, // Assign new X position
+        PosY: newPosY, // Assign new Y position
+    });
+});
 
 // Handle delete button click
 $('#deleteButton').click(function () {
@@ -700,6 +796,12 @@ $('#saveComponentButton').click(function () {
     var compIndex = desPageData.Comps.findIndex(comp => comp.Id === compId);
 
     if (compIndex !== -1) {
+
+        // If elements with IDs compId_text or compId_frame exist, delete them
+        $('#' + compId + '_text').remove();
+        $('#' + compId + '_frame').remove();
+
+
         var comp = desPageData.Comps[compIndex];
 
         // Using object to map input IDs to comp properties
@@ -725,7 +827,7 @@ $('#saveComponentButton').click(function () {
         });
 
         // Update boolean properties
-        ['localized', 'bounce', 'dataAware', 'slideAnimation'].forEach(propId => {
+        ['bounce', 'slideAnimation'].forEach(propId => {
             comp[propId.charAt(0).toUpperCase() + propId.slice(1)] = $('#' + propId).prop('checked');
         });
 
@@ -735,12 +837,43 @@ $('#saveComponentButton').click(function () {
         }
 
         if (comp.DesCompType === 'DesCompDataGenericHtml' && (comp.GenCompType === 2 || comp.GenCompType === '2')) {
+
+            $('#' + compId).css('background-image', 'none');
+
+            var frameId = compId + '_frame';
+            var $frame = $('#' + frameId);
             var videoId = comp.YoutubeUrl.split('/').pop().split('?')[0];
-            $('#' + compId + '_frame').attr('src', comp.YoutubeUrl + '?controls=0&mute=1&showinfo=0&rel=0&autoplay=1&loop=1&playlist=' + videoId);
+
+            // Check if the element exists
+            if ($frame.length === 0) {
+                // Element does not exist, proceed to add it
+                var iframeHtml =
+                    '<iframe id="' + frameId + '" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; height: 95%; border: none;" ' +
+                    ' src="' + comp.YoutubeUrl + '?controls=0&mute=1&showinfo=0&rel=0&autoplay=1&loop=1&playlist=' + videoId + '"' +
+                    '></iframe>';
+
+                // Append the new iframeHtml to the element with the id compId
+                $('#' + compId).append(iframeHtml);
+            } else if (comp.DesCompType === 'DesCompDataGenericHtml' && (comp.GenCompType === 2 || comp.GenCompType === '2')) {
+                // If the frame already exists and meets certain conditions, update its 'src' attribute
+                $frame.attr('src', comp.YoutubeUrl + '?controls=0&mute=1&showinfo=0&rel=0&autoplay=1&loop=1&playlist=' + videoId);
+            }
         }
 
-        if (comp.DesCompType !== 'DesCompDataText') {
-            $('#' + compId + '_text').text(comp.ButtonText);
+        else {
+
+            var textId = compId + '_text';
+            var $text = $('#' + textId);
+
+            if ($text.length === 0) {
+                var textHtml = '<div id="' + textId + '">' + comp.ButtonText + '</div> ';
+                // Append the new iframeHtml to the element with the id compId
+                $('#' + compId).append(textHtml);
+            }
+            else {
+                $('#' + compId + '_text').text(comp.ButtonText);
+
+            }
         }
         // Apply custom CSS if present
         if (comp.CustomCss) {
@@ -889,6 +1022,35 @@ document.getElementById('popupButton').addEventListener('click', function () {
         html: `
             <p>CSS (Cascading Style Sheets) is a styling language used for describing the presentation of a document written in HTML.</p>
             <p>It consists of a set of rules applied to HTML elements to control their appearance.</p>
+           
+            <h4>Examples of Inline CSS Styles:</h4>
+            <p><h2>Buttons : </h2></p>
+            <p>color: #ff6600; </p>
+            <p>background-color: #0A2351;</p>
+            <p>font-size: 25px;</p>
+            <p> font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;</p>
+            <p>font-weight: bold;</p>
+            <p>padding: 10px;</p>
+            <p>margin: 20px;</p>
+            <p>border: 5px solid black;</p>
+            <p>text-align: center;</p>
+            <p>display: block;</p>
+            <p>box-shadow: 0 4px 8px rgba(0, 0, 0.5, 1);</p>
+
+            <p><h2>Texts : </h2></p>
+            <p>font-family: 'Arial Black', sans-serif; </p>
+            <p>font-size: 50px;</p>
+            <p>color: #ff6600;</p>
+            <p> text-shadow: 2px 2px 4px #000000;</p>
+            <p>text-align: center;</p>
+            <p>display: block;</p>
+
+            <p><h2>Layouts and Shapes : </h2></p>
+            <p>border-radius: 0 0 20px 20px;</p>
+            <p>padding: 0 60px;</p>
+            <p>background: #0A2351;</p>
+           
+          
             <h4>Common CSS Properties:</h4>
             <ul>
                 <li><b>color:</b> Specifies the text color. Example: color: black;</li>
@@ -905,20 +1067,6 @@ document.getElementById('popupButton').addEventListener('click', function () {
                 <li><b>border-radius:</b> Defines the curvature of border corners. Example: border-radius: 5px;</li>
                 <li><b>box-shadow:</b> Adds shadows to elements. Example: box-shadow: 2px 2px 5px #888888;</li>
             </ul>
-            <h4>Examples of Inline CSS Styles:</h4>
-            <p>color: black;</p>
-            <p>font-size: 25px;</p>
-            <p>background-color: #f0f0f0;</p>
-            <p>text-align: center;</p>
-            <p>margin: 10px;</p>
-            <p>padding: 5px;</p>
-            <p>border: 1px solid #000;</p>
-            <p>display: block;</p>
-            <p>font-family: Arial, sans-serif;</p>
-            <p>font-weight: bold;</p>
-            <p>text-decoration: underline;</p>
-            <p>border-radius: 5px;</p>
-            <p>box-shadow: 2px 2px 5px #888888;</p>
             <p>For more CSS properties, you can refer to <a href="https://www.w3schools.com/cssref/index.php" target="_blank">W3Schools CSS Reference</a>.</p>
         `,
         icon: 'info',
@@ -955,11 +1103,12 @@ document.getElementById('YtTutorialButton').addEventListener('click', function (
         }
     });
 });
+//#endregion
 
 
+//#region ToolBar Methods
 
 
-/////////////////   ToolBar Methods  //////////////////////////
 document.getElementById('widthInput').addEventListener('change', function () {
     var compId = $('#compID').val();
     var compIndex = desPageData.Comps.findIndex(comp => comp.Id === compId);
@@ -1010,3 +1159,4 @@ document.getElementById('heightInput').addEventListener('change', function () {
     // Set the data-x attribute of the element
     //element.setAttribute('data-y', newHeight);
 });
+//#endregion

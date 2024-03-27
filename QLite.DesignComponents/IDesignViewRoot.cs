@@ -228,7 +228,6 @@ namespace QLite.DesignComponents
 
         public int CtxIndex;
         public bool Localized;
-        public bool DataAware;
         public bool SlideAnimation;
         public TicketInfoType InfoType;
 
@@ -260,19 +259,18 @@ namespace QLite.DesignComponents
 
     public enum WfButtonType
     {
-        NEXT,
         BACK,
         CANCEL
     }
 
     public enum HtmlCompType
     {
-        Image,
-        LocalVideo,
-        YoutubeVideo,
-        Text,
-        Date,
-        Layout
+        Image = 0,
+        //LocalVideo = 1,
+        YoutubeVideo = 2,
+        Text = 3 ,
+        Date = 4,
+        Layout= 5
     }
     public enum AppointmentOperation
     {

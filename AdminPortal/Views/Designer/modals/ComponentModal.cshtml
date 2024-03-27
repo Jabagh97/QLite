@@ -85,12 +85,6 @@
                 </div>
 
 
-                @*Localized*@
-
-                <div class="mb-3 form-check" id="localizedField">
-                    <input type="checkbox" class="form-check-input" id="localized">
-                    <label class="form-check-label" for="localized">Localized</label>
-                </div>
 
                 @*Bounce animation*@
 
@@ -99,12 +93,7 @@
                     <label class="form-check-label" for="bounce">Bounce</label>
                 </div>
 
-                @*Live Data*@
 
-                <div class="mb-3 form-check" id="dataAwareField">
-                    <input type="checkbox" class="form-check-input" id="dataAware">
-                    <label class="form-check-label" for="dataAware">Live Data</label>
-                </div>
 
                 @*Slide Animation*@
 
@@ -176,17 +165,29 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" id="deleteButton">Delete</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveComponentButton">Apply changes</button>
+                <div class="row w-100 m-0">
+                    <div class="col text-center">
+                        <button type="button" class="btn btn-success" id="cloneButton"><i class="fas fa-clone"></i> Clone</button>
+                    </div>
+                    <div class="col text-center">
+                        <button type="button" class="btn btn-danger" id="deleteButton"><i class="fas fa-trash-alt"></i> Delete</button>
+                    </div>
+                    <div class="col text-center">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> Close</button>
+                    </div>
+                    <div class="col text-center">
+                        <button type="button" class="btn btn-primary" id="saveComponentButton"><i class="fas fa-save"></i> Apply </button>
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 </div>
 
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('componentImageUpload').addEventListener('change', handleImageUpload);
     });
 </script>
