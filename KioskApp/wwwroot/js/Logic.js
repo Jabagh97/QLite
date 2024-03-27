@@ -12,15 +12,6 @@ const retryInterval = 5000; // Retry connection every 5 seconds
 
 // Initialize when all elements on the page have loaded
 $(document).ready(function () {
-    $("body").unbind("click");
-    $("body").on('click', function (event) {
-        // Check if the clicked element or any of its parents have a specific class or id
-        if (!$(event.target).closest('.resize-drag').length) {
-            // If the click was not inside the language button, call touch()
-            touch();
-        }
-    });
-
 
     ValidateKiosk();
 });
@@ -28,50 +19,53 @@ $(document).ready(function () {
 // Validate kiosk
 function ValidateKiosk() {
     $.ajax({
-        url: '/KioskAuth/Authenticate',
+        url: '/KioskAuth/AuthenticateForWebSocket',
         type: 'GET',
+        dataType: 'json',
         contentType: 'application/json',
-        success: function (response) {
+        success: function (kioskData) {
             console.log("Kiosk Authenticated successfully");
-            try {
-                const responseObject = JSON.parse(response);
 
-                if (responseObject) {
+            if (kioskData && kioskData.kioskType !== undefined) {
+                const { branch, kioskType, hwId, name } = kioskData;
+                const KioskType = kioskType === 0 ? "Kiosk" : kioskType === 1 ? "Display" : null;
 
-                    const kioskData = responseObject;
-                    ({ branchID, kioskType, hwId, name } = kioskData);
-                    KioskType = (kioskType === 0) ? "Kiosk" : (kioskType === 1) ? "Display" : null;
-                    if (KioskType) {
-                        hubUrl = `${apiUrl}/communicationHub/?branchId=${branch}&branchName=IST&clientType=${KioskType}&clientName=${name}&clientId=${hwId}`;
-                        initConnection();
-                        startConnection();
-                        queryHw();
-                    } else {
-                        console.error("Invalid kioskType:", kioskType);
-                        $("#AuthError").show();
-                        $("#loadingAnimation").hide();
-                        $("#content").hide();
+                if (KioskType) {
+                    hubUrl = `${apiUrl}/communicationHub/?branchId=${branch}&branchName=IST&clientType=${KioskType}&clientName=${name}&clientId=${hwId}`;
+                    initConnection();
+                    startConnection();
+                    queryHw();
+
+                    if (KioskType === "Kiosk") {
+
+                        $("body").off("click").on('click', function (event) {
+
+                            // Check if the clicked element or any of its parents have a specific class or id (For Language Buttons)
+                            if (!$(event.target).closest('.resize-drag').length) {
+                                // If the click was not inside the language button, call touch()
+                                touch();
+                            }
+                        });
                     }
+                    else {
+
+                        $("body").off("click");
+
+                    }
+
                 } else {
-                    console.error("No kiosk data found in response.");
-                    $("#AuthError").show();
-                    $("#loadingAnimation").hide();
-                    $("#content").hide();
+                    console.error(`Invalid kioskType: ${kioskType}`);
+                    updateUIOnError();
                 }
-            } catch (error) {
-                console.error("Error parsing JSON response:", error);
-                $("#AuthError").show();
-                $("#loadingAnimation").hide();
-                $("#content").hide();
+            } else {
+                console.error("No kiosk data found in response.");
+                updateUIOnError();
             }
         },
         error: function (xhr, status, error) {
-            console.error("Error :", xhr.responseText);
-            $("#AuthError").show();
-            $("#loadingAnimation").hide();
-            $("#content").hide();
-            setTimeout(ValidateKiosk, retryInterval);
-
+            console.error(`Error: ${xhr.responseText}`);
+            updateUIOnError();
+            setTimeout(ValidateKiosk, retryInterval); // Make sure retryInterval is defined somewhere
         }
     });
 }
@@ -81,7 +75,7 @@ function initConnection() {
 
 
     const connectionKiosk = new signalR.HubConnectionBuilder()
-        .withUrl('/kioskHub') 
+        .withUrl('/kioskHub')
         .build();
     // Set up event handlers
     connection.on("ReceiveMessage", function (message) {
@@ -129,7 +123,7 @@ function startConnection() {
 
 // Query hardware status
 async function queryHw() {
-    const status = await getHttpReq('Home/CheckKiosk');
+    const status = await getHttpReq(`CheckKiosk`);
     if (status.ok) {
         setBrokenDevices(undefined);
     } else {
@@ -183,7 +177,8 @@ function showErrorAndRetry() {
 function showContent() {
     $("#content").show();
     $("#Errors").hide();
-    $("body").on('click', function (event) {
+    $("body").off("click").on('click', function (event) {
+
         // Check if the clicked element or any of its parents have a specific class or id
         if (!$(event.target).closest('.resize-drag').length) {
             // If the click was not inside the language button, call touch()
@@ -241,8 +236,13 @@ function sendMessageToDesk(message) {
 
 // Handle touch event
 function touch() {
-    $("body").unbind("click");
+    $("body").off("click");
     loadSegmentView();
 }
 
 
+function updateUIOnError() {
+    $("#AuthError").show();
+    $("#loadingAnimation").hide();
+    $("#content").hide();
+}

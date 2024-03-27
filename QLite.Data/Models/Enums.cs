@@ -166,6 +166,7 @@ namespace QLite.Data.Models
             ServiceTypeSelection = 0,
             SegmentSelection = 2,
             PagePrint = 3,
+            DisplayScreen = 4,
             WelcomePage = 9
 
         }

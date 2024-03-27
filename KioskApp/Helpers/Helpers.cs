@@ -81,4 +81,10 @@ img {
         }
 
     }
+
+
+    public class TicketViewModel
+    {
+        public string Html { get; set; }
+    }
 }

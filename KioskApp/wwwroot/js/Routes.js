@@ -1,6 +1,6 @@
 ﻿function loadSegmentView() {
     $.ajax({
-        url: '/Segment/Index',
+        url: 'GetSegmentView',
         type: 'GET',
         data: { HwID: kioskID },
         success: function (response) {
@@ -16,7 +16,7 @@
 
 function loadServiceView(segmentOid) {
     $.ajax({
-        url: '/Service/Index', 
+        url: 'GetServiceView', 
         type: 'GET',
         data: { segmentOid: segmentOid, hwId: kioskID }, 
         success: function (response) {
@@ -32,7 +32,7 @@ function loadServiceView(segmentOid) {
 
 function loadTicketView(ticket) {
     $.ajax({
-        url: '/Ticket/Index',
+        url: 'GetTicketView',
         type: 'GET',
         data: { ticketJson: JSON.stringify(ticket) }, 
 
@@ -49,7 +49,7 @@ function loadTicketView(ticket) {
 
 function PrintTicket(ticket) {
     $.ajax({
-        url: 'Ticket/PrintTicket',
+        url: 'PrintTicket',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ html: ticket }), 
@@ -64,7 +64,7 @@ function PrintTicket(ticket) {
 
 function DisplayTicket(ticket) {
     $.ajax({
-        url: '/Ticket/DisplayTicket', 
+        url: 'DisplayTicket', 
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ DisplayNo: ticket.DisplayNo, TicketNo: ticket.ServiceCode + ticket.TicketNumber, SendToMain: true }), 
@@ -78,9 +78,11 @@ function DisplayTicket(ticket) {
 }
 
 
+
+
 function changeLanguage(step,lang) {
     $.ajax({
-        url: `${step}/ChangeLanguage/?LangID=${lang}`,
+        url: `ChangeLanguage?LangID=${lang}&step=${step}`,
         type: 'POST',
         success: function (response) {
             console.log("language changed successfully");

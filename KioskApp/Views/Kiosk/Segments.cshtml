@@ -1,0 +1,87 @@
+﻿@using KioskApp.Controllers;
+@using KioskApp.Helpers;
+@using QLite.Data.Dtos;
+@using QLite.DesignComponents;
+@using QLite.Data;
+@using System.Text;
+@model SegmentsAndDesignModel
+
+
+
+
+@if (Model.DesignData != null && Model.DesignData.Comps != null)
+{
+
+    <div id="canvas-container"
+     style="
+        width: @(Model.DesignData.Width ?? "100vw");
+        height: @(Model.DesignData.Height ?? "100vh");
+        background-image: url('@(Model.DesignData.BgImageUrl ?? "")');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        border: 1px solid black;
+            ">
+        @foreach (var comp in Model.DesignData.Comps)
+        {
+            @Html.Raw(RenderComponent(comp,Model.Segments))
+        }
+    </div>
+
+
+    <script>
+        // Set the timeout and record its state
+        var SegmentTimeoutPeriod = @Model.DesignData.PageTimeOut * 1000;
+        localStorage.setItem('SegmentTimeoutActive', 'true');
+
+        setTimeout(function () {
+            if (localStorage.getItem('SegmentTimeoutActive') === 'true') {
+                window.location.href = '/';
+            }
+        }, SegmentTimeoutPeriod);
+    </script>
+
+}
+else
+{
+    <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="row">
+            @foreach (var segment in Model.Segments)
+            {
+                <div class="col-md-12 mb-3">
+                    <div class="text-center">
+                        <button class="btn btn-primary btn-lg" style="font-size: 2rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);" onclick="loadServiceView('@segment.Oid')"> @segment.Name </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+
+}
+@functions {
+    public string RenderComponent(DesCompData comp, List<SegmentDto> segments)
+    {
+        switch (comp)
+        {
+         
+
+            case DesCompDataWfButton wfButtonComp:
+                return ViewHelper.RenderWfButtonComponent(wfButtonComp);
+
+            case DesCompDataSegment segmentComp:
+                return ViewHelper.RenderSegmentComponent(segmentComp, segments);
+
+            case DesCompDataGenericHtml htmlComp:
+                return ViewHelper.RenderGenericHtmlComponent(htmlComp);
+
+            case DesCompDataLang langComp:
+                return ViewHelper.RenderLanguageButton(langComp, "SegmentSelection");
+
+
+            default:
+                return string.Empty; // Unknown component type
+        }
+    }
+
+}

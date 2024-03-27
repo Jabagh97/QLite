@@ -7,40 +7,42 @@ using System.Text;
 using QLite.Data.Services;
 using QLite.Data.Dtos;
 using Microsoft.Extensions.Configuration;
+using QLite.Data.CommonContext;
+using Quavis.QorchLite.Hwlib;
+using System.Diagnostics;
 
 namespace KioskApp.Controllers
 {
     public class KioskAuthController : Controller
     {
-        private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
-        public KioskAuthController(HttpClient httpClient, IConfiguration configuration)
-        {
-            _httpClient = httpClient;
-            _configuration = configuration;
+        private readonly ApiService _apiService;
 
-            _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
+        public KioskAuthController(ApiService apiService)
+        {
+            _apiService = apiService;
+
         }
-        [HttpGet]
 
         public async Task<IActionResult> AuthenticateAsync()
         {
             try
             {
-                var kioskId = _configuration.GetValue<string>("KioskID");
+                var kioskId = CommonCtx.Config.GetValue<string>("KioskID");
 
-                var response = await _httpClient.GetAsync($"api/Kiosk/GetKioskByHwID/{kioskId}");
+                var kioskData = await _apiService.GetGenericResponse<KioskDto>($"api/Kiosk/GetKioskByHwID/{kioskId}");
 
-                if (response.IsSuccessStatusCode)
+
+                // Assuming KioskType is an enum and kioskData.KioskType is its integer representation
+                if ((KioskType)kioskData.KioskType == KioskType.Kiosk)
                 {
-                    var kioskData = await response.Content.ReadAsStringAsync();
-                    return Ok(kioskData);
+                    return RedirectToAction("Index", "Kiosk");
                 }
-                else
+                else if ((KioskType)kioskData.KioskType == KioskType.Display)
                 {
-                    var errorMessage = await response.Content.ReadAsStringAsync();
-                    return StatusCode((int)response.StatusCode, errorMessage);
+                    return RedirectToAction("Index", "Display");
                 }
+
+                return StatusCode(500, "Kiosk Not Found");
             }
             catch (Exception ex)
             {
@@ -49,5 +51,28 @@ namespace KioskApp.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> AuthenticateForWebSocket()
+        {
+            try
+            {
+                var kioskId = CommonCtx.Config.GetValue<string>("KioskID");
+
+                var kioskData = await _apiService.GetGenericResponse<KioskDto>($"api/Kiosk/GetKioskByHwID/{kioskId}");
+
+
+                return Ok(kioskData);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing the request."); // Handle unexpected errors
+            }
+        }
+
+
+
+
+    
     }
 }

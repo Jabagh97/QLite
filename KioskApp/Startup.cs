@@ -76,7 +76,7 @@ namespace KioskApp
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=KioskAuth}/{action=Authenticate}");
                 endpoints.MapHub<KioskHub>("/kioskHub");
             });
         }

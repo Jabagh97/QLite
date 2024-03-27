@@ -4,6 +4,7 @@ using QLite.Data;
 using QLite.Data.Dtos;
 using QLite.DesignComponents;
 using QLiteDataApi.Context;
+using Serilog;
 using static QLite.Data.Models.Enums;
 
 namespace QLiteDataApi.Services
@@ -15,7 +16,7 @@ namespace QLiteDataApi.Services
         Task<List<ServiceTypeDto>> GetServiceTypes(Guid segmentId);
         Task<List<SegmentDto>> GetSegments();
 
-        Task<Kiosk> GetKioskByHwID(string HwId);
+        Task<KioskDto> GetKioskByHwID(string HwId);
 
         Task<Design> GetDesignByKiosk(string Step, string HwID);
         Task<List<Resource>> GetResourceList();
@@ -276,25 +277,50 @@ namespace QLiteDataApi.Services
         }
 
 
-        public async Task<Kiosk> GetKioskByHwID(string HwId)
+        public async Task<KioskDto> GetKioskByHwID(string HwId)
         {
             var cacheKey = $"Kiosk_HwID_{HwId}";
+            KioskDto kiosk;
 
-            if (!_cache.TryGetValue(cacheKey, out Kiosk kiosk))
+            // Try to get the kiosk from the cache
+            if (!_cache.TryGetValue(cacheKey, out kiosk))
             {
-                kiosk = await _context.Kiosks.FirstOrDefaultAsync(k => k.Gcrecord == null && k.Active == true && k.HwId == HwId);
-
-                if (kiosk != null)
+                try
                 {
-                    var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(TimeSpan.FromMinutes(1)).SetSize(1);
+                    // Attempt to retrieve the kiosk from the database
+                    kiosk = await _context.Kiosks
+                                .Where(k => k.Gcrecord == null && k.Active == true && k.HwId == HwId)
+                                .Select(k => new KioskDto
+                                {
+                                    Oid = k.Oid,
+                                    Name = k.Name,
+                                    HwId = k.HwId,
+                                    KioskType = k.KioskType,
+                                    Branch= k.Branch,
+                                })
+                                .FirstAsync(); 
 
-                    _cache.Set(cacheKey, kiosk, cacheEntryOptions);
+                    if (kiosk != null)
+                    {
+                        var cacheEntryOptions = new MemoryCacheEntryOptions()
+                            .SetSlidingExpiration(TimeSpan.FromMinutes(1)) 
+                            .SetSize(1); 
+
+                        // Cache the kiosk
+                        _cache.Set(cacheKey, kiosk, cacheEntryOptions);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"An error occurred when retrieving the kiosk by HWID: {ex.Message}");
+                    
+                    throw; 
                 }
             }
 
             return kiosk;
         }
+
 
 
 
