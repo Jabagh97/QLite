@@ -254,7 +254,8 @@ namespace QLite.DesignComponents
         Number,
         WaitingTickets,
         ServiceTypeName,
-        Segment
+        Segment,
+        Desk
     }
 
     public enum WfButtonType
@@ -320,5 +321,14 @@ namespace QLite.DesignComponents
         public List<ServiceTypeDto> Services { get; set; }
 
     
+    }
+
+
+    public class DisplayAndDesignModel
+    {
+        public DesPageData DesPageData { get; set; }
+        public List<TicketDto> WaitingTickets { get; set; }
+
+
     }
 }

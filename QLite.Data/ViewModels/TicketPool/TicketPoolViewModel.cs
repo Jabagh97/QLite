@@ -20,10 +20,15 @@ namespace QLite.Data.ViewModels.TicketPool
         public string? ServiceType { get; set; }
 
         public string? Segment { get; set; }
-        //public string? Kiosk { get; set; }
-        [Required]
+        [Boolean]
 
-        public string MaxWaitingTicketCount { get; set; }
+        public bool? ResetOnRange { get; set; }
+
+
+
+        //[Required]
+
+        //public string MaxWaitingTicketCount { get; set; }
 
         [Required]
 

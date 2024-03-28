@@ -10,6 +10,7 @@ function initializeDataTable(modelName, columnDefinitions) {
             //serverSide: true,
             //processing: true,
             //stateSave: true,
+            responsive: true,
             paging: true,
             filter: true,
             dom: 'Bfrtilp',

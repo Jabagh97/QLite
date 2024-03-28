@@ -14,9 +14,10 @@
 
     @if (Model != null && Model.Comps != null)
     {
-        <div style="display: flex; justify-content: center; align-items: center; margin-top :25px; ">
+        <div style=" justify-content: center;  margin-top :25px;  ">
 
-            <div id="canvas-container" 
+
+            <div id="canvas-container"
              style="
         width: @(Model.Width ?? "800px");
         height: @(Model.Height ?? "600px");
@@ -47,7 +48,7 @@
                     BgImageUrl: "",
                     BackGroundColor: "",
                     CustomCss: "",
-                    PageTimeOut:3,
+                    PageTimeOut: 3,
                     Comps: []
                 };
                 var desPageData = @Html.Raw(JsonConvert.SerializeObject(Model, new DesCompJsonConverter()));
@@ -55,7 +56,7 @@
                 console.log(desPageData)
             </script>
 
-           
+
         </div>
 
     }
@@ -96,7 +97,7 @@
 
     }
 
-   
+
 </div>
 
 <!--end::Container-->
@@ -424,11 +425,11 @@
 
 
  @*GuideLines*@
-            <div class="guide-line-y guide-line">
-                <span style="opacity:0">y</span>
-                <span>x</span>
-            </div>
-            <div class="guide-line-x guide-line">
-                <span style="opacity:0">x</span>
-                <span>x</span>
-            </div>
+<div class="guide-line-y guide-line">
+    <span style="opacity:0">y</span>
+    <span>x</span>
+</div>
+<div class="guide-line-x guide-line">
+    <span style="opacity:0">x</span>
+    <span>x</span>
+</div>

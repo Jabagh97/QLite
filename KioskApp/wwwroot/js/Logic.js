@@ -92,6 +92,16 @@ function initConnection() {
         }
     });
 
+
+    connection.on("NotifyDisplayKiosk", function () {
+        try {
+            RefreshDisplay(true);
+            console.log("Ticket received from server:");
+        } catch (error) {
+            console.error("Error processing NotifyTicketState message:", error);
+        }
+    });
+
     connectionKiosk.on("HwEvent", function (message) {
 
         console.log("HwStatusChanged" + message)

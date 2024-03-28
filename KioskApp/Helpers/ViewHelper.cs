@@ -3,14 +3,83 @@ using QLite.Data;
 using QLite.Data.CommonContext;
 using QLite.Data.Dtos;
 using QLite.DesignComponents;
+using System.Net.Sockets;
 using System.Text;
+using static QLite.Data.Models.Enums;
 
 namespace KioskApp.Helpers
 {
     public class ViewHelper
     {
 
-        public static string RenderTicketOrDisplayComponent(DesCompDataText comp, Ticket ticket )
+        public static string RenderDisplayComponent(DesCompDataText comp, List<TicketDto> waitingTickets)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append($"<div id=\"{comp.Id}\" ");
+            sb.Append($"data-comp-id=\"{comp.Id}\" ");
+
+            sb.Append("style=\"position: absolute; ");
+            sb.AppendFormat("width:{0}; ", comp.Width);
+            sb.AppendFormat("height:{0}; ", comp.Height);
+            sb.AppendFormat("left: {0}; top:{1}; ", comp.PosX, comp.PosY);
+
+            if (!string.IsNullOrEmpty(comp.CustomCss))
+            {
+                sb.Append(comp.CustomCss);
+            }
+
+            sb.Append("\"> ");
+
+            if (comp.CtxIndex >= 0 && comp.CtxIndex < waitingTickets.Count)
+            {
+
+                switch (comp.InfoType)
+                {
+                    case TicketInfoType.Number:
+                        sb.Append(waitingTickets[comp.CtxIndex].Number);
+                        break;
+
+                    case TicketInfoType.ServiceTypeName:
+                        sb.Append(waitingTickets[comp.CtxIndex].ServiceTypeName);
+                        break;
+                    case TicketInfoType.Segment:
+                        sb.Append(waitingTickets[comp.CtxIndex].SegmentName);
+                        break;
+
+                    case TicketInfoType.ServiceCode:
+                        sb.Append(waitingTickets[comp.CtxIndex].ServiceCode);
+                        break;
+
+                    case TicketInfoType.Desk:
+                        sb.Append(waitingTickets[comp.CtxIndex].Desk);
+                        break;
+
+                    case TicketInfoType.WaitingTickets:
+                        sb.Append(waitingTickets.Count);
+                        break;
+
+                    default:
+                        sb.Append(waitingTickets[comp.CtxIndex].Number);
+                        break;
+                }
+
+            }
+            else
+            {
+                sb.Append("");
+
+            }
+
+
+
+            sb.Append("</div>");
+
+            return sb.ToString();
+
+        }
+
+        public static string RenderTicketComponent(DesCompDataText comp, Ticket ticket)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -106,8 +175,8 @@ namespace KioskApp.Helpers
             }
             if (comp.GenCompType == HtmlCompType.Text)
             {
-                
-                 sb.Append(GetLanguage(comp.ButtonText));
+
+                sb.Append(GetLanguage(comp.ButtonText));
 
 
             }
@@ -130,7 +199,7 @@ namespace KioskApp.Helpers
             // Check if comp's SegmentID exists in the segments list
             if (languages == null || !languages.Any(lang => lang.Oid == comp.LangID))
             {
-                return null; 
+                return null;
             }
 
             // Prepare CSS styles

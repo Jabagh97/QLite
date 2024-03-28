@@ -3,6 +3,7 @@
 @using QLite.DesignComponents;
 @using QLite.Data;
 @using System.Text;
+@using static QLite.Data.Models.Enums;
 @model ServicesAndDesignModel
 
 
@@ -83,7 +84,7 @@ else
                 return ViewHelper.RenderGenericHtmlComponent(htmlComp);
 
             case DesCompDataLang langComp:
-                return ViewHelper.RenderLanguageButton(langComp, "ServiceTypeSelection");
+                return ViewHelper.RenderLanguageButton(langComp, Step.ServiceTypeSelection.ToString());
 
          
             default:

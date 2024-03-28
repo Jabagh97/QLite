@@ -34,6 +34,14 @@ namespace KioskApp.SignalR
 
             // You can perform any additional logic here, such as processing the message or broadcasting it to other clients
         }
+
+        public async Task NotifyDisplayKiosk()
+        {
+            // Log the received message
+            Log.Debug($"Display: ");
+
+            // You can perform any additional logic here, such as processing the message or broadcasting it to other clients
+        }
         public async Task SendMessage(string message)
         {
             await Clients.All.SendAsync("ReceiveMessage", message);

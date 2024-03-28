@@ -72,6 +72,10 @@ public partial class Ticket
     public int? Gcrecord { get; set; }
 
     public Guid? CreatedByKiosk { get; set; }
+
+    [JsonIgnore]
+
+    public virtual TicketPool? TicketPoolNavigation { get; set; }
     [JsonIgnore]
 
     public virtual Branch? BranchNavigation { get; set; }

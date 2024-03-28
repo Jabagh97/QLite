@@ -232,9 +232,9 @@ namespace QLiteDataApi.Services
                     svc.CallingRuleDescription += " (autocall)";
 
                 _context.TicketStates.Add(svc);
-                svc.TicketNavigation = t;
 
                 await _context.SaveChangesAsync();
+
             }
 
             return svc;

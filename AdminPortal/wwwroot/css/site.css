@@ -150,8 +150,13 @@ body {
 
 
 .custom-popup-class {
-    width: 600px; /* Adjust width as needed */
-    height: 600px; /* Adjust height as needed */
+    width: 600px; 
+    height: 600px;
+
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
 }
 .swal2-container .swal2-html-container {
 

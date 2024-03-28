@@ -683,74 +683,72 @@ function showModal(compId, buttonText, componentType) {
 // Handle clone button click
 
 $('#cloneButton').click(function () {
-    var compId = $('#compID').val();
-    var originalComp = desPageData.Comps.find(comp => comp.Id == compId);
+    const compId = $('#compID').val();
+    const originalComp = desPageData.Comps.find(comp => comp.Id === compId);
 
-    // Clone the original component, except for its Id
-    var clonedComp = {};
-    for (var key in originalComp) {
-        if (originalComp.hasOwnProperty(key) && key !== 'Id') {
-            clonedComp[key] = originalComp[key];
-        }
-    }
+    // Exclude properties while cloning
+    const { Id, CtxIndex, PosX, PosY, ServiceTypeOid, SegmentID, InfoType, HtmlCompType, BtnType, ...clonedComp } = originalComp;
 
-    var newCompId = 'comp_' + Date.now(); // Generate a unique ID for the new component
-    var newPosX = '30px';
-    var newPosY = '30px';
-    // Create a new div element for the cloned component
-    var newComponent = document.createElement('div');
+    // Set excluded properties to empty strings
+    const excludedPropsWithEmptyStrings = {
+        CtxIndex: '',
+        PosX: '',
+        PosY: '',
+        ServiceTypeOid: '',
+        SegmentID: '',
+        InfoType: '',
+        HtmlCompType: '',
+        BtnType: ''
+    };
+
+    const newCompId = 'comp_' + Date.now(); // Generate a unique ID for the new component
+    const newPosX = '30px';
+    const newPosY = '30px';
+
+    // Create and style the new component
+    const newComponent = document.createElement('div');
     newComponent.id = newCompId;
     newComponent.className = 'resize-drag';
-    newComponent.style.cssText = originalComp.CustomCss; // Copying Custom CSS
-    newComponent.style.width = clonedComp.Width;
-    newComponent.style.height = clonedComp.Height;
-    newComponent.style.border = '1px dotted black';
-    newComponent.style.transform = `translate(${newPosX}, ${newPosY})`;
+    newComponent.style.cssText = `${originalComp.CustomCss}; width: ${clonedComp.Width}; height: ${clonedComp.Height}; border: 1px dotted black; transform: translate(${newPosX}, ${newPosY});`;
     newComponent.setAttribute('data-x', newPosX);
     newComponent.setAttribute('data-y', newPosY);
     newComponent.setAttribute('data-comp-id', newCompId);
 
+    function createIcon(className, id) {
+        const icon = document.createElement('div');
+        icon.className = className;
+        if (id) icon.id = id;
+        return icon;
+    }
 
-    // Create a div element for the drag icon
-    var dragIcon = document.createElement('div');
-    dragIcon.className = 'drag-icon';
-    newComponent.appendChild(dragIcon);
-
-    // Create a div element for the drag icon
-    var panelIcon = document.createElement('div');
-    panelIcon.className = 'panel-icon';
-    panelIcon.id = "panel-icon-id";
+    newComponent.appendChild(createIcon('drag-icon'));
+    const panelIcon = createIcon('panel-icon', 'panel-icon-id');
     newComponent.appendChild(panelIcon);
 
-    // Add onclick event to the panel icon
-    panelIcon.addEventListener('click', function () {
-        showModal(compId, clonedComp.ButtonText, clonedComp.DesCompType);
+    panelIcon.addEventListener('click', () => {
+        showModal(newCompId, clonedComp.ButtonText, clonedComp.DesCompType);
     });
 
-    // Optional: If the original component has text, clone it
     if (clonedComp.ButtonText) {
-        var textDiv = document.createElement('div');
-        textDiv.id = newCompId + '_text';
+        const textDiv = document.createElement('div');
+        textDiv.id = `${newCompId}_text`;
         textDiv.textContent = clonedComp.ButtonText;
         newComponent.appendChild(textDiv);
     }
 
-    // Add the cloned component to the canvas or desired container
     document.getElementById('canvas-container').appendChild(newComponent);
 
-    // Add event listeners or other initialization logic as needed
-    // For example, adding a click event listener to select the component
-    newComponent.addEventListener('click', function () {
+    newComponent.addEventListener('click', () => {
         selectComponent(newCompId);
     });
 
-    // Update your components list with the new component data
-    // Assigning new Id, PosX, and PosY while keeping the rest of the properties the same
+    // Combine clonedComp with excludedPropsWithEmptyStrings and update new properties
     desPageData.Comps.push({
-        ...clonedComp, // Spread operator to include all cloned properties
-        Id: newCompId, // Assign the new unique ID
-        PosX: newPosX, // Assign new X position
-        PosY: newPosY, // Assign new Y position
+        ...clonedComp,
+        ...excludedPropsWithEmptyStrings, // Assign empty strings to excluded properties
+        Id: newCompId,
+        PosX: newPosX,
+        PosY: newPosY,
     });
 });
 
@@ -870,6 +868,10 @@ $('#saveComponentButton').click(function () {
                 // Append the new iframeHtml to the element with the id compId
                 $('#' + compId).append(textHtml);
             }
+            if (comp.DesCompType === 'DesCompDataText') {
+                $('#' + compId + '_text').text(comp.Text);
+
+            }
             else {
                 $('#' + compId + '_text').text(comp.ButtonText);
 
@@ -949,6 +951,14 @@ document.getElementById('textType').addEventListener('change', function () {
             comp.Text = 'Test Segment';
             comp.TicketInfoType = selectedOption;
             break;
+        case '5':
+            document.getElementById('previewText').value = 'Test Desk';
+            var compTextElement = document.getElementById(compId + '_text');
+            compTextElement.textContent = 'Test Desk';
+
+            comp.Text = 'Test Desk';
+            comp.TicketInfoType = selectedOption;
+            break;
         default:
             // Handle default case (optional)
             document.getElementById('previewText').value = '';
@@ -1002,6 +1012,8 @@ document.getElementById('HtmlType').addEventListener('change', function () {
 
             compTextElement.textContent = Date.now();
             $('#buttonText').val(Date.now());
+
+            break;
 
         case '5':
             $('#cssCustomField').show();

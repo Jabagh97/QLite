@@ -31,7 +31,7 @@ public partial class Desk
 
     public Guid? Branch { get; set; }
 
-    public Guid? Pano { get; set; }
+    public Guid? Kiosk { get; set; }
 
     public string? DisplayNo { get; set; }
 
@@ -61,7 +61,7 @@ public partial class Desk
 
     public virtual Account? AccountNavigation { get; set; }
 
-    public virtual Kiosk? PanoNavigation { get; set; }
+    public virtual Kiosk? KioskNavigation { get; set; }
 
     public virtual ICollection<Ticket> TicketCurrentDeskNavigations { get; } = new List<Ticket>();
 

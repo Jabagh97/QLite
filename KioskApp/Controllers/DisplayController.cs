@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using QLite.Data;
 using QLite.Data.CommonContext;
+using QLite.Data.Dtos;
 using QLite.Data.Services;
 using QLite.DesignComponents;
 using Quavis.QorchLite.Hwlib;
@@ -21,11 +22,18 @@ namespace KioskApp.Controllers
             _apiService = httpService;
 
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool justRefresh = false)
         {
             try
             {
-                var viewModel = await InitHomepage();
+                DisplayAndDesignModel viewModel;
+
+                if (justRefresh)
+                {
+                    viewModel = await RefreshWaitingList();
+                    return PartialView("~/Views/Display/Index.cshtml", viewModel);
+                }
+                viewModel = await InitHomepage();
                 return View(viewModel);
             }
             catch (Exception ex)
@@ -34,18 +42,33 @@ namespace KioskApp.Controllers
                 return StatusCode(500, "An internal server error has occurred.");
             }
         }
-        private async Task<DesPageData> InitHomepage()
+
+        private async Task<DisplayAndDesignModel> RefreshWaitingList()
         {
+            var viewModel = new DisplayAndDesignModel
+            {
+                DesPageData = Session.displayAndDesignModel.DesPageData,
+                WaitingTickets = await _apiService.GetGenericResponse<List<TicketDto>>($"api/Kiosk/GetInServiceTickets/{CommonCtx.KioskHwId}")
 
+            };
 
-            DesPageData desPageData = await GetDesignData(CommonCtx.KioskHwId, Step.DisplayScreen.ToString());
-            
+            return viewModel;
+        }
+        private async Task<DisplayAndDesignModel> InitHomepage()
+        {
+            var viewModel = new DisplayAndDesignModel
+            {
+                DesPageData = await GetDesignData(CommonCtx.KioskHwId, Step.DisplayScreen.ToString()),
+                WaitingTickets = await _apiService.GetGenericResponse<List<TicketDto>>($"api/Kiosk/GetInServiceTickets/{CommonCtx.KioskHwId}")
 
+            };
             CommonCtx.Languages = await GetLanguageList();
             CommonCtx.Resources = await GetResourceList();
             CommonCtx.CurrentLanguage = CommonCtx.Languages.FirstOrDefault()?.Oid ?? Guid.Empty;
 
-            return desPageData;
+            Session.displayAndDesignModel = viewModel;
+
+            return viewModel;
         }
         private async Task<DesPageData> GetDesignData(string hwId, string step)
         {

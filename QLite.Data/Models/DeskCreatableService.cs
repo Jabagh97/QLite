@@ -34,6 +34,8 @@ public partial class DeskCreatableService
     public int? OptimisticLockField { get; set; }
 
     public int? Gcrecord { get; set; }
+    public virtual Account? AccountNavigation { get; set; }
+
 
     public virtual Branch? BranchNavigation { get; set; }
 

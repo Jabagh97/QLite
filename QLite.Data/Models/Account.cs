@@ -44,6 +44,9 @@ public partial class Account
 
     public virtual ICollection<KappSetting> KappSettings { get; } = new List<KappSetting>();
 
+    public virtual ICollection<DeskTransferableService> DeskTransferableServices { get; } = new List<DeskTransferableService>();
+
+    public virtual ICollection<DeskCreatableService> DeskCreatableServices { get; } = new List<DeskCreatableService>();
 
     public virtual ICollection<Design> Designs { get; } = new List<Design>();
 

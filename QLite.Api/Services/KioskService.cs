@@ -5,6 +5,7 @@ using QLite.Data.Dtos;
 using QLite.DesignComponents;
 using QLiteDataApi.Context;
 using Serilog;
+using System.Linq;
 using static QLite.Data.Models.Enums;
 
 namespace QLiteDataApi.Services
@@ -21,6 +22,7 @@ namespace QLiteDataApi.Services
         Task<Design> GetDesignByKiosk(string Step, string HwID);
         Task<List<Resource>> GetResourceList();
         Task<List<Language>> GetLanguageList();
+        Task<List<TicketDto>> GetInServiceTickets(string KioskHwID);
     }
     public class KioskService : IKioskService
     {
@@ -139,6 +141,8 @@ namespace QLiteDataApi.Services
 
             if (!isServiceTimeValid || isBreakTimeInvalid)
             {
+                Log.Error("Ticket pool is currently unavailable.");
+
                 throw new InvalidOperationException("Ticket pool is currently unavailable.");
             }
         }
@@ -151,6 +155,8 @@ namespace QLiteDataApi.Services
                 ticketPool.MaxWaitingTicketCount.HasValue &&
                 ticketPool.MaxWaitingTicketCount < waitingTicketCount)
             {
+                Log.Error("Maximum waiting ticket number is reached for this service type.");
+
                 throw new InvalidOperationException("Maximum waiting ticket number is reached for this service type.");
             }
         }
@@ -174,6 +180,8 @@ namespace QLiteDataApi.Services
                 }
                 else
                 {
+                    Log.Error("Ticket pool range exceeded");
+
                     throw new Exception("Ticket pool range exceeded");
                 }
             }
@@ -227,7 +235,7 @@ namespace QLiteDataApi.Services
                         (tp.ServiceStartTime.Value.TimeOfDay < currentTime &&
                          (tp.ServiceEndTime == null || tp.ServiceEndTime.Value.TimeOfDay > currentTime) &&
                          (tp.BreakStartTime == null || !(tp.BreakStartTime.Value.TimeOfDay < currentTime && tp.BreakEndTime.Value.TimeOfDay > currentTime)))))
-                    .Select(st => new ServiceTypeDto 
+                    .Select(st => new ServiceTypeDto
                     {
                         Oid = st.Oid,
                         Name = st.Name
@@ -296,15 +304,15 @@ namespace QLiteDataApi.Services
                                     Name = k.Name,
                                     HwId = k.HwId,
                                     KioskType = k.KioskType,
-                                    Branch= k.Branch,
+                                    Branch = k.Branch,
                                 })
-                                .FirstAsync(); 
+                                .FirstAsync();
 
                     if (kiosk != null)
                     {
                         var cacheEntryOptions = new MemoryCacheEntryOptions()
-                            .SetSlidingExpiration(TimeSpan.FromMinutes(1)) 
-                            .SetSize(1); 
+                            .SetSlidingExpiration(TimeSpan.FromMinutes(1))
+                            .SetSize(1);
 
                         // Cache the kiosk
                         _cache.Set(cacheKey, kiosk, cacheEntryOptions);
@@ -313,8 +321,8 @@ namespace QLiteDataApi.Services
                 catch (Exception ex)
                 {
                     Log.Error($"An error occurred when retrieving the kiosk by HWID: {ex.Message}");
-                    
-                    throw; 
+
+                    throw;
                 }
             }
 
@@ -338,10 +346,9 @@ namespace QLiteDataApi.Services
                     return null; // Early exit if kiosk is not found
                 }
 
-                if (!Enum.TryParse(Step, true, out WfStep wfStep)) // Case insensitive parsing
+                if (!Enum.TryParse(Step, true, out Step wfStep))
                 {
-                    // Optionally, log this error or handle it as needed
-                    return null; // Handle invalid step value by returning null or consider logging
+                    return null;
                 }
 
                 // Perform the query to get the design
@@ -403,6 +410,46 @@ namespace QLiteDataApi.Services
             }
 
             return languages;
+        }
+
+        public async Task<List<TicketDto>> GetInServiceTickets(string KioskHwID)
+        {
+            // Get the kiosk
+            var kiosk = await _context.Kiosks
+                                      .Where(k => k.HwId == KioskHwID && k.Gcrecord == null)
+                                      .FirstOrDefaultAsync();
+
+            if (kiosk == null)
+            {
+                // If no kiosk is found, return an empty list or handle accordingly
+                return new List<TicketDto>();
+            }
+
+            // Get desks associated with the kiosk
+            var desks = await _context.Desks
+                                      .Where(d => d.Kiosk == kiosk.Oid && d.Gcrecord == null)
+                                      .ToListAsync();
+
+            // Get the Oids of these desks to filter tickets
+            var deskIds = desks.Select(d => d.Oid).ToList();
+
+            // Now get Tickets where ticket's Desk is in deskIds
+            var tickets = await _context.Tickets
+                             .Where(t => t.Desk.HasValue && deskIds.Contains(t.Desk.Value) && t.CurrentState == (int)TicketStateEnum.Service && t.Gcrecord == null)
+                             .Select(k => new TicketDto
+                             {
+                                 Oid = k.Oid,
+                                 ServiceTypeName= k.ServiceTypeName,
+                                 SegmentName = k.SegmentName,
+                                 Number = k.Number,
+                                 Desk = k.DeskNavigation.Name,
+                                 ServiceCode= k.TicketPoolNavigation.ServiceCode,
+
+                             })
+                             .ToListAsync();
+
+
+            return tickets;
         }
     }
 }

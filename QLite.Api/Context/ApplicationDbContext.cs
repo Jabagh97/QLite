@@ -311,7 +311,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => e.Gcrecord, "iGCRecord_Desk");
 
-            entity.HasIndex(e => e.Pano, "iPano_Desk");
+            entity.HasIndex(e => e.Kiosk, "iKiosk_Desk");
 
             entity.HasIndex(e => e.Account, "iAccount_Desk");
 
@@ -338,14 +338,16 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.Branch)
                 .HasConstraintName("FK_Desk_Branch");
 
-            entity.HasOne(d => d.PanoNavigation).WithMany(p => p.Desks)
-                .HasForeignKey(d => d.Pano)
-                .HasConstraintName("FK_Desk_Pano");
+            entity.HasOne(d => d.KioskNavigation).WithMany(p => p.Desks)
+                .HasForeignKey(d => d.Kiosk)
+                .HasConstraintName("FK_Desk_Kiosk");
         });
 
         modelBuilder.Entity<DeskCreatableService>(entity =>
         {
             entity.HasKey(e => e.Oid);
+
+            entity.HasIndex(e => e.Account, "iAccount_DeskCreatableServices");
 
             entity.HasIndex(e => e.Branch, "iBranch_DeskCreatableServices");
 
@@ -363,6 +365,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.ModifiedBy).HasMaxLength(100);
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             entity.Property(e => e.ModifiedDateUtc).HasColumnType("datetime");
+
+            entity.HasOne(d => d.AccountNavigation).WithMany(p => p.DeskCreatableServices)
+               .HasForeignKey(d => d.Account)
+               .HasConstraintName("FK_DeskCreatableServices_Account");
 
             entity.HasOne(d => d.BranchNavigation).WithMany(p => p.DeskCreatableServices)
                 .HasForeignKey(d => d.Branch)
@@ -456,6 +462,9 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.Oid);
 
+            entity.HasIndex(e => e.Account, "iAccount_DeskTransferableService");
+
+
             entity.HasIndex(e => e.Branch, "iBranch_DeskTransferableServices");
 
             entity.HasIndex(e => e.Desk, "iDesk_DeskTransferableServices");
@@ -472,6 +481,11 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.ModifiedBy).HasMaxLength(100);
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             entity.Property(e => e.ModifiedDateUtc).HasColumnType("datetime");
+
+
+            entity.HasOne(d => d.AccountNavigation).WithMany(p => p.DeskTransferableServices)
+              .HasForeignKey(d => d.Account)
+              .HasConstraintName("FK_DeskTransferableServices_Account");
 
             entity.HasOne(d => d.BranchNavigation).WithMany(p => p.DeskTransferableServices)
                 .HasForeignKey(d => d.Branch)
@@ -975,6 +989,9 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => e.ToServiceType, "iToServiceType_Ticket");
 
+            entity.HasIndex(e => e.TicketPool, "iTicketPool_Ticket");
+
+
             entity.Property(e => e.Oid).ValueGeneratedNever();
             entity.Property(e => e.CardNo).HasMaxLength(100);
             entity.Property(e => e.CreatedBy).HasMaxLength(100);
@@ -1020,6 +1037,10 @@ public partial class ApplicationDbContext : DbContext
             entity.HasOne(d => d.ToServiceTypeNavigation).WithMany(p => p.TicketToServiceTypeNavigations)
                 .HasForeignKey(d => d.ToServiceType)
                 .HasConstraintName("FK_Ticket_ToServiceType");
+
+            entity.HasOne(d => d.TicketPoolNavigation).WithMany(p => p.Tickets)
+              .HasForeignKey(d => d.TicketPool)
+              .HasConstraintName("FK_Ticket_TicketPool");
         });
 
         modelBuilder.Entity<TicketPool>(entity =>

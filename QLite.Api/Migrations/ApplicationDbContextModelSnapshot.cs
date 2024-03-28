@@ -435,6 +435,9 @@ namespace QLiteDataApi.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("GCRecord");
 
+                    b.Property<Guid?>("Kiosk")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("LastStateTime")
                         .HasColumnType("datetime");
 
@@ -455,9 +458,6 @@ namespace QLiteDataApi.Migrations
                     b.Property<int?>("OptimisticLockField")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid?>("Pano")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Oid");
 
                     b.HasIndex(new[] { "Account" }, "iAccount_Desk");
@@ -466,7 +466,7 @@ namespace QLiteDataApi.Migrations
 
                     b.HasIndex(new[] { "Gcrecord" }, "iGCRecord_Desk");
 
-                    b.HasIndex(new[] { "Pano" }, "iPano_Desk");
+                    b.HasIndex(new[] { "Kiosk" }, "iKiosk_Desk");
 
                     b.ToTable("Desk", (string)null);
                 });
@@ -516,6 +516,8 @@ namespace QLiteDataApi.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
+
+                    b.HasIndex(new[] { "Account" }, "iAccount_DeskCreatableServices");
 
                     b.HasIndex(new[] { "Branch" }, "iBranch_DeskCreatableServices");
 
@@ -734,6 +736,8 @@ namespace QLiteDataApi.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Oid");
+
+                    b.HasIndex(new[] { "Account" }, "iAccount_DeskTransferableService");
 
                     b.HasIndex(new[] { "Branch" }, "iBranch_DeskTransferableServices");
 
@@ -1809,6 +1813,8 @@ namespace QLiteDataApi.Migrations
 
                     b.HasIndex(new[] { "ServiceType" }, "iServiceType_Ticket");
 
+                    b.HasIndex(new[] { "TicketPool" }, "iTicketPool_Ticket");
+
                     b.HasIndex(new[] { "ToDesk" }, "iToDesk_Ticket");
 
                     b.HasIndex(new[] { "ToServiceType" }, "iToServiceType_Ticket");
@@ -2204,20 +2210,25 @@ namespace QLiteDataApi.Migrations
                         .HasForeignKey("Branch")
                         .HasConstraintName("FK_Desk_Branch");
 
-                    b.HasOne("QLite.Data.Kiosk", "PanoNavigation")
+                    b.HasOne("QLite.Data.Kiosk", "KioskNavigation")
                         .WithMany("Desks")
-                        .HasForeignKey("Pano")
-                        .HasConstraintName("FK_Desk_Pano");
+                        .HasForeignKey("Kiosk")
+                        .HasConstraintName("FK_Desk_Kiosk");
 
                     b.Navigation("AccountNavigation");
 
                     b.Navigation("BranchNavigation");
 
-                    b.Navigation("PanoNavigation");
+                    b.Navigation("KioskNavigation");
                 });
 
             modelBuilder.Entity("QLite.Data.DeskCreatableService", b =>
                 {
+                    b.HasOne("QLite.Data.Account", "AccountNavigation")
+                        .WithMany("DeskCreatableServices")
+                        .HasForeignKey("Account")
+                        .HasConstraintName("FK_DeskCreatableServices_Account");
+
                     b.HasOne("QLite.Data.Branch", "BranchNavigation")
                         .WithMany("DeskCreatableServices")
                         .HasForeignKey("Branch")
@@ -2232,6 +2243,8 @@ namespace QLiteDataApi.Migrations
                         .WithMany("DeskCreatableServices")
                         .HasForeignKey("ServiceType")
                         .HasConstraintName("FK_DeskCreatableServices_ServiceType");
+
+                    b.Navigation("AccountNavigation");
 
                     b.Navigation("BranchNavigation");
 
@@ -2273,6 +2286,11 @@ namespace QLiteDataApi.Migrations
 
             modelBuilder.Entity("QLite.Data.DeskTransferableService", b =>
                 {
+                    b.HasOne("QLite.Data.Account", "AccountNavigation")
+                        .WithMany("DeskTransferableServices")
+                        .HasForeignKey("Account")
+                        .HasConstraintName("FK_DeskTransferableServices_Account");
+
                     b.HasOne("QLite.Data.Branch", "BranchNavigation")
                         .WithMany("DeskTransferableServices")
                         .HasForeignKey("Branch")
@@ -2287,6 +2305,8 @@ namespace QLiteDataApi.Migrations
                         .WithMany("DeskTransferableServices")
                         .HasForeignKey("ServiceType")
                         .HasConstraintName("FK_DeskTransferableServices_ServiceType");
+
+                    b.Navigation("AccountNavigation");
 
                     b.Navigation("BranchNavigation");
 
@@ -2530,6 +2550,11 @@ namespace QLiteDataApi.Migrations
                         .HasForeignKey("ServiceType")
                         .HasConstraintName("FK_Ticket_ServiceType");
 
+                    b.HasOne("QLite.Data.TicketPool", "TicketPoolNavigation")
+                        .WithMany("Tickets")
+                        .HasForeignKey("TicketPool")
+                        .HasConstraintName("FK_Ticket_TicketPool");
+
                     b.HasOne("QLite.Data.Desk", "ToDeskNavigation")
                         .WithMany("TicketToDeskNavigations")
                         .HasForeignKey("ToDesk")
@@ -2549,6 +2574,8 @@ namespace QLiteDataApi.Migrations
                     b.Navigation("SegmentNavigation");
 
                     b.Navigation("ServiceTypeNavigation");
+
+                    b.Navigation("TicketPoolNavigation");
 
                     b.Navigation("ToDeskNavigation");
 
@@ -2658,7 +2685,11 @@ namespace QLiteDataApi.Migrations
 
                     b.Navigation("Designs");
 
+                    b.Navigation("DeskCreatableServices");
+
                     b.Navigation("DeskMacroSchedules");
+
+                    b.Navigation("DeskTransferableServices");
 
                     b.Navigation("Desks");
 
@@ -2822,6 +2853,11 @@ namespace QLiteDataApi.Migrations
             modelBuilder.Entity("QLite.Data.Ticket", b =>
                 {
                     b.Navigation("TicketStates");
+                });
+
+            modelBuilder.Entity("QLite.Data.TicketPool", b =>
+                {
+                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("QLite.Data.TicketPoolProfile", b =>

@@ -97,7 +97,7 @@ namespace KioskApp.Controllers
             {
                 ticketRequest.SegmentId = Session.selectedSegment;
 
-                var ticket = await _apiService.PostGenericRequest<Ticket>(EndPoints.GetTicket, ticketRequest);
+                var ticket = await _apiService.PostGenericRequest<Ticket>("api/Kiosk/GetTicket", ticketRequest);
 
                 if (ticket == null) return StatusCode(500, "Failed to retrieve ticket data");
 
@@ -110,6 +110,9 @@ namespace KioskApp.Controllers
                     Ticket = ticket,
                     DesPageData = designData
                 };
+
+                Session.ticketAndDesPageData = model;
+
 
                 return PartialView("Views/Kiosk/Ticket.cshtml", model);
             }
@@ -148,7 +151,7 @@ namespace KioskApp.Controllers
         }
 
         [HttpPost]
-        public  IActionResult ChangeLanguage(Guid LangID, string step)
+        public IActionResult ChangeLanguage(Guid LangID, string step)
         {
             try
             {
@@ -199,7 +202,17 @@ namespace KioskApp.Controllers
         {
             try
             {
-                _hwman.Print(viewModel.Html);
+                var copies = Session.ticketAndDesPageData.Ticket.CopyNumber;
+
+                if (copies.HasValue)
+                {
+                    // Execute the loop the number of times specified by copies.
+                    for (int i = 0; i < copies.Value; i++)
+                    {
+                        _hwman.Print(viewModel.Html);
+                    }
+                }
+
 
                 return Ok("Print successful");
             }

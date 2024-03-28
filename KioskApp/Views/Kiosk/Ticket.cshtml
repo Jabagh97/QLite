@@ -80,7 +80,7 @@ else
         switch (comp)
         {
             case DesCompDataText textComp:
-                return ViewHelper.RenderTicketOrDisplayComponent(textComp, ticket);
+                return ViewHelper.RenderTicketComponent(textComp, ticket);
 
             case DesCompDataGenericHtml htmlComp:
                 return ViewHelper.RenderGenericHtmlComponent(htmlComp);

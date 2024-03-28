@@ -4,6 +4,7 @@
 @using QLite.DesignComponents;
 @using QLite.Data;
 @using System.Text;
+@using static QLite.Data.Models.Enums;
 @model SegmentsAndDesignModel
 
 
@@ -76,7 +77,7 @@ else
                 return ViewHelper.RenderGenericHtmlComponent(htmlComp);
 
             case DesCompDataLang langComp:
-                return ViewHelper.RenderLanguageButton(langComp, "SegmentSelection");
+                return ViewHelper.RenderLanguageButton(langComp, Step.SegmentSelection.ToString());
 
 
             default:

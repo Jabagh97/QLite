@@ -34,6 +34,7 @@ public partial class DeskTransferableService
     public int? OptimisticLockField { get; set; }
 
     public int? Gcrecord { get; set; }
+    public virtual Account? AccountNavigation { get; set; }
 
     public virtual Branch? BranchNavigation { get; set; }
 

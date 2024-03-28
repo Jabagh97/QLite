@@ -95,5 +95,12 @@ namespace QLiteDataApi.Controllers.Kiosk
             var languages = await _kioskService.GetLanguageList();
             return Ok(languages);
         }
+
+        [HttpGet("GetInServiceTickets/{KioskHwID}")]
+        public async Task<IActionResult> GetInServiceTickets(string KioskHwID)
+        {
+            var services = await _kioskService.GetInServiceTickets(KioskHwID);
+            return Ok(services);
+        }
     }
 }

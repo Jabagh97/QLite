@@ -16,9 +16,9 @@
 
 function loadServiceView(segmentOid) {
     $.ajax({
-        url: 'GetServiceView', 
+        url: 'GetServiceView',
         type: 'GET',
-        data: { segmentOid: segmentOid, hwId: kioskID }, 
+        data: { segmentOid: segmentOid, hwId: kioskID },
         success: function (response) {
             console.log("Service");
             $('#content').html(response);
@@ -34,7 +34,7 @@ function loadTicketView(ticket) {
     $.ajax({
         url: 'GetTicketView',
         type: 'GET',
-        data: { ticketJson: JSON.stringify(ticket) }, 
+        data: { ticketJson: JSON.stringify(ticket) },
 
         success: function (response) {
             console.log("Ticket");
@@ -52,7 +52,7 @@ function PrintTicket(ticket) {
         url: 'PrintTicket',
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ html: ticket }), 
+        data: JSON.stringify({ html: ticket }),
         success: function (response) {
             console.log("Printed");
         },
@@ -64,10 +64,10 @@ function PrintTicket(ticket) {
 
 function DisplayTicket(ticket) {
     $.ajax({
-        url: 'DisplayTicket', 
+        url: 'DisplayTicket',
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ DisplayNo: ticket.DisplayNo, TicketNo: ticket.ServiceCode + ticket.TicketNumber, SendToMain: true }), 
+        data: JSON.stringify({ DisplayNo: ticket.DisplayNo, TicketNo: ticket.ServiceCode + ticket.TicketNumber, SendToMain: true }),
         success: function (response) {
             console.log("Ticket displayed successfully");
         },
@@ -80,7 +80,7 @@ function DisplayTicket(ticket) {
 
 
 
-function changeLanguage(step,lang) {
+function changeLanguage(step, lang) {
     $.ajax({
         url: `ChangeLanguage?LangID=${lang}&step=${step}`,
         type: 'POST',
@@ -95,6 +95,24 @@ function changeLanguage(step,lang) {
         }
     });
 }
+
+function RefreshDisplay(justRefresh) {
+    $.ajax({
+        url: 'Index',
+        type: 'GET',
+        contentType: 'application/json',
+        data: { justRefresh: justRefresh }, // Include the justRefresh parameter
+        success: function (response) {
+            console.log("Ticket displayed successfully");
+            $('#content').html(response);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error displaying ticket:", xhr.responseText);
+        }
+    });
+}
+
+
 
 async function getHttpReq(url, data) {
     let temp;
@@ -111,7 +129,7 @@ async function getHttpReq(url, data) {
             return temp;
         },
         error: async function (ex) {
-           
+
         }
     });
     return temp;
@@ -121,7 +139,7 @@ function postHttpReq(url, data) {
     return new Promise(function (resolve, reject) {
         $.ajax({
             url: url,
-            type: 'POST', 
+            type: 'POST',
             data: data,
             contentType: 'application/json; charset=utf-8',
             success: function (response) {

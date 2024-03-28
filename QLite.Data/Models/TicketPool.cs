@@ -1,6 +1,8 @@
-﻿using QLite.Data.CustomAttribute;
+﻿using Newtonsoft.Json;
+using QLite.Data.CustomAttribute;
 using QLite.Data.ViewModels.TicketPool;
 using System;
+using System.Collections.Generic;
 
 namespace QLite.Data;
 [ModelMapping(typeof(TicketPool), typeof(TicketPoolViewModel))]
@@ -72,4 +74,9 @@ public partial class TicketPool
     public virtual ServiceType? ServiceTypeNavigation { get; set; }
 
     public virtual TicketPoolProfile? TicketPoolProfileNavigation { get; set; }
+
+
+    [JsonIgnore]
+
+    public virtual ICollection<Ticket> Tickets { get; } = new List<Ticket>();
 }
