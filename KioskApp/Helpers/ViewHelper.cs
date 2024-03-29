@@ -194,7 +194,7 @@ namespace KioskApp.Helpers
 
         public static string RenderLanguageButton(DesCompDataLang comp, string step)
         {
-            var languages = CommonCtx.Languages;
+            var languages = KioskContext.Languages;
 
             // Check if comp's SegmentID exists in the segments list
             if (languages == null || !languages.Any(lang => lang.Oid == comp.LangID))
@@ -310,7 +310,7 @@ namespace KioskApp.Helpers
 
         public static string GetLanguage(string key)
         {
-            var resources = CommonCtx.Resources.Where(rl => rl.Language == CommonCtx.CurrentLanguage).ToList();
+            var resources = KioskContext.Resources.Where(rl => rl.Language == KioskContext.CurrentLanguage).ToList();
             if (string.IsNullOrEmpty(key))
                 return null;
             var paramValue = resources.FirstOrDefault(c => c.Parameter?.ToLower().Trim() == key.ToLower().Trim());

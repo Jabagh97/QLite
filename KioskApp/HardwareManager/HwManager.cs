@@ -45,12 +45,12 @@ namespace Quavis.QorchLite.Hwlib
         void CreateDevices()
         {
 
-            var printerSetting = CommonCtx.Config.GetSection("devices:printer");
+            var printerSetting = KioskContext.Config.GetSection("devices:printer");
             if (printerSetting.Exists())
             {
                 Log.Debug("creating printer device");
 
-                _printer = CommonCtx.Container.Resolve<IPrinter>();
+                _printer = KioskContext.Container.Resolve<IPrinter>();
 
                 var settings = printerSetting.Get(_printer.SettingsType);
                 _printer.Device.DeviceConnectionEvent += Device_DeviceConnectionEvent;
@@ -66,12 +66,12 @@ namespace Quavis.QorchLite.Hwlib
                 Log.Warning("No printer device settings found");
             }
 
-            var callSettings = CommonCtx.Config.GetSection("devices:call");
+            var callSettings = KioskContext.Config.GetSection("devices:call");
             if (callSettings.Exists())
             {
                 Log.Debug("creating call device");
 
-                _call = CommonCtx.Container.Resolve<ICallDevice>();
+                _call = KioskContext.Container.Resolve<ICallDevice>();
 
                 var settings = callSettings.Get(_call.SettingsType);
                 _call.Device.DeviceConnectionEvent += Device_DeviceConnectionEvent;
@@ -82,13 +82,13 @@ namespace Quavis.QorchLite.Hwlib
                 Log.Warning("No call device settings found");
 
 
-            var dt = CommonCtx.Config.GetValue<string>("devices:display:DType", null);
+            var dt = KioskContext.Config.GetValue<string>("devices:display:DType", null);
             if (dt != null)
             {
                 Log.Debug("creating display device");
 
-                _display = CommonCtx.Container.ResolveNamed<IDisplay>(dt);
-                var settings = CommonCtx.Config.GetSection("devices:display").Get(_display.SettingsType);
+                _display = KioskContext.Container.ResolveNamed<IDisplay>(dt);
+                var settings = KioskContext.Config.GetSection("devices:display").Get(_display.SettingsType);
                 _display.Device.DeviceConnectionEvent += Device_DeviceConnectionEvent; 
                 _display.Initialize(settings);
                 RealDevices.Add(_display.Device);

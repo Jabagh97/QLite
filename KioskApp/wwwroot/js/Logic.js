@@ -8,7 +8,7 @@ let hubUrl;
 let connection;
 var brokenDevices = [];
 const retryInterval = 5000; // Retry connection every 5 seconds
-
+let workFlowType;
 
 // Initialize when all elements on the page have loaded
 $(document).ready(function () {
@@ -28,6 +28,7 @@ function ValidateKiosk() {
 
             if (kioskData && kioskData.kioskType !== undefined) {
                 const { branch, kioskType, hwId, name } = kioskData;
+                workFlowType = kioskData.workFlowType;
                 const KioskType = kioskType === 0 ? "Kiosk" : kioskType === 1 ? "Display" : null;
 
                 if (KioskType) {
@@ -36,7 +37,7 @@ function ValidateKiosk() {
                     startConnection();
                     queryHw();
 
-                    if (KioskType === "Kiosk") {
+                    if (KioskType === "Kiosk" && workFlowType === 0) {
 
                         $("body").off("click").on('click', function (event) {
 
@@ -139,7 +140,7 @@ async function queryHw() {
     } else {
         setBrokenDevices(status.hwStatusList);
     }
-    evalUnavStatus("queryHw", true);
+    evalUnavStatus();
 }
 
 // Set broken devices
@@ -153,7 +154,7 @@ function setBrokenDevices(hwStatusList) {
 
 
 // Evaluate unavailable status
-function evalUnavStatus(caller, noRunProc) {
+function evalUnavStatus() {
     try {
         if (!brokenDevices || brokenDevices.length === 0) {
             showContent();
@@ -187,14 +188,17 @@ function showErrorAndRetry() {
 function showContent() {
     $("#content").show();
     $("#Errors").hide();
-    $("body").off("click").on('click', function (event) {
+    if (workFlowType === 0) {
+        $("body").off("click").on('click', function (event) {
 
-        // Check if the clicked element or any of its parents have a specific class or id
-        if (!$(event.target).closest('.resize-drag').length) {
-            // If the click was not inside the language button, call touch()
-            touch();
-        }
-    });
+            // Check if the clicked element or any of its parents have a specific class or id
+            if (!$(event.target).closest('.resize-drag').length) {
+                // If the click was not inside the language button, call touch()
+                touch();
+            }
+        });
+    }
+  
 }
 
 // Hide content and show errors

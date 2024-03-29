@@ -19,10 +19,9 @@ namespace KioskApp
     public class Startup
     {
 
-
         public Startup(IConfiguration configuration)
         {
-            CommonCtx.Config = configuration;            
+            KioskContext.Config = configuration;            
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -53,16 +52,11 @@ namespace KioskApp
                 app.UseDeveloperExceptionPage();
                 IdentityModelEventSource.ShowPII = true; // Enable showing PII in development
 
-
-
             }
             else
             {
                 app.UseExceptionHandler("/Error");
             }
-
-
-
 
             app.UseStaticFiles();
             app.UseRouting();

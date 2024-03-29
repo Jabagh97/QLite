@@ -6,6 +6,7 @@ using QLite.Data.CommonContext;
 using System.Reflection;
 using KioskApp.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
 public class Program
 {
@@ -21,13 +22,13 @@ public class Program
         try
         {
             if (args.Length > 0)
-                CommonCtx.Env = args[0];
+                KioskContext.Env = args[0];
 
             using (var host = CreateHostBuilder(args)
-                .UseEnvironment(CommonCtx.Env)
+                .UseEnvironment(KioskContext.Env)
                 .Build())
             {
-                CommonCtx.Container = host.Services.GetAutofacRoot();
+                KioskContext.Container = host.Services.GetAutofacRoot();
                 var configuration = host.Services.GetRequiredService<IConfiguration>();
 
                 ConfigureLogger();
@@ -36,7 +37,7 @@ public class Program
                 cts = new CancellationTokenSource();
                 var t = host.RunAsync(cts.Token);
 
-                CommonCtx.KioskHwId = configuration.GetValue<string>("KioskID");
+                KioskContext.KioskHwId = configuration.GetValue<string>("KioskID");
 
                 using (var scope = host.Services.CreateScope())
                 {
@@ -68,7 +69,7 @@ public class Program
             .CreateLogger();
     }
 
-    
+
     public static IHostBuilder CreateHostBuilder(string[] args) =>
        Host.CreateDefaultBuilder(args)
         .ConfigureWebHostDefaults(webBuilder =>
@@ -76,8 +77,6 @@ public class Program
             webBuilder.UseStartup<Startup>();
             webBuilder.UseStaticWebAssets();
             webBuilder.UseContentRoot(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
-            webBuilder.UseKestrel();
-            webBuilder.UseIIS();
             webBuilder.ConfigureAppConfiguration((hostingContext, config) =>
             {
                 var assemblyLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);

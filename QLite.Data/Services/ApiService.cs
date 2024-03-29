@@ -12,13 +12,15 @@ namespace QLite.Data.Services
     public class ApiService
     {
         private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
 
-        public ApiService(HttpClient httpClient)
+        public ApiService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
 
-            _httpClient.BaseAddress = new Uri(CommonCtx.Config.GetValue<string>("APIBase"));
 
+            _configuration = configuration;
+            _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
         }
 
         public async Task<T> GetDesignResponse<T>(string endpoint)
