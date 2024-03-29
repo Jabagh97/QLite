@@ -10,22 +10,7 @@ using static QLite.Data.Models.Enums;
 
 namespace QLiteDataApi.Services
 {
-    public interface IKioskService
-    {
-        Task<Ticket> GetNewTicketAsync(TicketRequestDto req);
-
-        Task<List<ServiceTypeDto>> GetServiceTypes(Guid segmentId);
-        Task<List<SegmentDto>> GetSegments();
-
-        Task<KioskDto> GetKioskByHwID(string HwId);
-
-        Task<Design> GetDesignByKiosk(string Step, string HwID);
-        Task<List<Resource>> GetResourceList();
-        Task<List<Language>> GetLanguageList();
-        Task<List<TicketDto>> GetInServiceTickets(string KioskHwID);
-        Task<Guid> GetDefaultSegment();
-    }
-    public class KioskService : IKioskService
+    public class KioskService 
     {
         private readonly IMemoryCache _cache;
 
@@ -39,6 +24,12 @@ namespace QLiteDataApi.Services
         }
 
         #region New Ticket
+
+        /// <summary>
+        /// Generates a new ticket based on the provided request parameters, handling all related data creation and associations.
+        /// </summary>
+        /// <param name="req">The ticket request parameters.</param>
+        /// <returns>The newly created ticket.</returns>
         public async Task<Ticket> GetNewTicketAsync(TicketRequestDto req)
         {
             // Initialize DbContext transaction at the beginning of the scope to ensure it covers all operations
@@ -71,6 +62,13 @@ namespace QLiteDataApi.Services
                 throw; // Use throw; to preserve stack trace of the original exception
             }
         }
+
+        /// <summary>
+        /// Retrieves service type, segment, and ticket pool information necessary for creating a new ticket.
+        /// </summary>
+        /// <param name="serviceTypeId">The service type ID for the ticket.</param>
+        /// <param name="segmentId">The segment ID for the ticket.</param>
+        /// <returns>Tuple containing the service type, segment, and ticket pool.</returns>
         private async Task<(ServiceType, Segment, TicketPool)> GetTicketCreationDependenciesAsync(Guid serviceTypeId, Guid segmentId)
         {
             var serviceType = await _context.ServiceTypes.FindAsync(serviceTypeId);
@@ -85,6 +83,15 @@ namespace QLiteDataApi.Services
 
             return (serviceType, segment, ticketPool);
         }
+
+        /// <summary>
+        /// Creates a new ticket entity.
+        /// </summary>
+        /// <param name="svcType">The service type for the ticket.</param>
+        /// <param name="segment">The segment for the ticket.</param>
+        /// <param name="ticketPool">The ticket pool for the ticket.</param>
+        /// <param name="retNumber">The ticket number.</param>
+        /// <returns>The created ticket entity.</returns>
         private Ticket CreateNewTicket(ServiceType svcType, Segment segment, TicketPool ticketPool, int retNumber)
         {
             return new Ticket
@@ -112,6 +119,13 @@ namespace QLiteDataApi.Services
             };
         }
 
+        /// <summary>
+        /// Creates a new ticket state for the given ticket.
+        /// </summary>
+        /// <param name="newTicket">The ticket to create the state for.</param>
+        /// <param name="svcType">The service type associated with the ticket.</param>
+        /// <param name="segment">The segment associated with the ticket.</param>
+        /// <returns>The created ticket state.</returns>
         private TicketState CreateNewTicketState(Ticket newTicket, ServiceType svcType, Segment segment)
         {
             return new TicketState
@@ -134,6 +148,10 @@ namespace QLiteDataApi.Services
             };
         }
 
+        /// <summary>
+        /// Validates the ticket pool's availability based on the current time and the pool's defined service and break times.
+        /// </summary>
+        /// <param name="ticketPool">The ticket pool to validate.</param>
         private void ValidateTicketPool(TicketPool ticketPool)
         {
             var now = DateTime.Now.TimeOfDay;
@@ -149,6 +167,11 @@ namespace QLiteDataApi.Services
         }
 
 
+        /// <summary>
+        /// Validates the current count of waiting tickets against the ticket pool's maximum allowed waiting tickets.
+        /// </summary>
+        /// <param name="ticketPool">The ticket pool to check against.</param>
+        /// <param name="waitingTicketCount">The current number of waiting tickets.</param>
         private void ValidateWaitingTicketCount(TicketPool ticketPool, int waitingTicketCount)
         {
             var now = DateTime.Now.TimeOfDay;
@@ -163,6 +186,11 @@ namespace QLiteDataApi.Services
         }
 
 
+        /// <summary>
+        /// Generates the next ticket number within the range defined by the ticket pool.
+        /// </summary>
+        /// <param name="ticketPool">The ticket pool to generate the number for.</param>
+        /// <returns>The generated ticket number.</returns>
         private async Task<int> GenerateTicketNumberAsync(TicketPool ticketPool)
         {
             var lastTicketNumber = await _context.Tickets
@@ -193,6 +221,13 @@ namespace QLiteDataApi.Services
 
             return (int)retNumber;
         }
+
+        /// <summary>
+        /// Retrieves the number of waiting tickets for a specific service type and segment.
+        /// </summary>
+        /// <param name="serviceTypeId">The service type ID.</param>
+        /// <param name="segmentId">The segment ID.</param>
+        /// <returns>The count of waiting tickets.</returns>
         private async Task<int> GetNumberOfWaitingTicketsAsync(Guid serviceTypeId, Guid segmentId)
         {
             return await _context.Tickets.CountAsync(x => x.ServiceType == serviceTypeId &&
@@ -202,6 +237,11 @@ namespace QLiteDataApi.Services
                                                           x.Year == DateTime.Today.Year);
         }
 
+        /// <summary>
+        /// Saves the newly created ticket and its initial state to the database.
+        /// </summary>
+        /// <param name="newTicket">The new ticket to save.</param>
+        /// <param name="newTicketState">The initial state of the new ticket.</param>
         private async Task SaveTicketAsync(Ticket newTicket, TicketState newTicketState)
         {
             _context.Tickets.Add(newTicket);
@@ -212,7 +252,11 @@ namespace QLiteDataApi.Services
 
         #endregion
 
-
+        /// <summary>
+        /// Retrieves a list of service types available for a given segment, considering their availability based on the current time.
+        /// </summary>
+        /// <param name="segmentId">The segment ID to retrieve service types for.</param>
+        /// <returns>A list of available service types for the segment.</returns>
         public async Task<List<ServiceTypeDto>> GetServiceTypes(Guid segmentId)
         {
             var cacheKey = $"ServicesForSegment_{segmentId}";
@@ -245,8 +289,7 @@ namespace QLiteDataApi.Services
 
                 // Set cache options
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(1))
-                    .SetSize(1);
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(1));
 
                 // Save data in cache
                 _cache.Set(cacheKey, serviceTypeInfos, cacheEntryOptions);
@@ -256,8 +299,10 @@ namespace QLiteDataApi.Services
         }
 
 
-
-
+        /// <summary>
+        /// Retrieves a list of all segments.
+        /// </summary>
+        /// <returns>A list of segments.</returns>
         public async Task<List<SegmentDto>> GetSegments()
         {
             // Try to get the cached segments
@@ -275,8 +320,8 @@ namespace QLiteDataApi.Services
 
                 // Set cache options
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                       .SetSlidingExpiration(TimeSpan.FromMinutes(1))
-                       .SetSize(1);
+                       .SetSlidingExpiration(TimeSpan.FromMinutes(1));
+                       
 
                 // Save data in cache
                 _cache.Set("SegmentsForKiosk", segments, cacheEntryOptions);
@@ -285,7 +330,11 @@ namespace QLiteDataApi.Services
             return segments;
         }
 
-
+        /// <summary>
+        /// Retrieves information about a kiosk by its hardware ID (HwId).
+        /// </summary>
+        /// <param name="HwId">The hardware ID of the kiosk.</param>
+        /// <returns>Kiosk information if found; otherwise, null.</returns>
         public async Task<KioskDto> GetKioskByHwID(string HwId)
         {
             var cacheKey = $"Kiosk_HwID_{HwId}";
@@ -313,8 +362,7 @@ namespace QLiteDataApi.Services
                     if (kiosk != null)
                     {
                         var cacheEntryOptions = new MemoryCacheEntryOptions()
-                            .SetSlidingExpiration(TimeSpan.FromMinutes(1))
-                            .SetSize(1);
+                            .SetSlidingExpiration(TimeSpan.FromMinutes(1));
 
                         // Cache the kiosk
                         _cache.Set(cacheKey, kiosk, cacheEntryOptions);
@@ -331,9 +379,12 @@ namespace QLiteDataApi.Services
             return kiosk;
         }
 
-
-
-
+        /// <summary>
+        /// Retrieves the design associated with a kiosk for a specific step in the workflow.
+        /// </summary>
+        /// <param name="Step">The step in the workflow.</param>
+        /// <param name="HwID">The hardware ID of the kiosk.</param>
+        /// <returns>The design associated with the step and kiosk if found; otherwise, null.</returns>
         public async Task<Design> GetDesignByKiosk(string Step, string HwID)
         {
             // Define a unique cache key based on both Step and HwID
@@ -368,7 +419,7 @@ namespace QLiteDataApi.Services
 
                     // Set cache options
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(TimeSpan.FromMinutes(1)).SetSize(1);
+                        .SetSlidingExpiration(TimeSpan.FromMinutes(1));
 
                     // Save the design in cache
                     _cache.Set(cacheKey, _design, cacheEntryOptions);
@@ -380,6 +431,10 @@ namespace QLiteDataApi.Services
             return _design;
         }
 
+        /// <summary>
+        /// Retrieves a list of resources.
+        /// </summary>
+        /// <returns>A list of resources.</returns>
         public async Task<List<Resource>> GetResourceList()
         {
             List<Resource> resources;
@@ -397,6 +452,10 @@ namespace QLiteDataApi.Services
             return resources;
         }
 
+        /// <summary>
+        /// Retrieves a list of languages.
+        /// </summary>
+        /// <returns>A list of languages.</returns>
         public async Task<List<Language>> GetLanguageList()
         {
             List<Language> languages;
@@ -414,6 +473,11 @@ namespace QLiteDataApi.Services
             return languages;
         }
 
+        /// <summary>
+        /// Retrieves tickets that are currently in service for a specific kiosk.
+        /// </summary>
+        /// <param name="KioskHwID">The hardware ID of the kiosk.</param>
+        /// <returns>A list of tickets currently in service.</returns>
         public async Task<List<TicketDto>> GetInServiceTickets(string KioskHwID)
         {
             // Get the kiosk
@@ -454,6 +518,10 @@ namespace QLiteDataApi.Services
             return tickets;
         }
 
+        /// <summary>
+        /// Retrieves the default segment for the kiosks with only service type of WorkFlow.
+        /// </summary>
+        /// <returns>The default segment ID.</returns>
         public async Task<Guid> GetDefaultSegment()
         {
             var defaultSegment = await _context.Segments.Where(s => s.Default == true && s.Gcrecord == null).FirstOrDefaultAsync();

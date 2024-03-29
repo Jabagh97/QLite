@@ -1,10 +1,13 @@
-﻿@using KioskApp.Helpers;
-@using QLite.Data.Dtos;
-@using QLite.DesignComponents;
-@using QLite.Data;
-@using System.Text;
-@using static QLite.Data.Models.Enums;
-@model ServicesAndDesignModel
+﻿@model ServicesAndDesignModel
+
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-warning text-center" role="alert" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1050; width: 80%; font-size: 24px; font-weight: bold;">
+        @Model.Message
+    </div>
+}
+
 
 @*If a Custom Design is available*@
 

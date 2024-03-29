@@ -2,8 +2,8 @@ namespace KioskApp.Models
 {
     public class ErrorViewModel
     {
-        public string? RequestId { get; set; }
+        public string? Error { get; set; }
 
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+        public string? Solution { get; set; }
     }
 }

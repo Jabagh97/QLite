@@ -7,33 +7,10 @@ using static QLite.Data.Models.Enums;
 
 namespace QLiteDataApi.Services
 {
-    public interface IDeskService
-    {
-        Task<object> GetTicketsByStateAsync(TicketStateEnum state, Guid DeskID = default);
-        Task<TicketState> CallTicketAsync(CallTicketDto callTicketDto, bool autocall = false);
-        Task<TicketState> GetMyCurrentServiceAsync(Guid DeskID);
-        Task<TicketState> EndCurrentServiceAsync(Guid DeskID);
-        Task<int> GetTicketDurationAsync(Guid ticketid);
-        Task<TicketState> TransferOperationAsync(TransferTicketDto transferTicketDto);
-        Task<TicketState> ParkOperationAsync(ParkTicketDto parkTicketDto);
-        Task<Desk> GetDeskAsync(Guid DeskID);
-        Task<List<DeskMacroSchedule>> GetMacrosAsync(Guid DeskID);
-        Task<List<Desk>> GetDeskListAsync();
-        Task<List<DeskTransferableService>> GetTransferableServiceListAsync(Guid DeskID);
-        Task<List<DeskCreatableService>> GetCreatableServiceListAsync(Guid DeskID);
-
-        Task<List<ServiceType>> GetServiceList();
-
-        Task<List<Segment>> GetSegmentList();
-
-        Task<string> SetBusyStatus(Guid Desk,DeskActivityStatus Status);
-
-        Task<object> GetTicketStateListAsync(Guid TicketID);
-
-    }
-
-
-    public class DeskService : IDeskService
+    /// <summary>
+    /// Provides services related to desk operations, including managing tickets and desk statuses.
+    /// </summary>
+    public class DeskService 
     {
 
         private readonly ApplicationDbContext _context;
@@ -43,7 +20,12 @@ namespace QLiteDataApi.Services
             _context = context;
         }
 
-
+        /// <summary>
+        /// Asynchronously retrieves tickets by state and optionally by desk ID.
+        /// </summary>
+        /// <param name="state">The state of the tickets to retrieve.</param>
+        /// <param name="DeskID">The ID of the desk (optional).</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the tickets.</returns>
         public async Task<object> GetTicketsByStateAsync(TicketStateEnum state, Guid DeskID = default)
         {
             IQueryable<Ticket> query = _context.Tickets
@@ -78,6 +60,14 @@ namespace QLiteDataApi.Services
             return jsonData;
         }
 
+
+        /// <summary>
+        /// Finds the next ticket to be called based on macro rules, desk ID, and branch ID.
+        /// </summary>
+        /// <param name="branchId">The branch ID.</param>
+        /// <param name="macroId">The macro ID.</param>
+        /// <param name="DeskId">The desk ID.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the ticket to be called.</returns>
         private async Task<Ticket> FindTicketToCallAsync(Guid? branchId, Guid macroId, Guid DeskId)
         {
             Macro macro = new Macro();
@@ -106,6 +96,13 @@ namespace QLiteDataApi.Services
             return t;
         }
 
+        /// <summary>
+        /// Finds a ticket to be called based on a specific macro, branch, and desk.
+        /// </summary>
+        /// <param name="macroId">The ID of the macro to be applied.</param>
+        /// <param name="branchId">The ID of the branch.</param>
+        /// <param name="deskId">The ID of the desk.</param>
+        /// <returns>The ticket to be called if found; otherwise, null.</returns>
         public async Task<Ticket> FindTicketByMacroAsync(Guid macroId, Guid? branchId, Guid deskId)
         {
             var currentTime = DateTime.Now;
@@ -165,6 +162,13 @@ namespace QLiteDataApi.Services
             return null;
         }
 
+
+        /// <summary>
+        /// Calls a ticket for service at a desk. Ends the current service if any and updates the ticket and desk states.
+        /// </summary>
+        /// <param name="callTicketDto">Data transfer object containing call ticket information.</param>
+        /// <param name="autocall">Indicates whether the call is automatic.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the new ticket state.</returns>
         public async Task<TicketState> CallTicketAsync(CallTicketDto callTicketDto, bool autocall = false)
         {
             Desk? d = await _context.Desks.FindAsync(callTicketDto.DeskID);
@@ -239,6 +243,12 @@ namespace QLiteDataApi.Services
 
             return svc;
         }
+
+        /// <summary>
+        /// Ends the current service for a desk and updates the ticket state to final.
+        /// </summary>
+        /// <param name="DeskID">The desk ID.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the final ticket state.</returns>
         public async Task<TicketState> EndCurrentServiceAsync(Guid DeskID)
         {
             TicketState current = await GetMyCurrentServiceAsync(DeskID);
@@ -316,6 +326,12 @@ namespace QLiteDataApi.Services
             return final;
         }
 
+
+        /// <summary>
+        /// Retrieves the current service for a desk.
+        /// </summary>
+        /// <param name="DeskID">The desk ID.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the current ticket state.</returns>
         public async Task<TicketState> GetMyCurrentServiceAsync(Guid DeskID)
         {
             var current = await (from tOpr in _context.TicketStates
@@ -363,6 +379,11 @@ namespace QLiteDataApi.Services
             return current;
         }
 
+        /// <summary>
+        /// Retrieves a specific ticket based on its ID.
+        /// </summary>
+        /// <param name="ticketId">The ID of the ticket to retrieve.</param>
+        /// <returns>The ticket if found; otherwise, null.</returns>
         public async Task<Ticket> GetTicketAsync(Guid ticketId)
         {
             var ticket = await (from t in _context.Tickets
@@ -396,8 +417,12 @@ namespace QLiteDataApi.Services
 
             return ticket;
         }
-      
 
+        /// <summary>
+        /// Parks a ticket, updating its state and associated desk status.
+        /// </summary>
+        /// <param name="parkTicketDto">The DTO containing information about the ticket to park.</param>
+        /// <returns>The new ticket state after parking.</returns>
         public async Task<TicketState> ParkOperationAsync(ParkTicketDto parkTicketDto)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -465,6 +490,11 @@ namespace QLiteDataApi.Services
             }
         }
 
+        /// <summary>
+        /// Transfers a ticket from one desk to another, optionally changing its service type.
+        /// </summary>
+        /// <param name="transferTicket">The DTO containing information for the transfer operation.</param>
+        /// <returns>The new ticket state after the transfer.</returns>
         public async Task<TicketState> TransferOperationAsync(TransferTicketDto transferTicket)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -548,12 +578,22 @@ namespace QLiteDataApi.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves a specific desk by its ID.
+        /// </summary>
+        /// <param name="DeskID">The ID of the desk to retrieve.</param>
+        /// <returns>The desk if found; otherwise, null.</returns>
         public async Task<Desk> GetDeskAsync(Guid DeskID)
         {
             var desk = await _context.Desks.FirstOrDefaultAsync(d => d.Oid == DeskID && d.Gcrecord == null);
             return desk;
         }
 
+        /// <summary>
+        /// Retrieves the list of macros available for a specific desk.
+        /// </summary>
+        /// <param name="DeskID">The ID of the desk.</param>
+        /// <returns>A list of macros associated with the desk.</returns>
         public async Task<List<DeskMacroSchedule>> GetMacrosAsync(Guid DeskID)
         {
             var macrosWithMacroNames = await _context.DeskMacroSchedules
@@ -575,12 +615,21 @@ namespace QLiteDataApi.Services
             return macros;
         }
 
+        /// <summary>
+        /// Retrieves a list of all desks.
+        /// </summary>
+        /// <returns>A list of desks.</returns>
         public async Task<List<Desk>> GetDeskListAsync()
         {
             var desks = await _context.Desks.Where(d => d.Gcrecord == null).ToListAsync();
             return desks;
         }
 
+        /// <summary>
+        /// Retrieves the list of service types that can be transferred to by a specific desk.
+        /// </summary>
+        /// <param name="DeskID">The ID of the desk.</param>
+        /// <returns>A list of transferable service types.</returns>
         public async Task<List<DeskTransferableService>> GetTransferableServiceListAsync(Guid DeskID)
         {
             var transferableServices = await _context.DeskTransferableServices
@@ -599,6 +648,11 @@ namespace QLiteDataApi.Services
             return transferableServices;
         }
 
+        /// <summary>
+        /// Retrieves the list of service types that can be created by a specific desk.
+        /// </summary>
+        /// <param name="DeskID">The ID of the desk.</param>
+        /// <returns>A list of creatable service types.</returns>
         public async Task<List<DeskCreatableService>> GetCreatableServiceListAsync(Guid DeskID)
         {
             var createableServices = await _context.DeskCreatableServices
@@ -616,6 +670,12 @@ namespace QLiteDataApi.Services
 
             return createableServices;
         }
+
+        /// <summary>
+        /// Retrieves the average duration of service for a specific ticket.
+        /// </summary>
+        /// <param name="ticketid">The ID of the ticket.</param>
+        /// <returns>The average duration of service for the ticket.</returns>
         public async Task<int> GetTicketDurationAsync(Guid ticketid)
         {
             int duration = 1;
@@ -623,6 +683,11 @@ namespace QLiteDataApi.Services
             return duration;
         }
 
+
+        /// <summary>
+        /// Retrieves a list of all service types.
+        /// </summary>
+        /// <returns>A list of service types.</returns>
         public async Task<List<ServiceType>> GetServiceList( )
         {
 
@@ -631,6 +696,10 @@ namespace QLiteDataApi.Services
             return services;
         }
 
+        /// <summary>
+        /// Retrieves a list of all segments.
+        /// </summary>
+        /// <returns>A list of segments.</returns>
         public async Task<List<Segment>> GetSegmentList( )
         {
 
@@ -639,6 +708,12 @@ namespace QLiteDataApi.Services
             return segments;
         }
 
+        /// <summary>
+        /// Sets the busy status for a desk, optionally ending the current service.
+        /// </summary>
+        /// <param name="DeskID">The ID of the desk.</param>
+        /// <param name="Status">The new activity status for the desk.</param>
+        /// <returns>The display number of the desk if successful; otherwise, null.</returns>
         public async Task<string> SetBusyStatus(Guid DeskID,DeskActivityStatus Status)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -701,6 +776,12 @@ namespace QLiteDataApi.Services
            
 
         }
+
+        /// <summary>
+        /// Retrieves the last status of a specific desk.
+        /// </summary>
+        /// <param name="deskId">The ID of the desk.</param>
+        /// <returns>The last desk status.</returns>
         public async Task<DeskStatus> GetLastDeskStatus(Guid deskId)
         {
             var query = await _context.DeskStatuses
@@ -711,6 +792,12 @@ namespace QLiteDataApi.Services
             return query;
         }
 
+
+        /// <summary>
+        /// Retrieves a list of all states for a specific ticket.
+        /// </summary>
+        /// <param name="ticketID">The ID of the ticket.</param>
+        /// <returns>An object containing the list of ticket states.</returns>
         public async Task<object> GetTicketStateListAsync(Guid ticketID)
         {
             // Query the database to find the ticket with the given ID

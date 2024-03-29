@@ -5,6 +5,8 @@ using QLite.Data.Dtos;
 using QLite.Data.CommonContext;
 using Serilog;
 using KioskApp.Constants;
+using KioskApp.Models;
+using QLite.DesignComponents;
 
 namespace KioskApp.Controllers
 {
@@ -23,7 +25,7 @@ namespace KioskApp.Controllers
         /// <summary>
         /// Authenticates the kiosk by its hardware ID and directs to the appropriate workflow based on the chosen workflow by the admin portal.
         /// </summary>
-        /// <returns>A redirection to the correct view or an error response.</returns>
+        /// <returns>A redirection to the correct view or an error view.</returns>
         public async Task<IActionResult> AuthenticateAsync()
         {
             try
@@ -31,13 +33,21 @@ namespace KioskApp.Controllers
                 var kioskId = KioskContext.Config.GetValue<string>("KioskID");
                 var kioskData = await _apiService.GetGenericResponse<KioskDto>($"api/Kiosk/GetKioskByHwID/{kioskId}");
 
-                KioskContext.KioskConfig = kioskData;
 
-                if (kioskData == null)
+                if (kioskData == null || kioskId == null)
                 {
                     Log.Error($"{Errors.KioskError} No kiosk data found");
-                    return StatusCode(500, "Kiosk data could not be retrieved. Please check the API and KioskID configuration.");
+
+                    var errorViewModel = new ErrorViewModel
+                    {
+                        Error = Errors.AuthenticatioError ,
+                        Solution = Errors.AuthenticatioSolution
+                    };
+
+                    return View("KioskDownError", errorViewModel);
                 }
+
+                KioskContext.KioskConfig = kioskData;
 
                 switch (kioskData.KioskType)
                 {
@@ -49,13 +59,25 @@ namespace KioskApp.Controllers
 
                     default:
                         Log.Error($"{Errors.KioskError} Unhandled kiosk type: {kioskData.KioskType}");
-                        return StatusCode(500, "Unhandled kiosk type.");
+                        var errorViewModel = new ErrorViewModel
+                        {
+                            Error = Errors.KioskTypeError,
+                            Solution = Errors.KioskTypeSolution
+                        };
+
+                        return View("KioskDownError", errorViewModel);
                 }
             }
             catch (Exception ex)
             {
                 Log.Error(ex, $"{Errors.KioskError} An error occurred while processing the kiosk authentication request.");
-                return StatusCode(500, "An error occurred while processing the request.");
+                var errorViewModel = new ErrorViewModel
+                {
+                    Error = Errors.AuthenticatioError,
+                    Solution = Errors.AuthenticatioSolution
+                };
+
+                return View("KioskDownError", errorViewModel);
             }
         }
 
@@ -80,13 +102,19 @@ namespace KioskApp.Controllers
                     if (defaultSegment == Guid.Empty)
                     {
                         Log.Error($"{Errors.KioskError} Default segment could not be retrieved.");
-                        return StatusCode(500, "Failed to retrieve default segment.");
+                        var errorViewModel = new ErrorViewModel
+                        {
+                            Error = Errors.DefaultSegmentError,
+                            Solution = Errors.DefaultSegmentSolution
+                        };
+
+                        return View("KioskDownError", errorViewModel);
                     }
                     return RedirectToAction("GetServiceView", "Kiosk", new { segmentOid = defaultSegment, hwId = kioskId, asFirstPage = true });
 
                 default:
-                    Log.Information($"Unhandled workflow type: {kioskData.WorkFlowType} default workflow will be used");
-                    return StatusCode(500, "Unhandled workflow type.");
+                    Log.Information($"Unhandled workflow type: {kioskData.WorkFlowType}, default workflow will be used");
+                    return RedirectToAction("Index", "Kiosk");
             }
         }
 

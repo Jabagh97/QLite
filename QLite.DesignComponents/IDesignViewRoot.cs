@@ -320,6 +320,8 @@ namespace QLite.DesignComponents
         public DesPageData DesignData { get; set; }
         public List<ServiceTypeDto> Services { get; set; }
 
+        public string Message { get; set; }
+
     
     }
 

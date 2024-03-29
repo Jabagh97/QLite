@@ -1,4 +1,6 @@
-﻿using KioskApp.Helpers;
+﻿using KioskApp.Constants;
+using KioskApp.Helpers;
+using KioskApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using QLite.Data;
 using QLite.Data.CommonContext;
@@ -49,7 +51,14 @@ namespace KioskApp.Controllers
             catch (Exception ex)
             {
                 Log.Error(ex, "Error loading the Kiosk page.");
-                return StatusCode(500, "An internal server error has occurred.");
+
+                var errorViewModel = new ErrorViewModel
+                {
+                    Error = Errors.AuthenticatioError,
+                    Solution = Errors.AuthenticatioSolution
+                };
+
+                return View("KioskDownError", errorViewModel);
             }
         }
 

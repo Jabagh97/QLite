@@ -12,52 +12,30 @@ using Newtonsoft.Json;
 
 namespace QLiteDataApi.Services
 {
-    public interface IAdminService
-    {
+    /// <summary>
+    /// Provides administrative functionalities to manage application data, including languages, desks, designs, segments,....etc.
+    /// Utilizes dynamic queries for data manipulation and supports CRUD operations.
+    /// </summary>
 
-
-        IQueryable GetFilteredAndPaginatedData(Type modelType, Type viewModelType, string? searchValue, string? sortColumn, string? sortColumnDirection);
-
-        Dictionary<string, List<dynamic>> GetGuidPropertyNames(Type modelType, Dictionary<string, (Type, Type)> modelTypeMapping);
-
-        object CreateModel(string user, Type modelType, Dictionary<string, object> formData);
-        object UpdateModel(string user, Type modelType, Dictionary<string, object> formData);
-
-        bool SoftDelete(Type modelType, Dictionary<string, object> formData);
-
-        IQueryable GetTabData(Type innerType, Type innerViewType, string Oid, Type mainModelType);
-
-        bool RemoveFromSubList(string tabName, Type modelType, string modelOid, List<string> Oids);
-
-        List<Desk> GetAllDesks();
-
-
-        Design GetDesign(Guid DesignID);
-
-        bool SaveDesign(Guid DesignID, DesPageData desPageData, string designImage);
-
-
-        Task<List<Segment>> GetSegmentList();
-
-        Task<List<ServiceType>> GetServiceList();
-
-        Task<List<Design>> GetDesignList();
-        Task<string> GetDesignImageByID(Guid designID);
-        Task<string> GetTicketStateReport(DateTime StartDate, DateTime EndDate);
-        Task<List<Language>> GetLanguageList();
-    }
-    public class AdminService : IAdminService
+    public class AdminService
     {
         private readonly ApplicationDbContext _dbContext;
 
-        private readonly IQueryFactory _queryFactory;
+        private readonly DynamicQueriesService _dynamicQueries;
 
-        public AdminService(ApplicationDbContext dbContext, IQueryFactory queryFactory)
+        public AdminService(ApplicationDbContext dbContext, DynamicQueriesService dynamicQueries)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _queryFactory = queryFactory ?? throw new ArgumentNullException(nameof(queryFactory));
+            _dynamicQueries = dynamicQueries ?? throw new ArgumentNullException(nameof(dynamicQueries));
 
         }
+
+        /// <summary>
+        /// Retrieves a typed DbSet based on the specified model type.
+        /// </summary>
+        /// <param name="modelType">The type of the model for which to retrieve the DbSet.</param>
+        /// <returns>An IQueryable representing the typed DbSet; null if the operation fails.</returns>
+
         public IQueryable? GetTypedDbSet(Type modelType)
         {
             try
@@ -80,12 +58,24 @@ namespace QLiteDataApi.Services
 
 
         #region GetData
+
+        /// <summary>
+        /// Retrieves a list of all languages from the database, excluding those marked as deleted.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of Language entities.</returns>
         public async Task<List<Language>> GetLanguageList()
         {
             var Languages = await _dbContext.Languages.Where(d => d.Gcrecord == null).ToListAsync();
 
             return Languages;
         }
+
+        /// <summary>
+        /// Generates a report summarizing ticket states within a specified date range.
+        /// </summary>
+        /// <param name="startDate">The start date of the report period.</param>
+        /// <param name="endDate">The end date of the report period.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a JSON string representing the report data.</returns>
         public async Task<string> GetTicketStateReport(DateTime startDate, DateTime endDate)
         {
             // Fetch the necessary data, avoiding complex translations
@@ -145,8 +135,10 @@ namespace QLiteDataApi.Services
             return reportJson;
         }
 
-
-
+        /// <summary>
+        /// Retrieves all desks from the database, excluding those marked as deleted.
+        /// </summary>
+        /// <returns>A list of Desk entities.</returns>
         public List<Desk> GetAllDesks()
         {
             var DeskList = _dbContext.Desks.Where(d => d.Gcrecord == null).ToList();
@@ -154,6 +146,14 @@ namespace QLiteDataApi.Services
             return DeskList;
         }
 
+        /// <summary>
+        /// Applies a search filter to the given data based on the search value.
+        /// </summary>
+        /// <param name="data">The IQueryable data to filter.</param>
+        /// <param name="searchValue">The search query value.</param>
+        /// <param name="modelType">The type of the model being queried.</param>
+        /// <param name="viewModelType">The type of the view model that determines searchable properties.</param>
+        /// <returns>An IQueryable representing the filtered data.</returns>
         public IQueryable ApplySearchFilter(IQueryable data, string? searchValue, Type modelType, Type viewModelType)
         {
             if (!string.IsNullOrEmpty(searchValue))
@@ -170,7 +170,13 @@ namespace QLiteDataApi.Services
             return data;
         }
 
-
+        /// <summary>
+        /// Applies sorting to the given data based on the specified sort column and direction.
+        /// </summary>
+        /// <param name="data">The IQueryable data to sort.</param>
+        /// <param name="sortColumn">The column name to sort by.</param>
+        /// <param name="sortColumnDirection">The sort direction ("asc" or "desc").</param>
+        /// <returns>An IQueryable representing the sorted data.</returns>
         public IQueryable ApplySorting(IQueryable data, string? sortColumn, string? sortColumnDirection)
         {
             if (!string.IsNullOrEmpty(sortColumn) && !string.IsNullOrEmpty(sortColumnDirection))
@@ -181,18 +187,21 @@ namespace QLiteDataApi.Services
             return data;
         }
 
-
+        /// <summary>
+        /// Retrieves data for a specific model, applying filters, sorting, and pagination.
+        /// </summary>
+        /// <param name="modelType">The type of the model.</param>
+        /// <param name="viewModelType">The type of the view model.</param>
+        /// <param name="searchValue">The search query value for filtering.</param>
+        /// <param name="sortColumn">The column name to sort by.</param>
+        /// <param name="sortColumnDirection">The sort direction ("asc" or "desc").</param>
+        /// <returns>An IQueryable representing the filtered, sorted, and paginated data.</returns>
         public IQueryable GetFilteredAndPaginatedData(Type modelType, Type viewModelType, string? searchValue, string? sortColumn, string? sortColumnDirection)
         {
             var dbSet = GetTypedDbSet(modelType);
             var data = dbSet;
 
-
-            IQuery Model = _queryFactory.GetModel(modelType.Name);
-
-            data = Model.SelectAndJoinQuery(data, modelType, viewModelType, _dbContext);
-
-
+            data = _dynamicQueries.SelectAndJoinQuery(data, modelType, viewModelType, _dbContext);
             data = ApplySearchFilter(data, searchValue, modelType, viewModelType);
             data = ApplySorting(data, sortColumn, sortColumnDirection);
 
@@ -200,36 +209,55 @@ namespace QLiteDataApi.Services
         }
 
 
+        /// <summary>
+        /// Retrieves data for a specific tab related to a main model entity, applying dynamic queries for additional filtering based on optional arguments.
+        /// </summary>
+        /// <param name="innerType">The type of the entities contained in the tab.</param>
+        /// <param name="innerViewType">The view model type associated with the tab entities for determining which properties to include.</param>
+        /// <param name="Oid">The unique identifier of the main model entity to which the tab data is related.</param>
+        /// <param name="mainModelType">The type of the main model entity.</param>
+        /// <returns>An IQueryable representing the dynamically constructed query for the tab data.</returns>
         public IQueryable GetTabData(Type innerType, Type innerViewType, string Oid, Type mainModelType)
         {
             var dbSet = GetTypedDbSet(innerType);
             var data = dbSet;
 
-            IQuery Model = _queryFactory.GetModel(innerType.Name);
-
-
+          
             var optionalArguments = new Dictionary<string, object>
             {
                 [mainModelType.Name] = Oid,
             };
 
-            data = Model.SelectAndJoinQuery(data, innerType, innerViewType, _dbContext, optionalArguments);
+            data = _dynamicQueries.SelectAndJoinQuery(data, innerType, innerViewType, _dbContext, optionalArguments);
 
             return data;
         }
 
-
+        /// <summary>
+        /// Retrieves a specific design by its unique identifier, excluding those marked as deleted.
+        /// </summary>
+        /// <param name="DesignID">The unique identifier of the design to retrieve.</param>
+        /// <returns>The Design entity if found; otherwise, null.</returns>
         public Design GetDesign(Guid DesignID)
         {
             var Design = _dbContext.Designs.Where(d => d.Oid == DesignID && d.Gcrecord == null).FirstOrDefault();
             return Design;
         }
 
+        /// <summary>
+        /// Asynchronously retrieves a list of all designs from the database, excluding those marked as deleted.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of Design entities.</returns>
         public async Task<List<Design>> GetDesignList()
         {
             var Designs = await _dbContext.Designs.Where(d => d.Gcrecord == null).ToListAsync();
             return Designs;
         }
+
+        /// <summary>
+        /// Asynchronously retrieves a list of all segments from the database, excluding those marked as deleted.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of Segment entities.</returns>
         public async Task<List<Segment>> GetSegmentList()
         {
             List<Segment> segments = await _dbContext.Segments
@@ -239,6 +267,11 @@ namespace QLiteDataApi.Services
             return segments;
         }
 
+
+        /// <summary>
+        /// Asynchronously retrieves a list of all service types from the database, excluding those marked as deleted.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of ServiceType entities.</returns>
         public async Task<List<ServiceType>> GetServiceList()
         {
             var services = await _dbContext.ServiceTypes.Where(s => s.Gcrecord == null).ToListAsync();
@@ -251,6 +284,13 @@ namespace QLiteDataApi.Services
 
 
         #region Create&EditData
+
+        /// <summary>
+        /// Retrieves a dictionary of GUID property names and their corresponding list of entity names and IDs, based on the specified model type.
+        /// </summary>
+        /// <param name="modelType">The model type to inspect for GUID properties.</param>
+        /// <param name="modelTypeMapping">A dictionary mapping model names to their corresponding type and view model type tuples.</param>
+        /// <returns>A dictionary where keys are property names and values are lists of dynamic objects containing entity names and their IDs.</returns>
         public Dictionary<string, List<dynamic>> GetGuidPropertyNames(Type modelType, Dictionary<string, (Type, Type)> modelTypeMapping)
         {
             var namesDictionary = new Dictionary<string, List<dynamic>>();
@@ -272,6 +312,11 @@ namespace QLiteDataApi.Services
             return namesDictionary;
         }
 
+        /// <summary>
+        /// Retrieves a list of names and IDs for entities related to a specific GUID property.
+        /// </summary>
+        /// <param name="relatedEntityType">The entity type related to the GUID property.</param>
+        /// <returns>A list of dynamic objects each containing the name and ID of a related entity.</returns>
         private List<dynamic> GetRelatedEntityNames(Type relatedEntityType)
         {
             var propertyName = Properties.Name;
@@ -280,6 +325,15 @@ namespace QLiteDataApi.Services
             return relatedEntities?.Where($"{Properties.Gcrecord} == null").Select($"new ({propertyName} as {propertyName}, {Properties.Oid} as {Properties.Oid})").ToDynamicList()
                 ?? new List<dynamic>();
         }
+
+
+        /// <summary>
+        /// Creates a new model instance based on the provided form data and saves it to the database.
+        /// </summary>
+        /// <param name="user">The user performing the create operation.</param>
+        /// <param name="modelType">The type of the model to create.</param>
+        /// <param name="formData">A dictionary containing the data for the new model instance.</param>
+        /// <returns>The created model instance.</returns>
 
         public object CreateModel(string user, Type modelType, Dictionary<string, object> formData)
         {
@@ -305,15 +359,21 @@ namespace QLiteDataApi.Services
                 }
             }
 
-            IQuery Model = _queryFactory.GetModel(modelType.Name);
 
-            // Save the created model instance to your data store or perform any necessary operations
-            Model.CreateInstance(user, _dbContext, modelInstance!);
+
+            _dynamicQueries.CreateInstance(user, _dbContext, modelInstance!);
 
             // Return the created model instance
             return modelInstance;
         }
 
+        /// <summary>
+        /// Updates an existing model instance with the provided form data and saves changes to the database.
+        /// </summary>
+        /// <param name="user">The user performing the update operation.</param>
+        /// <param name="modelType">The type of the model to update.</param>
+        /// <param name="formData">A dictionary containing the updated data for the model instance.</param>
+        /// <returns>The updated model instance.</returns>
         public object UpdateModel(string user, Type modelType, Dictionary<string, object> formData)
         {
             // Validate and update the model instance
@@ -326,10 +386,10 @@ namespace QLiteDataApi.Services
 
             var dbSet = GetTypedDbSet(modelType);
 
-            IQuery Model = _queryFactory.GetModel(modelType.Name);
+          
 
             // Fetch the existing entity from your data store
-            var existingEntity = Model.GetById(idValue, dbSet);
+            var existingEntity = _dynamicQueries.GetById(idValue, dbSet);
 
             if (existingEntity == null)
             {
@@ -352,11 +412,18 @@ namespace QLiteDataApi.Services
             }
 
             // Save changes to your data store or perform any necessary operations
-            Model.UpdateInstance(user, _dbContext, existingEntity);
+            _dynamicQueries.UpdateInstance(user, _dbContext, existingEntity);
 
             // Return the updated model instance
             return existingEntity;
         }
+        /// <summary>
+        /// Saves or updates a design entity with the provided design data and image.
+        /// </summary>
+        /// <param name="DesignID">The unique identifier of the design to save or update.</param>
+        /// <param name="desPageData">The design page data to be saved or updated.</param>
+        /// <param name="designImage">The design image in base64 string format.</param>
+        /// <returns>True if the design is successfully saved or updated; otherwise, false.</returns>
         public bool SaveDesign(Guid DesignID, DesPageData desPageData, string designImage)
         {
             var designEntity = _dbContext.Designs.FirstOrDefault(d => d.Oid == DesignID);
@@ -383,6 +450,13 @@ namespace QLiteDataApi.Services
 
         #region SoftDelete
 
+        /// <summary>
+        /// Performs a soft delete operation on a model instance by marking it as deleted without physically removing it from the database.
+        /// </summary>
+        /// <param name="modelType">The type of the model to soft delete.</param>
+        /// <param name="formData">A dictionary containing the primary key value of the model instance to delete.</param>
+        /// <returns>True if the soft delete operation was successful; otherwise, false.</returns>
+
         public bool SoftDelete(Type modelType, Dictionary<string, object> formData)
         {
             try
@@ -406,10 +480,9 @@ namespace QLiteDataApi.Services
 
                     if (!string.IsNullOrEmpty(cleanedPrimaryKeyValue))
                     {
-                        IQuery Model = _queryFactory.GetModel(modelType.Name);
-
+                        
                         // Find the entity by its primary key
-                        var entity = Model.SoftDeleteInstance(_dbContext, dbSet, modelType, cleanedPrimaryKeyValue);
+                        var entity = _dynamicQueries.SoftDeleteInstance(_dbContext, dbSet, modelType, cleanedPrimaryKeyValue);
 
                     }
                 }
@@ -425,13 +498,13 @@ namespace QLiteDataApi.Services
 
         public bool RemoveFromSubList(string tabName, Type modelType, string modelOid, List<string> Oids)
         {
-            IQuery Model = _queryFactory.GetModel(modelType.Name);
+            
 
             bool allSuccess = true;
 
             foreach (var oid in Oids)
             {
-                var result = Model.RemoveFromSubList(_dbContext, tabName, modelType, modelOid, oid);
+                var result = _dynamicQueries.RemoveFromSubList(_dbContext, tabName, modelType, modelOid, oid);
 
                 // Update the 'allSuccess' flag based on the result of each iteration
                 allSuccess = allSuccess && result;
@@ -447,12 +520,6 @@ namespace QLiteDataApi.Services
 
             return design.DesignImage;
         }
-
-      
-
-
-
-
         #endregion
 
 

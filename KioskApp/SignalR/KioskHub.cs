@@ -19,34 +19,5 @@ namespace KioskApp.SignalR
             return base.OnDisconnectedAsync(exception);
         }
 
-        public async Task ReceiveMessage(string message)
-        {
-            // Log the received message
-            Log.Debug($"Message received from Desk App: {message}");
-
-            // You can perform any additional logic here, such as processing the message or broadcasting it to other clients
-        }
-
-        public async Task NotifyTicketState(string ticket)
-        {
-            // Log the received message
-            Log.Debug($"Ticket received from server: {ticket}");
-
-            // You can perform any additional logic here, such as processing the message or broadcasting it to other clients
-        }
-
-        public async Task NotifyDisplayKiosk()
-        {
-            // Log the received message
-            Log.Debug($"Display: ");
-
-            // You can perform any additional logic here, such as processing the message or broadcasting it to other clients
-        }
-        public async Task SendMessage(string message)
-        {
-            await Clients.All.SendAsync("ReceiveMessage", message);
-        }
-
-
     }
 }

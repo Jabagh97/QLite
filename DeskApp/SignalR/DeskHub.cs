@@ -21,23 +21,7 @@ namespace DeskApp.SignalR
             return base.OnDisconnectedAsync(exception);
         }
 
-        public async Task SendMessage(string message)
-        {
-            await Clients.All.SendAsync("ReceiveMessage", message);
-        }
-
-        public async Task ReceiveMessage(string message)
-        {
-            // Log the received message
-            Console.WriteLine($"Message received from Kiosk App: {message}");
-
-        }
-        public async Task NotifyTicketState(string state)
-        {
-
-            Console.WriteLine(state);
-        }
 
 
-        }
+    }
 }

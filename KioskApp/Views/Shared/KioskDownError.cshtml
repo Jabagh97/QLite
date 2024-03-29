@@ -1,0 +1,43 @@
+﻿@model ErrorViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Kiosk Error";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header text-center">
+                    <h2 class="card-title fw-bold">We've encountered an issue</h2>
+                </div>
+                <div class="card-body text-center">
+                    <p class="lead fs-4">But don't worry, we're here to help you through it.</p>
+                    <div class="alert alert-danger fs-5" role="alert">
+                        <h4 class="alert-heading fw-bold">Error Details:</h4>
+                        <p>@Model.Error</p>
+                    </div>
+                    <h4 class="card-title fw-bold">Steps to Follow:</h4>
+                    <p class="card-text fs-5">
+                        @Html.Raw(Model.Solution)
+                    </p>
+                </div>
+
+                <div class="card-footer">
+                      <h2 class="fw-bold">The page will refresh periodically to check if the issue persists.</h2>    
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+</div>
+@section Scripts {
+    <script>
+        setTimeout(function () {
+            window.location.reload(1);
+        }, 10000);
+    </script>
+}

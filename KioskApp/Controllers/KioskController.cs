@@ -52,7 +52,14 @@ namespace KioskApp.Controllers
             catch (Exception ex)
             {
                 Log.Error(ex, "Error loading the Kiosk page.");
-                return StatusCode(500, "An internal server error has occurred.");
+
+                var errorViewModel = new ErrorViewModel
+                {
+                    Error = Errors.AuthenticatioError,
+                    Solution = Errors.AuthenticatioSolution
+                };
+
+                return View("KioskDownError", errorViewModel);
             }
         }
 
@@ -122,7 +129,14 @@ namespace KioskApp.Controllers
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to load segments view.");
-                return StatusCode(500, "Internal server error. Please try again later.");
+
+                var errorViewModel = new ErrorViewModel
+                {
+                    Error = Errors.SegmentStepError,
+                    Solution = Errors.SegmentStepSolution
+                };
+
+                return View("KioskDownError", errorViewModel);
             }
         }
 
@@ -142,10 +156,14 @@ namespace KioskApp.Controllers
 
             try
             {
+                var services = await GetServiceList(segmentOid);
+                var message = !services.Any() ? Errors.ServiceStepError: string.Empty;
+
                 var viewModel = new ServicesAndDesignModel
                 {
                     DesignData = await GetDesignData(hwId, Step.ServiceTypeSelection.ToString()),
-                    Services = await GetServiceList(segmentOid)
+                    Services = services,
+                    Message = message
                 };
 
                 Session.selectedSegment = segmentOid;
@@ -173,7 +191,14 @@ namespace KioskApp.Controllers
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to load services.");
-                return StatusCode(500, "Internal server error. Please try again later.");
+
+                var errorViewModel = new ErrorViewModel
+                {
+                    Error = Errors.ServiceStepError,
+                    Solution = Errors.ServiceStepSolution
+                };
+
+                return View("KioskDownError", errorViewModel);
             }
         }
 
@@ -216,7 +241,14 @@ namespace KioskApp.Controllers
             catch (Exception ex)
             {
                 Log.Error(ex, "Error fetching ticket.");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+
+                var errorViewModel = new ErrorViewModel
+                {
+                    Error = Errors.TicketStepError,
+                    Solution = Errors.TicketStepSolution
+                };
+
+                return View("KioskDownError", errorViewModel);
             }
         }
 
