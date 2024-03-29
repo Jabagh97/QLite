@@ -28,6 +28,8 @@ public partial class Kiosk
 
     public int? KioskType { get; set; }
 
+    public int? WorkFlowType { get; set; }
+
     public Guid? KappWorkflow { get; set; }
 
     public string? Name { get; set; }

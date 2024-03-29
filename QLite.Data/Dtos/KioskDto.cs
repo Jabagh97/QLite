@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static QLite.Data.Models.Enums;
 
 namespace QLite.Data.Dtos
 {
@@ -17,6 +18,9 @@ namespace QLite.Data.Dtos
 
         public string HwId { get; set; }
         public Guid? Branch { get; set; }
+
+
+        public int? WorkFlowType { get; set; }
 
     }
 }

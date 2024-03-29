@@ -5,7 +5,6 @@
 @using System.Text;
 @using static QLite.Data.Models.Enums;
 @model HomeAndDesPageDataViewModel
-@inject IConfiguration Configuration
 
 @{
     ViewData["Title"] = "Home Page";
@@ -160,7 +159,4 @@ else
         }
     }
 }
-<script>
-    var apiUrl = '@Configuration["APIBase"]';
-    var kioskID = '@Configuration["KioskID"]';
-</script>
+

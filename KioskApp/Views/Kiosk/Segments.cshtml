@@ -23,25 +23,68 @@
         background-repeat: no-repeat;
         border: 1px solid black;
             ">
-        @foreach (var comp in Model.DesignData.Comps)
-        {
-            @Html.Raw(RenderComponent(comp,Model.Segments))
-        }
+
+        <div id="content"
+         style="
+        width: @(Model.DesignData.Width ?? "100vw");
+        height: @(Model.DesignData.Height ?? "100vh");
+         ">
+
+            @foreach (var comp in Model.DesignData.Comps)
+            {
+                @Html.Raw(RenderComponent(comp,Model.Segments))
+            }
+        </div>
+
+
+        @*Errors*@
+
+        <div id="connectionError" class="alert alert-danger mb-4" style="display: none;" role="alert">
+
+
+            @ViewHelper.GetLanguage("wsError")
+        </div>
+
+        <div id="AuthError" class="alert alert-danger mb-4" style="display: none;" role="alert">
+            @ViewHelper.GetLanguage("authError")
+        </div>
+
+
+        <div id="Errors" style="display:none; font-family: Arial, sans-serif;">
+            <div id="divooo" style="text-align:center;">
+                <img src="~/media/ooo2.png" />
+                <div style="margin-top: 20px;">
+                    <div id="Printer" style="display: inline-block; margin-right: 20px;">
+                        <img src="~/media/printerError.png" style="width: 100px; height: auto;" />
+                        <span id="PrinterStatus" style="display: block; font-weight: bold; margin-top: 10px;font-size: large;">Printer is disconnected</span>
+                    </div>
+                    <div id="Display" style="display: inline-block; margin-right: 20px;">
+                        <img src="~/media/displayError.png" style="width: 100px; height: auto;" />
+                        <span id="DisplayStatus" style="display: block; font-weight: bold; margin-top: 10px;font-size: large;">Display is disconnected</span>
+                    </div>
+                    <div id="Terminal" style="display: inline-block;">
+                        <img src="~/media/terminalError.png" style="width: 100px; height: auto;" />
+                        <span id="TerminalStatus" style="display: block; font-weight: bold; margin-top: 10px;font-size: large;">Terminal is disconnected</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    @if (Model.DesignData.PageTimeOut > 0)
+    {
+        <script>
+            // Set the timeout and record its state
+            var SegmentTimeoutPeriod = @Model.DesignData.PageTimeOut * 1000;
+            localStorage.setItem('SegmentTimeoutActive', 'true');
 
-    <script>
-        // Set the timeout and record its state
-        var SegmentTimeoutPeriod = @Model.DesignData.PageTimeOut * 1000;
-        localStorage.setItem('SegmentTimeoutActive', 'true');
-
-        setTimeout(function () {
-            if (localStorage.getItem('SegmentTimeoutActive') === 'true') {
-                window.location.href = '/';
-            }
-        }, SegmentTimeoutPeriod);
-    </script>
-
+            setTimeout(function () {
+                if (localStorage.getItem('SegmentTimeoutActive') === 'true') {
+                    window.location.href = '/';
+                }
+            }, SegmentTimeoutPeriod);
+        </script>
+    }
 }
 else
 {
@@ -65,7 +108,7 @@ else
     {
         switch (comp)
         {
-         
+
 
             case DesCompDataWfButton wfButtonComp:
                 return ViewHelper.RenderWfButtonComponent(wfButtonComp);

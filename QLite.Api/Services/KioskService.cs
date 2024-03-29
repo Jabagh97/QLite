@@ -23,6 +23,7 @@ namespace QLiteDataApi.Services
         Task<List<Resource>> GetResourceList();
         Task<List<Language>> GetLanguageList();
         Task<List<TicketDto>> GetInServiceTickets(string KioskHwID);
+        Task<Guid> GetDefaultSegment();
     }
     public class KioskService : IKioskService
     {
@@ -305,6 +306,7 @@ namespace QLiteDataApi.Services
                                     HwId = k.HwId,
                                     KioskType = k.KioskType,
                                     Branch = k.Branch,
+                                    WorkFlowType = k.WorkFlowType
                                 })
                                 .FirstAsync();
 
@@ -450,6 +452,15 @@ namespace QLiteDataApi.Services
 
 
             return tickets;
+        }
+
+        public async Task<Guid> GetDefaultSegment()
+        {
+            var defaultSegment = await _context.Segments.Where(s => s.Default == true && s.Gcrecord == null).FirstOrDefaultAsync();
+
+            if (defaultSegment == null)
+                return Guid.Empty;
+            return defaultSegment.Oid;
         }
     }
 }

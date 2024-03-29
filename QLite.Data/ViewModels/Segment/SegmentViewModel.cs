@@ -11,16 +11,19 @@ namespace QLite.Data.ViewModels.Segment
         [Required]
 
         public string? Name { get; set; }
+        [Required]
+        [Boolean]
+        public bool? Default { get; set; }
 
 
         //[Boolean]
-       // public bool? Default { get; set; }
-       // [Boolean]
+        // public bool? Default { get; set; }
+        // [Boolean]
 
-       // public bool? IsParent { get; set; }
+        // public bool? IsParent { get; set; }
 
-       //// public string? Parent { get; set; }
+        //// public string? Parent { get; set; }
 
-       // public string? Prefix { get; set; }
+        // public string? Prefix { get; set; }
     }
 }

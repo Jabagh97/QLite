@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,19 @@ namespace QLite.Data.Models
         {
             Kiosk,
             Display,
+        }
+
+
+        public enum WorkFlowType
+        {
+            [Description("Welcome -> Segments -> Services")]
+            WelcomeSegmentService,
+
+            [Description("Segments -> Services")]
+            SegmentService,
+
+            [Description("Services")]
+            OnlyServices
         }
 
 

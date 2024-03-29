@@ -1032,6 +1032,9 @@ namespace QLiteDataApi.Migrations
                     b.Property<int?>("OptimisticLockField")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("WorkFlowType")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Oid");
 
                     b.HasIndex(new[] { "Account" }, "iAccount_Kiosk");

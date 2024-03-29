@@ -102,5 +102,12 @@ namespace QLiteDataApi.Controllers.Kiosk
             var services = await _kioskService.GetInServiceTickets(KioskHwID);
             return Ok(services);
         }
+
+        [HttpGet("GetDefaultSegment")]
+        public async Task<IActionResult> GetDefaultSegment()
+        {
+            var defaultSegment = await _kioskService.GetDefaultSegment();
+            return Ok(defaultSegment);
+        }
     }
 }

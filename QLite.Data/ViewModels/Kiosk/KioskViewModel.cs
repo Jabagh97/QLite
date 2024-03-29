@@ -22,10 +22,12 @@ namespace QLite.Data.ViewModels.Kiosk
         [Required]
 
         public string? HwId { get; set; }
+        [Required]
+        [Enum]
+        public WorkFlowType WorkFlowType { get; set; }
 
-        public string? DesignTag { get; set; }
+        [Required]
 
-       
         [Boolean]
 
         public bool? Active { get; set; }

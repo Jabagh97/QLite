@@ -44,8 +44,22 @@ namespace KioskApp.Controllers
                 return StatusCode(500, "An internal server error has occurred.");
             }
         }
+        private async Task<HomeAndDesPageDataViewModel> InitHomepage()
+        {
+            var viewModel = new HomeAndDesPageDataViewModel
+            {
+                DesPageData = await GetDesignData(CommonCtx.KioskHwId, Step.WelcomePage.ToString()),
+                KioskHwId = CommonCtx.KioskHwId
+            };
 
-        public async Task<IActionResult> GetSegmentView(string hwId)
+            CommonCtx.Languages = await GetLanguageList();
+            CommonCtx.Resources = await GetResourceList();
+            CommonCtx.CurrentLanguage = CommonCtx.Languages.FirstOrDefault()?.Oid ?? Guid.Empty;
+
+            Session.homeAndDesPageData = viewModel;
+            return viewModel;
+        }
+        public async Task<IActionResult> GetSegmentView(string hwId, bool asFirstPage = false)
         {
             try
             {
@@ -57,6 +71,19 @@ namespace KioskApp.Controllers
 
                 Session.segmentsAndDesignModel = viewModel;
 
+                if (asFirstPage)
+                {
+
+                    CommonCtx.Languages = await GetLanguageList();
+                    CommonCtx.Resources = await GetResourceList();
+                    CommonCtx.CurrentLanguage = CommonCtx.Languages.FirstOrDefault()?.Oid ?? Guid.Empty;
+
+                    //Cancel Timeout if first page 
+                    viewModel.DesignData.PageTimeOut = 0;
+                    return View("Views/Kiosk/Segments.cshtml", viewModel);
+
+                }
+
                 return PartialView("~/Views/Kiosk/Segments.cshtml", viewModel);
             }
             catch (Exception ex)
@@ -66,7 +93,7 @@ namespace KioskApp.Controllers
             }
         }
 
-        public async Task<IActionResult> GetServiceView(Guid segmentOid, string hwId)
+        public async Task<IActionResult> GetServiceView(Guid segmentOid, string hwId, bool asFirstPage = false)
         {
 
             try
@@ -81,7 +108,23 @@ namespace KioskApp.Controllers
 
                 Session.servicesAndDesignModel = viewModel;
 
+                if (asFirstPage)
+                {
+
+                    CommonCtx.Languages = await GetLanguageList();
+                    CommonCtx.Resources = await GetResourceList();
+                    CommonCtx.CurrentLanguage = CommonCtx.Languages.FirstOrDefault()?.Oid ?? Guid.Empty;
+
+                    //Cancel Timeout if first page 
+                    viewModel.DesignData.PageTimeOut = 0;
+
+                    return View("Views/Kiosk/Services.cshtml", viewModel);
+
+                }
+
                 return PartialView("Views/Kiosk/Services.cshtml", viewModel);
+
+
             }
             catch (Exception ex)
             {
@@ -178,21 +221,7 @@ namespace KioskApp.Controllers
             }
         }
 
-        private async Task<HomeAndDesPageDataViewModel> InitHomepage()
-        {
-            var viewModel = new HomeAndDesPageDataViewModel
-            {
-                DesPageData = await GetDesignData(CommonCtx.KioskHwId, Step.WelcomePage.ToString()),
-                KioskHwId = CommonCtx.KioskHwId
-            };
 
-            CommonCtx.Languages = await GetLanguageList();
-            CommonCtx.Resources = await GetResourceList();
-            CommonCtx.CurrentLanguage = CommonCtx.Languages.FirstOrDefault()?.Oid ?? Guid.Empty;
-
-            Session.homeAndDesPageData = viewModel;
-            return viewModel;
-        }
 
 
         #region Hardware Requests

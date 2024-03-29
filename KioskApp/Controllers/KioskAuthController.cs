@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using QLite.Data.CommonContext;
 using Quavis.QorchLite.Hwlib;
 using System.Diagnostics;
+using KioskApp.Helpers;
 
 namespace KioskApp.Controllers
 {
@@ -31,11 +32,33 @@ namespace KioskApp.Controllers
 
                 var kioskData = await _apiService.GetGenericResponse<KioskDto>($"api/Kiosk/GetKioskByHwID/{kioskId}");
 
-
+                //TODO : Appropriate error if api is down
                 // Assuming KioskType is an enum and kioskData.KioskType is its integer representation
                 if ((KioskType)kioskData.KioskType == KioskType.Kiosk)
                 {
-                    return RedirectToAction("Index", "Kiosk");
+                    switch (kioskData.WorkFlowType) 
+                    {
+
+                        case (int)WorkFlowType.WelcomeSegmentService:
+                            return RedirectToAction("Index", "Kiosk");
+
+                        case (int)WorkFlowType.SegmentService:
+                            return RedirectToAction("GetSegmentView", "Kiosk", new { hwId = kioskId , asFirstPage = true });
+
+                        case (int)WorkFlowType.OnlyServices:
+
+                            var defaultSegment = await _apiService.GetGenericResponse<Guid>($"api/Kiosk/GetDefaultSegment");
+
+                            return RedirectToAction("GetServiceView", "Kiosk", new { segmentOid = defaultSegment, hwId = kioskId, asFirstPage = true });
+
+
+                        default:
+                            return RedirectToAction("Index", "Kiosk");
+                    }
+
+
+
+
                 }
                 else if ((KioskType)kioskData.KioskType == KioskType.Display)
                 {

@@ -1,5 +1,7 @@
-﻿@using QLite.Data.Models.ViewModels;
+﻿@using AdminPortal.Helpers;
+@using QLite.Data.Models.ViewModels;
 @using System.Text;
+@using System.ComponentModel;
 @model FormPartialViewModel
 
 <form asp-controller="GenericTable" asp-action="@(Model.Action == "Add" ? "Create" : "Edit")" method="post" id="@(Model.Action == "Add" ? "createForm" : "editForm")">
@@ -166,31 +168,34 @@
     }
 
 
-    string RenderEnumInput(PropertyInfo property, PropertyInfo viewModelProperty, string formDataValue, string propertyToLower)
+    public string RenderEnumInput(PropertyInfo property, PropertyInfo viewModelProperty, string formDataValue, string propertyToLower)
     {
-
         var enumType = viewModelProperty.PropertyType;
         var enumValues = Enum.GetValues(enumType);
 
         var sb = new StringBuilder();
         sb.Append($"<select name=\"{property.Name}\" id=\"{property.Name}\" class=\"form-select form-select-lg form-select-solid\">");
-        sb.Append($"<option value=\"{Guid.Empty}\">None</option>");
+        sb.Append($"<option value=\"\">None</option>"); // Changed Guid.Empty to an empty string, adjust as necessary for your data type
 
         foreach (var enumValue in enumValues)
         {
             var isSelected = false;
 
             var enumIntValue = Convert.ToInt32(enumValue);
-            isSelected = Model.FormData?.ContainsKey(propertyToLower) == true &&
-                     enumIntValue.ToString() == formDataValue;
+            isSelected = formDataValue != null && enumIntValue.ToString() == formDataValue;
+
+            var description = EnumExtensions.GetEnumDescription(enumValue);
+
             sb.Append($"<option value=\"{enumIntValue}\" {(isSelected ? "selected" : "")}>");
-            sb.Append($"{enumValue}</option>");
+            sb.Append($"{description}</option>");
         }
 
         sb.Append("</select>");
 
         return sb.ToString();
     }
+
+    
 
     string RenderIconInput(PropertyInfo property, string value)
     {
