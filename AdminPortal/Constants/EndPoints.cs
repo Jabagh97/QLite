@@ -2,8 +2,8 @@
 {
     public class EndPoints
     {
-        public static string AdminGetData(string modelName, string searchValue, string sortColumn, string sortColumnDirection, int skip, int pageSize) =>
-    $"api/Admin/GetData?modelName={modelName}&searchValue={searchValue}&sortColumn={sortColumn}&sortColumnDirection={sortColumnDirection}&skip={skip}&pageSize={pageSize}";
+        public static string AdminGetData(string modelName) =>
+    $"api/Admin/GetData?modelName={modelName}";
 
 
         public static string GetdropDowns(string modelName) =>

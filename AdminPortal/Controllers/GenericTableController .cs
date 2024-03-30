@@ -56,7 +56,7 @@ namespace PortalPOC.Controllers
             {
                 var parameters = _requestExtractor.ExtractParameters(Request.Form);
 
-                var response = await _httpClient.GetAsync(EndPoints.AdminGetData(modelName, parameters.SearchValue, parameters.SortColumn, parameters.SortColumnDirection, parameters.Skip, parameters.PageSize));
+                var response = await _httpClient.GetAsync(EndPoints.AdminGetData(modelName));
                 return response.IsSuccessStatusCode
                     ? Ok(await response.Content.ReadAsStringAsync())
                     : StatusCode(500, new { success = false, message = "Internal Server Error" });

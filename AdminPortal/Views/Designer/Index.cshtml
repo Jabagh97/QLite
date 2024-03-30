@@ -394,6 +394,12 @@
         sb.Append("style=\"position: absolute; ");
         sb.AppendFormat("width:{0}; ", comp.Width);
         sb.AppendFormat("height:{0}; ", comp.Height);
+        sb.Append("background-image: url(");
+        sb.Append(comp.BgImageUrl);
+        sb.Append("); ");
+        sb.Append("background-size: cover; ");
+        sb.Append("background-position: center; ");
+        sb.Append("background-repeat: no-repeat; ");
         sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
 
         if (!string.IsNullOrEmpty(comp.CustomCss))

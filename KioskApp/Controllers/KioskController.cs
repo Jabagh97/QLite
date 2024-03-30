@@ -157,7 +157,7 @@ namespace KioskApp.Controllers
             try
             {
                 var services = await GetServiceList(segmentOid);
-                var message = !services.Any() ? Errors.ServiceStepError: string.Empty;
+                var message = !services.Any() ? Errors.ServiceStepError : string.Empty;
 
                 var viewModel = new ServicesAndDesignModel
                 {
@@ -217,6 +217,9 @@ namespace KioskApp.Controllers
         {
             try
             {
+                string userAgent = Request.Headers["User-Agent"];
+                bool _isMobile = IsMobileDevice(userAgent);
+
                 ticketRequest.SegmentId = Session.selectedSegment;
 
                 var ticket = await _apiService.PostGenericRequest<Ticket>("api/Kiosk/GetTicket", ticketRequest);
@@ -230,7 +233,8 @@ namespace KioskApp.Controllers
                 var model = new TicketAndDesPageDataViewModel
                 {
                     Ticket = ticket,
-                    DesPageData = designData
+                    DesPageData = designData,
+                    isMobile = _isMobile
                 };
 
                 Session.ticketAndDesPageData = model;
@@ -374,6 +378,8 @@ namespace KioskApp.Controllers
         {
             try
             {
+
+
                 var copies = Session.ticketAndDesPageData.Ticket.CopyNumber;
 
                 if (copies.HasValue)
@@ -386,12 +392,19 @@ namespace KioskApp.Controllers
                 }
 
 
+
                 return Ok("Print successful");
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Printing failed: {ex.Message}");
             }
+        }
+
+        public bool IsMobileDevice(string userAgent)
+        {
+            userAgent = userAgent.ToLower();
+            return userAgent.Contains("mobile") || userAgent.Contains("android") || userAgent.Contains("iphone");
         }
 
         [HttpPost]

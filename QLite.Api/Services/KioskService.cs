@@ -289,7 +289,8 @@ namespace QLiteDataApi.Services
 
                 // Set cache options
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(1));
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(1))
+                    .SetSize(1);
 
                 // Save data in cache
                 _cache.Set(cacheKey, serviceTypeInfos, cacheEntryOptions);
@@ -320,8 +321,8 @@ namespace QLiteDataApi.Services
 
                 // Set cache options
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                       .SetSlidingExpiration(TimeSpan.FromMinutes(1));
-                       
+                       .SetSlidingExpiration(TimeSpan.FromMinutes(1))
+                       .SetSize(1);
 
                 // Save data in cache
                 _cache.Set("SegmentsForKiosk", segments, cacheEntryOptions);
@@ -362,7 +363,8 @@ namespace QLiteDataApi.Services
                     if (kiosk != null)
                     {
                         var cacheEntryOptions = new MemoryCacheEntryOptions()
-                            .SetSlidingExpiration(TimeSpan.FromMinutes(1));
+                            .SetSlidingExpiration(TimeSpan.FromMinutes(1))
+                            .SetSize(1);
 
                         // Cache the kiosk
                         _cache.Set(cacheKey, kiosk, cacheEntryOptions);
@@ -419,7 +421,7 @@ namespace QLiteDataApi.Services
 
                     // Set cache options
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(TimeSpan.FromMinutes(1));
+                        .SetSlidingExpiration(TimeSpan.FromMinutes(1)).SetSize(1);
 
                     // Save the design in cache
                     _cache.Set(cacheKey, _design, cacheEntryOptions);

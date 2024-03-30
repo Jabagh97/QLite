@@ -33,15 +33,10 @@ namespace QLiteDataApi.Controllers
         /// Retrieves filtered and paginated data for a specified model.
         /// </summary>
         /// <param name="modelName">The name of the model to fetch data for.</param>
-        /// <param name="searchValue">The search query to filter results.</param>
-        /// <param name="sortColumn">The column to sort the results by.</param>
-        /// <param name="sortColumnDirection">The direction of the sort (ascending or descending).</param>
-        /// <param name="skip">The number of records to skip for pagination.</param>
-        /// <param name="pageSize">The number of records to return.</param>
         /// <returns>A paginated list of model data.</returns>
         [HttpGet]
         [Route("GetData")]
-        public IActionResult GetData(string modelName, string searchValue, string sortColumn, string sortColumnDirection, int skip, int pageSize)
+        public IActionResult GetData(string modelName)
         {
             try
             {
@@ -50,8 +45,7 @@ namespace QLiteDataApi.Controllers
                     return NotFound(Errors.NullModel);
                 }
 
-                var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType, searchValue, sortColumn, sortColumnDirection);
-                //var paginatedData = filteredData.Skip(skip).Take(pageSize).ToDynamicList();
+                var filteredData = _dataService.GetFilteredAndPaginatedData(modelType, viewModelType);
                 var paginatedData = filteredData.ToDynamicList();
                 var recordsTotal = filteredData.Count();
                 var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = paginatedData };

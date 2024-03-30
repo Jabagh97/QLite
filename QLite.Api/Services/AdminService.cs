@@ -192,19 +192,13 @@ namespace QLiteDataApi.Services
         /// </summary>
         /// <param name="modelType">The type of the model.</param>
         /// <param name="viewModelType">The type of the view model.</param>
-        /// <param name="searchValue">The search query value for filtering.</param>
-        /// <param name="sortColumn">The column name to sort by.</param>
-        /// <param name="sortColumnDirection">The sort direction ("asc" or "desc").</param>
         /// <returns>An IQueryable representing the filtered, sorted, and paginated data.</returns>
-        public IQueryable GetFilteredAndPaginatedData(Type modelType, Type viewModelType, string? searchValue, string? sortColumn, string? sortColumnDirection)
+        public IQueryable GetFilteredAndPaginatedData(Type modelType, Type viewModelType)
         {
             var dbSet = GetTypedDbSet(modelType);
             var data = dbSet;
 
             data = _dynamicQueries.SelectAndJoinQuery(data, modelType, viewModelType, _dbContext);
-            data = ApplySearchFilter(data, searchValue, modelType, viewModelType);
-            data = ApplySorting(data, sortColumn, sortColumnDirection);
-
             return data;
         }
 

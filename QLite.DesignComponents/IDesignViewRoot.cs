@@ -305,7 +305,7 @@ namespace QLite.DesignComponents
         public Ticket Ticket { get; set; }
         public DesPageData DesPageData { get; set; }
 
-      
+        public bool isMobile { get; set; }
 
     }
     public class SegmentsAndDesignModel

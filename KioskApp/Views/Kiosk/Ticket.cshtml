@@ -4,12 +4,12 @@
 
 @if (Model != null && Model.DesPageData != null && Model.DesPageData.Comps != null)
 {
-    <div style="display: flex; justify-content: center; align-items: center;">
-        <div id="ticketdiv" 
-            style="  
+    <div style="display:flex; justify-content: center; align-items: center;">
+        <div id="ticketdiv"
+         style="
             width: @(Model.DesPageData.Width ?? "450px");
-            height: @(Model.DesPageData.Height ?? "750px");">
-        
+            height: @(Model.DesPageData.Height ?? "750px"); position: relative;">
+
             <div id="ticket-body"
              style="
             background-color: @(Model.DesPageData.BackGroundColor ?? "white");
@@ -33,6 +33,64 @@
     <script>
         localStorage.setItem('ServiceTimeoutActive', 'false');
     </script>
+
+    @if (!Model.isMobile)
+    {
+
+        <script>
+
+
+            // Wait for the DOM to be fully loaded
+            $(document).ready(function () {
+                var body = document.getElementById("ticket-body");
+
+                //Apply the transition style to the ticket-body
+                body.style.transition = "transform 2s ease-in-out";
+
+                // Animate the ticket-body sliding up
+                body.style.transform = "translateY(+" + 1500 + "px)";
+
+                // After 2 seconds, redirect to the index page
+                setTimeout(function () {
+                    window.location.href = '/';
+                }, 2000);
+
+                var html = $("#ticketdiv").html();
+
+                PrintTicket(html);
+
+
+
+            });
+
+         
+
+        </script>
+
+
+    }
+    else
+    {
+        <script>
+          
+              html2canvas(document.querySelector("#ticketdiv")).then(canvas => {
+
+                var imgData = canvas.toDataURL();
+
+                // Create a link and set the URL as the href
+                var link = document.createElement('a');
+                link.href = imgData;
+                link.download = 'TicketImage.png'; // Set the download name
+
+                // Append the link to the body, click it, and remove it
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+
+            });
+        </script>
+    }
 }
 else
 {
@@ -83,7 +141,7 @@ else
                 return ViewHelper.RenderGenericHtmlComponent(htmlComp);
 
             default:
-                return string.Empty; 
+                return string.Empty;
         }
     }
 
@@ -92,27 +150,4 @@ else
 
 
 
-<script>
-    // Wait for the DOM to be fully loaded
-    $(document).ready(function () {
-        var body = document.getElementById("ticket-body");
 
-        //Apply the transition style to the ticket-body
-        body.style.transition = "transform 2s ease-in-out";
-
-        // Animate the ticket-body sliding up
-        body.style.transform = "translateY(+" + 1500 + "px)";
-
-        // After 2 seconds, redirect to the index page
-        setTimeout(function () {
-            window.location.href = '/';
-        }, 2000);
-
-        var html = $("#ticketdiv").html();
-
-        PrintTicket(html);
-
-
-
-    });
-</script>
