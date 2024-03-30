@@ -75,8 +75,8 @@
         var isEnum = viewModelProperty?.GetCustomAttribute<EnumAttribute>() != null;
         var isIcon = viewModelProperty?.GetCustomAttribute<IconAttribute>() != null;
         var isNonEditable = viewModelProperty?.GetCustomAttribute<NonEditableAttribute>() != null;
-       // var isHidden = viewModelProperty?.GetCustomAttribute<NotForTableAttribute>() != null;
-        var isDesign = viewModelProperty?.GetCustomAttribute<DesignAttribute>()  != null;
+        // var isHidden = viewModelProperty?.GetCustomAttribute<NotForTableAttribute>() != null;
+        var isDesign = viewModelProperty?.GetCustomAttribute<DesignAttribute>() != null;
 
         var isDropDown = (Model.DropDowns?.ContainsKey(property.Name) ?? false);
 
@@ -195,7 +195,7 @@
         return sb.ToString();
     }
 
-    
+
 
     string RenderIconInput(PropertyInfo property, string value)
     {
@@ -215,14 +215,9 @@
 
         if (!string.IsNullOrEmpty(value))
         {
-            if (value.StartsWith("data:image"))
-            {
-                sb.AppendLine($"<img id=\"{previewId}\" style=\"width: 50%; max-height: 35rem; margin-top: 5px;\" src=\"{value}\" alt=\"{propertyName}\" />");
-            }
-            else
-            {
-                sb.AppendLine($"<img id=\"{previewId}\" style=\"width: 50%; max-height: 10rem; margin-top: 5px;\" src=\"data:image/jpg;base64,{value}\" alt=\"{propertyName}\" />");
-            }
+
+            sb.AppendLine($"<img id=\"{previewId}\" style=\"width: 50%; max-height: 35rem; margin-top: 5px;\" src=\"{value}\" alt=\"{propertyName}\" />");
+
         }
         else
         {

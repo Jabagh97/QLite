@@ -37,7 +37,7 @@ namespace KioskApp
 
             
             services.AddSession();
-
+            services.AddMemoryCache();
             services.AddControllersWithViews();
             services.AddHttpClient<ApiService>();
 
@@ -45,19 +45,7 @@ namespace KioskApp
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                Log.Information("Development environment detected. Setting up developer exception page and enabling PII...");
-
-                app.UseDeveloperExceptionPage();
-                IdentityModelEventSource.ShowPII = true; // Enable showing PII in development
-
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-            }
-
+           
             app.UseStaticFiles();
             app.UseRouting();
 

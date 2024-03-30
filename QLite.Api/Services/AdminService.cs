@@ -9,6 +9,7 @@ using QLiteDataApi.Helpers;
 using QLiteDataApi.Context;
 using QLite.DesignComponents;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace QLiteDataApi.Services
 {
@@ -216,7 +217,7 @@ namespace QLiteDataApi.Services
             var dbSet = GetTypedDbSet(innerType);
             var data = dbSet;
 
-          
+
             var optionalArguments = new Dictionary<string, object>
             {
                 [mainModelType.Name] = Oid,
@@ -380,7 +381,7 @@ namespace QLiteDataApi.Services
 
             var dbSet = GetTypedDbSet(modelType);
 
-          
+
 
             // Fetch the existing entity from your data store
             var existingEntity = _dynamicQueries.GetById(idValue, dbSet);
@@ -418,16 +419,33 @@ namespace QLiteDataApi.Services
         /// <param name="desPageData">The design page data to be saved or updated.</param>
         /// <param name="designImage">The design image in base64 string format.</param>
         /// <returns>True if the design is successfully saved or updated; otherwise, false.</returns>
+
         public bool SaveDesign(Guid DesignID, DesPageData desPageData, string designImage)
         {
             var designEntity = _dbContext.Designs.FirstOrDefault(d => d.Oid == DesignID);
 
             if (designEntity != null)
             {
+
+                // Convert designImage from base64 to an image file
+                var imagePath = QueriesHelper.ConvertAndSaveImage(designImage, designEntity.Name + DesignID.ToString());
+                var bgImagePath = QueriesHelper.ConvertAndSaveImage(desPageData.BgImageUrl, designEntity.Name + DesignID.ToString(), "bg");
+
+                foreach (var comp in desPageData.Comps)
+                {
+                    // Only convert and save if comp.BgImageUrl is not empty
+                    if (!string.IsNullOrWhiteSpace(comp.BgImageUrl))
+                    {
+                        comp.BgImageUrl = QueriesHelper.ConvertAndSaveImage(comp.BgImageUrl, designEntity.Name + comp.Id + "_" + DesignID.ToString(), "componentBg");
+                    }
+                }
+
+                // Update designEntity properties with the paths
+                desPageData.BgImageUrl = bgImagePath;
                 var desPageDataTest = JsonConvert.SerializeObject(desPageData);
 
                 designEntity.DesignData = desPageDataTest;
-                designEntity.DesignImage = designImage;
+                designEntity.DesignImage = imagePath;
 
                 _dbContext.Update(designEntity);
                 _dbContext.SaveChanges();
@@ -437,6 +455,7 @@ namespace QLiteDataApi.Services
 
             return false; // Indicate that the design was not found
         }
+
 
 
         #endregion
@@ -474,7 +493,7 @@ namespace QLiteDataApi.Services
 
                     if (!string.IsNullOrEmpty(cleanedPrimaryKeyValue))
                     {
-                        
+
                         // Find the entity by its primary key
                         var entity = _dynamicQueries.SoftDeleteInstance(_dbContext, dbSet, modelType, cleanedPrimaryKeyValue);
 
@@ -492,7 +511,7 @@ namespace QLiteDataApi.Services
 
         public bool RemoveFromSubList(string tabName, Type modelType, string modelOid, List<string> Oids)
         {
-            
+
 
             bool allSuccess = true;
 

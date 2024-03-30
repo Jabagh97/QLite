@@ -3,6 +3,7 @@ using KioskApp.Helpers;
 using KioskApp.Models;
 using KioskApp.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using QLite.Data;
 using QLite.Data.CommonContext;
@@ -26,12 +27,13 @@ namespace KioskApp.Controllers
     {
         private readonly ApiService _apiService;
         private readonly HwManager _hwman;
+        private readonly IMemoryCache _memoryCache;
 
-        public KioskController(ApiService httpService, HwManager hwman)
+        public KioskController(ApiService httpService, HwManager hwman, IMemoryCache memoryCache)
         {
             _hwman = hwman;
             _apiService = httpService;
-
+            _memoryCache = memoryCache;
         }
         /// <summary>
         /// Serves as the entry point for the kiosk's main interface, loading the initial homepage view with necessary data.
@@ -298,8 +300,26 @@ namespace KioskApp.Controllers
         /// </remarks>
         private async Task<DesPageData> GetDesignData(string hwId, string step)
         {
-            return await _apiService.GetDesignResponse<DesPageData>($"api/Kiosk/GetDesignByKiosk/{step}/{hwId}");
+            // Define a cache key based on hardware ID and step
+            var cacheKey = $"DesignData-{hwId}-{step}";
+
+            // Try to get the cached data
+            if (!_memoryCache.TryGetValue(cacheKey, out DesPageData designData))
+            {
+                // If not in cache, fetch the data
+                designData = await _apiService.GetDesignResponse<DesPageData>($"api/Kiosk/GetDesignByKiosk/{step}/{hwId}");
+
+                // Set cache options
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(1));
+
+                // Cache the data
+                _memoryCache.Set(cacheKey, designData, cacheEntryOptions);
+            }
+
+            return designData;
         }
+
 
         /// <summary>
         /// Retrieves a list of segments that the user can navigate through in the kiosk interface.

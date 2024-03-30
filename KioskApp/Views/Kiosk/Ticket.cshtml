@@ -21,6 +21,8 @@
     }
     else
     {
+        <script src="~/js/htmlToImage.js"></script>
+
         <script src="~/js/saveTicketMobile.js"></script>
 
     }
@@ -29,25 +31,51 @@
 
 else
 {
-    <div class="d-flex justify-content-center align-items-center vh-100">
-        <div id="ticketdiv" class="card card-dashed shadow-lg" style="width:450px;">
-            <div class="card-header text-center">
-                <img src="~/media/Qlite-mini.png" alt="Company Logo" class="img-fluid" style="max-height: 40px;">
-                <h3 class="card-title mt-3">@ViewHelper.GetLanguage("TicketInfo")</h3>
-            </div>
-            <div class="card-body">
-                <h4 class="text-center font-weight-bold">@Model?.Ticket.ServiceTypeName</h4>
-                <p class="text-center font-weight-bold" style="font-size: 40px;">@Model?.Ticket.ServiceCode @Model?.Ticket?.Number</p>
-                <div class="text-center mt-4">
-                    <span class="font-weight-bold">@DateTime.Now.ToString("dd/MM/yyyy")</span> |
-                    <span class="font-weight-bold">@DateTime.Now.ToString("H:mm")</span>
+    <div style="display: flex; justify-content: center; align-items: center;">
+
+        <div id="ticketdiv" style="width:450px;height:750px;">
+            <div id="ticket-body" class="card card-dashed" style="font-size: 2rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);">
+                <div class="card-header">
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <img src="~/media/Qlite-mini.png" class="img-fluid" style="max-height: 40px; object-fit: contain;">
+                    </div>
+                    <h3 class="card-title"> @ViewHelper.GetLanguage("TicketInfo")</h3>
+
                 </div>
-            </div>
-            <div class="card-footer text-center">
-                @ViewHelper.GetLanguage("numberOfWaiting"): @Model?.Ticket.WaitingTickets
+                <div class="card-body">
+                    <div class="font-weight-bold text-center mb-3">@Model?.Ticket.ServiceTypeName</div>
+                    <div class="font-weight-bold text-center mb-3" style="font-size: 40px;"><b>@Model?.Ticket.ServiceCode @Model?.Ticket?.Number</b></div>
+                    <div class="mb-3">
+                        <table class="w-100">
+                            <tr class="font-weight-bold">
+                                <td class="text-left pl-2">@DateTime.Now.ToString("dd/MM/yyyy")</td>
+                                <td class="text-right pr-2">@DateTime.Now.ToString("H:mm")</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="font-weight-bold text-center mb-3">
+                        @ViewHelper.GetLanguage("numberOfWaiting") :@Model?.Ticket.WaitingTickets
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+
+     @if (!Model.isMobile)
+    {
+        <script src="~/js/printTicketDesktop.js"></script>
+
+    }
+    else
+    {
+        <script src="~/js/htmlToImage.js"></script>
+
+        <script src="~/js/saveTicketMobile.js"></script>
+
+    }
 
 
 }

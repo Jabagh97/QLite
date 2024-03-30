@@ -1,10 +1,65 @@
-﻿using System.Linq.Dynamic.Core;
+﻿using QLiteDataApi.Context;
+using Serilog;
+using System.Linq.Dynamic.Core;
 using System.Reflection;
 
 namespace QLiteDataApi.Helpers
 {
     public static class QueriesHelper
     {
+
+        public static string ConvertAndSaveImage(string base64String, string fileName, string suffix = "")
+        {
+            if (!string.IsNullOrWhiteSpace(base64String) && base64String.StartsWith(ApiContext.Config.GetValue<string>("SiteDomain")))
+            {
+                return base64String; // Already a URL to an existing image.
+            }
+
+            if (string.IsNullOrWhiteSpace(base64String))
+            {
+                return base64String; // Empty, return as is.
+            }
+
+            try
+            {
+                var imagesPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "DesignerImages");
+                Directory.CreateDirectory(imagesPath);
+
+                // Determine the file extension and decode the base64 string accordingly.
+                string fileExtension;
+                byte[] fileData;
+                if (base64String.Contains("data:image/svg+xml;base64,"))
+                {
+                    fileExtension = "svg";
+                    // SVGs are XML text, decode base64 to a string.
+                    var base64Data = base64String.Split(',')[1];
+                    fileData = Convert.FromBase64String(base64Data);
+                }
+                else
+                {
+                    fileExtension = "png"; // Assume PNG for simplicity, adjust as needed for other types.
+                    var base64Data = base64String.Split(',')[1];
+                    fileData = Convert.FromBase64String(base64Data);
+                }
+
+                var filePath = Path.Combine(imagesPath, $"{fileName}_{suffix}.{fileExtension}");
+
+                if (!File.Exists(filePath))
+                {
+                    File.WriteAllBytes(filePath, fileData); // Works for both binary data and text (SVG).
+                }
+
+                var siteDomain = ApiContext.Config.GetValue<string>("SiteDomain").TrimEnd('/');
+                return $"{siteDomain}/DesignerImages/{fileName}_{suffix}.{fileExtension}";
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to convert and save image");
+                return null;
+            }
+        }
+
+
         // Helper method to check if a property is a navigation property
         public static bool IsNavigationProperty(PropertyInfo property) =>
             property.PropertyType.IsClass && property.PropertyType != typeof(string);

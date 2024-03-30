@@ -12,39 +12,33 @@
     <meta property="og:type" content="article" />
 
     <!--begin::Fonts(mandatory for all pages)-->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+    <link rel="preload" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700"></noscript>
     <!--end::Fonts-->
     <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
-    <link href="~/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
-    <link href="~/css/style.bundle.css" rel="stylesheet" type="text/css" />
-    <link href="~/css/site.css" rel="stylesheet" type="text/css" />
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/js/resizeComponents.js"></script>
+
+    <link href="~/css/site.css" rel="stylesheet" type="text/css" />
+    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+    <script src="~/js/resizeComponents.js" asp-append-version="true"></script>
 
 
     <!--end::Global Stylesheets Bundle-->
 </head>
 <!--end::Head-->
-<body id="kt_app_body" class="app-default">
+<body id="kt_app_body" class="app-default" style="background-image: url('/media/misc/BG.jpg.webp'); background-position: center; background-repeat: no-repeat; background-size: cover;">
 
     @RenderBody()
 
     <!--begin::Javascript-->
-    <script>
-        var hostUrl = "assets/";</script>
     <!--begin::Global Javascript Bundle(mandatory for all pages)-->
-    <script src="~/plugins/global/plugins.bundle.js"></script>
-    <script src="~/js/scripts.bundle.js"></script>
 
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/Routes.js" asp-append-version="true"></script>
+    <script src="~/js/Routes.js"  asp-append-version="true"></script>
 
-    <script src="~/js/signalR.js"></script>
+    <script src="~/js/signalR.js" asp-append-version="true"></script>
 
-    <script src="~/js/Logic.js"></script>
+    <script src="~/js/Logic.js" asp-append-version="true"></script>
 
-    <script src="~/js/htmlToImage.js"></script>
 
     <script>
         const apiUrl = '@Configuration["APIBase"]';

@@ -10,7 +10,7 @@ using static QLite.Data.Models.Enums;
 
 namespace QLiteDataApi.Services
 {
-    public class KioskService 
+    public class KioskService
     {
         private readonly IMemoryCache _cache;
 
@@ -389,48 +389,32 @@ namespace QLiteDataApi.Services
         /// <returns>The design associated with the step and kiosk if found; otherwise, null.</returns>
         public async Task<Design> GetDesignByKiosk(string Step, string HwID)
         {
-            // Define a unique cache key based on both Step and HwID
-            var cacheKey = $"DesignByKiosk_Step_{Step}_HwID_{HwID}";
+            var kiosk = await _context.Kiosks.FirstOrDefaultAsync(k => k.HwId == HwID);
 
-            if (!_cache.TryGetValue(cacheKey, out Design _design))
+            if (kiosk == null)
             {
-                var kiosk = await _context.Kiosks.FirstOrDefaultAsync(k => k.HwId == HwID);
-
-                if (kiosk == null)
-                {
-                    return null; // Early exit if kiosk is not found
-                }
-
-                if (!Enum.TryParse(Step, true, out Step wfStep))
-                {
-                    return null;
-                }
-
-                // Perform the query to get the design
-                var targetWithDesign = await (
-                    from target in _context.DesignTargets
-                    join design in _context.Designs on target.Design equals design.Oid into designGroup
-                    from d in designGroup.DefaultIfEmpty() // Left join
-                    where target.Kiosk == kiosk.Oid && d != null && d.WfStep == (int)wfStep
-                    select d
-                ).FirstOrDefaultAsync();
-
-                if (targetWithDesign != null)
-                {
-                    _design = targetWithDesign;
-
-                    // Set cache options
-                    var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(TimeSpan.FromMinutes(1)).SetSize(1);
-
-                    // Save the design in cache
-                    _cache.Set(cacheKey, _design, cacheEntryOptions);
-
-
-                }
+                return null; // Early exit if kiosk is not found
             }
 
-            return _design;
+            if (!Enum.TryParse(Step, true, out Step wfStep))
+            {
+                return null;
+            }
+            //TODO: Fix this query 
+
+            // Perform the query to get the design
+            var targetWithDesign = await (
+                from target in _context.DesignTargets
+                join design in _context.Designs on target.Design equals design.Oid into designGroup
+                from d in designGroup.DefaultIfEmpty() // Left join
+                where target.Kiosk == kiosk.Oid && d != null && d.WfStep == (int)wfStep
+                select d
+            ).FirstOrDefaultAsync();
+
+
+
+
+            return targetWithDesign;
         }
 
         /// <summary>
@@ -507,11 +491,11 @@ namespace QLiteDataApi.Services
                              .Select(k => new TicketDto
                              {
                                  Oid = k.Oid,
-                                 ServiceTypeName= k.ServiceTypeName,
+                                 ServiceTypeName = k.ServiceTypeName,
                                  SegmentName = k.SegmentName,
                                  Number = k.Number,
                                  Desk = k.DeskNavigation.Name,
-                                 ServiceCode= k.TicketPoolNavigation.ServiceCode,
+                                 ServiceCode = k.TicketPoolNavigation.ServiceCode,
 
                              })
                              .ToListAsync();

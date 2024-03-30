@@ -75,9 +75,7 @@
                 if (column.isIcon) {
                     obj.render = function (data, type, row, meta) {
                         if (data != null) {
-                            return data.startsWith("data:image")
-                                ? '<img style="width: 50%; max-height: 10rem;" src="' + data + '" />'
-                                : '<img style="width: 50%; max-height: 10rem;" src="data:image/jpg;base64,' + data + '" />';
+                            return '<img style="width: 50%; max-height: 10rem;" src="' + data + '" />';   
                         }
                         return '';
                     };

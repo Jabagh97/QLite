@@ -19,6 +19,13 @@
         </div>
         @await Html.PartialAsync("Error")
     </div>
+
+
+    <script>
+        $(document).ready(function () {
+            resizeComponents();
+        });
+    </script>
 }
 
 @*If no Design is available use deafualt view*@
@@ -36,7 +43,7 @@ else
         <div id="content" class="text-center" style="display: none;">
             <h1 class="display-4 mb-4" style="color: azure;">@ViewHelper.GetLanguage("Welcome")</h1>
             <div id="clock" class="clock">@currentTime</div>
-            <div id="pv" class="touch-to-start">@ViewHelper.GetLanguage("TouchToStart")</div>
+            <div id="pv" class="touch-to-start" style="color: azure;">@ViewHelper.GetLanguage("TouchToStart")</div>
         </div>
 
         @await Html.PartialAsync("Error")
@@ -65,9 +72,3 @@ else
         }
     }
 }
-
-<script>
-    $(document).ready(function () {
-        resizeComponents();
-    });
-</script>
