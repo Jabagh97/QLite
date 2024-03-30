@@ -5,37 +5,17 @@
 
 @if (Model.DesignData != null && Model.DesignData.Comps != null)
 {
-
-    <div id="canvas-container"
-     style="
-        width: @(Model.DesignData.Width ?? "100vw");
-        height: @(Model.DesignData.Height ?? "100vh");
-        background-image: url('@(Model.DesignData.BgImageUrl ?? "")');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        border: 1px solid black;
-            ">
-
-        <div id="content"
-         style="
-        width: @(Model.DesignData.Width ?? "100vw");
-        height: @(Model.DesignData.Height ?? "100vh");
-         ">
-
+    <div id="canvas-container" class="canvas-container" style="background-image: url('@Model.DesignData.BgImageUrl');" data-width="@Model.DesignData.Width" data-height="@Model.DesignData.Height">
+        <div id="content">
             @foreach (var comp in Model.DesignData.Comps)
             {
-                @Html.Raw(RenderComponent(comp,Model.Segments))
+                @Html.Raw(RenderComponent(comp, Model.Segments))
             }
         </div>
-
-
-        @*Errors*@
-
         @await Html.PartialAsync("Error")
     </div>
 
-    @if (Model.DesignData.PageTimeOut > 0)
+    @if (Model.DesignData?.PageTimeOut > 0)
     {
         <script>
             // Set the timeout and record its state
@@ -49,27 +29,17 @@
             }, SegmentTimeoutPeriod);
         </script>
     }
+
 }
 else
 {
-    <div class="d-flex justify-content-center align-items-center h-100">
-        <div class="row">
-            @foreach (var segment in Model.Segments)
-            {
-                <div class="col-md-12 mb-3">
-                    <div class="text-center">
-                        <button class="btn btn-primary btn-lg" style="font-size: 2rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);" onclick="loadServiceView('@segment.Oid')"> @segment.Name </button>
-                    </div>
-                </div>
-            }
-        </div>
-
-        @*Errors*@
-
+    <div class="container-center">
+        @foreach (var segment in Model.Segments)
+        {
+            <button class="btn btn-primary btn-lg segment-btn" onclick="loadServiceView('@segment.Oid')">@segment.Name</button>
+        }
         @await Html.PartialAsync("Error")
     </div>
-
-
 }
 @functions {
     public string RenderComponent(DesCompData comp, List<SegmentDto> segments)
@@ -97,3 +67,9 @@ else
     }
 
 }
+
+<script>
+    $(document).ready(function () {
+        resizeComponents();
+    });
+</script>

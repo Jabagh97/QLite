@@ -3,43 +3,22 @@
 
 @if (!string.IsNullOrEmpty(Model.Message))
 {
-    <div class="alert alert-warning text-center" role="alert" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1050; width: 80%; font-size: 24px; font-weight: bold;">
-        @Model.Message
-    </div>
+    <div class="alert alert-warning fixed-alert">@Model.Message</div>
 }
-
 
 @*If a Custom Design is available*@
 
 @if (Model.DesignData != null && Model.DesignData.Comps != null)
 {
 
-    <div id="canvas-container"
-     style="
-         width: @(Model.DesignData.Width ?? "100vw");
-        height: @(Model.DesignData.Height ?? "100vh");
-        background-image: url('@(Model.DesignData.BgImageUrl ?? "")');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        border: 1px solid black;
-            ">
-
-        <div id="content"
-         style="
-        width: @(Model.DesignData.Width ?? "100vw");
-        height: @(Model.DesignData.Height ?? "100vh");
-         ">
+    <div id="canvas-container" class="canvas-container" style="background-image: url('@(Model.DesignData.BgImageUrl ?? "")');" data-width="@Model.DesignData.Width" data-height="@Model.DesignData.Height">
+        <div id="content">
             @foreach (var comp in Model.DesignData.Comps)
             {
-                @Html.Raw(RenderComponent(comp,Model.Services))
+                @Html.Raw(RenderComponent(comp, Model.Services))
             }
         </div>
-
-        @*Errors*@
-
         @await Html.PartialAsync("Error")
-
     </div>
 
 
@@ -67,20 +46,13 @@
 
 else
 {
-
-    <div class="d-flex justify-content-center align-items-center h-100">
-        <div class="row">
-            @foreach (var service in Model.Services)
-            {
-                <div class="col-md-12 mb-3">
-                    <div class="text-center">
-                        <button class="btn btn-primary btn-lg" style="font-size: 2rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);" onclick="svcTypeSelected('@service.Oid')">@service.Name </button>
-                    </div>
-                </div>
-            }
-        </div>
-        @*Errors*@
-
+    <div class="service-selection-container">
+        @foreach (var service in Model.Services)
+        {
+            <div class="text-center mb-3">
+                <button class="btn btn-primary btn-lg service-btn" onclick="svcTypeSelected('@service.Oid')">@service.Name</button>
+            </div>
+        }
         @await Html.PartialAsync("Error")
     </div>
 }
@@ -114,6 +86,8 @@ else
 
 }
 
+<script src="~/js/resizeComponents.js"></script>
+
 <script>
     async function svcTypeSelected(svcTypeId) {
 
@@ -124,6 +98,9 @@ else
 
         //loadTicketView(ticket);
     }
+    $(document).ready(function () {
+        resizeComponents();
+    });
+
 
 </script>
-

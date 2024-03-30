@@ -18,11 +18,13 @@ namespace KioskApp.Helpers
 
             sb.Append($"<div id=\"{comp.Id}\" ");
             sb.Append($"data-comp-id=\"{comp.Id}\" ");
-
+            sb.Append($"data-PosX=\"{comp.PosX}\" ");
+            sb.Append($"data-PosY=\"{comp.PosY}\" ");
+            sb.Append($"data-Width=\"{comp.Width}\" ");
+            sb.Append($"data-Height=\"{comp.Height}\" ");
             sb.Append("style=\"position: absolute; ");
-            sb.AppendFormat("width:{0}; ", comp.Width);
-            sb.AppendFormat("height:{0}; ", comp.Height);
-            sb.AppendFormat("left: {0}; top:{1}; ", comp.PosX, comp.PosY);
+            sb.Append("class=\"resize-drag\" ");
+
 
             if (!string.IsNullOrEmpty(comp.CustomCss))
             {
@@ -85,11 +87,15 @@ namespace KioskApp.Helpers
 
             sb.Append($"<div id=\"{comp.Id}\" ");
             sb.Append($"data-comp-id=\"{comp.Id}\" ");
+            sb.Append($"data-PosX=\"{comp.PosX}\" ");
+            sb.Append($"data-PosY=\"{comp.PosY}\" ");
+            sb.Append($"data-Width=\"{comp.Width}\" ");
+            sb.Append($"data-Height=\"{comp.Height}\" ");
+            sb.Append("class=\"resize-drag\" ");
 
             sb.Append("style=\"position: absolute; ");
-            sb.AppendFormat("width:{0}; ", comp.Width);
-            sb.AppendFormat("height:{0}; ", comp.Height);
-            sb.AppendFormat("left: {0}; top:{1}; ", comp.PosX, comp.PosY);
+
+
 
             if (!string.IsNullOrEmpty(comp.CustomCss))
             {
@@ -138,10 +144,13 @@ namespace KioskApp.Helpers
 
             sb.Append($"<div id=\"{comp.Id}\" ");
             sb.Append($"data-comp-id=\"{comp.Id}\" ");
+            sb.Append($"data-PosX=\"{comp.PosX}\" ");
+            sb.Append($"data-PosY=\"{comp.PosY}\" ");
+            sb.Append($"data-Width=\"{comp.Width}\" ");
+            sb.Append($"data-Height=\"{comp.Height}\" ");
+            sb.Append("class=\"resize-drag\" ");
             sb.Append("style=\"position: absolute;");
-            sb.AppendFormat("width:{0}; ", comp.Width);
-            sb.AppendFormat("height:{0}; ", comp.Height);
-            sb.AppendFormat("left: {0}; top:{1}; ", comp.PosX, comp.PosY);
+
 
 
             if (comp.GenCompType == HtmlCompType.Image)
@@ -209,13 +218,12 @@ namespace KioskApp.Helpers
             StringBuilder sb = new StringBuilder();
             sb.Append($"<button id=\"{comp.Id}\" ");
             sb.Append($"data-comp-id=\"{comp.Id}\" ");
-            sb.Append($"data-x=\"{comp.PosX}\" ");
-            sb.Append($"data-y=\"{comp.PosY}\" ");
+            sb.Append($"data-PosX=\"{comp.PosX}\" ");
+            sb.Append($"data-PosY=\"{comp.PosY}\" ");
+            sb.Append($"data-Width=\"{comp.Width}\" ");
+            sb.Append($"data-Height=\"{comp.Height}\" ");
             sb.Append("class=\"resize-drag\" ");
             sb.Append("style=\"position: absolute; ");
-            sb.AppendFormat("width:{0}; ", comp.Width);
-            sb.AppendFormat("height:{0}; ", comp.Height);
-            sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
             sb.Append(cssStyles);
             sb.Append("background-image: url(");
             sb.Append(comp.BgImageUrl);
@@ -249,13 +257,12 @@ namespace KioskApp.Helpers
             StringBuilder sb = new StringBuilder();
             sb.Append($"<button id=\"{comp.Id}\" ");
             sb.Append($"data-comp-id=\"{comp.Id}\" ");
-            sb.Append($"data-x=\"{comp.PosX}\" ");
-            sb.Append($"data-y=\"{comp.PosY}\" ");
+            sb.Append($"data-PosX=\"{comp.PosX}\" ");
+            sb.Append($"data-PosY=\"{comp.PosY}\" ");
+            sb.Append($"data-Width=\"{comp.Width}\" ");
+            sb.Append($"data-Height=\"{comp.Height}\" ");
             sb.Append("class=\"resize-drag\" ");
             sb.Append("style=\"position: absolute; ");
-            sb.AppendFormat("width:{0}; ", comp.Width);
-            sb.AppendFormat("height:{0}; ", comp.Height);
-            sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
             sb.Append(cssStyles);
             sb.Append("\" onclick=\"loadServiceView('");
             sb.Append(comp.SegmentID);
@@ -289,13 +296,13 @@ namespace KioskApp.Helpers
             StringBuilder sb = new StringBuilder();
             sb.Append($"<button id=\"{comp.Id}\" ");
             sb.Append($"data-comp-id=\"{comp.Id}\" ");
-            sb.Append($"data-x=\"{comp.PosX}\" ");
-            sb.Append($"data-y=\"{comp.PosY}\" ");
+            sb.Append($"data-PosX=\"{comp.PosX}\" ");
+            sb.Append($"data-PosY=\"{comp.PosY}\" ");
+            sb.Append($"data-Width=\"{comp.Width}\" ");
+            sb.Append($"data-Height=\"{comp.Height}\" ");
             sb.Append("class=\"resize-drag\" ");
             sb.Append("style=\"position: absolute; ");
-            sb.AppendFormat("width:{0}; ", comp.Width);
-            sb.AppendFormat("height:{0}; ", comp.Height);
-            sb.AppendFormat("transform: translate({0}, {1}); ", comp.PosX, comp.PosY);
+
             sb.Append(cssStyles);
             sb.Append("\" onclick=\"svcTypeSelected('");
             sb.Append(comp.ServiceTypeOid);

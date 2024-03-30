@@ -10,72 +10,34 @@
 
 @if (Model != null && Model.DesPageData != null && Model.DesPageData.Comps != null)
 {
-
-    <div id="canvas-container"
-     style="
-        width: @(Model.DesPageData.Width ?? "100vw");
-        height: @(Model.DesPageData.Height ?? "100vh");
-        background-image: url('@(Model.DesPageData.BgImageUrl ?? "")');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        border: 1px solid black;
-            ">
-
-
-
-        <div id="content"
-         style="
-        width: @(Model.DesPageData.Width ?? "100vw");
-        height: @(Model.DesPageData.Height ?? "100vh");
-         ">
+    <div id="canvas-container" class="canvas-container" style="background-image: url('@(Model.DesPageData.BgImageUrl ?? "")');" data-width="@Model.DesPageData.Width" data-height="@Model.DesPageData.Height">
+        <div id="content">
             @foreach (var comp in Model.DesPageData.Comps)
             {
                 @Html.Raw(RenderComponent(comp))
             }
-
         </div>
-
-        @*Errors*@
-
         @await Html.PartialAsync("Error")
-
-
     </div>
-
 }
 
 @*If no Design is available use deafualt view*@
 
 else
 {
-    <div class="container d-flex flex-column justify-content-center align-items-center h-100">
-       
-        <div id="loadingAnimation" class="text-center mb-4" style="display: none;">
+    <div class="container container-center">
+        <div id="loadingAnimation" class="loading-animation text-center mb-4">
             <div class="spinner-border" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
             <p class="mt-2">Connecting to server...</p>
         </div>
 
-        <div id="content" style="display: none;">
-            <div class="text-center">
-                <h1 class="display-4 mb-4" style="color:azure">
-                    @ViewHelper.GetLanguage("Welcome")
-                </h1>
-                <div id="clock" style="font-size: calc(1vw + 1vh); color:azure">
-                    @currentTime
-                </div>
-            </div>
-            <div id="pv" class="form-group" style="text-align:center;color:azure">
-
-                <div style="font-size: calc(2vw + 4vh); margin: 1%;">
-                    @ViewHelper.GetLanguage("TouchToStart")
-                </div>
-            </div>
+        <div id="content" class="text-center" style="display: none;">
+            <h1 class="display-4 mb-4" style="color: azure;">@ViewHelper.GetLanguage("Welcome")</h1>
+            <div id="clock" class="clock">@currentTime</div>
+            <div id="pv" class="touch-to-start">@ViewHelper.GetLanguage("TouchToStart")</div>
         </div>
-
-        @*Errors*@
 
         @await Html.PartialAsync("Error")
     </div>
@@ -96,7 +58,7 @@ else
             case DesCompDataLang langComp:
                 return ViewHelper.RenderLanguageButton(langComp, Step.WelcomePage.ToString());
 
-            
+
 
             default:
                 return string.Empty; // Unknown component type
@@ -104,3 +66,8 @@ else
     }
 }
 
+<script>
+    $(document).ready(function () {
+        resizeComponents();
+    });
+</script>

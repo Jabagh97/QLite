@@ -260,3 +260,5 @@ function updateUIOnError() {
     $("#loadingAnimation").hide();
     $("#content").hide();
 }
+
+

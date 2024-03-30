@@ -19,12 +19,16 @@
     <link href="~/css/style.bundle.css" rel="stylesheet" type="text/css" />
     <link href="~/css/site.css" rel="stylesheet" type="text/css" />
 
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/resizeComponents.js"></script>
+
+
     <!--end::Global Stylesheets Bundle-->
 </head>
 <!--end::Head-->
 <body id="kt_app_body" class="app-default">
 
-        @RenderBody()
+    @RenderBody()
 
     <!--begin::Javascript-->
     <script>
@@ -33,7 +37,6 @@
     <script src="~/plugins/global/plugins.bundle.js"></script>
     <script src="~/js/scripts.bundle.js"></script>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/Routes.js" asp-append-version="true"></script>
 
@@ -47,7 +50,7 @@
         const apiUrl = '@Configuration["APIBase"]';
         const kioskID = '@Configuration["KioskID"]';
     </script>
-        @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 
     <!--end::Global Javascript Bundle-->
     <!--end::Javascript-->
