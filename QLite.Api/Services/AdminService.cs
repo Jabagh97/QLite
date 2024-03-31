@@ -428,15 +428,16 @@ namespace QLiteDataApi.Services
             {
 
                 // Convert designImage from base64 to an image file
-                var imagePath = QueriesHelper.ConvertAndSaveImage(designImage, designEntity.Name + DesignID.ToString());
-                var bgImagePath = QueriesHelper.ConvertAndSaveImage(desPageData.BgImageUrl, designEntity.Name + DesignID.ToString(), "bg");
+                var imagePath = ConvertAndSaveImage(designImage, designEntity.Name + DesignID.ToString());
+                var bgImagePath =  ConvertAndSaveImage(desPageData.BgImageUrl, designEntity.Name + DesignID.ToString(), "bg");
 
                 foreach (var comp in desPageData.Comps)
                 {
                     // Only convert and save if comp.BgImageUrl is not empty
                     if (!string.IsNullOrWhiteSpace(comp.BgImageUrl))
                     {
-                        comp.BgImageUrl = QueriesHelper.ConvertAndSaveImage(comp.BgImageUrl, designEntity.Name + comp.Id + "_" + DesignID.ToString(), "componentBg");
+                        comp.BgImageUrl = ConvertAndSaveImage(comp.BgImageUrl, designEntity.Name + comp.Id + "_" + DesignID.ToString(), "componentBg");
+
                     }
                 }
 
@@ -450,10 +451,54 @@ namespace QLiteDataApi.Services
                 _dbContext.Update(designEntity);
                 _dbContext.SaveChanges();
 
+
                 return true; // Indicate that the design was saved successfully
             }
 
             return false; // Indicate that the design was not found
+        }
+        public static string ConvertAndSaveImage(string base64String, string fileName, string suffix = "")
+        {
+            if (!string.IsNullOrWhiteSpace(base64String) && base64String.StartsWith(ApiContext.Config.GetValue<string>("SiteDomain")))
+            {
+                return base64String; // Already a URL to an existing image.
+            }
+
+            if (string.IsNullOrWhiteSpace(base64String))
+            {
+                return base64String; // Empty, return as is.
+            }
+
+            try
+            {
+                // Use the configured path from appsettings.json
+                var configuredPath = ApiContext.Config.GetValue<string>("ImageStorage:Path");
+                var imagesPath = Path.Combine(configuredPath, "DesignerImages");
+                Directory.CreateDirectory(imagesPath);
+                Log.Information("saving media in: " + imagesPath);
+
+                // Determine the file extension and decode the base64 string accordingly.
+                string fileExtension = base64String.Contains("data:image/svg+xml;base64,") ? "svg" : "png";
+                var base64Data = base64String.Split(',')[1];
+                var fileData = Convert.FromBase64String(base64Data);
+
+                var filePath = Path.Combine(imagesPath, $"{fileName}_{suffix}.{fileExtension}");
+                Log.Information("filePath TEST: " + filePath);
+
+                if (!File.Exists(filePath))
+                {
+                    File.WriteAllBytes(filePath, fileData);
+                }
+
+                // Return the relative path for use in URLs, adjusted as needed for your app's URL structure
+                var siteDomain = ApiContext.Config.GetValue<string>("SiteDomain").TrimEnd('/');
+                return $"{siteDomain}/DesignerImages/{fileName}_{suffix}.{fileExtension}";
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to convert and save image");
+                return null;
+            }
         }
 
 

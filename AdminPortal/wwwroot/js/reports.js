@@ -1,6 +1,7 @@
 ﻿$(document).ready(function () {
     const table = $('#ticketStateTable').DataTable({
         responsive: true,
+        dom: 'Bfrtipl',
         columns: [ 
             { data: 'DeskName' },
             { data: 'WaitingTickets' },

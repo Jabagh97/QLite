@@ -1,24 +1,24 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
 
 .slide-out {
@@ -49,6 +49,7 @@ body {
         transform: translateX(0);
     }
 }
+
 .drag-icon {
     background-image: url("../locate.png");
     width: 17px;
@@ -150,17 +151,16 @@ body {
 
 
 .custom-popup-class {
-    width: 600px; 
+    width: 600px;
     height: 600px;
-
     user-select: text !important;
     -webkit-user-select: text !important;
     -moz-user-select: text !important;
     -ms-user-select: text !important;
 }
-.swal2-container .swal2-html-container {
 
-    max-height :350px
+.swal2-container .swal2-html-container {
+    max-height: 350px
 }
 
 #kt_content {
@@ -170,4 +170,150 @@ body {
 
 .grey-dots {
     border-top: 3px dotted grey; /* This sets the top border to a dotted line with a grey color */
+}
+
+
+/* Base style for the dt-button */
+.dt-button {
+    background-color: #004085; /* Primary color, you can adjust this */
+    color: #ffffff;
+    border: none;
+    padding: 8px 15px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+    /* Hover effect for the dt-button */
+    .dt-button:hover, .dt-button:focus {
+        background-color: #0056b3; /* Darker shade for hover state */
+        color: #ffffff;
+        outline: none; /* Removes the focus outline */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Active and focus states for accessibility and feedback */
+    .dt-button:active {
+        background-color: #004085; /* Even darker shade for the active state */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        transform: translateY(1px); /* Slightly shifts the button down to mimic being pressed */
+    }
+/* Container style */
+.dataTables_filter {
+    position: relative;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: right;
+}
+
+    /* Style the input field */
+    .dataTables_filter input[type="search"] {
+        width: 100%;
+        padding: 10px 15px;
+        border: 2px solid #004085; /* Primary color border */
+        border-radius: 20px; /* Rounded corners */
+        font-size: 16px; /* Adequate font size for readability */
+        transition: all 0.3s ease; /* Smooth transition for focus effects */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        outline: none; /* Remove the default focus outline */
+    }
+
+        /* Hover state for the input */
+        .dataTables_filter input[type="search"]:hover {
+            border-color: #0056b3; /* Slightly darker border on hover */
+        }
+
+        /* Focus state for the input */
+        .dataTables_filter input[type="search"]:focus {
+            border-color: #004085; /* Even darker for focus */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* More pronounced shadow for a 'floating' effect */
+        }
+
+        /* Optional: Placeholder styling */
+        .dataTables_filter input[type="search"]::placeholder {
+            color: #007bff; /* Placeholder text color */
+            opacity: 0.7; /* Slightly transparent */
+        }
+
+.dataTables_length {
+    display: flex;
+    justify-content: right;
+}
+
+    .dataTables_length select {
+        margin-top: 5px;
+        padding: 5px 5px;
+        border-radius: 20px;
+        border: 2px solid #004085;
+        background-color: white;
+        color: #004085;
+        transition: all 0.3s;
+    }
+
+        .dataTables_length select:hover {
+            background-color: #f0f0f0;
+        }
+
+.dataTables_paginate {
+    margin-top: 30px;
+}
+    /* Pagination Buttons Style */
+    .dataTables_paginate .paginate_button {
+        padding: 6px 12px;
+        margin-left: 5px; /* Ensures spacing between buttons */
+        border-radius: 5px; /* Rounded corners for the button */
+        border: none; /* No border for a cleaner look */
+        background-color: #007bff; /* Primary button color */
+        color: #ffffff; /* Text color */
+        font-weight: 600; /* Makes text slightly bolder */
+        text-transform: uppercase; /* Uppercase text for a more stylized look */
+        letter-spacing: 0.05em; /* Space out letters a little */
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+        cursor: pointer; /* Changes cursor to pointer on hover */
+    }
+
+        .dataTables_paginate .paginate_button:hover {
+            background-color: #0056b3; /* Darker shade for hover state */
+            color: #ffffff; /* Keeps text color white on hover */
+        }
+
+        .dataTables_paginate .paginate_button.current,
+        .dataTables_paginate .paginate_button.current:hover {
+            background-color: #004085; /* Even darker shade for the active/current button */
+            color: #ffffff; /* Ensures text color is white for active/current button */
+        }
+
+        .dataTables_paginate .paginate_button.disabled,
+        .dataTables_paginate .paginate_button.disabled:hover {
+            background-color: #cccccc; /* Disabled state background color */
+            color: #666666; /* Disabled state text color */
+            cursor: not-allowed; /* Indicates the button is disabled */
+        }
+
+.dataTables_info {
+    font-size: 15px;
+    color: #004085;
+}
+.dataTables_wrapper .dt-buttons {
+    float: left;
+    margin-right: 10px; /* Adjust based on spacing needs */
+}
+
+.dataTables_wrapper .dataTables_filter {
+    margin-left: 10px; /* Adjust based on spacing needs */
+}
+
+
+
+
+/* Clear floats */
+.dataTables_wrapper::after {
+    content: "";
+    clear: both;
+    display: table;
 }

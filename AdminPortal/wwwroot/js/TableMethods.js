@@ -13,7 +13,7 @@ function initializeDataTable(modelName, columnDefinitions) {
             responsive: true,
             paging: true,
             filter: true,
-            dom: 'Bfrtilp',
+            dom: 'Bfrtipl',
             select: true,
             ajax: {
                 url: '/GenericTable/GetData',

@@ -1,16 +1,11 @@
 ﻿using AdminPortal.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.SqlServer.Server;
 using Newtonsoft.Json;
 using PortalPOC.Helpers;
 using QLite.Data.Services;
 using QLiteDataApi.Constants;
-using System.ComponentModel.DataAnnotations;
-using System.Linq.Dynamic.Core;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 

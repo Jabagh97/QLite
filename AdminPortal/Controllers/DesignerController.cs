@@ -93,6 +93,13 @@ namespace AdminPortal.Controllers
            GetJsonResponse<List<Language>>($"api/Admin/GetLanguageList");
 
 
+        public ActionResult Utilities()
+        {
+          
+            return View("QrGenerator");
+        }
+
+
         private async Task<IActionResult> GetJsonResponse<T>(string endpoint)
         {
             var response = await _httpClient.GetAsync(endpoint);

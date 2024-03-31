@@ -21,22 +21,21 @@
     <base href="" />
     <title>@ViewData["Title"] - Admin Portal</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="article" />
     <link rel="shortcut icon" href="~/img/Qlite-mini.png" />
 
     <!--begin::Fonts(mandatory for all pages)-->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+    <link rel="preload" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700"></noscript>
     <!--end::Fonts-->
     <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
     <link href="~/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
     <link href="~/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
     <link href="~/css/site.css" rel="stylesheet" type="text/css" />
-
-
-    <link href="DataTables/DataTables-1.13.8/css/dataTables.bootstrap5.css" rel="stylesheet">
-    <link href="DataTables/datatables.css" rel="stylesheet">
+    
+    <script src="~/JQuery/jquery-3.7.1.js"></script>
 
     <link href="~/lib/swal/sweetalert2.css" rel="stylesheet">
 
@@ -44,12 +43,7 @@
 
     <script src="~/lib/popper.min.js"></script>
 
-    <script>
-        // Frame-busting to prevent the site from being loaded within a frame without permission (click-jacking)
-        if (window.top != window.self) {
-            window.top.location.replace(window.self.location.href);
-        }
-    </script>
+   
 </head>
 <!--end::Head-->
 <!--begin::Body-->
@@ -112,7 +106,6 @@
         <!--end::Page-->
     </div>
     <!--end::App-->
-   
     @await Html.PartialAsync("partials/_scrolltop")
 
     <!--begin::Modals-->
@@ -120,7 +113,7 @@
     @await Html.PartialAsync("modals/EditModal")
     <!--end::Modals-->
 
-    <script src="~/JQuery/jquery-3.7.1.js"></script>
+
     <script src="~/DataTables/datatables.js"></script>
     <script src="~/bootstrap/js/bootstrap.bundle.js"></script>
     <script src="~/assets/js/scripts.bundle.js"></script>
@@ -131,7 +124,6 @@
     <script src="~/js/site.js"></script>
     <script src="~/js/ModelButtons.js"></script>
     <script src="~/js/highcharts.js"></script>
-    <script src="~/js/reports.js"></script>
 
 
     @await RenderSectionAsync("Scripts", required: false)
