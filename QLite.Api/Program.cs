@@ -12,6 +12,11 @@ internal class Program
     private static void Main(string[] args)
     {
 
+        var configuration = new ConfigurationBuilder()
+                 .SetBasePath(Directory.GetCurrentDirectory())
+                 .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"))
+                 .Build();
+        var logPath = configuration["LogsPath"] ?? "Logs/log-.txt";
 
 
         Log.Information("API is starting... " + DateTime.Now.ToString());
@@ -26,7 +31,7 @@ internal class Program
         {
             loggerConfiguration
                 .WriteTo.File(
-                    path: "Logs/log-.txt",
+                    path: logPath,
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: 10)
                 .MinimumLevel.Information()
@@ -40,12 +45,7 @@ internal class Program
             webBuilder.UseWebRoot(@"wwwroot");
             webBuilder.UseContentRoot(Path.GetDirectoryName(typeof(Program).Assembly.Location));
             webBuilder.UseKestrel();
-
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"))
-                .Build();
-            var ipAddress = config["SiteDomain"];
+            var ipAddress = configuration["SiteDomain"];
             webBuilder.UseUrls(ipAddress);
         }).Build();
 

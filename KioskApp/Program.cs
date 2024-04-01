@@ -31,7 +31,7 @@ public class Program
                 KioskContext.Container = host.Services.GetAutofacRoot();
                 var configuration = host.Services.GetRequiredService<IConfiguration>();
 
-                ConfigureLogger();
+                ConfigureLogger(configuration);
 
                 Log.Information("Kiosk App is starting... " + DateTime.Now.ToString());
                 cts = new CancellationTokenSource();
@@ -59,11 +59,13 @@ public class Program
             Log.Error(ex, "Kiosk App terminated unexpectedly");
         }
     }
-    private static void ConfigureLogger()
+    private static void ConfigureLogger(IConfiguration configuration)
     {
+        var logPath = configuration["LogsPath"] ?? "Logs/log-.txt";
+
         Log.Logger = new LoggerConfiguration()
             .WriteTo.File(
-                path: "Logs/log-.txt",
+                path: logPath,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 10)
             .CreateLogger();

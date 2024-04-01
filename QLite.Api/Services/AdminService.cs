@@ -79,11 +79,19 @@ namespace QLiteDataApi.Services
         /// <returns>A task that represents the asynchronous operation. The task result contains a JSON string representing the report data.</returns>
         public async Task<string> GetTicketStateReport(DateTime startDate, DateTime endDate)
         {
+            // Adjust endDate to include the entire day
+            endDate = endDate.Date.AddDays(1).AddTicks(-1);
             // Fetch the necessary data, avoiding complex translations
             var tickets = await _dbContext.TicketStates
-                                          .Where(t => t.StartTime >= startDate && (t.EndTime <= endDate || t.EndTime == null))
-                                          .Include(t => t.DeskNavigation)
-                                          .ToListAsync();
+                                    .Where(t => t.StartTime >= startDate && (t.EndTime <= endDate || t.EndTime == null))
+                                    .Include(t => t.DeskNavigation)
+                                    .ToListAsync();
+
+            // Aggregate ServiceTypeNames where TicketStateValue == 0
+            var serviceTypeCounts = tickets.Where(t => t.TicketStateValue == 0 && t.ServiceTypeName != null)
+                                            .GroupBy(t => t.ServiceTypeName)
+                                            .Select(group => new { ServiceTypeName = group.Key, Count = group.Count() })
+                                            .ToList();
 
             // Perform the grouping and aggregation in-memory
             var reportData = tickets
@@ -91,47 +99,34 @@ namespace QLiteDataApi.Services
                                 .Select(g => new
                                 {
                                     DeskName = g.Key,
-                                    WaitingTickets = g.Count(t => t.TicketStateValue == 0),
+                                    CalledTickets = g.Count(t => t.TicketStateValue == 0),
                                     TransferedTickets = g.Count(t => t.TicketStateValue == 1),
-                                    TicketsInProcess = g.Count(t => t.TicketStateValue == 2),
                                     Parked = g.Count(t => t.TicketStateValue == 3),
-                                    ServedTickets = g.Count(t => t.TicketStateValue == 4),
-                                    TotalTickets = g.Count(),
                                     WaitingTime = QueriesHelper.FormatTime(
-                                        g.Where(t => t.TicketStateValue == 0)
-                                            .Select(t => (t.EndTime ?? DateTime.Now) - t.StartTime)
-                                            .DefaultIfEmpty() // To ensure there's at least one element
-                                            .Average(ts => ((TimeSpan?)ts)?.TotalMinutes ?? 0)
-                                    ),
-                                    TransferTime = QueriesHelper.FormatTime(g.Where(t => t.TicketStateValue == 1)
-                                        .Select(t => (t.EndTime ?? DateTime.Now) - t.StartTime)
-                                        .DefaultIfEmpty()
-                                        .Average(ts => ((TimeSpan?)ts)?.TotalMinutes ?? 0)
-                                    ),
-                                    NowInServiceTime = QueriesHelper.FormatTime(g.Where(t => t.TicketStateValue == 2)
-                                        .Select(t => (t.EndTime ?? DateTime.Now) - t.StartTime)
-                                        .DefaultIfEmpty()
-                                        .Average(ts => ((TimeSpan?)ts)?.TotalMinutes ?? 0)
-                                    ),
-                                    ParkedTime = QueriesHelper.FormatTime(g.Where(t => t.TicketStateValue == 3)
-                                        .Select(t => (t.EndTime ?? DateTime.Now) - t.StartTime)
-                                        .DefaultIfEmpty()
-                                        .Average(ts => ((TimeSpan?)ts)?.TotalMinutes ?? 0)
-                                    ),
-                                    ServedTime = QueriesHelper.FormatTime(g.Where(t => t.TicketStateValue == 4)
-                                        .Select(t => (t.EndTime ?? DateTime.Now) - t.StartTime)
-                                        .DefaultIfEmpty()
-                                        .Average(ts => ((TimeSpan?)ts)?.TotalMinutes ?? 0)
-                                    ),
-                                    TotalTime = QueriesHelper.FormatTime(g.Select(t => (t.EndTime ?? DateTime.Now) - (t.StartTime ?? DateTime.Now))
-                                        .Sum(ts => ((TimeSpan?)ts)?.TotalMinutes ?? 0))
+                                                    g.Where(t => t.TicketStateValue == 0 && t.StartTime.HasValue)
+                                                     .Select(t => (t.EndTime ?? DateTime.Now) - t.StartTime.Value)
+                                                     .DefaultIfEmpty(TimeSpan.Zero)
+                                                     .Average(ts => Math.Round(ts.TotalSeconds)) // Now rounding to the nearest second
+                                                ),
+
+                                    ServiceTime = QueriesHelper.FormatTime(
+                                                    g.Where(t => t.TicketStateValue == 2 && t.StartTime.HasValue)
+                                                     .Select(t => (t.EndTime ?? DateTime.Now) - t.StartTime.Value)
+                                                     .DefaultIfEmpty(TimeSpan.Zero)
+                                                     .Average(ts => Math.Round(ts.TotalSeconds)) // Now rounding to the nearest second
+                                                ),
                                 })
                                 .ToList();
 
 
 
-            // Serialize the report data to JSON
-            string reportJson = JsonConvert.SerializeObject(reportData);
+            var combinedReportData = new
+            {
+                Report = reportData,
+                ServiceTypeCounts = serviceTypeCounts
+            };
+
+            string reportJson = JsonConvert.SerializeObject(combinedReportData);
 
             return reportJson;
         }
@@ -429,7 +424,7 @@ namespace QLiteDataApi.Services
 
                 // Convert designImage from base64 to an image file
                 var imagePath = ConvertAndSaveImage(designImage, designEntity.Name + DesignID.ToString());
-                var bgImagePath =  ConvertAndSaveImage(desPageData.BgImageUrl, designEntity.Name + DesignID.ToString(), "bg");
+                var bgImagePath = ConvertAndSaveImage(desPageData.BgImageUrl, designEntity.Name + DesignID.ToString(), "bg");
 
                 foreach (var comp in desPageData.Comps)
                 {

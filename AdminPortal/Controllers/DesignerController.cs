@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using QLite.Data;
 using QLite.DesignComponents;
@@ -95,7 +96,8 @@ namespace AdminPortal.Controllers
 
         public ActionResult Utilities()
         {
-          
+            ViewBag.PageTitle = "QR Code Generator";
+
             return View("QrGenerator");
         }
 

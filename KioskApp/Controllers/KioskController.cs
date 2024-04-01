@@ -212,7 +212,7 @@ namespace KioskApp.Controllers
         /// <remarks>
         /// Submits a ticket request based on selected services and returns a view with the ticket details. The method
         /// fetches additional design data for ticket presentation. On failure to retrieve ticket data or any exception,
-        /// it logs the issue and returns a 500 Internal Server Error.
+        /// it logs the issue and returns a veiw Error.
         /// </remarks>
         [HttpPost]
         public async Task<IActionResult> GetTicketView([FromBody] TicketRequestDto ticketRequest)

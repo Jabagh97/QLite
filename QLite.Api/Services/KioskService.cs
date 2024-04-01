@@ -389,7 +389,7 @@ namespace QLiteDataApi.Services
         /// <returns>The design associated with the step and kiosk if found; otherwise, null.</returns>
         public async Task<Design> GetDesignByKiosk(string Step, string HwID)
         {
-            var kiosk = await _context.Kiosks.FirstOrDefaultAsync(k => k.HwId == HwID);
+            var kiosk = await _context.Kiosks.FirstOrDefaultAsync(k => k.HwId == HwID && k.Gcrecord == null);
 
             if (kiosk == null)
             {
@@ -407,7 +407,7 @@ namespace QLiteDataApi.Services
                 from target in _context.DesignTargets
                 join design in _context.Designs on target.Design equals design.Oid into designGroup
                 from d in designGroup.DefaultIfEmpty() // Left join
-                where target.Kiosk == kiosk.Oid && d != null && d.WfStep == (int)wfStep
+                where target.Kiosk == kiosk.Oid && d != null && d.WfStep == (int)wfStep && target.Gcrecord == null
                 select d
             ).FirstOrDefaultAsync();
 

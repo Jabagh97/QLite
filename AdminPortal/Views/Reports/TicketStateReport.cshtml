@@ -37,26 +37,15 @@
         <!--begin::Datatable-->
 
         <div id="Wrapper">
-            <table id="ticketStateTable" class="table table-hover table-rounded border gy-7 gs-7 display responsive nowrap" style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+            <table id="ticketStateTable" class="table table-striped border rounded gy-5 gs-7" style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
                 <thead>
-                    <tr class="fw-semibold fs-7 text-primary border-bottom border-gray-200 py-4">
-                        <th>Desk</th>
-                        <th>Waiting Tickets</th>
+                    <tr class="fw-semibold fs-6 text-gray-800">
+                        <th class="min-w-150px" data-priority="1">Desk</th>
+                        <th>Called Tickets</th>
                         <th>Transfered Tickets</th>
-                        <th>Tickets in Process</th>
                         <th>Parked</th>
-                        <th>Served Tickets</th>
-                        <th>Total Tickets</th>
-
                         <th>Average Waiting Duration</th>
-
-                        <th>Average Transfer Duration</th>
-                        <th>Average In Service Duration</th>
-
-                        <th>Average Parked Duration</th>
-
-                        <th>Average Done Duration</th>
-                        <th>Total Tickets Duration</th>
+                        <th>Average Service Duration</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -65,7 +54,7 @@
             </table>
         </div>
         <!--end::Datatable-->
-
+        <div id="serviceTypePieChart"></div>
     </div>
 </div>
 

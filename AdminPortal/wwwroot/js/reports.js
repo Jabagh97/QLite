@@ -2,24 +2,15 @@
     const table = $('#ticketStateTable').DataTable({
         responsive: true,
         dom: 'Bfrtipl',
-        columns: [ 
+        columns: [
             { data: 'DeskName' },
-            { data: 'WaitingTickets' },
+            { data: 'CalledTickets' },
             { data: 'TransferedTickets' },
-            { data: 'TicketsInProcess' },
             { data: 'Parked' },
-            { data: 'ServedTickets' },
-            { data: 'TotalTickets' },
             { data: 'WaitingTime' },
-            { data: 'TransferTime' },
-            { data: 'NowInServiceTime' },
-            { data: 'ParkedTime' },
-            { data: 'ServedTime' },
-            { data: 'TotalTime' },
-
-           
+            { data: 'ServiceTime' },
         ],
-       
+
     });
 
     // Function to fetch data
@@ -31,24 +22,28 @@
         });
     }
 
-    // Function to update DataTable with new data
     function updateTableWithTicketStates(startDate, endDate) {
         fetchData_ticketStates(startDate, endDate)
-            .done(function (data) {
+            .done(function (response) {
+                const { Report, ServiceTypeCounts } = response;
+
                 table.clear(); // Clear the table before adding new data
-                table.rows.add(data); // Add new data
+                table.rows.add(Report); // Add new data from 'Report'
                 table.draw(); // Redraw the table
+
+                initCharts(ServiceTypeCounts); // Initialize charts with 'ServiceTypeCounts'
             })
             .fail(function (jqXHR, textStatus) {
                 console.error('Failed to fetch ticket states: ' + textStatus);
             });
     }
 
+
     // Event Listeners and Initial Data Load
     // Automatically update the table for today's date when the page loads
     const today = new Date().toISOString().split('T')[0];
     updateTableWithTicketStates(today, today);
-    $('#dateRangeDropdown').text('Today'); // Set the dropdown button text to "Today"
+    $('#dateRangeDropdown').text('Today'); 
 
     $('.dropdown-item').on('click', function (e) {
         e.preventDefault();
@@ -110,4 +105,61 @@
 
     document.getElementById('startDateTS').addEventListener('change', onDateChange);
     document.getElementById('endDateTS').addEventListener('change', onDateChange);
+
+
+    function initCharts(serviceTypeCounts) {
+        let serviceTypeData = serviceTypeCounts.map(item => ({
+            name: item.ServiceTypeName,
+            y: item.Count
+        }));
+
+
+        const themeMode = localStorage.getItem('data-bs-theme-mode');
+        const isDarkMode = themeMode === 'dark';
+
+        // Define colors based on the theme
+        const chartBackgroundColor = isDarkMode ? '#15171c' : '#FFFFFF'; 
+        const textColor = isDarkMode ? '#FFFFFF' : '#343a40'; 
+
+        // Generate the pie chart
+        Highcharts.chart('serviceTypePieChart', { 
+            chart: {
+                type: 'pie',
+                backgroundColor: chartBackgroundColor,
+                plotShadow: true,
+                style: {
+                    fontFamily: 'Arial'
+                }
+
+            },
+            title: {
+                text: 'Service Type Allocation Among Tickets',
+                style: {
+                    color: textColor // Adjust title color based on theme
+                }
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.y} ({point.percentage:.1f}%)',
+                        connectorColor: 'silver'
+                    }
+                }
+            },
+            series: [{
+                name: 'Service Types',
+                colorByPoint: true,
+                data: serviceTypeData
+            }]
+        });
+    }
+
+
+
 });
