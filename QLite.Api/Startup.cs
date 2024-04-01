@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using QLite.Data;
 using QLite.Data.Services;
 using QLiteDataApi.Context;
@@ -7,6 +9,7 @@ using QLiteDataApi.Services;
 using QLiteDataApi.SignalR;
 using Serilog;
 using System.Linq.Dynamic.Core;
+using System.Text;
 
 namespace QLiteDataApi
 {
@@ -31,6 +34,23 @@ namespace QLiteDataApi
 
             // Controllers
             services.AddControllers();
+
+            //// Add JWT authentication
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //        .AddJwtBearer(options =>
+            //        {
+            //            options.TokenValidationParameters = new TokenValidationParameters
+            //            {
+            //                ValidateIssuerSigningKey = true,
+            //                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ApiContext.Config["Jwt:Key"])),
+            //                ValidateIssuer = true,
+            //                ValidIssuer = ApiContext.Config["Jwt:Issuer"],
+            //                ValidateAudience = true,
+            //                ValidAudience = ApiContext.Config["Jwt:Audience"],
+            //                ValidateLifetime = true,
+            //                ClockSkew = TimeSpan.Zero // Optional: reduce or remove clock skew allowance
+            //            };
+            //        });
 
             // Memory Cache
             services.AddMemoryCache(options => {
@@ -61,6 +81,7 @@ namespace QLiteDataApi
             // Middleware configuration
             app.UseRouting();
 
+           // app.UseAuthentication(); 
             app.UseAuthorization();
 
             app.UseCors("AllowSpecificOrigin");

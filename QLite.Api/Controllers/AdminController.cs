@@ -320,7 +320,7 @@ namespace QLiteDataApi.Controllers
 
             if (saved)
             {
-                return Ok();
+                return Ok(true);
             }
             else
             {

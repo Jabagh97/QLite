@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using QLite.Data;
+using QLite.Data.Services;
 using QLite.DesignComponents;
 using System.Text;
 
@@ -9,18 +10,12 @@ namespace AdminPortal.Controllers
 {
     public class DesignerController : Controller
     {
-        private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
+        private readonly ApiService _apiService;
 
-        public DesignerController(HttpClient httpClient, IConfiguration configuration)
+        public DesignerController(ApiService apiService)
         {
-            _httpClient = httpClient;
-            _configuration = configuration;
-            var apiBase = _configuration.GetValue<string>("APIBase");
-            if (string.IsNullOrEmpty(apiBase))
-                throw new ArgumentException("APIBase configuration is missing or invalid.", nameof(apiBase));
+            _apiService = apiService;
 
-            _httpClient.BaseAddress = new Uri(apiBase);
         }
 
         public async Task<ActionResult> Index(Guid DesignID)
@@ -33,7 +28,7 @@ namespace AdminPortal.Controllers
 
         private async Task<DesPageData> GetDesignData(Guid DesignID)
         {
-            return await GetDesignResponse<DesPageData>($"api/Admin/GetDesign/{DesignID}");
+            return await _apiService.GetDesignResponse<DesPageData>($"api/Admin/GetDesign/{DesignID}");
         }
 
 
@@ -41,15 +36,15 @@ namespace AdminPortal.Controllers
         [Route("Designer/SaveDesign/{DesignID}")]
         public async Task<IActionResult> SaveDesign(Guid DesignID, [FromBody] DesPageDataViewModel desPageData)
         {
-            var response = await _httpClient.PostAsync($"api/Admin/SaveDesign/{DesignID}", new StringContent(JsonConvert.SerializeObject(desPageData), Encoding.UTF8, "application/json"));
+            var response = await _apiService.PostGenericRequest<bool>($"api/Admin/SaveDesign/{DesignID}", desPageData,true);
 
-            if (response.IsSuccessStatusCode)
+            if (response)
             {
                 return Ok("Design saved successfully");
             }
             else
             {
-                return StatusCode((int)response.StatusCode, "Failed to save design");
+                return StatusCode(500, "Failed to save design");
             }
         }
 
@@ -58,41 +53,35 @@ namespace AdminPortal.Controllers
         [HttpGet]
         [Route("Designer/GetDesignImageByID/{DesignID}")]
 
-        public async Task<IActionResult> GetDesignImageByID(Guid DesignID)
-       
-         {
-            var response = await _httpClient.GetAsync($"api/Admin/GetDesignImageByID/{DesignID}");
-            if (response.IsSuccessStatusCode)
-            {
-                var responseData = await response.Content.ReadAsStringAsync();
-      
-                return Ok(responseData);
-            }
-            else
-            {
-                return NotFound();
-            }
+        public async Task<string> GetDesignImageByID(Guid DesignID)
+        {
+            return await _apiService.GetGenericResponse<string>($"api/Admin/GetDesignImageByID/{DesignID}",true);
+
         }
 
 
         [HttpGet]
-        public Task<IActionResult> GetDesignList() =>
-          GetJsonResponse<List<Design>>($"api/Admin/GetDesignList");
-
-
-        [HttpGet]
-        public Task<IActionResult> GetSegmentList() =>
-           GetJsonResponse<List<Segment>>($"api/Admin/GetSegmentList");
-
+        public async Task<List<Design>> GetDesignList()
+        {
+            return await _apiService.GetGenericResponse<List<Design>>($"api/Admin/GetDesignList");
+        }
 
         [HttpGet]
-        public Task<IActionResult> GetServiceList() =>
-           GetJsonResponse<List<ServiceType>>($"api/Admin/GetServiceList");
+        public async Task<List<Segment>> GetSegmentList()
+        {
+            return await _apiService.GetGenericResponse<List<Segment>>($"api/Admin/GetSegmentList");
+        }
 
         [HttpGet]
-        public Task<IActionResult> GetLanguageList() =>
-           GetJsonResponse<List<Language>>($"api/Admin/GetLanguageList");
-
+        public async Task<List<ServiceType>> GetServiceList()
+        {
+            return await _apiService.GetGenericResponse<List<ServiceType>>($"api/Admin/GetServiceList");
+        }
+        [HttpGet]
+        public async Task<List<Language>> GetLanguageList()
+        {
+            return await _apiService.GetGenericResponse<List<Language>>($"api/Admin/GetLanguageList");
+        }
 
         public ActionResult Utilities()
         {
@@ -102,36 +91,10 @@ namespace AdminPortal.Controllers
         }
 
 
-        private async Task<IActionResult> GetJsonResponse<T>(string endpoint)
-        {
-            var response = await _httpClient.GetAsync(endpoint);
-            if (response.IsSuccessStatusCode)
-            {
-                var responseData = await response.Content.ReadAsStringAsync();
-                T deserializedData = JsonConvert.DeserializeObject<T>(responseData);
-                return Ok(deserializedData);
-            }
-            else
-            {
-                return StatusCode((int)response.StatusCode, $"Failed to retrieve data");
-            }
-        }
-        private async Task<T> GetDesignResponse<T>(string endpoint)
-        {
-            var response = await _httpClient.GetAsync(endpoint);
-            if (response.IsSuccessStatusCode)
-            {
-                var responseData = await response.Content.ReadAsStringAsync();
-                T deserializedData = JsonConvert.DeserializeObject<T>(responseData);
-                return deserializedData;
-            }
-            else
-            {
-                return default(T);
-            }
-        }
+
+
     }
 
 
-   
+
 }

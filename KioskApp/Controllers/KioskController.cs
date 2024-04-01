@@ -29,10 +29,10 @@ namespace KioskApp.Controllers
         private readonly HwManager _hwman;
         private readonly IMemoryCache _memoryCache;
 
-        public KioskController(ApiService httpService, HwManager hwman, IMemoryCache memoryCache)
+        public KioskController(ApiService apiService, HwManager hwman, IMemoryCache memoryCache)
         {
             _hwman = hwman;
-            _apiService = httpService;
+            _apiService = apiService;
             _memoryCache = memoryCache;
         }
         /// <summary>

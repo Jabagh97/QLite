@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using QLite.Data;
+using QLite.Data.Services;
 using QLiteDataApi.Constants;
 using System.Xml.Serialization;
 
@@ -11,18 +12,13 @@ namespace AdminPortal.Controllers
     public class ReportsController : Controller
     {
 
-        private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
+        private readonly ApiService _apiService;
 
-        public ReportsController(HttpClient httpClient, IConfiguration configuration)
+
+        public ReportsController(ApiService apiService)
         {
-            _httpClient = httpClient;
-            _configuration = configuration;
-            var apiBase = _configuration.GetValue<string>("APIBase");
-            if (string.IsNullOrEmpty(apiBase))
-                throw new ArgumentException("APIBase configuration is missing or invalid.", nameof(apiBase));
+            _apiService = apiService;
 
-            _httpClient.BaseAddress = new Uri(apiBase);
         }
 
 
@@ -34,20 +30,21 @@ namespace AdminPortal.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetTicketStateReport(string? StartDate,string EndDate)
+        public async Task<IActionResult> GetTicketStateReport(string? StartDate, string EndDate)
         {
             try
             {
-                var response = await _httpClient.GetAsync($"api/Admin/GetTicketStateReport/{StartDate}/{EndDate}");
-                return response.IsSuccessStatusCode
-                    ? Ok(await response.Content.ReadAsStringAsync())
-                    : StatusCode(500, new { success = false, message = "Internal Server Error" });
+
+                var result = await _apiService.GetGenericResponse<string>($"api/Admin/GetTicketStateReport/{StartDate}/{EndDate}",true);
+
+                return Ok(result);
+
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
             }
-       
+
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using DeskApp.Helpers;
+﻿using Autofac.Core;
+using DeskApp.Helpers;
 using DeskApp.SignalR;
 using IdentityModel;
 using Microsoft.AspNetCore.Diagnostics;
@@ -153,6 +154,7 @@ namespace DeskApp
 
             Services.AddHttpClient();
 
+            Services.AddHttpClient<ApiService>();
 
             Services.AddHttpContextAccessor();
         }

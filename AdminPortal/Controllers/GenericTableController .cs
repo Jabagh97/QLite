@@ -4,34 +4,42 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using PortalPOC.Helpers;
+using QLite.Data;
 using QLite.Data.Services;
+using QLite.DesignComponents;
 using QLiteDataApi.Constants;
 using System.Text;
 using System.Text.Json;
 
 namespace PortalPOC.Controllers
 {
+
+    /// <summary>
+    /// Controller for handling generic table operations such as data fetching,
+    /// creation, editing, and deletion of items based on dynamic model names.
+    /// </summary>
     [Authorize]
 
     public class GenericTableController : Controller
     {
         private readonly IModelTypeMappingService _modelTypeMappingService;
         private readonly IDataTableRequestExtractor _requestExtractor;
-        private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
+        private readonly ApiService _apiService;
 
-        public GenericTableController(IModelTypeMappingService modelTypeMappingService, IDataTableRequestExtractor requestExtractor, IConfiguration configuration, HttpClient httpClient)
+
+        public GenericTableController(IModelTypeMappingService modelTypeMappingService, IDataTableRequestExtractor requestExtractor, ApiService apiService)
         {
             _modelTypeMappingService = modelTypeMappingService;
             _requestExtractor = requestExtractor;
+            _apiService = apiService;
 
-            _configuration = configuration;
-
-            _httpClient = httpClient;
-
-            _httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("APIBase"));
         }
 
+        /// <summary>
+        /// Serves the index view for a given model name, dynamically setting the model type.
+        /// </summary>
+        /// <param name="modelName">The name of the model for which to display the table.</param>
+        /// <returns>The index view for the specified model or an error view if the model type is not found.</returns>
         public IActionResult Index(string modelName)
         {
             if (!_modelTypeMappingService.TryGetModelTypes(modelName, out var modelType, out var viewModelType))
@@ -43,37 +51,54 @@ namespace PortalPOC.Controllers
             return View(ViewNavigations.GenericTable, viewModelType);
         }
 
-
+        /// <summary>
+        /// Fetches data for the specified model name using the ApiService.
+        /// </summary>
+        /// <param name="modelName">The name of the model for which to fetch data.</param>
+        /// <returns>A JSON result containing the fetched data.</returns>
         [HttpPost]
         public async Task<IActionResult> GetData(string modelName)
         {
-            try
-            {
-                var parameters = _requestExtractor.ExtractParameters(Request.Form);
+            var result = await _apiService.GetGenericResponse<string>(EndPoints.AdminGetData(modelName), true);
 
-                var response = await _httpClient.GetAsync(EndPoints.AdminGetData(modelName));
-                return response.IsSuccessStatusCode
-                    ? Ok(await response.Content.ReadAsStringAsync())
-                    : StatusCode(500, new { success = false, message = "Internal Server Error" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = $"{ex.Message} Internal Server Error" });
-            }
+            return Ok(result);
         }
 
+        /// <summary>
+        /// Processes a creation request for the specified model data.
+        /// </summary>
+        /// <param name="formData">The form data to process.</param>
+        /// <returns>A JSON result indicating success or failure.</returns>
         [HttpPost]
-        public IActionResult Create([FromBody] Dictionary<string, object> formData) =>
-            ProcessData(EndPoints.AdminCreate, formData, "Item created successfully", "Error creating");
+        public async Task<IActionResult> Create([FromBody] Dictionary<string, object> formData) =>
+           await ProcessData(EndPoints.AdminCreate, formData, "Item created successfully", "Error creating");
 
+        /// <summary>
+        /// Processes an edit request for the specified model data.
+        /// </summary>
+        /// <param name="formData">The form data to process.</param>
+        /// <returns>A JSON result indicating success or failure.</returns>
         [HttpPost]
-        public IActionResult Edit([FromBody] Dictionary<string, object> formData) =>
-            ProcessData(EndPoints.AdminEdit, formData, "Item edited successfully", "Error editing");
+        public async Task<IActionResult> Edit([FromBody] Dictionary<string, object> formData) =>
+           await ProcessData(EndPoints.AdminEdit, formData, "Item edited successfully", "Error editing");
 
+        /// <summary>
+        /// Processes a deletion request for the specified model data.
+        /// </summary>
+        /// <param name="formData">The form data to process.</param>
+        /// <returns>A JSON result indicating success or failure.</returns>
         [HttpPost]
-        public IActionResult Delete([FromBody] Dictionary<string, object> formData) =>
-            ProcessData(EndPoints.AdminDelete, formData, "Item deleted successfully", "Error deleting");
+        public async Task<IActionResult> Delete([FromBody] Dictionary<string, object> formData) =>
+           await ProcessData(EndPoints.AdminDelete, formData, "Item deleted successfully", "Error deleting");
 
+
+        /// <summary>
+        /// Displays a popup for the specified operation type on the given model.
+        /// </summary>
+        /// <param name="modelName">The model name.</param>
+        /// <param name="opType">The operation type (e.g., Edit).</param>
+        /// <param name="data">Additional data to display in the popup.</param>
+        /// <returns>A PartialView result for displaying the popup.</returns>
         public async Task<IActionResult> ShowPopup(string modelName, string opType, Dictionary<string, string> data)
         {
             try
@@ -82,17 +107,7 @@ namespace PortalPOC.Controllers
                 {
                     return NotFound(Errors.NullModel);
                 }
-
-                var response = await _httpClient.GetAsync(EndPoints.GetdropDowns(modelName));
-
-                if (response.IsSuccessStatusCode)
-                {
-                    ViewBag.DropDowns = JsonConvert.DeserializeObject<Dictionary<string, List<dynamic>>>(await response.Content.ReadAsStringAsync());
-                }
-                else
-                {
-                    return StatusCode((int)response.StatusCode, new { success = false, message = "PopUp Error" });
-                }
+                ViewBag.DropDowns = await _apiService.GetGenericResponse<Dictionary<string, List<dynamic>>>(EndPoints.GetdropDowns(modelName));
 
                 if (!opType.IsNullOrEmpty() && opType.Contains(Operations.Edit))
                 {
@@ -110,7 +125,15 @@ namespace PortalPOC.Controllers
             }
         }
 
-        public IActionResult ProcessData(string apiUrl, Dictionary<string, object> formData, string successMessage, string errorMessage)
+        /// <summary>
+        /// Processes generic data operations (Create, Edit, Delete) based on the given apiUrl.
+        /// </summary>
+        /// <param name="apiUrl">The API endpoint to process the request.</param>
+        /// <param name="formData">The form data for the operation.</param>
+        /// <param name="successMessage">The success message to return if the operation is successful.</param>
+        /// <param name="errorMessage">The error message to return if the operation fails.</param>
+        /// <returns>A JSON result indicating success or failure of the operation.</returns>
+        public async Task<IActionResult> ProcessData(string apiUrl, Dictionary<string, object> formData, string successMessage, string errorMessage)
         {
             try
             {
@@ -118,14 +141,14 @@ namespace PortalPOC.Controllers
                     kvp => kvp.Key,
                     kvp => Utils.ConvertJsonElementValue((JsonElement)kvp.Value));
 
-                var jsonFormData = JsonConvert.SerializeObject(convertedFormData);
+                var response = await _apiService.PostGenericRequest<bool>(apiUrl, convertedFormData, true);
 
-                var content = new StringContent(jsonFormData, Encoding.UTF8, "application/json");
-                var response = _httpClient.PostAsync(apiUrl, content).Result;
 
-                return response.IsSuccessStatusCode
+
+                return response
                     ? Ok(new { success = true, message = successMessage })
-                    : StatusCode((int)response.StatusCode, new { success = false, message = errorMessage });
+                    : StatusCode(500, new { success = false, message = errorMessage });
+
             }
             catch (Exception ex)
             {
@@ -133,23 +156,23 @@ namespace PortalPOC.Controllers
             }
         }
 
+        /// <summary>
+        /// Loads tab data for the specified modelName and operation type.
+        /// </summary>
+        /// <param name="tabName">The name of the tab to load data for.</param>
+        /// <param name="modelName">The name of the model associated with the tab.</param>
+        /// <param name="Oid">The identifier of the item to load data for.</param>
+        /// <returns>A JSON result containing the loaded data.</returns>
         [HttpPost]
         public async Task<ActionResult> LoadTabData(string tabName, string modelName, string Oid)
         {
             try
             {
-                var response = await _httpClient.GetAsync(EndPoints.AdminGetCollection(tabName, modelName, Oid));
+                var response = await _apiService.GetGenericResponse<string>(EndPoints.AdminGetCollection(tabName, modelName, Oid), true);
 
-                if (response.IsSuccessStatusCode)
-                {
-                  
 
-                    return Ok(new { status = "success", data = await response.Content.ReadAsStringAsync() });
-                }
-                else
-                {
-                    return StatusCode(500, new { success = false, message = "Internal Server Error" });
-                }
+                return Ok(new { status = "success", data = response });
+
             }
             catch (Exception ex)
             {
@@ -157,8 +180,13 @@ namespace PortalPOC.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes selected rows based on the provided request.
+        /// </summary>
+        /// <param name="request">The request containing information about the rows to delete.</param>
+        /// <returns>A JSON result indicating success or failure of the operation.</returns>
         [HttpPost]
-        public ActionResult DeleteSelectedRows([FromBody] DeleteRowsRequest request)
+        public async Task<ActionResult> DeleteSelectedRows([FromBody] DeleteRowsRequest request)
         {
             try
             {
@@ -167,23 +195,8 @@ namespace PortalPOC.Controllers
                     return BadRequest("Invalid request parameters.");
                 }
 
-
-                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-
-
-                var response = _httpClient.PostAsync(EndPoints.AdminDeleteFromCollection, content).Result;
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var result = response.Content.ReadAsStringAsync().Result;
-                    var status = JsonConvert.DeserializeAnonymousType(result, new { status = "" });
-                    return Json(status);
-                }
-                else
-                {
-                    return BadRequest("Failed to delete rows.");
-                }
-
+                var response = await _apiService.PostGenericRequest<object>(EndPoints.AdminDeleteFromCollection, request);
+                return Json(response);
             }
             catch (Exception ex)
             {

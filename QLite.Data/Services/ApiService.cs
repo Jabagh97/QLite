@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Net.Http;
@@ -34,7 +35,7 @@ namespace QLite.Data.Services
                 return default;
             }
         }
-        public async Task<T> GetGenericResponse<T>(string endpoint)
+        public async Task<T> GetGenericResponse<T>(string endpoint, bool notDeserialized = false)
         {
             try
             {
@@ -43,6 +44,11 @@ namespace QLite.Data.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var responseData = await response.Content.ReadAsStringAsync();
+
+                    if(notDeserialized) 
+                    {
+                        return (T)(object)responseData;
+                    }
                     T deserializedData = JsonConvert.DeserializeObject<T>(responseData);
                     return deserializedData;
                 }
@@ -57,7 +63,7 @@ namespace QLite.Data.Services
             }
         }
 
-        public async Task<T> PostGenericRequest<T>(string endpoint, object data)
+        public async Task<T> PostGenericRequest<T>(string endpoint, object data, bool justStatusCode = false)
         {
             try
             {
@@ -67,6 +73,10 @@ namespace QLite.Data.Services
 
                 if (response.IsSuccessStatusCode)
                 {
+                    if (justStatusCode) 
+                    {
+                        return (T)(object)true;
+                    }
                     var responseData = await response.Content.ReadAsStringAsync();
                     var deserializedData = JsonConvert.DeserializeObject<T>(responseData);
                     return deserializedData;
@@ -81,7 +91,7 @@ namespace QLite.Data.Services
                 throw ex; // Rethrow the exception to be handled in the controller
             }
         }
-
+      
 
 
 
