@@ -58,7 +58,7 @@ public class Program
         Host.CreateDefaultBuilder(args)
            .UseWindowsService(options =>
            {
-               options.ServiceName = "QLiteAuth";
+               options.ServiceName = "QLiteAuthServer";
            })
             .ConfigureWebHostDefaults(webBuilder =>
             {

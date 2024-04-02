@@ -163,12 +163,12 @@ function generateTabButtons(tabName, modelName) {
     if (modelName !== 'KioskPkg' && !modelName.includes('KioskRequest')) {
         // Add the Delete button with a custom action
         buttons.unshift(
-            {
-                text: 'Add',
-                action: function (e, dt, node, config) {
-                    AddToSelectedRow(tabName, modelName);
-                }
-            },
+            //{
+            //    text: 'Add',
+            //    action: function (e, dt, node, config) {
+            //        AddToSelectedRow(tabName, modelName);
+            //    }
+            //},
             {
                 text: 'Delete',
                 action: function (e, dt, node, config) {

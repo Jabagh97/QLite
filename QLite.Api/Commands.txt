@@ -1,0 +1,4 @@
+﻿sc.exe create "QLiteAuthServer" binpath="  "
+sc.exe create "QLiteAdmin" binpath="  "
+sc.exe create "QLiteDeskApp" binpath="  "
+sc.exe create "QLiteAPI" binpath="  "

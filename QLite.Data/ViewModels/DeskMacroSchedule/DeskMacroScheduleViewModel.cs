@@ -25,34 +25,34 @@ namespace QLite.Data.ViewModels.DeskMacroSchedule
 
         public string Macro { get; set; }
 
-        [Boolean]
+        //[Boolean]
 
-        public bool HaftalikRutin { get; set; }
+        //public bool HaftalikRutin { get; set; }
 
         [Boolean]
 
         public bool Pasif { get; set; }
 
-        [Boolean]
+        //[Boolean]
 
-        public bool? D1 { get; set; }
-        [Boolean]
+        //public bool? D1 { get; set; }
+        //[Boolean]
 
-        public bool? D2 { get; set; }
-        [Boolean]
+        //public bool? D2 { get; set; }
+        //[Boolean]
 
-        public bool? D3 { get; set; }
-        [Boolean]
+        //public bool? D3 { get; set; }
+        //[Boolean]
 
-        public bool? D4 { get; set; }
-        [Boolean]
+        //public bool? D4 { get; set; }
+        //[Boolean]
 
-        public bool? D5 { get; set; }
-        [Boolean]
+        //public bool? D5 { get; set; }
+        //[Boolean]
 
-        public bool? D6 { get; set; }
-        [Boolean]
+        //public bool? D6 { get; set; }
+        //[Boolean]
 
-        public bool? D7 { get; set; }
+        //public bool? D7 { get; set; }
     }
 }

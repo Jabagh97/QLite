@@ -49,7 +49,7 @@ namespace KioskApp
             app.UseStaticFiles();
             app.UseRouting();
 
-            app.UseCors("cors_policy");
+            //app.UseCors("cors_policy");
 
             app.UseAuthentication();
             app.UseAuthorization();

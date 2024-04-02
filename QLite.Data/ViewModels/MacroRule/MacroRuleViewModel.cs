@@ -13,18 +13,18 @@ namespace QLite.Data.ViewModels.MacroRule
         public string? ServiceType { get; set; }
 
         public string? Segment { get; set; }
-        [Boolean]
+        //[Boolean]
 
-        public bool? Transfer { get; set; }
-        [Enum]
+        //public bool? Transfer { get; set; }
+        //[Enum]
 
-        public ToDesk ToThisDesk { get; set; }
+        //public ToDesk ToThisDesk { get; set; }
 
 
         [Required]
 
         public int? Sequence { get; set; }
 
-        public string? Description { get; set; }
+       // public string? Description { get; set; }
     }
 }

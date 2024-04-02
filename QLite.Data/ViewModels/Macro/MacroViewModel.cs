@@ -19,9 +19,9 @@ namespace QLite.Data.ViewModels.Macro
 
         public MacroType MacroType { get; set; }
 
-        [Enum]
+        //[Enum]
 
-        public ToDesk ToThisDesk { get; set; }
+        //public ToDesk ToThisDesk { get; set; }
 
         [NotForTable]
         public virtual ICollection<object> DeskMacroSchedules { get; } = new List<object>();

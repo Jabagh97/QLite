@@ -132,6 +132,8 @@ namespace QLiteDataApi
                 try
                 {
                     var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+                    dbContext.Database.Migrate();
+
                     var query = dbContext.Set<Country>().AsQueryable();
                     var firstRecord = query.FirstOrDefault();
                     var filteredData = query.Where("Gcrecord == 1").ToList();

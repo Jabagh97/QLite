@@ -12,7 +12,7 @@ namespace QLite.Data.Models.Auth
 
 
         public AccountType AccountType { get; set; }
-      
+
         public bool IsActive { get; set; } = true;
         public string TwoFactorSecret { get; set; }
         public bool TwoFactorConfirmed { get; set; } = false;
@@ -20,7 +20,7 @@ namespace QLite.Data.Models.Auth
 
         public Guid Desk { get; set; }
 
-
+        
       
     }
 
