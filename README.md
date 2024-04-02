@@ -1,54 +1,43 @@
 Queue Management System (QLite)
+QLite is an advanced Queue Management System designed to streamline and optimize the organization and handling of queues within local network environments. This comprehensive system ensures efficient management and coordination of tasks, providing a seamless operational experience. This repository houses all the necessary components that make up the QLite system, each meticulously designed to work in harmony.
 
-This system is designed to manage queues within a local network environment, providing efficient organization and handling of various tasks. Below, you'll find a detailed overview of the components included in this repository.
+🌟 Highlight: Dynamic Kiosk UI Designer in the Admin Portal
+The Admin Portal features an innovative Designer Tool that allows users to dynamically design and customize the UI of their kiosks. This powerful tool unlocks unparalleled flexibility, enabling administrators to tailor the user interface to meet specific needs and preferences, enhancing the overall user experience.
 
-Components
+Components Overview:
 1. ASP.NET Core API
-The core component of this system is the ASP.NET Core API. It serves as the communication hub for the various applications within the system. The API utilizes a local portable SQLite database to handle CRUD operations, ensuring data integrity and reliability. Additionally, it manages WebSocket SignalR communication between the applications, facilitating real-time updates and notifications.
+The backbone of QLite, this API facilitates communication across the system's applications. It leverages a local SQLite database for reliable CRUD operations and uses WebSocket SignalR for real-time updates and notifications.
 
-Technical Details:
-
-ASP.NET Core: Utilized for building the API.
-SQLite Database: Used as the local database for storing data.
-WebSocket SignalR: Employed for establishing real-time communication between applications.
-
+Technologies Used:
+ASP.NET Core: For API construction.
+SQLite Database: Local storage solution.
+WebSocket SignalR: Real-time communication.
 2. Authentication Server
-To ensure secure access to the system, an authentication server is implemented using OpenID and Identity Server. This server handles user authentication, login, logout, and user management functionalities. Similar to the API, it also utilizes a local SQLite database for storing user information securely.
+A secure authentication server employing OpenID and Identity Server for robust user management and security protocols, backed by a SQLite database for user data storage.
 
-Technical Details:
-
-OpenID: Used for authentication and authorization.
-Identity Server: Implemented for user management
-and authentication.
-SQLite Database: Employed to store user information securely.
-
-
+Technologies Used:
+OpenID & Identity Server: Authentication and user management.
+SQLite Database: Secure user information storage.
 3. ASP.NET MVC Kiosk App
-The Kiosk App provides an intuitive interface for users to interact with the system. Users can print tickets, select services, and perform other actions. This application communicates with the Desk App via WebSocket SignalR to inform about newly created tickets, ensuring seamless coordination between different parts of the system.
+An intuitive user interface allowing interactions such as ticket printing and service selection, integrated with WebSocket SignalR for instant ticket update communications.
 
-Technical Details:
-
-ASP.NET MVC: Utilized to build the Kiosk App.
-WebSocket SignalR: Used for real-time communication with the Desk App.
+Technologies Used:
+ASP.NET MVC: Application framework.
+WebSocket SignalR: Syncs with the Desk App in real time.
 4. ASP.NET Desk App
-The Desk App serves as the interface for staff members to manage the queue efficiently. Staff can view waiting tickets, call, park, transfer tickets, leave notes, and perform other related actions. Each staff member is assigned a unique desk ID and number, which are determined by the admin during the setup process. Similar to other components, the Desk App communicates with other parts of the system via WebSocket SignalR.
+Designed for staff to manage the queue efficiently, featuring functionalities like ticket management and real-time updates via WebSocket SignalR.
 
-Technical Details:
-
-ASP.NET MVC: Utilized to build the Desk App.
-WebSocket SignalR: Used for real-time communication with other components.
-
+Technologies Used:
+ASP.NET MVC: Desk App development.
+WebSocket SignalR: Ensures seamless system-wide communication.
 5. ASP.NET MVC Admin Portal
-The Admin Portal provides administrators with a centralized interface to manage the entire system. Administrators can configure settings, define services, manage ticket pools, and perform other administrative tasks. This portal ensures easy administration and customization of the system.
+A central hub for system administration, offering tools for system configuration, service management, and access to the dynamic Kiosk UI Designer Tool.
 
-Technical Details:
-
-ASP.NET MVC: Utilized to build the Admin Portal.
-Setup
-To set up the Queue Management System, follow these steps:
-
-Clone this repository to your local machine.
-Set up and configure each component according to the provided documentation.
-Ensure that all dependencies are installed and configured properly.
-Run each application locally or deploy them to your desired environment.
-Verify the functionality of the system by interacting with the various applications.
+Technologies Used:
+ASP.NET MVC: Powers the Admin Portal.
+Setup Instructions:
+Clone this repository to your local environment.
+Follow the setup and configuration guidelines for each component as detailed in their respective documentation.
+Ensure all dependencies are properly installed and configured.
+Launch each application locally or deploy according to your operational needs.
+Test the system's functionality by interacting with the various components to ensure everything is running smoothly.
