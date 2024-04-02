@@ -28,7 +28,6 @@ namespace DeskApp.Controllers
         }
 
 
-
         public IActionResult Index()
         {
             return View("Views/Shared/layout/partials/_TicketContent.cshtml");
@@ -40,7 +39,6 @@ namespace DeskApp.Controllers
             return Ok(result);
 
         }
-
 
         [HttpGet]
         public async Task<IActionResult> EndTicket(Guid DeskID)
