@@ -127,7 +127,9 @@ namespace QLiteDataApi.Services
                                            {
                                                Oid = mr.Oid,
                                                NumberOfTickets = mr.NumberOfTickets,
-                                               Sequence = mr.Sequence
+                                               Sequence = mr.Sequence,
+                                               ServiceType = mr.ServiceType,
+                                               Segment = mr.Segment
                                            }).ToListAsync();
 
                 if (macroRules.Count == 0)
@@ -161,7 +163,7 @@ namespace QLiteDataApi.Services
 
                     var query = from t in _context.Tickets
                                 join ts in _context.TicketStates on t.Oid equals ts.Ticket
-                                where
+                                where (t.ServiceType == macroRule.ServiceType) && (t.Segment == macroRule.Segment)&&
                                       (t.Branch == branchId) &&
                                       (t.CurrentState == (int)TicketStateEnum.Waiting || t.CurrentState == (int)TicketStateEnum.Waiting_T) &&
                                       (t.Desk != deskId || t.Desk == null) &&
@@ -192,7 +194,7 @@ namespace QLiteDataApi.Services
                                     }
                                 };
 
-                    var result = await query.FirstOrDefaultAsync(); // Execute the query asynchronously
+                    var result = await query.FirstOrDefaultAsync(); 
 
                     if (result != null)
                     {
