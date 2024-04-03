@@ -1212,6 +1212,9 @@ namespace QLiteDataApi.Migrations
                     b.Property<DateTime?>("ModifiedDateUtc")
                         .HasColumnType("datetime");
 
+                    b.Property<int>("NumberOfTickets")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int?>("OptimisticLockField")
                         .HasColumnType("INTEGER");
 

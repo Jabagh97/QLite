@@ -1,8 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using IdentityServer4.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using QLite.Data;
 using QLite.Data.Dtos;
 using QLite.Data.Models;
 using QLiteDataApi.Context;
+using Serilog;
+using System.Net.Sockets;
 using static QLite.Data.Models.Enums;
 
 namespace QLiteDataApi.Services
@@ -10,14 +14,16 @@ namespace QLiteDataApi.Services
     /// <summary>
     /// Provides services related to desk operations, including managing tickets and desk statuses.
     /// </summary>
-    public class DeskService 
+    public class DeskService
     {
 
         private readonly ApplicationDbContext _context;
+        private readonly IMemoryCache _cache;
 
-        public DeskService(ApplicationDbContext context)
+        public DeskService(ApplicationDbContext context, IMemoryCache cache)
         {
             _context = context;
+            _cache = cache;
         }
 
         /// <summary>
@@ -103,65 +109,117 @@ namespace QLiteDataApi.Services
         /// <param name="branchId">The ID of the branch.</param>
         /// <param name="deskId">The ID of the desk.</param>
         /// <returns>The ticket to be called if found; otherwise, null.</returns>
+
         public async Task<Ticket> FindTicketByMacroAsync(Guid macroId, Guid? branchId, Guid deskId)
         {
             var currentTime = DateTime.Now;
             var oldestPossibleTicketTime = currentTime.AddHours(-8);
+            var macroRulesCacheKey = $"MacroRules_{macroId}";
+            List<MacroRuleDto> macroRules;
 
-            var query = from mr in _context.MacroRules
-                        join t in _context.Tickets on new { mr.ServiceType, mr.Segment } equals new { t.ServiceType, t.Segment } into tickets
-                        from ticket in tickets.DefaultIfEmpty()
-                        join ts in _context.TicketStates on ticket.Oid equals ts.Ticket
-                        where mr.Macro == macroId &&
-                              (ticket.Branch == branchId) &&
-                              (ticket.CurrentState == (int)TicketStateEnum.Waiting || ticket.CurrentState == (int)TicketStateEnum.Waiting_T) &&
-                              (ticket.Desk != deskId || ticket.Desk == null) &&
-                              (mr.Transfer != true || ticket.CurrentState == (int)TicketStateEnum.Waiting_T) &&
-                              (mr.ToThisDesk == (int)MeNotothersAll.AllTerminals ||
-                              (mr.ToThisDesk == (int)MeNotothersAll.OnlyForSelectedDesk && ticket.ToDesk == deskId) ||
-                              (mr.ToThisDesk == (int)MeNotothersAll.NotSpecified && (ticket.ToDesk == deskId || ticket.ToDesk == null))) &&
-                              ticket.CreatedDate >= oldestPossibleTicketTime &&
-                              mr.Gcrecord == null
-                        orderby mr.Sequence, ticket.LastOprTime
-                        select new
-                        {
-                            Ticket = new Ticket
-                            {
-                                Oid = ticket.Oid,
-                                CreatedBy = ticket.CreatedBy,
-                                ModifiedBy = ticket.ModifiedBy,
-                                CreatedDate = ticket.CreatedDate,
-                                CreatedDateUtc = ticket.CreatedDateUtc,
-                                ModifiedDate = ticket.ModifiedDate,
-                                ModifiedDateUtc = ticket.ModifiedDateUtc,
-                                CurrentDesk = ticket.Desk,
-                                CurrentState = (int)TicketStateEnum.Service,
-                                LastOpr = (int)TicketOprEnum.Call,
-                                TicketState = ts,
-                                Number = ticket.Number,
-                                Branch = ticket.Branch,
-                                Segment = ticket.Segment,
-                                SegmentName = ticket.SegmentName,
-                                ServiceType = ticket.ServiceType,
-                                ServiceTypeName = ticket.ServiceTypeName,
-                                TicketPool = ticket.TicketPool
-                            }
-                        };
-
-            var result = await query.FirstOrDefaultAsync(); // Execute the query asynchronously
-
-            if (result != null)
+            if (!_cache.TryGetValue(macroRulesCacheKey, out macroRules))
             {
-                // Map properties to Ticket entity
-                var mappedTicket = result.Ticket;
+                // Fetch and cache macro rules if not in cache
+                macroRules = await _context.MacroRules
+                                           .Where(mr => mr.Macro == macroId && mr.Gcrecord == null)
+                                           .OrderBy(mr => mr.Sequence)
+                                           .Select(mr => new MacroRuleDto
+                                           {
+                                               Oid = mr.Oid,
+                                               NumberOfTickets = mr.NumberOfTickets,
+                                               Sequence = mr.Sequence
+                                           }).ToListAsync();
 
-                return mappedTicket;
+                if (macroRules.Count == 0)
+                {
+                    Log.Error("No Macro Rule Found");
+                    return null;
+
+                }
+
+                _cache.Set(macroRulesCacheKey, macroRules, new MemoryCacheEntryOptions()
+                           .SetSize(1)
+                           .SetAbsoluteExpiration(TimeSpan.FromHours(1))); // Adjust expiration as needed
             }
 
-            // Handle case when no matching records found
+
+            foreach (var macroRule in macroRules)
+            {
+                var cacheKey = $"MacroCallCount_{deskId}_{macroRule.Oid}";
+
+                if (!_cache.TryGetValue(cacheKey, out int callCount))
+                {
+                    // Initialize call count in the cache if not present
+                    callCount = 0;
+                    _cache.Set(cacheKey, callCount, new MemoryCacheEntryOptions()
+                           .SetSize(1)
+                           .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
+                }
+
+                if (callCount < macroRule.NumberOfTickets)
+                {
+
+                    var query = from t in _context.Tickets
+                                join ts in _context.TicketStates on t.Oid equals ts.Ticket
+                                where
+                                      (t.Branch == branchId) &&
+                                      (t.CurrentState == (int)TicketStateEnum.Waiting || t.CurrentState == (int)TicketStateEnum.Waiting_T) &&
+                                      (t.Desk != deskId || t.Desk == null) &&
+                                      t.CreatedDate >= oldestPossibleTicketTime
+                                orderby t.LastOprTime
+                                select new
+                                {
+                                    Ticket = new Ticket
+                                    {
+                                        Oid = t.Oid,
+                                        CreatedBy = t.CreatedBy,
+                                        ModifiedBy = t.ModifiedBy,
+                                        CreatedDate = t.CreatedDate,
+                                        CreatedDateUtc = t.CreatedDateUtc,
+                                        ModifiedDate = t.ModifiedDate,
+                                        ModifiedDateUtc = t.ModifiedDateUtc,
+                                        CurrentDesk = t.Desk,
+                                        CurrentState = (int)TicketStateEnum.Service,
+                                        LastOpr = (int)TicketOprEnum.Call,
+                                        TicketState = ts,
+                                        Number = t.Number,
+                                        Branch = t.Branch,
+                                        Segment = t.Segment,
+                                        SegmentName = t.SegmentName,
+                                        ServiceType = t.ServiceType,
+                                        ServiceTypeName = t.ServiceTypeName,
+                                        TicketPool = t.TicketPool
+                                    }
+                                };
+
+                    var result = await query.FirstOrDefaultAsync(); // Execute the query asynchronously
+
+                    if (result != null)
+                    {
+                        var mappedTicket = result.Ticket;
+                        // Increment call count and update the cache
+                        callCount++;
+                        _cache.Set(cacheKey, callCount, new MemoryCacheEntryOptions()
+                             .SetSize(1)
+                             .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
+
+
+
+                        return mappedTicket;
+                    }
+                }
+                else
+                {
+                    _cache.Set(cacheKey, 0, new MemoryCacheEntryOptions()
+                         .SetSize(1)
+                         .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
+                }
+
+            }
+
+            // If no ticket is found after checking all macro rules
             return null;
         }
-
 
         /// <summary>
         /// Calls a ticket for service at a desk. Ends the current service if any and updates the ticket and desk states.
@@ -274,7 +332,7 @@ namespace QLiteDataApi.Services
                     currentTicket.ModifiedDate = DateTime.Now;
                     currentTicket.ModifiedDateUtc = DateTime.UtcNow;
                     currentTicket.Desk = DeskID;
-                    
+
 
                     // Update the Ticket entity
                     _context.Tickets.Update(currentTicket);
@@ -311,7 +369,7 @@ namespace QLiteDataApi.Services
 
 
                 };
-                final =fin;
+                final = fin;
                 _context.TicketStates.Add(fin);
 
             }
@@ -636,7 +694,7 @@ namespace QLiteDataApi.Services
                 .Where(dts => dts.Gcrecord == null && dts.Desk == DeskID)
                 .Select(dts => new DeskTransferableService
                 {
-                  
+
                     ServiceType = dts.ServiceType,
                     ServiceTypeNavigation = new ServiceType
                     {
@@ -659,7 +717,7 @@ namespace QLiteDataApi.Services
                 .Where(dts => dts.Gcrecord == null && dts.Desk == DeskID)
                 .Select(dts => new DeskCreatableService
                 {
-                   
+
                     ServiceType = dts.ServiceType,
                     ServiceTypeNavigation = new ServiceType
                     {
@@ -688,10 +746,10 @@ namespace QLiteDataApi.Services
         /// Retrieves a list of all service types.
         /// </summary>
         /// <returns>A list of service types.</returns>
-        public async Task<List<ServiceType>> GetServiceList( )
+        public async Task<List<ServiceType>> GetServiceList()
         {
 
-            var services = await  _context.ServiceTypes.Where(s=> s.Gcrecord == null).ToListAsync();
+            var services = await _context.ServiceTypes.Where(s => s.Gcrecord == null).ToListAsync();
 
             return services;
         }
@@ -700,7 +758,7 @@ namespace QLiteDataApi.Services
         /// Retrieves a list of all segments.
         /// </summary>
         /// <returns>A list of segments.</returns>
-        public async Task<List<Segment>> GetSegmentList( )
+        public async Task<List<Segment>> GetSegmentList()
         {
 
             var segments = await _context.Segments.Where(s => s.Gcrecord == null).ToListAsync();
@@ -714,7 +772,7 @@ namespace QLiteDataApi.Services
         /// <param name="DeskID">The ID of the desk.</param>
         /// <param name="Status">The new activity status for the desk.</param>
         /// <returns>The display number of the desk if successful; otherwise, null.</returns>
-        public async Task<string> SetBusyStatus(Guid DeskID,DeskActivityStatus Status)
+        public async Task<string> SetBusyStatus(Guid DeskID, DeskActivityStatus Status)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -733,7 +791,7 @@ namespace QLiteDataApi.Services
                 var deskStatus = new DeskStatus
                 {
                     Oid = Guid.NewGuid(),
-                   // User = user,
+                    // User = user,
                     Desk = DeskID,
                     DeskActivityStatus = (int)Status,
                     StateStartTime = currentTime
@@ -751,7 +809,7 @@ namespace QLiteDataApi.Services
                 var desk = await _context.Desks.SingleAsync(d => d.Oid == DeskID);
 
                 desk.ActivityStatus = (int)Status;
-                desk.LastStateTime= currentTime;
+                desk.LastStateTime = currentTime;
 
                 _context.Update(desk);
 
@@ -773,7 +831,7 @@ namespace QLiteDataApi.Services
 
                 return null;
             }
-           
+
 
         }
 
@@ -810,12 +868,12 @@ namespace QLiteDataApi.Services
             {
                 // Return the TicketStates collection of the found ticket
                 var ticketStates = ticket.TicketStates
-                                        .Select(ts => new 
+                                        .Select(ts => new
                                         {
-                                            Desk = ts.DeskNavigation != null ? ts.DeskNavigation.Name : null, 
+                                            Desk = ts.DeskNavigation != null ? ts.DeskNavigation.Name : null,
                                             CallType = ts.TicketCallType.ToString(),
-                                            StartTime = ts.StartTime.ToString(), 
-                                            EndTime = ts.EndTime.ToString(), 
+                                            StartTime = ts.StartTime.ToString(),
+                                            EndTime = ts.EndTime.ToString(),
 
                                             Note = ts.Note,
                                         })

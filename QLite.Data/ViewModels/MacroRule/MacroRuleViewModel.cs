@@ -25,6 +25,10 @@ namespace QLite.Data.ViewModels.MacroRule
 
         public int? Sequence { get; set; }
 
-       // public string? Description { get; set; }
+        [Required]
+
+        public int? NumberOfTickets { get; set; }
+
+        // public string? Description { get; set; }
     }
 }

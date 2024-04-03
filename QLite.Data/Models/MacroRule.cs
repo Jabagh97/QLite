@@ -39,6 +39,9 @@ public partial class MacroRule
 
     public int? Sequence { get; set; }
 
+    public int NumberOfTickets { get; set; }
+
+
     public string? Description { get; set; }
 
     public int? OptimisticLockField { get; set; }
