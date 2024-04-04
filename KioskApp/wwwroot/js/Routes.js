@@ -113,6 +113,30 @@ function RefreshDisplay(justRefresh) {
 }
 
 
+function getTicketView(data) {
+    $.ajax({
+        url: 'GetTicketView',
+        type: 'POST',
+        data: data,
+        contentType: 'application/json; charset=utf-8',
+
+        success: function (response) {
+            console.log("Ticket");
+            $('#content').html(response);
+        },
+        error: function (error) {
+            console.error('Error: Ticket Pool MAx');
+            Swal.fire({
+                icon: 'error',
+                title: 'Ticket Pool Maximum Limit Exceeded.',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+    });
+}
+
+
 
 async function getHttpReq(url, data) {
     let temp;
@@ -129,7 +153,6 @@ async function getHttpReq(url, data) {
             return temp;
         },
         error: async function (ex) {
-
         }
     });
     return temp;

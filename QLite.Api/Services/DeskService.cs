@@ -1,6 +1,7 @@
 ﻿using IdentityServer4.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.IdentityModel.Tokens;
 using QLite.Data;
 using QLite.Data.Dtos;
 using QLite.Data.Models;
@@ -119,7 +120,6 @@ namespace QLiteDataApi.Services
 
             if (!_cache.TryGetValue(macroRulesCacheKey, out macroRules))
             {
-                // Fetch and cache macro rules if not in cache
                 macroRules = await _context.MacroRules
                                            .Where(mr => mr.Macro == macroId && mr.Gcrecord == null)
                                            .OrderBy(mr => mr.Sequence)
@@ -136,91 +136,102 @@ namespace QLiteDataApi.Services
                 {
                     Log.Error("No Macro Rule Found");
                     return null;
-
                 }
 
                 _cache.Set(macroRulesCacheKey, macroRules, new MemoryCacheEntryOptions()
-                           .SetSize(1)
-                           .SetAbsoluteExpiration(TimeSpan.FromHours(1))); // Adjust expiration as needed
+                            .SetSize(1)
+                            .SetAbsoluteExpiration(TimeSpan.FromHours(1)));
             }
 
-
-            foreach (var macroRule in macroRules)
+            for (int i = 0; i < macroRules.Count; i++)
             {
-                var cacheKey = $"MacroCallCount_{deskId}_{macroRule.Oid}";
-
+                var macroRule = macroRules[i];
+                var cacheKey = $"MacroCallCount_{macroRule.Oid}";
                 if (!_cache.TryGetValue(cacheKey, out int callCount))
                 {
-                    // Initialize call count in the cache if not present
-                    callCount = 0;
-                    _cache.Set(cacheKey, callCount, new MemoryCacheEntryOptions()
-                           .SetSize(1)
-                           .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
+                    callCount = 0; // Initialize if not present
                 }
 
                 if (callCount < macroRule.NumberOfTickets)
                 {
-
-                    var query = from t in _context.Tickets
-                                join ts in _context.TicketStates on t.Oid equals ts.Ticket
-                                where (t.ServiceType == macroRule.ServiceType) && (t.Segment == macroRule.Segment)&&
-                                      (t.Branch == branchId) &&
-                                      (t.CurrentState == (int)TicketStateEnum.Waiting || t.CurrentState == (int)TicketStateEnum.Waiting_T) &&
-                                      (t.Desk != deskId || t.Desk == null) &&
-                                      t.CreatedDate >= oldestPossibleTicketTime
-                                orderby t.LastOprTime
-                                select new
-                                {
-                                    Ticket = new Ticket
-                                    {
-                                        Oid = t.Oid,
-                                        CreatedBy = t.CreatedBy,
-                                        ModifiedBy = t.ModifiedBy,
-                                        CreatedDate = t.CreatedDate,
-                                        CreatedDateUtc = t.CreatedDateUtc,
-                                        ModifiedDate = t.ModifiedDate,
-                                        ModifiedDateUtc = t.ModifiedDateUtc,
-                                        CurrentDesk = t.Desk,
-                                        CurrentState = (int)TicketStateEnum.Service,
-                                        LastOpr = (int)TicketOprEnum.Call,
-                                        TicketState = ts,
-                                        Number = t.Number,
-                                        Branch = t.Branch,
-                                        Segment = t.Segment,
-                                        SegmentName = t.SegmentName,
-                                        ServiceType = t.ServiceType,
-                                        ServiceTypeName = t.ServiceTypeName,
-                                        TicketPool = t.TicketPool
-                                    }
-                                };
-
-                    var result = await query.FirstOrDefaultAsync(); 
-
+                    var result = await FindTicketForRuleAsync(macroRule, branchId, deskId, oldestPossibleTicketTime);
                     if (result != null)
                     {
-                        var mappedTicket = result.Ticket;
-                        // Increment call count and update the cache
-                        callCount++;
-                        _cache.Set(cacheKey, callCount, new MemoryCacheEntryOptions()
-                             .SetSize(1)
-                             .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
+                        callCount++; // Increment call count
 
+                        // Check if callCount reaches or exceeds NumberOfTickets
+                        if (callCount >= macroRule.NumberOfTickets)
+                        {
+                            // Reset callCount for the current rule
+                            _cache.Set(cacheKey, 0, new MemoryCacheEntryOptions()
+                                        .SetSize(1)
+                                        .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
 
+                            // If there's a previous rule, reset its callCount too
+                            if (i > 0)
+                            {
+                                var prevMacroRule = macroRules[i - 1];
+                                var prevCacheKey = $"MacroCallCount_{prevMacroRule.Oid}";
+                                _cache.Set(prevCacheKey, 0, new MemoryCacheEntryOptions()
+                                            .SetSize(1)
+                                            .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
+                            }
+                        }
+                        else
+                        {
+                            // Update the call count for the current rule without resetting
+                            _cache.Set(cacheKey, callCount, new MemoryCacheEntryOptions()
+                                        .SetSize(1)
+                                        .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
+                        }
 
-                        return mappedTicket;
+                        return result; // Return the found ticket
                     }
                 }
-                else
-                {
-                    _cache.Set(cacheKey, 0, new MemoryCacheEntryOptions()
-                         .SetSize(1)
-                         .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
-                }
-
             }
 
-            // If no ticket is found after checking all macro rules
-            return null;
+            return null; // If no ticket is found after checking all rules
+        }
+
+
+        private async Task<Ticket> FindTicketForRuleAsync(MacroRuleDto macroRule, Guid? branchId, Guid deskId, DateTime oldestPossibleTicketTime)
+        {
+            // Consolidate the query logic here to fetch the first ticket that matches the macro rule
+            var query = from t in _context.Tickets
+                        join ts in _context.TicketStates on t.Oid equals ts.Ticket
+                        where (t.ServiceType == macroRule.ServiceType) && (t.Segment == macroRule.Segment) &&
+                              (t.Branch == branchId) &&
+                              (t.CurrentState == (int)TicketStateEnum.Waiting || t.CurrentState == (int)TicketStateEnum.Waiting_T) &&
+                              (t.Desk != deskId || t.Desk == null) &&
+                              t.CreatedDate >= oldestPossibleTicketTime
+                        orderby t.LastOprTime
+                        select new
+                        {
+                            Ticket = new Ticket
+                            {
+                                Oid = t.Oid,
+                                CreatedBy = t.CreatedBy,
+                                ModifiedBy = t.ModifiedBy,
+                                CreatedDate = t.CreatedDate,
+                                CreatedDateUtc = t.CreatedDateUtc,
+                                ModifiedDate = t.ModifiedDate,
+                                ModifiedDateUtc = t.ModifiedDateUtc,
+                                CurrentDesk = t.Desk,
+                                CurrentState = (int)TicketStateEnum.Service,
+                                LastOpr = (int)TicketOprEnum.Call,
+                                TicketState = ts,
+                                Number = t.Number,
+                                Branch = t.Branch,
+                                Segment = t.Segment,
+                                SegmentName = t.SegmentName,
+                                ServiceType = t.ServiceType,
+                                ServiceTypeName = t.ServiceTypeName,
+                                TicketPool = t.TicketPool
+                            }
+                        };
+
+            var result = await query.FirstOrDefaultAsync();
+            return result?.Ticket;
         }
 
         /// <summary>

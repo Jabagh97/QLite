@@ -48,7 +48,8 @@ namespace QLiteAuthenticationServer.Controllers
                 var result = await _userManager.CreateAsync(user,user.PasswordHash);
                 if (!result.Succeeded)
                 {
-                    return BadRequest(result.Errors);
+                    var errors = result.Errors.Select(e => e.Description).ToList();
+                    return BadRequest(new { Errors = errors });
                 }
                 // Add additional claims to the user's identity
                 var claims = new Claim[] { new Claim("DeskId", user.Desk.ToString()), new Claim("AccountType",user.AccountType.ToString()) };

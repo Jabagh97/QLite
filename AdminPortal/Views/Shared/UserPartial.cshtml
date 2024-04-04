@@ -60,10 +60,14 @@
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PasswordHash">Password</label><span style="color:red;">*</span>
-                        <input asp-for="PasswordHash" class="form-control" required />
+                        <label for="PasswordHash">Password</label><span style="color:red;">*</span>
+                        <input asp-for="PasswordHash" class="form-control" id="PasswordHash" required />
+                        <small class="form-text text-muted">
+                            Password must be at least 8 characters long and include uppercase and lowercase letters, a number, and a special character.
+                        </small>
                         <span asp-validation-for="PasswordHash" class="text-danger"></span>
                     </div>
+
                     <div class="form-group">
                         <label asp-for="AccountType">Account Type</label><span style="color:red;">*</span>
                         <select asp-for="AccountType" class="form-control" id="accountType" required>
@@ -257,9 +261,28 @@
                         $('#createUserModal').modal('hide'); // Close modal
                         $('#userTable').DataTable().ajax.reload(); // Reload DataTable
                     },
-                    error: function (error) {
-                        alert('Error creating user: ' + error.responseText);
+                    error: function (xhr) {
+                        var response = JSON.parse(xhr.responseText);
+                        var errorsHtml = "<ul>";
+                        if (response && response.errors) {
+                            // Construct an HTML list of error messages
+                            response.errors.forEach(function (error) {
+                                errorsHtml += "<li>" + error + "</li>";
+                            });
+                        } else {
+                            // Default message if no specific errors were provided
+                            errorsHtml += "<li>Error creating user. Please try again.</li>";
+                        }
+                        errorsHtml += "</ul>";
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops... Something went wrong!',
+                            html: "We encountered the following issues:<br>" + errorsHtml,
+                            confirmButtonText: 'Ok, I\'ll check'
+                        });
                     }
+
                 });
             });
 

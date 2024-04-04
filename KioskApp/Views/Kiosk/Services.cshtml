@@ -99,10 +99,10 @@ else
 <script src="~/js/resizeComponents.js"></script>
 
 <script>
-    async function svcTypeSelected(svcTypeId) {
+     function svcTypeSelected(svcTypeId) {
 
 
-        let ticket = await postHttpReq('GetTicketView', JSON.stringify({ "ServiceTypeId": svcTypeId }));
+        let ticket = getTicketView(JSON.stringify({ "ServiceTypeId": svcTypeId }));
 
         $('#content').html(ticket);
 

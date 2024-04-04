@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using QLite.Data;
 using QLite.Data.Models.Auth;
 
@@ -67,7 +68,19 @@ namespace AdminPortal.Controllers
 
                 // Include hashed password in the request body
                 var response = await httpClient.PostAsJsonAsync("Auth/Admin/CreateUser", user);
-                response.EnsureSuccessStatusCode();
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var errors = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(errorContent);
+                    if (errors != null && errors.ContainsKey("errors"))
+                    {
+                        return BadRequest(new { Errors = errors["errors"] });
+                    }
+                    else
+                    {
+                        return BadRequest(new { Errors = new List<string> { "An unknown error occurred." } });
+                    }
+                }
 
                 return RedirectToAction(nameof(GetUsers));
             }
