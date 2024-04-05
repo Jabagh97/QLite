@@ -194,8 +194,8 @@ namespace QLiteDataApi.Services
         private async Task<int> GenerateTicketNumberAsync(TicketPool ticketPool)
         {
             var lastTicketNumber = await _context.Tickets
-                .Where(t => t.ServiceType == ticketPool.ServiceType && t.Segment == ticketPool.Segment && t.TicketPool == ticketPool.Oid)
-                .OrderByDescending(t => t.Number)
+                .Where(t => t.ServiceType == ticketPool.ServiceType && t.Segment == ticketPool.Segment && t.TicketPool == ticketPool.Oid && t.Year == DateTime.Today.Year && t.DayOfYear == DateTime.Today.DayOfYear)
+                .OrderByDescending(t => t.CreatedDate)
                 .Select(t => t.Number)
                 .FirstOrDefaultAsync();
 
