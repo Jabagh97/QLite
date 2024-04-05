@@ -434,6 +434,8 @@ namespace QLiteDataApi.Services
                 t.LastOpr = (int)TicketOprEnum.Call;
                 t.LastOprTime = tm;
                 t.Desk = callTicketDto.DeskID;
+                t.Year = DateTime.Today.Year;
+                t.DayOfYear= DateTime.Today.DayOfYear;
                 _context.Tickets.Update(t);
 
                 TicketState currentState = t.TicketState;

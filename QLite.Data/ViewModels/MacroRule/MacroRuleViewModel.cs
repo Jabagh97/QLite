@@ -13,13 +13,6 @@ namespace QLite.Data.ViewModels.MacroRule
         public string? ServiceType { get; set; }
 
         public string? Segment { get; set; }
-        //[Boolean]
-
-        //public bool? Transfer { get; set; }
-        //[Enum]
-
-        //public ToDesk ToThisDesk { get; set; }
-
 
         [Required]
 
@@ -29,6 +22,5 @@ namespace QLite.Data.ViewModels.MacroRule
 
         public int? NumberOfTickets { get; set; }
 
-        // public string? Description { get; set; }
     }
 }
