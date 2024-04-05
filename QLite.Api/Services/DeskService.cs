@@ -104,49 +104,71 @@ namespace QLiteDataApi.Services
         }
 
         /// <summary>
-        /// Finds a ticket to be called based on a specific macro, branch, and desk.
+        /// Finds a ticket based on macro rules defined for a given macro. This method selects a ticketing strategy
+        /// (Proportional or Sequential) based on the macro type associated with the macroId.
         /// </summary>
-        /// <param name="macroId">The ID of the macro to be applied.</param>
-        /// <param name="branchId">The ID of the branch.</param>
-        /// <param name="deskId">The ID of the desk.</param>
-        /// <returns>The ticket to be called if found; otherwise, null.</returns>
+        /// <param name="macroId">The unique identifier of the macro whose rules are to be evaluated.</param>
+        /// <param name="branchId">Optional branch ID to further filter the tickets. Can be null.</param>
+        /// <param name="deskId">The desk ID used to exclude tickets that are already associated with this desk.</param>
+        /// <returns>A Task that, when awaited, returns a Ticket object that matches the macro rules. If no ticket is found, returns null.</returns>
+
 
         public async Task<Ticket> FindTicketByMacroAsync(Guid macroId, Guid? branchId, Guid deskId)
         {
             var currentTime = DateTime.Now;
             var oldestPossibleTicketTime = currentTime.AddHours(-8);
-            var macroRulesCacheKey = $"MacroRules_{macroId}";
-            List<MacroRuleDto> macroRules;
-
-            if (!_cache.TryGetValue(macroRulesCacheKey, out macroRules))
+            var macroTypeKey = $"Macro_{macroId}";
+            if (!_cache.TryGetValue(macroTypeKey, out int? macroType))
             {
-                macroRules = await _context.MacroRules
-                                           .Where(mr => mr.Macro == macroId && mr.Gcrecord == null)
-                                           .OrderBy(mr => mr.Sequence)
-                                           .Select(mr => new MacroRuleDto
-                                           {
-                                               Oid = mr.Oid,
-                                               NumberOfTickets = mr.NumberOfTickets,
-                                               Sequence = mr.Sequence,
-                                               ServiceType = mr.ServiceType,
-                                               Segment = mr.Segment
-                                           }).ToListAsync();
+                macroType = await _context.Macros
+                                .Where(m => m.Gcrecord == null)
+                                .Select(m => m.MacroType)
+                                .FirstOrDefaultAsync();
 
-                if (macroRules.Count == 0)
-                {
-                    Log.Error("No Macro Rule Found");
-                    return null;
-                }
-
-                _cache.Set(macroRulesCacheKey, macroRules, new MemoryCacheEntryOptions()
-                            .SetSize(1)
-                            .SetAbsoluteExpiration(TimeSpan.FromHours(1)));
+                _cache.Set(macroTypeKey, macroType, new MemoryCacheEntryOptions()
+                  .SetSize(1)
+                  .SetAbsoluteExpiration(TimeSpan.FromMinutes(1)));
             }
+
+
+            if (macroType.HasValue)
+            {
+                switch (macroType.Value)
+                {
+                    case (int)MacroType.Proportional:
+                        return await ProccessProportional(macroId, branchId, deskId, oldestPossibleTicketTime);
+                    case (int)MacroType.Sequential:
+                        return await ProcessSequential(macroId, branchId, deskId);
+                    default:
+                        return null;
+                }
+            }
+
+            return null; // If no ticket is found or macroType is null
+        }
+
+        /// <summary>
+        /// Processes tickets based on a proportional strategy defined by macro rules. It attempts to find a ticket
+        /// that matches any of the macro rules associated with the provided macroId. Each rule is checked in order,
+        /// and the first matching ticket is selected.
+        /// </summary>
+        /// <param name="macroId">The unique identifier of the macro whose rules are to be applied.</param>
+        /// <param name="branchId">Optional branch ID to further filter the tickets. Can be null.</param>
+        /// <param name="deskId">The desk ID used to exclude tickets already associated with this desk.</param>
+        /// <param name="oldestPossibleTicketTime">The oldest possible time a ticket can have been created and still be considered for selection.</param>
+        /// <returns>A Task that, when awaited, returns the first Ticket object matching the rules, or null if no matching ticket is found.</returns>
+        private async Task<Ticket> ProccessProportional(Guid macroId, Guid? branchId, Guid deskId, DateTime oldestPossibleTicketTime)
+        {
+            var macroRulesCacheKey = $"MacroRules_{macroId}";
+
+
+            List<MacroRuleDto> macroRules = await GetMacroRulesAsync(macroId, macroRulesCacheKey);
 
             for (int i = 0; i < macroRules.Count; i++)
             {
                 var macroRule = macroRules[i];
                 var cacheKey = $"MacroCallCount_{macroRule.Oid}";
+
                 if (!_cache.TryGetValue(cacheKey, out int callCount))
                 {
                     callCount = 0; // Initialize if not present
@@ -157,42 +179,121 @@ namespace QLiteDataApi.Services
                     var result = await FindTicketForRuleAsync(macroRule, branchId, deskId, oldestPossibleTicketTime);
                     if (result != null)
                     {
-                        callCount++; // Increment call count
+                        callCount++;
+                        _cache.Set(cacheKey, callCount, new MemoryCacheEntryOptions()
+                          .SetSize(1)
+                          .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
 
-                        // Check if callCount reaches or exceeds NumberOfTickets
                         if (callCount >= macroRule.NumberOfTickets)
                         {
-                            // Reset callCount for the current rule
-                            _cache.Set(cacheKey, 0, new MemoryCacheEntryOptions()
-                                        .SetSize(1)
-                                        .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
-
-                            // If there's a previous rule, reset its callCount too
-                            if (i > 0)
-                            {
-                                var prevMacroRule = macroRules[i - 1];
-                                var prevCacheKey = $"MacroCallCount_{prevMacroRule.Oid}";
-                                _cache.Set(prevCacheKey, 0, new MemoryCacheEntryOptions()
-                                            .SetSize(1)
-                                            .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
-                            }
+                            macroRules[i].Reset = true;
+                            _cache.Set(macroRulesCacheKey, macroRules, new MemoryCacheEntryOptions()
+                                    .SetSize(1)
+                                    .SetAbsoluteExpiration(TimeSpan.FromHours(1)));
                         }
-                        else
-                        {
-                            // Update the call count for the current rule without resetting
-                            _cache.Set(cacheKey, callCount, new MemoryCacheEntryOptions()
-                                        .SetSize(1)
-                                        .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
-                        }
-
                         return result; // Return the found ticket
                     }
                 }
             }
 
-            return null; // If no ticket is found after checking all rules
+            // Reset call counts only after completing a full loop (round) without finding tickets
+
+            for (int i = 0; i < macroRules.Count; i++)
+            {
+                var macroRule = macroRules[i];
+
+                var cacheKey = $"MacroCallCount_{macroRule.Oid}";
+
+                if (macroRule.Reset)
+                {
+                    var callCount = 0;
+
+                    macroRules[i].Reset = false;
+                    _cache.Set(macroRulesCacheKey, macroRules, new MemoryCacheEntryOptions()
+                                   .SetSize(1)
+                                   .SetAbsoluteExpiration(TimeSpan.FromHours(1)));
+
+
+                    var result = await FindTicketForRuleAsync(macroRule, branchId, deskId, oldestPossibleTicketTime);
+                    if (result != null)
+                    {
+                        callCount++; // Increment call count
+                        _cache.Set(cacheKey, callCount, new MemoryCacheEntryOptions()
+                          .SetSize(1)
+                          .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
+
+                        if (callCount >= macroRule.NumberOfTickets)
+                        {
+                            macroRules[i].Reset = true;
+                            _cache.Set(macroRulesCacheKey, macroRules, new MemoryCacheEntryOptions()
+                                    .SetSize(1)
+                                    .SetAbsoluteExpiration(TimeSpan.FromHours(1)));
+                        }
+                        return result; // Return the found ticket
+                    }
+                    else
+                    {
+                        _cache.Set(cacheKey, 0, new MemoryCacheEntryOptions()
+                                                 .SetSize(1)
+                                                 .SetAbsoluteExpiration(TimeSpan.FromHours(8)));
+                    }
+                }
+
+            }
+
+            return null;
         }
 
+
+        /// <summary>
+        /// Retrieves a list of macro rules for a given macroId from the cache. If the rules are not present in the cache,
+        /// it fetches them from the database, orders them by sequence, and caches the result.
+        /// </summary>
+        /// <param name="macroId">The unique identifier of the macro for which rules are to be retrieved.</param>
+        /// <param name="macroRulesCacheKey">The cache key used to store and retrieve the macro rules.</param>
+        /// <returns>A Task that, when awaited, returns a list of MacroRuleDto objects. Returns null if no rules are found.</returns>
+
+        private async Task<List<MacroRuleDto>> GetMacroRulesAsync(Guid macroId, string macroRulesCacheKey)
+        {
+            if (!_cache.TryGetValue(macroRulesCacheKey, out List<MacroRuleDto> macroRules))
+            {
+                macroRules = await _context.MacroRules
+                    .Where(mr => mr.Macro == macroId && mr.Gcrecord == null)
+                    .OrderBy(mr => mr.Sequence)
+                    .Select(mr => new MacroRuleDto
+                    {
+                        Oid = mr.Oid,
+                        NumberOfTickets = mr.NumberOfTickets,
+                        Sequence = mr.Sequence,
+                        ServiceType = mr.ServiceType,
+                        Segment = mr.Segment
+                    }).ToListAsync();
+
+                if (macroRules.Count == 0)
+                {
+                    Log.Error("No Macro Rule Found");
+                    return null;
+                }
+
+                _cache.Set(macroRulesCacheKey, macroRules, new MemoryCacheEntryOptions()
+                  .SetSize(1)
+                  .SetAbsoluteExpiration(TimeSpan.FromHours(1)));
+            }
+            return macroRules;
+
+        }
+
+
+        /// <summary>
+        /// Attempts to find a single ticket that matches a specific macro rule. The method considers various conditions
+        /// like service type, segment, branch, and ticket state to filter tickets. It also ensures that the ticket has not been
+        /// processed for the specified desk and was created within a permissible time frame.
+        /// </summary>
+        /// <param name="macroRule">The macro rule to match tickets against.</param>
+        /// <param name="branchId">Optional branch ID to further filter the tickets. Can be null.</param>
+        /// <param name="deskId">The desk ID used to exclude tickets already associated with this desk.</param>
+        /// <param name="oldestPossibleTicketTime">The oldest possible time a ticket can have been created and still be considered.</param>
+        /// <returns>A Task that, when awaited, returns a Ticket object matching the rule, or null if no match is found.</returns>
 
         private async Task<Ticket> FindTicketForRuleAsync(MacroRuleDto macroRule, Guid? branchId, Guid deskId, DateTime oldestPossibleTicketTime)
         {
@@ -232,6 +333,72 @@ namespace QLiteDataApi.Services
 
             var result = await query.FirstOrDefaultAsync();
             return result?.Ticket;
+        }
+
+
+        /// <summary>
+        /// Processes tickets based on a sequential strategy defined by macro rules. This method sequentially goes through each macro rule
+        /// associated with the macroId and attempts to find a matching ticket that adheres to the rule's conditions, including service type,
+        /// segment, and time constraints.
+        /// </summary>
+        /// <param name="macroId">The unique identifier of the macro whose rules are to be applied.</param>
+        /// <param name="branchId">Optional branch ID to further filter the tickets. Can be null.</param>
+        /// <param name="deskId">The desk ID used to exclude tickets already associated with this desk.</param>
+        /// <returns>A Task that, when awaited, returns a Ticket object if a matching ticket is found, or null otherwise.</returns>
+        public async Task<Ticket> ProcessSequential(Guid macroId, Guid? branchId, Guid deskId)
+        {
+            var currentTime = DateTime.Now;
+            var oldestPossibleTicketTime = currentTime.AddHours(-8);
+
+            var query = from mr in _context.MacroRules
+                        join t in _context.Tickets on new { mr.ServiceType, mr.Segment } equals new { t.ServiceType, t.Segment } into tickets
+                        from ticket in tickets.DefaultIfEmpty()
+                        join ts in _context.TicketStates on ticket.Oid equals ts.Ticket
+                        where mr.Macro == macroId &&
+                              (ticket.Branch == branchId) &&
+                              (ticket.CurrentState == (int)TicketStateEnum.Waiting || ticket.CurrentState == (int)TicketStateEnum.Waiting_T) &&
+                              (ticket.Desk != deskId || ticket.Desk == null) &&
+                              (mr.Transfer != true || ticket.CurrentState == (int)TicketStateEnum.Waiting_T) &&
+                              ticket.CreatedDate >= oldestPossibleTicketTime &&
+                              mr.Gcrecord == null
+                        orderby mr.Sequence, ticket.LastOprTime
+                        select new
+                        {
+                            Ticket = new Ticket
+                            {
+                                Oid = ticket.Oid,
+                                CreatedBy = ticket.CreatedBy,
+                                ModifiedBy = ticket.ModifiedBy,
+                                CreatedDate = ticket.CreatedDate,
+                                CreatedDateUtc = ticket.CreatedDateUtc,
+                                ModifiedDate = ticket.ModifiedDate,
+                                ModifiedDateUtc = ticket.ModifiedDateUtc,
+                                CurrentDesk = ticket.Desk,
+                                CurrentState = (int)TicketStateEnum.Service,
+                                LastOpr = (int)TicketOprEnum.Call,
+                                TicketState = ts,
+                                Number = ticket.Number,
+                                Branch = ticket.Branch,
+                                Segment = ticket.Segment,
+                                SegmentName = ticket.SegmentName,
+                                ServiceType = ticket.ServiceType,
+                                ServiceTypeName = ticket.ServiceTypeName,
+                                TicketPool = ticket.TicketPool
+                            }
+                        };
+
+            var result = await query.FirstOrDefaultAsync(); // Execute the query asynchronously
+
+            if (result != null)
+            {
+                // Map properties to Ticket entity
+                var mappedTicket = result.Ticket;
+
+                return mappedTicket;
+            }
+
+            // Handle case when no matching records found
+            return null;
         }
 
         /// <summary>

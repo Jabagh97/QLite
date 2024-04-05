@@ -15,5 +15,7 @@ namespace QLite.Data.Dtos
         public Guid? ServiceType { get; set; }
 
         public Guid? Segment { get; set; }
+
+        public bool Reset { get; set; }
     }
 }

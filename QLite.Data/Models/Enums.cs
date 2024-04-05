@@ -128,9 +128,12 @@ namespace QLite.Data.Models
 
         public enum MacroType
         {
-            [Description("Sequential/Proportional")]
+            [Description("Sequential")]
 
             Sequential = 0,
+            [Description("Proportional")]
+
+            Proportional = 1,
             //TestColor = 1,
             //WaitingTime = 1, //waitingTime iptal sequence la yapılabiliyormuş. enum dursun oransal falan yaparız sonra.
         }
