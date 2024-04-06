@@ -6,6 +6,7 @@ using QLite.Data.Dtos;
 using QLiteDataApi.Context;
 using QLiteDataApi.Services;
 using QLiteDataApi.SignalR;
+using Serilog;
 using System.ComponentModel.DataAnnotations;
 using static QLite.Data.Models.Enums;
 
@@ -103,26 +104,42 @@ namespace QLiteDataApi.Controllers
         [HttpGet("CallTicket")]
         public async Task<IActionResult> CallTicketAsync([FromQuery] Guid ticketID, [FromQuery] Guid deskID, [FromQuery] Guid? user, [FromQuery] Guid macroID)
         {
+            if (deskID == Guid.Empty)
+            {
+                Log.Error("no Desk ID provided");
+                return BadRequest("no Desk ID provided");
+            }
+
             CallTicketDto callTicketDto = new CallTicketDto
             {
                 TicketID = ticketID,
                 DeskID = deskID,
-                User = user ?? Guid.Empty, // Assuming 'User' is a property of CallTicketDto
+                User = user ?? Guid.Empty,
                 MacroID = macroID
             };
             var ticketState = await _deskService.CallTicketAsync(callTicketDto);
 
             string serializedTicketState = JsonConvert.SerializeObject(ticketState);
-            string kioskId = ApiContext.Config.GetValue<string>("DisplayID");
+            string KioskWithUsbDisplay = ApiContext.Config.GetValue<string>("KioskWithUsbDisplay");
+            if (ticketState == null)
+            {
+                await _communicationHubContext.Clients.Group(deskID.ToString()).SendAsync("NotifyTicketState", serializedTicketState);
 
+            }
+            else
+            {
+                string DisplayHwId = await _deskService.GetDisplayHwId(deskID);
 
-            await Task.WhenAll(
-                _communicationHubContext.Clients.Group("ALL_").SendAsync("NotifyTicketState", serializedTicketState),
-                _communicationHubContext.Clients.Group("Display_" + kioskId).SendAsync("NotifyTicketState"),
-                //_communicationHubContext.Clients.Group("Display_" + DeskDisplayID).SendAsync("NotifyDisplayKiosk")Display_jabaghdisplay
+                await Task.WhenAll(
 
-                _communicationHubContext.Clients.Group("Display_jabaghdisplay").SendAsync("NotifyDisplayKiosk")
-            );
+               _communicationHubContext.Clients.Group("ALL_").SendAsync("NotifyTicketState", serializedTicketState),
+               //To USB display Device
+               _communicationHubContext.Clients.Group("Display_" + KioskWithUsbDisplay.ToLower()).SendAsync("NotifyTicketState"),
+               //To Digital Signage Kiosk
+               _communicationHubContext.Clients.Group("Display_" + DisplayHwId.ToLower()).SendAsync("NotifyDisplayKiosk")
+                      );
+            }
+
 
             return Ok();
         }

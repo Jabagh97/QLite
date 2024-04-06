@@ -15,23 +15,25 @@
         <div id="content">
             @foreach (var comp in Model.DesPageData.Comps)
             {
-                @Html.Raw(RenderComponent(comp,Model.WaitingTickets))
+                @Html.Raw(RenderComponent(comp))
             }
 
+            @await Html.PartialAsync("DynamicContent")
+
         </div>
+
+
 
         @*Errors*@
 
         @await Html.PartialAsync("Error")
 
 
-
-
     </div>
 
 }
 @functions {
-    public string RenderComponent(DesCompData comp, List<TicketDto> waitingTickets)
+    public string RenderComponent(DesCompData comp)
     {
         switch (comp)
         {
@@ -40,10 +42,7 @@
                 return ViewHelper.RenderGenericHtmlComponent(htmlComp);
 
 
-            case DesCompDataText textComp:
-                return ViewHelper.RenderDisplayComponent(textComp, waitingTickets);
-
-
+   
 
             default:
                 return string.Empty; // Unknown component type

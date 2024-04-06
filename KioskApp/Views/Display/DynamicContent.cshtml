@@ -1,0 +1,47 @@
+﻿@using KioskApp.Helpers;
+@using QLite.Data.Dtos;
+@using QLite.Data;
+@using QLite.DesignComponents;
+@inject IConfiguration Configuration
+
+@model DisplayAndDesignModel
+
+@*If a Custom Design is available*@
+
+@if (Model != null && Model.DesPageData != null && Model.DesPageData.Comps != null)
+{
+
+    <div id="DynamicContent">
+
+        @foreach (var comp in Model.DesPageData.Comps)
+        {
+            @Html.Raw(RenderComponent(comp,Model.WaitingTickets))
+        }
+    </div>
+
+}
+@functions {
+    public string RenderComponent(DesCompData comp, List<TicketDto> waitingTickets)
+    {
+        switch (comp)
+        {
+
+
+
+            case DesCompDataText textComp:
+                return ViewHelper.RenderDisplayComponent(textComp, waitingTickets);
+
+
+
+            default:
+                return string.Empty; // Unknown component type
+        }
+    }
+}
+
+
+<script>
+    $(document).ready(function () {
+        resizeComponents();
+    });
+</script>

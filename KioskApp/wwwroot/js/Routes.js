@@ -104,7 +104,7 @@ function RefreshDisplay(justRefresh) {
         data: { justRefresh: justRefresh }, // Include the justRefresh parameter
         success: function (response) {
             console.log("Ticket displayed successfully");
-            $('#content').html(response);
+            $('#DynamicContent').html(response);
         },
         error: function (xhr, status, error) {
             console.error("Error displaying ticket:", xhr.responseText);

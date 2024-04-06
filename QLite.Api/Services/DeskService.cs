@@ -1,4 +1,5 @@
 ﻿using IdentityServer4.Services;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
@@ -7,6 +8,7 @@ using QLite.Data.Dtos;
 using QLite.Data.Models;
 using QLiteDataApi.Context;
 using Serilog;
+using System;
 using System.Net.Sockets;
 using static QLite.Data.Models.Enums;
 
@@ -77,9 +79,14 @@ namespace QLiteDataApi.Services
         /// <returns>A task that represents the asynchronous operation. The task result contains the ticket to be called.</returns>
         private async Task<Ticket> FindTicketToCallAsync(Guid? branchId, Guid macroId, Guid DeskId)
         {
+            if (macroId == Guid.Empty)
+                return null;
+
             Macro macro = new Macro();
             if (macroId != Guid.Empty)
                 macro = await _context.Macros.FirstAsync(m => m.Oid == macroId && m.Gcrecord == null);
+
+
             //TODO:if Macro is null find Macro or force desk user to choose macro before showing the view 
 
             Ticket t = new Ticket();
@@ -159,8 +166,8 @@ namespace QLiteDataApi.Services
         /// <returns>A Task that, when awaited, returns the first Ticket object matching the rules, or null if no matching ticket is found.</returns>
         private async Task<Ticket> ProccessProportional(Guid macroId, Guid? branchId, Guid deskId, DateTime oldestPossibleTicketTime)
         {
-            var macroRulesCacheKey = $"MacroRules_{macroId}";
 
+            var macroRulesCacheKey = $"MacroRules_{macroId}";
 
             List<MacroRuleDto> macroRules = await GetMacroRulesAsync(macroId, macroRulesCacheKey);
 
@@ -435,7 +442,7 @@ namespace QLiteDataApi.Services
                 t.LastOprTime = tm;
                 t.Desk = callTicketDto.DeskID;
                 t.Year = DateTime.Today.Year;
-                t.DayOfYear= DateTime.Today.DayOfYear;
+                t.DayOfYear = DateTime.Today.DayOfYear;
                 _context.Tickets.Update(t);
 
                 TicketState currentState = t.TicketState;
@@ -1074,6 +1081,25 @@ namespace QLiteDataApi.Services
             }
         }
 
+        public async Task<string> GetDisplayHwId(Guid deskID)
+        {
+            // Define a unique cache key based on the deskID
+            var cacheKey = $"DisplayHwId_{deskID}";
+
+            // Try to get the value from the cache
+            if (!_cache.TryGetValue(cacheKey, out string kioskHwId))
+            {
+                // Value not in cache, so get it from the database
+                var deskKiosk = await _context.Desks.Where(d => d.Oid == deskID).Select(d => d.Kiosk).FirstOrDefaultAsync();
+                kioskHwId = await _context.Kiosks.Where(k => k.Oid == deskKiosk).Select(k => k.HwId).FirstOrDefaultAsync();
+
+                _cache.Set(cacheKey, kioskHwId, new MemoryCacheEntryOptions()
+                .SetSize(1)
+                .SetAbsoluteExpiration(TimeSpan.FromHours(1)));
+            }
+
+            return kioskHwId;
+        }
 
     }
 }

@@ -43,7 +43,7 @@ namespace KioskApp.Controllers
                 if (justRefresh)
                 {
                     viewModel = await RefreshWaitingList();
-                    return PartialView("~/Views/Display/Index.cshtml", viewModel);
+                    return PartialView("~/Views/Display/DynamicContent.cshtml", viewModel);
                 }
                 viewModel = await InitHomepage();
                 return View(viewModel);
