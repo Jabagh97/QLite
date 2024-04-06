@@ -57704,5 +57704,5 @@ body {
     }
 
 [data-bs-theme=dark] body.app-default {
-    background-image: none
+    background-image: url(../images/bg9-dark.jpg)
 }
