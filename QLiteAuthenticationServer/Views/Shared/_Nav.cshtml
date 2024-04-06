@@ -1,0 +1,39 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
+<div class="nav-page" style="display:block !important; z-index: 5000; position: fixed; width: 100%;">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="height: 4rem !important;">
+
+        <a href="~/" class="navbar-brand">
+            <img style="margin: auto 1rem auto 2rem; height:2.2rem;" src="~/img/quavisMiniLogo.png" class="icon-banner">
+            <span style="color: rgba(255,255,255,.75); font-size: 1.10rem;">Quavis Auth Server</span>
+        </a>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="btn-group" style="margin: auto 2rem auto auto !important;">
+                <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="ki-outline ki-user fs-2" style="color: #767676 !important;"> </i> @User?.Identity?.Name
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="@Configuration["Clients:KioskAdmin:SiteDomain"]">Admin Portal</a></li>
+                    <div class="dropdown-divider"></div>
+                    <li><a class="dropdown-item" asp-controller="MyProfile" asp-action="ChangePassword">Change Password</a></li>
+                    <li><a class="dropdown-item" asp-controller="MyProfile" asp-action="ChangeEmail">Change Email</a></li>
+                    <div class="dropdown-divider"></div>
+                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">Logout</a></li>
+                </ul>
+            </div>
+        }
+        else
+        {
+            <a href="@Configuration["SiteDomain"]/Account/Login" style="margin: auto 2rem auto auto !important;">
+                <button type="button" class="btn btn-secondary">
+                     Login
+                </button>
+            </a>
+
+        
+        }
+
+    </nav>
+</div>

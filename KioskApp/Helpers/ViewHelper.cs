@@ -16,14 +16,16 @@ namespace KioskApp.Helpers
         {
             StringBuilder sb = new StringBuilder();
 
+
             sb.Append($"<div id=\"{comp.Id}\" ");
             sb.Append($"data-comp-id=\"{comp.Id}\" ");
             sb.Append($"data-PosX=\"{comp.PosX}\" ");
             sb.Append($"data-PosY=\"{comp.PosY}\" ");
             sb.Append($"data-Width=\"{comp.Width}\" ");
             sb.Append($"data-Height=\"{comp.Height}\" ");
-            sb.Append("style=\"position: absolute; ");
             sb.Append("class=\"resize-drag\" ");
+
+            sb.Append("style=\"position: absolute; ");
 
 
             if (!string.IsNullOrEmpty(comp.CustomCss))

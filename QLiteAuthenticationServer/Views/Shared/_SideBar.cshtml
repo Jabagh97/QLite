@@ -1,0 +1,67 @@
+
+
+<!--begin::App-->
+<div class="d-flex flex-column flex-root app-root" id="kt_app_root">
+    <!--begin::Page-->
+    <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
+        <!--begin::Wrapper-->
+        <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
+            <!--begin::Sidebar-->
+            <div id="kt_app_sidebar" class="app-sidebar flex-column mt-lg-4 ps-2 pe-2 ps-lg-7 pe-lg-4" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="250px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle" style="display:block !important; margin-top: 0 !important; background-color: #f9f9f9; padding-top: 6rem; overflow: scroll;">
+
+                <!--begin::sidebar menu-->
+                <div class="app-sidebar-menu flex-column-fluid">
+                    <!--begin::Menu wrapper-->
+                    <div id="kt_app_sidebar_menu_wrapper" class="hover-scroll-overlay-y my-5" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_sidebar_logo, #kt_app_sidebar_footer" data-kt-scroll-wrappers="#kt_app_sidebar_menu" @* data-kt-scroll-offset="555px" *@>
+                        <!--begin::Menu-->
+                        <div class="menu menu-column menu-rounded menu-sub-indention fw-bold px-6">
+
+                            <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
+
+                               
+
+                                    @* SERVER CONFIG *@
+                                    <a asp-controller="SmtpConfig" asp-action="Index" class="menu-link">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <i class="ki-outline ki-setting-2 fs-2" style="margin-right:0.5rem; "> </i>
+                                        <span class="menu-title">SMTP Config</span>
+                                    </a>
+
+
+
+
+
+                                    @* USER DEFINITIONS *@
+                                    <a asp-controller="Users" asp-action="Index" class="menu-link">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <i class="ki-outline ki-user fs-2" style="margin-right:0.5rem;"> </i>
+                                        <span class="menu-title">Users</span>
+                                    </a>
+
+                                    @* ROLE ASSIGNMENTS *@
+                                    <a asp-controller="UserRoles" asp-action="Index" class="menu-link">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <i class="ki-outline ki-user-edit fs-2" style="margin-right:0.5rem;"> </i>
+                                        <span class="menu-title">User Roles</span>
+                                    </a>
+
+                                
+                            </div>
+
+
+                        </div>
+                        <!--end::Menu-->
+                    </div>
+                    <!--end::Menu wrapper-->
+                </div>
+                <!--end::sidebar menu-->
+                <!--begin::Footer-->
+                <!--end::Footer-->
+            </div>
+
