@@ -134,7 +134,7 @@ namespace QLiteDataApi.Controllers
 
                _communicationHubContext.Clients.Group("ALL_").SendAsync("NotifyTicketState", serializedTicketState),
                //To USB display Device
-               _communicationHubContext.Clients.Group("Display_" + KioskWithUsbDisplay.ToLower()).SendAsync("NotifyTicketState"),
+               _communicationHubContext.Clients.Group("Display_" + KioskWithUsbDisplay.ToLower()).SendAsync("NotifyTicketState", serializedTicketState),
                //To Digital Signage Kiosk
                _communicationHubContext.Clients.Group("Display_" + DisplayHwId.ToLower()).SendAsync("NotifyDisplayKiosk")
                       );
