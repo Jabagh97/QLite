@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims;
 @inject IAuthorizationService AuthorizationService
+@inject IConfiguration Configuration
 
 @{
     // Get the user's claims
@@ -34,7 +35,7 @@
     <link href="~/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
     <link href="~/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
     <link href="~/css/site.css" rel="stylesheet" type="text/css" />
-    
+
     <script src="~/JQuery/jquery-3.7.1.js"></script>
 
     <link href="~/lib/swal/sweetalert2.css" rel="stylesheet">
@@ -43,7 +44,7 @@
 
     <script src="~/lib/popper.min.js"></script>
 
-   
+
 </head>
 <!--end::Head-->
 <!--begin::Body-->
@@ -74,6 +75,10 @@
             {
                 <!--begin::Wrapper-->
                 <div class="app-wrapper  flex-column flex-row-fluid " id="kt_app_wrapper">
+
+                    <div id="connectionError" class="alert alert-danger mb-4" style="display: flex;     justify-content: center; align-items: center;  border: 2px solid black;" role="alert">
+                        Server is currently down. Please wait while we try to reconnect...
+                    </div>
                     @if (User != null && User.Identity != null && User.Identity.IsAuthenticated == true)
                     {
                         @await Html.PartialAsync("layout/partials/_sidebar")
@@ -82,7 +87,11 @@
                     <div class="app-main flex-column flex-row-fluid " id="kt_app_main">
                         <!--begin::Content wrapper-->
                         <div class="d-flex flex-column flex-column-fluid">
-                            @RenderBody()
+
+                            <div id="content">
+                                @RenderBody()
+                            </div>
+
                         </div>
                         <!--end::Content wrapper-->
                     @await Html.PartialAsync("layout/partials/_footer")
@@ -125,6 +134,14 @@
     <script src="~/js/ModelButtons.js"></script>
     <script src="~/js/highcharts.js"></script>
 
+
+    <script src="~/js/signalR.js"></script>
+    <script src="~/js/Logic.js"></script>
+    <script>
+        var apiUrl = '@Configuration["APIBase"]';
+        connectToHub("Admin", "Admin", apiUrl)
+
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

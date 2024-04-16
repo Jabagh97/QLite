@@ -476,7 +476,8 @@ namespace QLiteDataApi.Services
                     DisplayNo = d.DisplayNo,
                     CallingRuleDescription = t.CallingRuleDescription,
                     Macro = callTicketDto.MacroID,
-                    TicketCallType = (int?)(autocall ? TicketCallType.Autocall : callTicketDto.TicketID == Guid.Empty ? TicketCallType.Definitive : TicketCallType.Normal)
+                    TicketCallType = (int?)(autocall ? TicketCallType.Autocall : callTicketDto.TicketID == Guid.Empty ? TicketCallType.Definitive : TicketCallType.Normal),
+                    Note = t.TicketNote
                 };
 
                 if (autocall)
@@ -659,7 +660,8 @@ namespace QLiteDataApi.Services
                                     ServiceType = t.ServiceType,
                                     ServiceTypeName = t.ServiceTypeName,
                                     ServiceCode = tp.ServiceCode,
-                                    TicketPool = tp.Oid
+                                    TicketPool = tp.Oid,
+                                    TicketNote = t.TicketNote
                                 }).FirstOrDefaultAsync();
 
             return ticket;

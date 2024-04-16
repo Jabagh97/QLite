@@ -2034,6 +2034,9 @@ namespace QLiteDataApi.Migrations
                     b.Property<DateTime?>("ModifiedDateUtc")
                         .HasColumnType("datetime");
 
+                    b.Property<string>("Note")
+                        .HasColumnType("TEXT");
+
                     b.Property<int?>("OptimisticLockField")
                         .HasColumnType("INTEGER");
 

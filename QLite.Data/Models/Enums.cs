@@ -268,7 +268,8 @@ namespace QLite.Data.Models
             Display,
             MainDisplay,
             Kiosk,
-            User
+            User,
+            Admin
         }
 
         public enum SubStates

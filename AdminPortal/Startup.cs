@@ -1,4 +1,6 @@
 ﻿using AdminPortal.Helpers;
+using AdminPortal.SignalR;
+using Autofac.Core;
 using IdentityModel;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.StaticFiles;
@@ -145,9 +147,13 @@ namespace AdminPortal
 
             services.AddAuthorization(options =>
             {
-
             });
 
+            services.AddSignalR(hubOptions =>
+            {
+                hubOptions.EnableDetailedErrors = true;
+                hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(20);
+            });
             services.AddControllersWithViews();
 
             services.AddHttpClient<ApiService>();
@@ -212,6 +218,8 @@ namespace AdminPortal
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
+                endpoints.MapHub<AdminHub>("/adminHub");
+
             });
         }
     }

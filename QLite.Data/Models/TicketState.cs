@@ -57,6 +57,9 @@ public partial class TicketState
 
     public int? OptimisticLockField { get; set; }
 
+    public string? Note { get; set; }
+
+
     public int? Gcrecord { get; set; }
 
     public Guid? KioskAppId { get; set; }
@@ -81,8 +84,6 @@ public partial class TicketState
     [NotMapped]
     public Macro? MacroObject { get; set; }
 
-    [NotMapped]
-    public string? Note { get; set; }
 
     [NotMapped]
     public string DisplayNo { get; set; }

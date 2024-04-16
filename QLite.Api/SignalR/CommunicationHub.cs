@@ -60,6 +60,11 @@ namespace QLiteDataApi.SignalR
                 Groups.AddToGroupAsync(Context.ConnectionId, "ALL_");
                 Groups.AddToGroupAsync(Context.ConnectionId, clientId);
             }
+
+            else if (clientType == WebSocketClientType.Admin.ToString())
+            {
+                Groups.AddToGroupAsync(Context.ConnectionId, clientId);
+            }
         }
 
         public async Task SendMessageToDesk(string message)
