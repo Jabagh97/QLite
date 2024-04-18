@@ -1,4 +1,6 @@
 ﻿using IdentityServer4.Extensions;
+using KioskApp.HardwareManager.Display.Protocols;
+using KioskApp.HardwareManager.Display.Settings;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using QLite.Data.Dtos;
@@ -109,7 +111,7 @@ namespace QLite.KioskLibrary.Display
         private void SetDisplay()
         {
             DefaultProtocolEncoding = ASCIIEncoding.GetEncoding(28591);
-            Font = new ProtocolHFont(DisplayFontStyle.Thin, DisplayArrowStyle.Thin);
+            Font = new ProtocolHFont(FontWeightType.Thin, DisplayArrowStyle.Thin);
             MainDirection = DisplayArrowDirection.Right;
             SelfDirection = DisplayArrowDirection.Right;
             ServiceCodeIsShowing = true;
@@ -117,14 +119,6 @@ namespace QLite.KioskLibrary.Display
             DisplayType = DisplayFunction.CounterDisplay;
         }
 
-        //public bool ValidateSend(ApplicationData data)
-        //{
-        //    var qnumData = data.DataRecords[0].Data;
-        //    var qnumDataArr = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(qnumData);
-        //    if (((Newtonsoft.Json.Linq.JContainer)qnumDataArr).Count != 2 || string.IsNullOrEmpty(qnumDataArr.DisplayNo.Value) || string.IsNullOrEmpty(qnumDataArr.TicketNo.Value))
-        //        return false;
-        //    return true;
-        //}
 
         public void Send(QueNumData qnumDataObject)
         {

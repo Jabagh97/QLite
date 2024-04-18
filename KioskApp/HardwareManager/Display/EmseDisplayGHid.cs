@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using KioskApp.HardwareManager.Display.Settings;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using QLite.Data.Dtos;
 using QLite.Kio;

@@ -12,6 +12,8 @@ namespace Quavis.QorchLite.Hwlib.Hardware
 
         public event EventHandler<bool?> DeviceConnectionEvent;
 
+        public bool Initialized { get; protected set; }
+
         public bool? Connected = false; 
         public virtual string CurrentStateInfo => Connected == null ? "-" : (Connected.Value ? "Connected" : "Disconnected");
         public void OnDeviceConnectionEvent(bool? connected)

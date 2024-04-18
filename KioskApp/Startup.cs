@@ -13,6 +13,8 @@ using QLite.Data;
 using KioskApp.Services;
 using QLite.KioskLibrary.Display;
 using QLite.KioskLibrary.Hardware;
+using KioskApp.HardwareManager.Display;
+using KioskApp.HardwareManager.Hardware;
 
 namespace KioskApp
 {
@@ -77,7 +79,10 @@ namespace KioskApp
 
             builder.RegisterType<EmseDisplayGHid>().Named<IDisplay>("sgm").SingleInstance();
             builder.RegisterType<EmseDisplayHDot>().Named<IDisplay>("dot").SingleInstance();
+            builder.RegisterType<EmseDisplayEthernet>().Named<IDisplay>("eth").SingleInstance();
+
             builder.RegisterType<EmseUsbQueNumDevice>().AsSelf().SingleInstance();
+            builder.RegisterType<NetworkDevice>().AsSelf().SingleInstance();
 
 
             builder.RegisterType<TimerUtil>().AsSelf().SingleInstance();

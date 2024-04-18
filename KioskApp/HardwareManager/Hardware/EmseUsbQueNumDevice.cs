@@ -88,8 +88,6 @@ namespace QLite.KioskLibrary.Hardware
                     {
                         var outputBuffer = new List<byte>();
                         outputBuffer.Add(Convert.ToByte(2));
-                        //outputBuffer.Add(Convert.ToByte(data.Length));
-                        //outputBuffer.AddRange(data);
                         int length = data.Length / (i * packetSize) > 0 ? packetSize : data.Length % packetSize;
                         outputBuffer.Add(Convert.ToByte(length));
                         for (int j = 0; j < length; j++)
@@ -101,8 +99,6 @@ namespace QLite.KioskLibrary.Hardware
                         Thread.Sleep(2 * outputBuffer.Count + 10);
 
                     }
-
-                    //LoggerAdapter.Debug($"{data.Length} writing DONE: {DateTime.Now.ToString("HH:mm:ss:ffff")}");
 
                     return true;
                 }
@@ -172,7 +168,6 @@ namespace QLite.KioskLibrary.Hardware
                 }
                 catch (Exception ex)
                 {
-                    //throw new RealDeviceException("error while writing to USB", "EmseUsbQNumDevice-" + DeviceSearchStr, ex);
                     Log.Warning("error while writing to USB EmseUsbQNumDevice-" + DeviceSearchStr + ex.Message);
                 }
                 return result.ToArray();

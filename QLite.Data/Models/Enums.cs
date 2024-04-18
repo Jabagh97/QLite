@@ -10,6 +10,7 @@ namespace QLite.Data.Models
     public class Enums
     {
 
+       
         public enum KioskType
         {
             Kiosk,
