@@ -226,7 +226,7 @@ namespace KioskApp.HardwareManager.Display
                 DisplayTicket(terminal.DisplayNo, qnumDataObject.TicketNo, terminal.RowId, (DisplayArrowDirection)terminal.Direction, terminal.Settings);
 
                 // Ana ekranda göster?
-                if (qnumDataObject.SendToMain)
+                if (qnumDataObject.SendToMain && _settings.MainDisplays != null)
                 {
                     // mainDisplays: Tanımlı ana ekran(lar)
                     foreach (var main in _settings.MainDisplays)

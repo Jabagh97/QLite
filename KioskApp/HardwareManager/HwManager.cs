@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using HidSharp;
 using HidSharp.Utility;
+using KioskApp.HardwareManager.Hardware;
 using QLite.Data.CommonContext;
 using QLite.Data.Dtos;
 using QLite.Kio;
@@ -222,7 +223,29 @@ namespace Quavis.QorchLite.Hwlib
                 {
                     device.OnDeviceConnectionEvent(hids.Any(x => device.PID == x.ProductID && device.VID == x.VendorID));
                 }
+                else if(device is NetworkDevice) 
+                {
+                    StartConnectionCheck();
+                }
             }
         }
+
+
+        public Timer ConnectionCheckTimer;
+
+        public void StartConnectionCheck()
+        {
+            ConnectionCheckTimer = new Timer(CheckNetworkDeviceStatus, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+        }
+
+        private void CheckNetworkDeviceStatus(object state)
+        {
+            foreach (var device in RealDevices.OfType<NetworkDevice>())
+            {
+                bool isConnected = device.CheckConnection();
+                device.OnDeviceConnectionEvent(isConnected);
+            }
+        }
+
     }
 }
