@@ -111,7 +111,7 @@ namespace QLite.KioskLibrary.Display
         private void SetDisplay()
         {
             DefaultProtocolEncoding = ASCIIEncoding.GetEncoding(28591);
-            Font = new ProtocolHFont(FontWeightType.Thin, DisplayArrowStyle.Thin);
+            Font = new ProtocolHFont(DisplayFontStyle.Thin, DisplayArrowStyle.Thin);
             MainDirection = DisplayArrowDirection.Right;
             SelfDirection = DisplayArrowDirection.Right;
             ServiceCodeIsShowing = true;

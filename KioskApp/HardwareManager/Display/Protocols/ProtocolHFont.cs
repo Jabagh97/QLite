@@ -22,11 +22,7 @@ namespace KioskApp.HardwareManager.Display.Protocols
         Up = 4,
         NoArrow = 5
     }
-    public enum FontWeightType
-    {
-        Bold = 1,
-        Thin = 4
-    }
+   
 
     public enum DisplayArrowStyle
     {
@@ -65,18 +61,18 @@ namespace KioskApp.HardwareManager.Display.Protocols
 
         public int[] FullSetArrowWidth { get; }
 
-        public ProtocolHFont(FontWeightType SelectedStyle, DisplayArrowStyle SelectedArrowSet)
+        public ProtocolHFont(DisplayFontStyle SelectedStyle, DisplayArrowStyle SelectedArrowSet)
         {
 
             switch (SelectedStyle)
             {
-                case FontWeightType.Bold:
+                case DisplayFontStyle.Bold:
 
                     TicketNoDigitWidth = new SortedList<char, int>(24)
                     {
                         {'0',7},{'1',6},{'2',7},{'3',7},{'4',7},{'5',7},{'6',7},{'7',7},{'8',7},{'9',7},
-                        {'A',7},{'B',7},{'C',7},{'D',7},{'E',7},{'F',7},{'G',7},{'H',7},{'I',7},{'J',7},{'L',7},{'M',7},{'N',7},
-                        {'P',7},{'O',7},{'R',7},{'S',7},{'U',7},{'Y',7}
+                        {'A',7},{'B',7},{'C',7},{'D',7},{'E',7},{'F',7},{'H',7},{'J',7},{'L',7},{'N',7},
+                        {'P',7},{'R',7},{'U',7},{'Y',7}
                     };
 
                     TerminalNoDigitWidth = new int[10] { 5, 3, 5, 5, 5, 5, 5, 5, 5, 5 };
@@ -85,7 +81,7 @@ namespace KioskApp.HardwareManager.Display.Protocols
 
                     break;
 
-                case FontWeightType.Thin:
+                case DisplayFontStyle.Thin:
 
                     TicketNoDigitWidth = new SortedList<char, int>(24)
                     {
@@ -111,7 +107,6 @@ namespace KioskApp.HardwareManager.Display.Protocols
                     {
                         TicketNoDigitWidth.Add(item.Key, item.Value);
                     }
-
 
                     TerminalNoDigitWidth = new int[10] { 4, 3, 4, 4, 4, 4, 4, 4, 4, 4 };
 

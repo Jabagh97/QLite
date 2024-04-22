@@ -7,6 +7,7 @@ using QLite.KioskLibrary.Hardware;
 using Quavis.QorchLite.Hwlib.Display;
 using Quavis.QorchLite.Hwlib.Hardware;
 using Serilog;
+using System.Drawing;
 using System.Xml.Linq;
 using static QLite.Data.Models.Enums;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -18,7 +19,7 @@ namespace KioskApp.HardwareManager.Display
         private readonly IProtocolEthernet _protocol;
         private IReadOnlyList<VCTerminalDisplay> _displays;
         private VCDisplaySettingsNetwork _settings = new();
-
+        public Type SettingsType => typeof(VCDisplaySettingsNetwork);
         private readonly Dictionary<string, (string ticket, int rowId)[]> _lastDisplayedTickets = new();
         private readonly Dictionary<byte, (int slotNo, NetworkDevice device)> _networkDevices = new();
 
@@ -33,7 +34,6 @@ namespace KioskApp.HardwareManager.Display
 
         RealDeviceBase IDisplay.Device => Device;
 
-        public Type SettingsType => typeof(VCDisplaySettingsNetwork);
 
         public EmseDisplayEthernet(NetworkDevice dev)
         {
@@ -58,6 +58,8 @@ namespace KioskApp.HardwareManager.Display
         {
             _settings = settings as VCDisplaySettingsNetwork;
 
+            ConfigVCForAddionalSettings();
+
             if (Device.Initialize(_settings.RealDeviceSettings.First()))
             {
                 Log.Debug($"NetWork Device initialized");
@@ -65,11 +67,75 @@ namespace KioskApp.HardwareManager.Display
                 await ResetDispalysAsync();
                 await DiscoverDisplaysAsync();
                 await ApplySettingsAsync();
+
+                Device.DeviceConnectionEvent += Device_DeviceConnectionEvent;
+
             }
-
-
-          
         }
+
+        private void Device_DeviceConnectionEvent(object sender, bool? e)
+        {
+        }
+        protected void ConfigVCForAddionalSettings()
+        {
+            var displays = new List<VCTerminalDisplay>();
+
+            foreach (var main in _settings.MainDisplays ?? Enumerable.Empty<VCMainDisplay>())
+            {
+                main.Terminals.ForEach(x => { x.RowId = x.RowId; x.DisplayNo += ProtocolHDot.BaseTerminalID; });
+                foreach (var row in main.RowIds)
+                {
+                    main.Settings ??= new VCTerminalSettings();
+                    main.Settings.BreakMessage = row.BreakMessage;
+
+                    displays.Add(new VCTerminalDisplay
+                    {
+                        IsMain = true,
+                        RowId = row.RowId,
+                        DisplayNo = (byte)(row.RowId + ProtocolHDot.BaseMainID), // TODO: overflow durumu?
+                        Direction = (int)DisplayArrowDirection.NoArrow,
+                        Settings = GetValueOrDefault(main.Settings),
+                    });
+                }
+
+                var ticketNumbers = new (string, int)[main.RowIds.Count];
+                if (!_lastDisplayedTickets.TryAdd(main.Name, ticketNumbers))
+                {
+                    throw new Exception("MainDisplay names mustbe unique");
+                }
+            }
+            _settings.Terminals?.ForEach(x =>
+            {
+                var settings = GetValueOrDefault(x.Settings);
+                byte displayNo = (byte)(x.RowId + ProtocolHDot.BaseTerminalID); // TODO: overflow durumu?
+                x.DisplayNo = displayNo;
+                x.Settings = settings;
+                displays.Add(x);
+            });
+
+            _displays = displays;
+        }
+
+        private VCTerminalSettings GetValueOrDefault(VCTerminalSettings settings) => new()
+        {
+            DotHeight = settings?.DotHeight ?? _settings.DefaultSettings?.DotHeight ?? 0,
+            DotWidth = settings?.DotWidth ?? _settings.DefaultSettings?.DotWidth ?? 0,
+            ArabicDelayTime = settings?.ArabicDelayTime ?? _settings.DefaultSettings?.ArabicDelayTime ?? 0,
+            DimmingTime = settings?.DimmingTime ?? _settings.DefaultSettings?.DimmingTime ?? 0,
+            FlashingCount = settings?.FlashingCount ?? _settings.DefaultSettings?.FlashingCount ?? 0,
+            MessageIdleTime = settings?.MessageIdleTime ?? _settings.DefaultSettings?.MessageIdleTime ?? 0,
+            BreakMessage = !System.String.IsNullOrEmpty(settings?.BreakMessage) ? settings?.BreakMessage : _settings.DefaultSettings?.BreakMessage,
+            BreakMessageArabic = !System.String.IsNullOrEmpty(settings?.BreakMessageArabic) ? settings?.BreakMessageArabic : _settings.DefaultSettings?.BreakMessageArabic,
+            Font = new VCTerminalSettingsFont
+            {
+                FontName = !System.String.IsNullOrEmpty(settings?.Font?.FontName) ? settings?.Font?.FontName : _settings.DefaultSettings?.Font?.FontName,
+                FontSize = settings?.Font?.FontSize ?? _settings.DefaultSettings?.Font?.FontSize ?? 0,
+                FontStyle = settings?.Font?.FontStyle ?? _settings.DefaultSettings?.Font?.FontStyle ?? FontStyle.Regular,
+                FontWeight = settings?.Font?.FontWeight ?? _settings.DefaultSettings?.Font?.FontWeight ?? FontWeightType.Thin,
+                BitmapContrast = settings?.Font?.BitmapContrast ?? _settings.DefaultSettings?.Font?.BitmapContrast ?? 0,
+                BitmapStrech = settings?.Font?.BitmapStrech ?? _settings.DefaultSettings?.Font?.BitmapStrech ?? false,
+            },
+        };
 
         private async Task ResetDispalysAsync()
         {
@@ -80,7 +146,7 @@ namespace KioskApp.HardwareManager.Display
                 {
                     DisplayResetMessage(
                         rowId + ProtocolEthernet.BaseTerminalID,
-                        "EMSE",
+                        "Emse",
                         rowId,
                         (DisplayArrowDirection)5,
                         _settings.Terminals[rowId - 1].Settings,
@@ -256,11 +322,11 @@ namespace KioskApp.HardwareManager.Display
 
         private bool DisplayTicket(int displayNo, string ticketNo, int ticketDisplayNo, DisplayArrowDirection direction, VCTerminalSettings settings)
         {
-            //var (slotNo, device) = _networkDevices[(byte)displayNo];
+            var (slotNo, device) = _networkDevices[(byte)displayNo];
 
             var ticket = new TicketInfo
             {
-                SlotNumber = 0,
+                SlotNumber = slotNo,
                 DisplayNo = displayNo,
                 Direction = direction,
                 TicketNumber = ticketNo,
@@ -270,8 +336,7 @@ namespace KioskApp.HardwareManager.Display
 
             var buffer = _protocol.ProduceTicketMessage(ticket);
 
-            return Device.Write(buffer);
-
+            return device.Write(buffer);
         }
 
         private (string Ticket, int RowId)[] ShiftTicketNumbers(string mainDisplayName, string ticketNo, int rowId)

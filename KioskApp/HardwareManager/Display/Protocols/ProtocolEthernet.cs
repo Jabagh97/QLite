@@ -28,7 +28,12 @@ namespace KioskApp.HardwareManager.Display.Protocols
 
         public static byte BaseMainID { get; } = 159;
 
-       
+        //private DisplayFunction DisplayType { get; set; } = DisplayFunction.CounterDisplay;
+        //private DisplayArrowDirection CurrentDirection => DisplayType == DisplayFunction.CounterDisplay ? SelfDirection : MainDirection;
+        //private DisplayArrowDirection MainDirection { get; set; }
+        //private DisplayArrowDirection SelfDirection { get; set; }
+        //private int CurrentDotWidth { get; set; }
+        //private int CurrentDotHeight { get; set; }
 
         private const byte MARQUE_DIRECTION_RIGHT_TO_LEFT = 105;
         private const byte MARQUE_DIRECTION_LEFT_TO_RIGHT = 112;
@@ -461,7 +466,8 @@ namespace KioskApp.HardwareManager.Display.Protocols
                 DisableServiceCode = 0;
             }
 
-           
+            ////Ek font tanımlamaları geldikten sonra 255 üzeri byteları düzgün okumak için eklendi
+            //char[] TicketNoCharArray = _defaultProtocolEncoding.GetChars(TicketNoDigits);
 
             for (int i = DisableServiceCode; i < TicketNoLength; i++)
             {
@@ -471,7 +477,11 @@ namespace KioskApp.HardwareManager.Display.Protocols
 
                 Point = Point + font.TicketNoDigitWidth[Convert.ToChar(TicketNoDigits[i])];
 
-               
+                ////Ek font tanımlamaları geldikten sonra 255 üzeri byteları düzgün okumak için eklendi
+                //if (Font.TicketNoDigitWidth.ContainsKey(TicketNoCharArray[i]))
+                //{
+                //    Point = Point + Font.TicketNoDigitWidth[TicketNoCharArray[i]];
+                //}
 
                 if (TicketNoLength == 4 && i == 0 && ServiceCodeIsShowing)
                 {
@@ -512,13 +522,22 @@ namespace KioskApp.HardwareManager.Display.Protocols
         }
         private static ProtocolHFont GetFont(VCTerminalSettings settings)
         {
-            var displayFontStyle = settings.Font.FontWeight == FontWeightType.Bold ? FontWeightType.Bold : FontWeightType.Thin;
+            var displayFontStyle = settings.Font.FontWeight == FontWeightType.Bold ? DisplayFontStyle.Bold : DisplayFontStyle.Thin;
             var displayArrowStyle = settings.Font.FontWeight == FontWeightType.Bold ? DisplayArrowStyle.Bold : DisplayArrowStyle.Thin;
             var Font = new ProtocolHFont(displayFontStyle, displayArrowStyle);
             return Font;
         }
     }
-
+    public enum FontWeightType
+    {
+        Bold,
+        Thin
+    }
+    public enum DisplayFontStyle
+    {
+        Bold = 1,
+        Thin = 4
+    }
     public interface IProtocolEthernet
     {
         /// <summary>
