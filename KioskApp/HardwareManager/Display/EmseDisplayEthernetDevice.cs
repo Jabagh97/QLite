@@ -75,6 +75,7 @@ namespace KioskApp.HardwareManager.Display
 
         private void Device_DeviceConnectionEvent(object sender, bool? e)
         {
+            //TODO: Handle reconncetion
         }
         protected void ConfigVCForAddionalSettings()
         {
